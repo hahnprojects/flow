@@ -1,0 +1,123 @@
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import queryString from 'querystring';
+
+export class HttpClient {
+  private axiosInstance: AxiosInstance;
+  private accessToken: string;
+  private accessTokenExpiration: number = 0;
+
+  constructor(apiPath: string, private readonly realm: string, private readonly client: string, private readonly secret: string) {
+    this.axiosInstance = axios.create({
+      baseURL: apiPath,
+      timeout: 5000,
+    });
+  }
+
+  public delete<T>(url: string, config: AxiosRequestConfig = {}) {
+    return new Promise<T>(async (resolve, reject) => {
+      this.addAuthHeader(config)
+        .then((conf: AxiosRequestConfig) => {
+          this.axiosInstance
+            .delete(url, conf)
+            .then((response) => resolve(response.data))
+            .catch((err) => reject(err));
+        })
+        .catch((err) => reject(err));
+    });
+  }
+
+  public get<T>(url: string, config?: AxiosRequestConfig) {
+    return new Promise<T>(async (resolve, reject) => {
+      this.addAuthHeader(config)
+        .then((conf: AxiosRequestConfig) => {
+          this.axiosInstance
+            .get(url, conf)
+            .then((response) => resolve(response.data))
+            .catch((err) => reject(err));
+        })
+        .catch((err) => reject(err));
+    });
+  }
+
+  public post<T>(url: string, data?: any, config?: AxiosRequestConfig) {
+    return new Promise<T>(async (resolve, reject) => {
+      this.addAuthHeader(config)
+        .then((conf: AxiosRequestConfig) => {
+          this.axiosInstance
+            .post(url, data, conf)
+            .then((response) => resolve(response.data))
+            .catch((err) => reject(err));
+        })
+        .catch((err) => reject(err));
+    });
+  }
+
+  public put<T>(url: string, data?: any, config?: AxiosRequestConfig) {
+    return new Promise<T>(async (resolve, reject) => {
+      this.addAuthHeader(config)
+        .then((conf: AxiosRequestConfig) => {
+          this.axiosInstance
+            .put(url, data, conf)
+            .then((response) => resolve(response.data))
+            .catch((err) => reject(err));
+        })
+        .catch((err) => reject(err));
+    });
+  }
+
+  private async addAuthHeader(config: AxiosRequestConfig = {}): Promise<AxiosRequestConfig> {
+    return new Promise((resolve, reject) => {
+      this.getAccessToken()
+        .then((token) => {
+          config.headers = config.headers || {};
+          config.headers.Authorization = `Bearer ${token}`;
+          resolve(config);
+        })
+        .catch((err) => reject(err));
+    });
+  }
+
+  private getAccessToken = () => {
+    return new Promise((resolve, reject) => {
+      if (this.isTokenValid()) {
+        resolve(this.accessToken);
+      } else {
+        this.getToken()
+          .then((t) => resolve(t))
+          .catch((e) => reject(e));
+      }
+    });
+  };
+
+  private getToken = async (): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const params = {
+        grant_type: 'client_credentials',
+        client_id: this.client,
+        client_secret: this.secret,
+      };
+      const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+      this.axiosInstance
+        .post(`/auth/realms/${this.realm}/protocol/openid-connect/token`, queryString.stringify(params), { headers })
+        .then((res) => {
+          if (res && res.data && res.data.access_token && res.data.expires_in) {
+            this.accessToken = res.data.access_token;
+            this.accessTokenExpiration = new Date().valueOf() + res.data.expires_in;
+            resolve(res.data.access_token);
+          } else {
+            reject();
+          }
+        })
+        .catch((err) => reject(err));
+    });
+  };
+
+  private isTokenValid(): boolean {
+    if (this.accessToken && this.accessTokenExpiration) {
+      const now = new Date().valueOf();
+      const buffer = 5000; // 5 seconds
+      return now + buffer < this.accessTokenExpiration;
+    }
+    return false;
+  }
+}

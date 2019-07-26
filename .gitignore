@@ -1,0 +1,17 @@
+.idea/
+.settings/
+
+coverage/
+lib/
+node_modules/
+
+*.log
+
+.DS_Store
+Thumbs.db
+
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+
+__pycache__

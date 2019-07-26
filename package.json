@@ -1,0 +1,57 @@
+{
+  "name": "@hahnpro/flow-sdk",
+  "version": "1.1.2",
+  "description": "SDK for building Flow Modules",
+  "license": "MIT",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "author": {
+    "name": "Hahn Projects GmbH",
+    "url": "https://hahnpro.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.com:hahnpro/flow-sdk.git"
+  },
+  "files": [
+    "lib/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "format": "prettier --write **/*.ts",
+    "lint": "tslint -p .",
+    "test": "yarn jest",
+    "prepare": "yarn build",
+    "prepublishOnly": "yarn lint",
+    "preversion": "yarn lint"
+  },
+  "dependencies": {
+    "amqplib": "^0.5.3",
+    "axios": "^0.19.0",
+    "json-query": "^2.2.2",
+    "nanobus": "^4.4.0",
+    "python-shell": "^1.0.7",
+    "querystring": "^0.2.0",
+    "tslib": "^1.10.0",
+    "xml2js": "^0.4.19",
+    "zlib": "^1.0.5"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.5.13",
+    "@types/jest": "^24.0.15",
+    "@types/json-query": "^2.2.0",
+    "@types/node": "^12.6.8",
+    "@types/python-shell": "^0.4.2",
+    "@types/xml2js": "^0.4.4",
+    "jest": "^24.8.0",
+    "prettier": "^1.18.2",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.18.0",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.5.3"
+  },
+  "engines": {
+    "node": ">=12"
+  }
+}
