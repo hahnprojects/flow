@@ -1,0 +1,49 @@
+{
+  "name": "@hahnpro/flow-cli",
+  "version": "1.1.1",
+  "description": "CLI for managing Flow Modules",
+  "license": "MIT",
+  "author": {
+    "name": "Hahn Projects GmbH",
+    "url": "https://hahnpro.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.com:hahnpro/flow-cli.git"
+  },
+  "bin": {
+    "flow": "./cli.js"
+  },
+  "scripts": {},
+  "dependencies": {
+    "@types/jest": "^24.0.15",
+    "@types/node": "^12.6.8",
+    "@types/supertest": "^2.0.8",
+    "adm-zip": "^0.4.13",
+    "chalk": "^2.4.2",
+    "commander": "^2.20.0",
+    "copyfiles": "^2.1.1",
+    "dotenv": "^8.0.0",
+    "execa": "^1.0.0",
+    "jest": "^24.8.0",
+    "latest-semver": "^2.0.0",
+    "nodemon": "^1.19.0",
+    "ora": "^3.4.0",
+    "prettier": "^1.18.2",
+    "read-pkg": "^5.2.0",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7",
+    "rimraf": "^2.6.3",
+    "supertest": "^4.0.2",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.18.0",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.5.3",
+    "write-pkg": "^4.0.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=12"
+  }
+}
