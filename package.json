@@ -24,7 +24,7 @@
     "commander": "^2.20.0",
     "copyfiles": "^2.1.1",
     "dotenv": "^8.0.0",
-    "execa": "^1.0.0",
+    "execa": "^2.0.3",
     "jest": "^24.8.0",
     "latest-semver": "^2.0.0",
     "nodemon": "^1.19.0",
