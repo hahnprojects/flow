@@ -12,7 +12,7 @@ export class HPC {
     const apiPath = process.env.API_BASE_URL;
     const realm = process.env.API_REALM;
     const client = process.env.API_USER || 'flow-executor-service';
-    const secret = process.env.API_SECRET;
+    const secret = process.env.AUTH_SECRET;
     const httpClient = new HttpClient(apiPath, realm, client, secret);
     this.assetManager = new AssetService(httpClient);
     this.contentManager = new ContentService(httpClient);
