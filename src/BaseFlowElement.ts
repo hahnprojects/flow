@@ -16,12 +16,21 @@ export interface Logger {
   warn: (message) => void;
 }
 
+/* tslint:disable:no-console */
+const defaultLogger: Logger = {
+  debug: (msg) => console.log(msg),
+  error: (msg) => console.error(msg),
+  log: (msg) => console.log(msg),
+  warn: (msg) => console.warn(msg),
+};
+/* tslint:enable:no-console */
+
 export class BaseFlowElement {
   private inputStreams: { [id: string]: (data: DataSet) => void } = {};
   private outputStreams: { [id: string]: () => DataSet } = {};
   private outputStreamListener: { [id: string]: Array<(data: DataSet) => void> } = {};
 
-  constructor(protected readonly args: BaseArguments, protected readonly logger: Logger) {
+  constructor(protected readonly args: BaseArguments, protected readonly logger: Logger = defaultLogger) {
     const streamId = 'default';
     this.setInputStream(streamId, this.onInputDefaultStream);
     this.outputStreams[streamId] = this.onOutputDefaultStream;
@@ -70,17 +79,5 @@ export class BaseFlowElement {
     } else {
       this.logger.error('unkown output stream');
     }
-  }
-
-  protected toArray(arg: string | string[]): string[] {
-    if (arg instanceof Array) {
-      return arg;
-    } else {
-      return [arg];
-    }
-  }
-
-  protected delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

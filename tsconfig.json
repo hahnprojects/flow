@@ -16,5 +16,5 @@
     "target": "es2017",
     "typeRoots": ["node_modules/@types"]
   },
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "exclude": ["lib", "node_modules", "**/*.spec.ts"]
 }

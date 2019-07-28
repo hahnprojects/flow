@@ -1,22 +1,26 @@
-import { BaseService, Paginated } from './base.service';
+import { DataService, RequestParameter } from './data.service';
 import { HttpClient } from './http.service';
-import { TimeSeries } from './timeseries.interface';
+import { TimeSeries, TimeSeriesValue } from './timeseries.interface';
 
-export class TimeSeriesService extends BaseService<TimeSeries> {
+export class TimeSeriesService extends DataService<TimeSeries> {
   constructor(httpClient: HttpClient) {
     super(httpClient, 'api/tsm');
   }
 
-  getAllTimeSeries(): Promise<Paginated<TimeSeries[]>> {
-    return this.httpClient.get<Paginated<TimeSeries[]>>(this.basePath);
+  addValue(id: string, value: any) {
+    return this.httpClient.post<void>(`${this.basePath}/${id}`, value);
   }
 
-  createOne(timeSeries: TimeSeries): Promise<TimeSeries> {
-    return this.httpClient.post<TimeSeries>(this.basePath, timeSeries);
+  getValues(id: string, from: number, limit?: number) {
+    const params = limit ? { limit } : {};
+    return this.httpClient.get<TimeSeriesValue[]>(`${this.basePath}/${id}/${from}`, { params });
   }
 
-  getManyByAsset(asset: string, options: any = {}) {
-    const params = options.populate ? { populate: options.populate } : {};
-    return this.httpClient.get<TimeSeries[]>(`${this.basePath}/asset/${asset}`, { params });
+  getValuesOfPeriod(id: string, from: number, to: number) {
+    return this.httpClient.get<TimeSeriesValue[]>(`${this.basePath}/${id}/${from}/${to}`);
+  }
+
+  getManyByAsset(assetId: string, options: RequestParameter = {}) {
+    return this.getMany(options, `asset/${assetId}`);
   }
 }

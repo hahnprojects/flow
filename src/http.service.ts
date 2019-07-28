@@ -9,7 +9,7 @@ export class HttpClient {
   constructor(apiPath: string, private readonly realm: string, private readonly client: string, private readonly secret: string) {
     this.axiosInstance = axios.create({
       baseURL: apiPath,
-      timeout: 5000,
+      timeout: 10000,
     });
   }
 
@@ -102,10 +102,10 @@ export class HttpClient {
         .then((res) => {
           if (res && res.data && res.data.access_token && res.data.expires_in) {
             this.accessToken = res.data.access_token;
-            this.accessTokenExpiration = new Date().valueOf() + res.data.expires_in;
+            this.accessTokenExpiration = Date.now() + res.data.expires_in;
             resolve(res.data.access_token);
           } else {
-            reject();
+            reject(new Error('Invalid format for access token received'));
           }
         })
         .catch((err) => reject(err));
@@ -114,9 +114,8 @@ export class HttpClient {
 
   private isTokenValid(): boolean {
     if (this.accessToken && this.accessTokenExpiration) {
-      const now = new Date().valueOf();
       const buffer = 5000; // 5 seconds
-      return now + buffer < this.accessTokenExpiration;
+      return Date.now() + buffer < this.accessTokenExpiration;
     }
     return false;
   }
