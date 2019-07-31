@@ -10,11 +10,11 @@ export class HPC {
 
   constructor() {
     const apiPath = process.env.API_BASE_URL || 'https://testing.hahnpro.com';
-    const realm = process.env.API_REALM || 'hpc';
     const client = process.env.API_USER || 'flow-executor-service';
+    const realm = process.env.AUTH_REALM || 'hpc';
     const secret = process.env.AUTH_SECRET;
     if (!secret) {
-      throw new Error('"API_BASE_URL", "API_REALM", "API_USER" and "AUTH_SECRET" environment variables must be set');
+      throw new Error('"API_BASE_URL", "API_USER", "AUTH_REALM" and "AUTH_SECRET" environment variables must be set');
     }
 
     const httpClient = new HttpClient(apiPath, realm, client, secret);
