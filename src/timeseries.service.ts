@@ -1,4 +1,4 @@
-import { DataService, RequestParameter } from './data.service';
+import { DataService } from './data.service';
 import { HttpClient } from './http.service';
 import { TimeSeries, TimeSeriesValue } from './timeseries.interface';
 
@@ -7,20 +7,20 @@ export class TimeSeriesService extends DataService<TimeSeries> {
     super(httpClient, 'api/tsm');
   }
 
-  addValue(id: string, value: any) {
+  public addValue(id: string, value: { [values: string]: any }) {
     return this.httpClient.post<void>(`${this.basePath}/${id}`, value);
   }
 
-  getValues(id: string, from: number, limit?: number) {
+  public getValues(id: string, from: number, limit?: number) {
     const params = limit ? { limit } : {};
     return this.httpClient.get<TimeSeriesValue[]>(`${this.basePath}/${id}/${from}`, { params });
   }
 
-  getValuesOfPeriod(id: string, from: number, to: number) {
+  public getValuesOfPeriod(id: string, from: number, to: number) {
     return this.httpClient.get<TimeSeriesValue[]>(`${this.basePath}/${id}/${from}/${to}`);
   }
 
-  getManyByAsset(assetId: string, options: RequestParameter = {}) {
-    return this.getMany(options, `asset/${assetId}`);
+  public getManyByAsset(assetId: string): Promise<TimeSeries[]> {
+    return this.httpClient.get<TimeSeries[]>(`${this.basePath}/asset/${assetId}`);
   }
 }

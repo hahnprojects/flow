@@ -31,9 +31,8 @@ export class BaseFlowElement {
   private outputStreamListener: { [id: string]: Array<(data: DataSet) => void> } = {};
 
   constructor(protected readonly args: BaseArguments, protected readonly logger: Logger = defaultLogger) {
-    const streamId = 'default';
-    this.setInputStream(streamId, this.onInputDefaultStream);
-    this.outputStreams[streamId] = this.onOutputDefaultStream;
+    this.setInputStream('default', (data: DataSet) => this.onInputDefaultStream(data));
+    this.setOutputStream('default', () => this.onOutputDefaultStream());
   }
 
   public emitInputStream(id: string, data: DataSet) {
@@ -60,7 +59,7 @@ export class BaseFlowElement {
   }
 
   public onInputDefaultStream(data: DataSet) {
-    this.logger.log(`defaultInput: ${data}`);
+    this.logger.log(data);
   }
 
   public onOutputDefaultStream(): DataSet {
@@ -70,14 +69,18 @@ export class BaseFlowElement {
     };
   }
 
-  protected fireOutputStream(streamName: string) {
+  protected fireOutputStream(streamName: string = 'default') {
     if (this.outputStreamListener[streamName]) {
       const stream = this.outputStreams[streamName];
-      this.outputStreamListener[streamName].forEach((fire) => {
-        fire(stream());
+      this.outputStreamListener[streamName].forEach((listener) => {
+        listener(stream());
       });
-    } else {
-      this.logger.error('unkown output stream');
+    }
+  }
+
+  protected fireOutput(data: DataSet, streamName: string = 'default') {
+    if (this.outputStreamListener[streamName]) {
+      this.outputStreamListener[streamName].forEach((listener) => listener(data));
     }
   }
 }
