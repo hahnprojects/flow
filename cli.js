@@ -400,7 +400,7 @@ function getProcessArguments(cmd, project) {
     case CMD.BUILD:
       return ['-p', project.location];
     case CMD.COPY:
-      return ['-u', '1', `${projectsRoot}/**/*.py`, `${buildDir}/`];
+      return ['-u', '1', `${projectsRoot}/**/*.py`, `${projectsRoot}/**/*.csv`, `${buildDir}/`];
     case CMD.FORMAT:
       return ['--write', '**/*.ts'];
     case CMD.LINT:
