@@ -1,6 +1,6 @@
 {
   "name": "@hahnpro/flow-sdk",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "SDK for building Flow Modules",
   "license": "MIT",
   "main": "./lib/index.js",
@@ -40,7 +40,7 @@
     "@types/amqplib": "^0.5.13",
     "@types/jest": "^24.0.16",
     "@types/json-query": "^2.2.0",
-    "@types/node": "^12.6.8",
+    "@types/node": "^12.6.9",
     "@types/python-shell": "^0.4.2",
     "@types/xml2js": "^0.4.4",
     "jest": "^24.8.0",
