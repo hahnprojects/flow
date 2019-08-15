@@ -1,4 +1,4 @@
-import { HPC } from '../src/hpc';
+import { HPC } from './hpc';
 
 /* tslint:disable:no-console */
 describe('Flow SDK test', () => {
