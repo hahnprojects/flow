@@ -1,11 +1,13 @@
 import { AssetService } from './asset.service';
 import { ContentService } from './content.service';
 import { HttpClient } from './http.service';
+import { SecretService } from './secret.service';
 import { TimeSeriesService } from './timeseries.service';
 
 export class HPC {
   public assetManager: AssetService;
   public contentManager: ContentService;
+  public secretsManager: SecretService;
   public timeSeriesManager: TimeSeriesService;
 
   constructor() {
@@ -20,6 +22,7 @@ export class HPC {
     const httpClient = new HttpClient(apiPath, realm, client, secret);
     this.assetManager = new AssetService(httpClient);
     this.contentManager = new ContentService(httpClient);
+    this.secretsManager = new SecretService(httpClient);
     this.timeSeriesManager = new TimeSeriesService(httpClient);
   }
 }

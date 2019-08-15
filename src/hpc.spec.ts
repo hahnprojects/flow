@@ -39,6 +39,21 @@ describe('Flow SDK test', () => {
     done();
   });
 
+  test('secrets', async (done) => {
+    const secrets = await hpc.secretsManager.getMany().catch((err) => console.error(err.response.data));
+    expect(secrets).toBeDefined();
+
+    if (secrets) {
+      expect(Array.isArray(secrets.docs)).toBe(true);
+      expect(secrets.docs.length).toBeGreaterThan(0);
+      const secretId = secrets.docs[0].id;
+      const secret = await hpc.secretsManager.getOne(secretId).catch((err) => console.error(err.response.data));
+      expect(secret).toBeDefined();
+    }
+
+    done();
+  });
+
   test('timeseries', async (done) => {
     const timeseries = await hpc.timeSeriesManager.getMany().catch((err) => console.error(err.response.data));
     expect(timeseries).toBeDefined();
