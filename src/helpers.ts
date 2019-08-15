@@ -1,5 +1,3 @@
-import { reject } from 'bluebird';
-
 export function fillTemplate(templateString: string, templateVariables: object): string {
   if (templateString === undefined) {
     return undefined;
