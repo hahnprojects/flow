@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const AdmZip = require('adm-zip');
+const archiver = require('archiver');
 const chalk = require('chalk');
 const program = require('commander');
 const execa = require('execa');
@@ -327,9 +327,7 @@ async function publishModule(project) {
     const file = `${project.name}.zip`;
 
     await writePkg(dir, project, { normalize: false });
-    const zip = new AdmZip();
-    zip.addLocalFolder(dir);
-    zip.writeZip(file);
+    await zipDirectory(dir, file);
 
     const reqOptions = {
       formData: {
@@ -362,6 +360,21 @@ async function publishModule(project) {
       deleteFile(`${project.name}.zip`);
       return resolve();
     });
+  });
+}
+
+function zipDirectory(source, out) {
+  const archive = archiver('zip', { zlib: { level: 8 } });
+  const stream = fs.createWriteStream(out);
+
+  return new Promise((resolve, reject) => {
+    archive
+      .directory(source, false)
+      .on('error', (err) => reject(err))
+      .pipe(stream);
+
+    stream.on('close', () => resolve());
+    archive.finalize();
   });
 }
 
