@@ -2,15 +2,24 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import queryString from 'querystring';
 
 export class HttpClient {
-  private axiosInstance: AxiosInstance;
+  public axiosInstance: AxiosInstance;
+  public authAxiosInstance: AxiosInstance;
   private accessToken: string;
   private accessTokenExpiration: number = 0;
 
-  constructor(apiPath: string, private readonly realm: string, private readonly client: string, private readonly secret: string) {
+  constructor(private apiPath: string, private authApiPath: string, private readonly realm: string, private readonly client: string, private readonly secret: string) {
     this.axiosInstance = axios.create({
       baseURL: apiPath,
       timeout: 10000,
     });
+    this.authAxiosInstance = axios.create({
+      baseURL: authApiPath,
+      timeout: 10000,
+    });
+  }
+
+  public clone(newApiPath?: string){
+    return new HttpClient(newApiPath||this.apiPath, this.authApiPath, this.realm,this.client,this.secret)
   }
 
   public delete<T>(url: string, config: AxiosRequestConfig = {}) {
@@ -27,6 +36,7 @@ export class HttpClient {
   }
 
   public get<T>(url: string, config?: AxiosRequestConfig) {
+    console.debug('GET: ' + this.apiPath + '/' + url)
     return new Promise<T>(async (resolve, reject) => {
       this.addAuthHeader(config)
         .then((conf: AxiosRequestConfig) => {
@@ -97,7 +107,7 @@ export class HttpClient {
         client_secret: this.secret,
       };
       const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
-      this.axiosInstance
+      this.authAxiosInstance
         .post(`/auth/realms/${this.realm}/protocol/openid-connect/token`, queryString.stringify(params), { headers })
         .then((res) => {
           if (res && res.data && res.data.access_token && res.data.expires_in) {

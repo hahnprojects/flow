@@ -4,6 +4,6 @@ import { HttpClient } from './http.service';
 
 export class AssetService extends DataService<Asset> {
   constructor(httpClient: HttpClient) {
-    super(httpClient, 'api/assets');
+    super(httpClient, process.env.DEBUG_ASSET_URL || 'api/assets');
   }
 }

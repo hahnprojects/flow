@@ -4,7 +4,17 @@ import { TimeSeries, TimeSeriesValue } from './timeseries.interface';
 
 export class TimeSeriesService extends DataService<TimeSeries> {
   constructor(httpClient: HttpClient) {
-    super(httpClient, 'api/tsm');
+    if(process.env.DEBUG_TSM_URL){
+      console.log('update tsm url ' +  process.env.DEBUG_TSM_URL)
+      httpClient = httpClient.clone(process.env.DEBUG_TSM_URL);
+      /*httpClient.updateAxiosInstance({
+        baseURL: process.env.DEBUG_TSM_URL,
+        timeout: 1000
+      })*/
+      
+    }
+
+    super(httpClient, 'api/tsm'); 
   }
 
   public addValue(id: string, value: { [values: string]: any }) {
