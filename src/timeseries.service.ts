@@ -6,12 +6,7 @@ export class TimeSeriesService extends DataService<TimeSeries> {
   constructor(httpClient: HttpClient) {
     if(process.env.DEBUG_TSM_URL){
       console.log('update tsm url ' +  process.env.DEBUG_TSM_URL)
-      httpClient = httpClient.clone(process.env.DEBUG_TSM_URL);
-      /*httpClient.updateAxiosInstance({
-        baseURL: process.env.DEBUG_TSM_URL,
-        timeout: 1000
-      })*/
-      
+      httpClient = httpClient.clone(process.env.DEBUG_TSM_URL);     
     }
 
     super(httpClient, 'api/tsm'); 

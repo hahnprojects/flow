@@ -13,7 +13,6 @@ export class HPC {
   constructor() {
     const apiPath = process.env.API_BASE_URL || 'https://testing.hahnpro.com';
     const client = process.env.API_USER || 'flow-executor-service';
-    
     const authApiPath = process.env.API_AUTH_URL || apiPath;
     const realm = process.env.AUTH_REALM || 'hpc';
     const secret = process.env.AUTH_SECRET;
