@@ -11,6 +11,11 @@ export class TimeSeriesService extends DataService<TimeSeries> {
     return this.httpClient.post<void>(`${this.basePath}/${id}`, value);
   }
 
+  public getMostRecentValue(id: string, before: Date) {
+    const params = before ? { before: before.toISOString() } : {};
+    return this.httpClient.get<TimeSeriesValue>(`${this.basePath}/${id}/recent`, { params });
+  }
+
   public getValues(id: string, from: number, limit?: number) {
     const params = limit ? { limit } : {};
     return this.httpClient.get<TimeSeriesValue[]>(`${this.basePath}/${id}/${from}`, { params });
@@ -20,7 +25,8 @@ export class TimeSeriesService extends DataService<TimeSeries> {
     return this.httpClient.get<TimeSeriesValue[]>(`${this.basePath}/${id}/${from}/${to}`);
   }
 
-  public getManyByAsset(assetId: string): Promise<TimeSeries[]> {
-    return this.httpClient.get<TimeSeries[]>(`${this.basePath}/asset/${assetId}`);
+  public getManyByAsset(assetId: string, names?: string[]): Promise<TimeSeries[]> {
+    const params = Array.isArray(names) ? { names: names.join() } : {};
+    return this.httpClient.get<TimeSeries[]>(`${this.basePath}/asset/${assetId}`, { params });
   }
 }
