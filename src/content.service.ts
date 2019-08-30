@@ -9,7 +9,7 @@ export class ContentService extends DataService<Content> {
 
   download = (id: string, raw: boolean = false): Promise<Blob | ArrayBuffer> => {
     if (raw) {
-      return this.httpClient.get<Blob>(`${this.basePath}/${id}/download`, { responseType: 'arraybuffer' });
+      return this.httpClient.get<ArrayBuffer>(`${this.basePath}/${id}/download`, { responseType: 'arraybuffer' });
     } else {
       return this.httpClient.get<Blob>(`${this.basePath}/${id}/download`, { responseType: 'blob' });
     }
