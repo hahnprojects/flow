@@ -1,7 +1,7 @@
 export interface BaseArguments {
   id: string;
-  deployment: string;
-  diagram: string;
+  deployment?: string;
+  diagram?: string;
   name?: string;
   description?: string;
 }
