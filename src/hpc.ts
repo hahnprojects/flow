@@ -14,9 +14,15 @@ export class HPC {
 
   constructor() {
     const apiPath = process.env.API_BASE_URL || 'https://testing.hahnpro.com';
+    // tslint:disable-next-line:no-console
+    console.debug('apiPath: ' + apiPath);
     const client = process.env.API_USER || 'flow-executor-service';
     const authApiPath = process.env.API_AUTH_URL || apiPath;
+    // tslint:disable-next-line:no-console
+    console.debug('authApiPath: ' + authApiPath);
     const realm = process.env.AUTH_REALM || 'hpc';
+    // tslint:disable-next-line:no-console
+    console.debug('realm: ' + realm);
     const secret = process.env.AUTH_SECRET;
     if (!secret) {
       throw new Error('"API_BASE_URL", "API_USER", "AUTH_REALM" and "AUTH_SECRET" environment variables must be set');
