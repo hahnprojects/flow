@@ -29,6 +29,10 @@ export class DataService<T> {
     return this.httpClient.post<T>(this.basePath, dto);
   }
 
+  public addMany(dto: any[]): Promise<T[]> {
+    return this.httpClient.post<T[]>(`${this.basePath}/many`, dto);
+  }
+
   public getOne(id: string, options: any = {}): Promise<T> {
     const params = options.populate ? { populate: options.populate } : {};
     return this.httpClient.get<T>(`${this.basePath}/${id}`, { params });
