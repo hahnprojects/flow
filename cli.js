@@ -33,6 +33,7 @@ const CMD = {
   BUILD: 'build',
   COPY: 'copy',
   FORMAT: 'format',
+  INSTALL: 'install',
   LINT: 'lint',
   PUBLISH: 'publish',
   RUN: 'run',
@@ -41,7 +42,7 @@ const CMD = {
 };
 
 program
-  .version('1.1.1', '-v, --version')
+  .version('1.3.0', '-v, --version')
   .usage('[command] [options]')
   .description('Flow Module Management Tool.')
   .on('--help', () => {});
@@ -52,6 +53,7 @@ program
   .action(async (projectName) => {
     try {
       const project = await findProject(projectName);
+      await exec(CMD.INSTALL, project);
       await exec(CMD.BUILD, project);
       await exec(CMD.LINT, project);
       await exec(CMD.COPY, project);
@@ -82,6 +84,7 @@ program
       if (checkEnvModules()) process.exit(1);
       const project = await findProject(projectName);
       await clean(buildDir);
+      await exec(CMD.INSTALL, project);
       await exec(CMD.BUILD, project);
       await exec(CMD.LINT, project);
       await exec(CMD.COPY, project);
@@ -100,6 +103,7 @@ program
     try {
       if (checkIfAll(projectName)) process.exit(1);
       const project = await findProject(projectName);
+      await exec(CMD.INSTALL, project);
       await exec(CMD.BUILD, project);
       await exec(CMD.COPY, project);
       await exec(CMD.WATCH, project);
@@ -129,6 +133,7 @@ program
   .action(async (projectName) => {
     try {
       const project = await findProject(projectName);
+      await exec(CMD.INSTALL, project);
       await exec(CMD.BUILD, project);
       await exec(CMD.COPY, project);
       await exec(CMD.TEST, project);
@@ -169,11 +174,11 @@ function exec(cmd, project) {
     }
     if (cmd === CMD.RUN || cmd === CMD.WATCH) {
       log(ok(`\n${getLabel(cmd)} ${project.name}:\n`));
-      execa(getProcess(cmd), getProcessArguments(cmd, project)).stdout.pipe(process.stdout);
+      execa(getProcess(cmd), getProcessArguments(cmd, project), getProcessOptions(cmd, project)).stdout.pipe(process.stdout);
     } else {
       const spinner = getSpinner(`${getLabel(cmd)} ${project.name}`);
       spinner.start();
-      execa(getProcess(cmd), getProcessArguments(cmd, project))
+      execa(getProcess(cmd), getProcessArguments(cmd, project), getProcessOptions(cmd, project))
         .then((result) => {
           spinner.stop();
           log(result.stdout);
@@ -239,7 +244,7 @@ async function findProjects() {
             const pkg = await readPkg({ cwd: path.dirname(projectPath), normalize: false });
             pkg.location = path.posix.join(projectsRoot, file);
             if (rootPkg) {
-              pkg.dependencies = rootPkg.dependencies || {};
+              pkg.dependencies = { ...pkg.dependencies, ...rootPkg.dependencies };
               pkg.repository = rootPkg.repository || {};
             }
             projects.push(pkg);
@@ -395,6 +400,8 @@ function getProcess(cmd) {
       return './node_modules/.bin/copyfiles';
     case CMD.FORMAT:
       return './node_modules/.bin/prettier';
+    case CMD.INSTALL:
+      return 'npm';
     case CMD.LINT:
       return './node_modules/.bin/tslint';
     case CMD.RUN:
@@ -413,9 +420,22 @@ function getProcessArguments(cmd, project) {
     case CMD.BUILD:
       return ['-p', project.location];
     case CMD.COPY:
-      return ['-u', '1', `${projectsRoot}/**/*.py`, `${projectsRoot}/**/*.csv`, `${buildDir}/`];
+      return [
+        '-u',
+        '1',
+        '-e',
+        `${project.location}/*.json`,
+        '-e',
+        `${project.location}/**/*.ts`,
+        '-e',
+        `${project.location}/**/test/**`,
+        `${project.location}/**`,
+        `${buildDir}/`,
+      ];
     case CMD.FORMAT:
       return ['--write', '**/*.ts'];
+    case CMD.INSTALL:
+      return ['install', '--no-package-lock'];
     case CMD.LINT:
       return ['-p', project.location, 'stylish'];
     case CMD.RUN:
@@ -428,6 +448,13 @@ function getProcessArguments(cmd, project) {
       return ['--inspect', project.location];
     default:
       return [];
+  }
+}
+
+function getProcessOptions(cmd, project) {
+  switch (cmd) {
+    case CMD.INSTALL:
+      return { cwd: project.location };
   }
 }
 
