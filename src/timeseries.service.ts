@@ -1,4 +1,4 @@
-import { DataService } from './data.service';
+import { DataService, Paginated } from './data.service';
 import { HttpClient } from './http.service';
 import { TimeSeries, TimeSeriesValue } from './timeseries.interface';
 
@@ -25,8 +25,8 @@ export class TimeSeriesService extends DataService<TimeSeries> {
     return this.httpClient.get<TimeSeriesValue[]>(`${this.basePath}/${id}/${from}/${to}`);
   }
 
-  public getManyByAsset(assetId: string, names?: string[]): Promise<TimeSeries[]> {
+  public getManyByAsset(assetId: string, names?: string[]): Promise<Paginated<TimeSeries[]>> {
     const params = Array.isArray(names) ? { names: names.join() } : {};
-    return this.httpClient.get<TimeSeries[]>(`${this.basePath}/asset/${assetId}`, { params });
+    return this.httpClient.get<Paginated<TimeSeries[]>>(`${this.basePath}/asset/${assetId}`, { params });
   }
 }
