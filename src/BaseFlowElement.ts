@@ -78,9 +78,9 @@ export class BaseFlowElement {
     this.fireOutput(data);
   }
 
-  protected fireOutput(data: DataSet, stream: string = 'default') {
+  protected fireOutput(data: DataSet, stream: string = 'default', log?: any) {
     if (this.outputStreamListener[stream]) {
-      this.logger.verbose(data);
+      this.logger.verbose(log || data);
       this.outputStreamListener[stream].forEach((listener) => listener(data));
     }
   }

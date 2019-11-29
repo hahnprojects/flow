@@ -1,6 +1,6 @@
 {
   "name": "@hahnpro/flow-sdk",
-  "version": "2.1.0",
+  "version": "2.3.4",
   "description": "SDK for building Flow Modules",
   "license": "MIT",
   "main": "./lib/index.js",
@@ -27,20 +27,21 @@
   },
   "dependencies": {
     "axios": "^0.19.0",
+    "form-data": "^3.0.0",
     "nanobus": "^4.4.0",
     "querystring": "^0.2.0",
     "tslib": "^1.10.0"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.18",
-    "@types/node": "^12.7.8",
+    "@types/jest": "^24.0.23",
+    "@types/node": "^12.12.14",
     "jest": "^24.9.0",
-    "prettier": "^1.18.2",
-    "ts-jest": "^24.1.0",
-    "ts-node": "^8.4.1",
-    "tslint": "^5.20.0",
+    "prettier": "^1.19.1",
+    "ts-jest": "^24.2.0",
+    "ts-node": "^8.5.2",
+    "tslint": "^5.20.1",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.6.3"
+    "typescript": "^3.7.2"
   },
   "engines": {
     "node": ">=12"
