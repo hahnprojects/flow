@@ -7,7 +7,13 @@ export class HttpClient {
   private accessToken: string;
   private accessTokenExpiration: number = 0;
 
-  constructor(private apiPath: string, private authApiPath: string, private readonly realm: string, private readonly client: string, private readonly secret: string) {
+  constructor(
+    private apiPath: string,
+    private authApiPath: string,
+    private readonly realm: string,
+    private readonly client: string,
+    private readonly secret: string,
+  ) {
     this.axiosInstance = axios.create({
       baseURL: apiPath,
       timeout: 10000,
@@ -18,8 +24,8 @@ export class HttpClient {
     });
   }
 
-  public clone(newApiPath?: string){
-    return new HttpClient(newApiPath||this.apiPath, this.authApiPath, this.realm,this.client,this.secret)
+  public clone(newApiPath?: string) {
+    return new HttpClient(newApiPath || this.apiPath, this.authApiPath, this.realm, this.client, this.secret);
   }
 
   public delete<T>(url: string, config: AxiosRequestConfig = {}) {
@@ -36,7 +42,7 @@ export class HttpClient {
   }
 
   public get<T>(url: string, config?: AxiosRequestConfig) {
-    console.debug('GET: ' + this.apiPath + '/' + url)
+    console.debug('GET: ' + this.apiPath + '/' + url);
     return new Promise<T>(async (resolve, reject) => {
       this.addAuthHeader(config)
         .then((conf: AxiosRequestConfig) => {
