@@ -112,7 +112,15 @@ export class HttpClient {
   public getPendingRequestCount(){
     return this.PENDING_REQUESTS;
   }
-  
+
+  public async initAccessToken(){
+    try{
+      await this.getAccessToken();
+      return true;
+    }catch(err){
+      return false;
+    }
+  }
 
   private async addAuthHeader(config: AxiosRequestConfig = {}): Promise<AxiosRequestConfig> {
     return new Promise((resolve, reject) => {
