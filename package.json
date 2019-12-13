@@ -1,6 +1,6 @@
 {
   "name": "@hahnpro/flow-sdk",
-  "version": "2.3.4",
+  "version": "2.4.0",
   "description": "SDK for building Flow Modules",
   "license": "MIT",
   "main": "./lib/index.js",
