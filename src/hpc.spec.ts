@@ -1,5 +1,9 @@
 import { HPC } from './hpc';
 
+import * as dotenv from 'dotenv';
+
+dotenv.config()
+
 /* tslint:disable:no-console */
 describe('Flow SDK test', () => {
   const hpc = new HPC();

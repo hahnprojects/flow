@@ -5,6 +5,7 @@ import { TimeSeries, TimeSeriesValue } from './timeseries.interface';
 export class TimeSeriesService extends DataService<TimeSeries> {
   constructor(httpClient: HttpClient) {
     if (process.env.DEBUG_TSM_URL) {
+      // tslint:disable-next-line:no-console
       console.log('update tsm url ' + process.env.DEBUG_TSM_URL);
       httpClient = httpClient.clone(process.env.DEBUG_TSM_URL);
     }
