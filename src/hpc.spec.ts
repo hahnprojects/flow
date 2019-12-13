@@ -2,7 +2,7 @@ import { HPC } from './hpc';
 
 import * as dotenv from 'dotenv';
 
-dotenv.config()
+dotenv.config();
 
 /* tslint:disable:no-console */
 describe('Flow SDK test', () => {

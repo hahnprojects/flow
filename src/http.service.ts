@@ -7,9 +7,9 @@ export class HttpClient {
   private accessToken: string;
   private accessTokenExpiration: number = 0;
 
-  private readonly MAX_REQUESTS_COUNT = 2
-  private readonly INTERVAL_MS = 10
-  private PENDING_REQUESTS = 0
+  private readonly MAX_REQUESTS_COUNT = 2;
+  private readonly INTERVAL_MS = 10;
+  private PENDING_REQUESTS = 0;
   private REQUESTS_QUEUE = 0;
 
   constructor(
@@ -24,24 +24,28 @@ export class HttpClient {
       timeout: 10000,
     });
     this.axiosInstance.interceptors.request.use((conf) => this.requestInterceptors(conf));
-    this.axiosInstance.interceptors.response.use((response) => this.responseInterceptors(response), (error) => this.responseErrorInterceptors(error) );
-    
+    this.axiosInstance.interceptors.response.use(
+      (response) => this.responseInterceptors(response),
+      (error) => this.responseErrorInterceptors(error),
+    );
+
     // debug log REQUESTS_QUEUE
-    setInterval(()=>{
-      if(this.REQUESTS_QUEUE > 0){
+    setInterval(() => {
+      if (this.REQUESTS_QUEUE > 0) {
         // tslint:disable-next-line:no-console
         console.debug('REQUESTS_QUEUE ' + this.REQUESTS_QUEUE);
       }
     }, 10 * 1000);
-
 
     this.authAxiosInstance = axios.create({
       baseURL: authApiPath,
       timeout: 10000,
     });
     this.authAxiosInstance.interceptors.request.use((conf) => this.requestInterceptors(conf));
-    this.authAxiosInstance.interceptors.response.use((response) => this.responseInterceptors(response), (error) => this.responseErrorInterceptors(error) );
-    
+    this.authAxiosInstance.interceptors.response.use(
+      (response) => this.responseInterceptors(response),
+      (error) => this.responseErrorInterceptors(error),
+    );
   }
 
   public clone(newApiPath?: string) {
@@ -106,18 +110,18 @@ export class HttpClient {
     });
   }
 
-  public getQueueSize(){
+  public getQueueSize() {
     return this.REQUESTS_QUEUE;
   }
-  public getPendingRequestCount(){
+  public getPendingRequestCount() {
     return this.PENDING_REQUESTS;
   }
 
-  public async initAccessToken(){
-    try{
+  public async initAccessToken() {
+    try {
       await this.getAccessToken();
       return true;
-    }catch(err){
+    } catch (err) {
       return false;
     }
   }
@@ -177,27 +181,26 @@ export class HttpClient {
     return false;
   }
 
-  private requestInterceptors(conf){    
+  private requestInterceptors(conf) {
     this.REQUESTS_QUEUE++;
-    return new Promise( (resolve, reject) => {
-      const interval = setInterval(()=>{          
-        if(this.PENDING_REQUESTS < this.MAX_REQUESTS_COUNT){
+    return new Promise((resolve, reject) => {
+      const interval = setInterval(() => {
+        if (this.PENDING_REQUESTS < this.MAX_REQUESTS_COUNT) {
           this.PENDING_REQUESTS++;
           clearInterval(interval);
           resolve(conf);
         }
-      }, this.INTERVAL_MS )
-    });    
+      }, this.INTERVAL_MS);
+    });
   }
-  private responseInterceptors(response){  
-    
-      this.REQUESTS_QUEUE = Math.max(0, this.REQUESTS_QUEUE - 1)
-      this.PENDING_REQUESTS = Math.max(0, this.PENDING_REQUESTS - 1)
-      return Promise.resolve(response)
-    }
-  private responseErrorInterceptors(error){
-    this.REQUESTS_QUEUE = Math.max(0, this.REQUESTS_QUEUE - 1)
-    this.PENDING_REQUESTS = Math.max(0, this.PENDING_REQUESTS - 1)
-    return Promise.reject(error)
+  private responseInterceptors(response) {
+    this.REQUESTS_QUEUE = Math.max(0, this.REQUESTS_QUEUE - 1);
+    this.PENDING_REQUESTS = Math.max(0, this.PENDING_REQUESTS - 1);
+    return Promise.resolve(response);
+  }
+  private responseErrorInterceptors(error) {
+    this.REQUESTS_QUEUE = Math.max(0, this.REQUESTS_QUEUE - 1);
+    this.PENDING_REQUESTS = Math.max(0, this.PENDING_REQUESTS - 1);
+    return Promise.reject(error);
   }
 }
