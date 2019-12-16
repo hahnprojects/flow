@@ -4,17 +4,29 @@ import { TimeSeries, TimeSeriesValue } from './timeseries.interface';
 
 export class TimeSeriesService extends DataService<TimeSeries> {
   constructor(httpClient: HttpClient) {
-    if (process.env.DEBUG_TSM_URL) {
-      // tslint:disable-next-line:no-console
-      console.log('update tsm url ' + process.env.DEBUG_TSM_URL);
-      httpClient = httpClient.clone(process.env.DEBUG_TSM_URL);
-    }
-
     super(httpClient, 'api/tsm');
   }
 
   public addValue(id: string, value: { [values: string]: any }) {
     return this.httpClient.post<void>(`${this.basePath}/${id}`, value);
+  }
+
+  // Creates or Finds a TimeSeries for an assetId and a name
+  // Then adds the values to the TimeSeries
+  public addAssetTimeSeriesValues(
+    assetId: string,
+    name: string,
+    readPermissions: string[],
+    readWritePermissions: string[],
+    values: { [timestamp: string]: any },
+  ) {
+    const dto = {
+      name,
+      readPermissions,
+      readWritePermissions,
+      values,
+    };
+    return this.httpClient.post<TimeSeries>(`${this.basePath}/assets/${assetId}`, dto);
   }
 
   public getMostRecentValue(id: string, before: Date) {
