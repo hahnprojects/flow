@@ -4,10 +4,11 @@ export interface TimeSeries {
   desc: string;
   readPermissions: [string];
   readWritePermissions: [string];
-  assetRef: string;
+  assetRef?: string;
+  assetTsId?: string;
   minDate: Date;
   maxBucketTimeRange: number;
-  tsRef: [string];
+  tsRef?: [string];
   condition: TimeSeriesCondition;
   autoDelData: Date;
   autoDelBucket: Date;
