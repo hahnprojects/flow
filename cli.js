@@ -52,6 +52,7 @@ program
   .description('Builds specified Project.')
   .action(async (projectName) => {
     try {
+      if (checkIfAll(projectName)) process.exit(1);
       const project = await findProject(projectName);
       await exec(CMD.INSTALL, project);
       await exec(CMD.BUILD, project);
@@ -69,6 +70,25 @@ program
   .action(async () => {
     try {
       await exec(CMD.FORMAT, { name: 'all' });
+    } catch (err) {
+      if (err) log(err);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('package [projectName]')
+  .description('Builds specified Module and packages it as .zip File for manual upload to the platform.')
+  .action(async (projectName) => {
+    try {
+      if (checkIfAll(projectName)) process.exit(1);
+      const project = await findProject(projectName);
+      await clean(buildDir);
+      await exec(CMD.INSTALL, project);
+      await exec(CMD.BUILD, project);
+      await exec(CMD.LINT, project);
+      await exec(CMD.COPY, project);
+      await packageModule(project);
     } catch (err) {
       if (err) log(err);
       process.exit(1);
@@ -366,6 +386,13 @@ async function publishModule(project) {
       return resolve();
     });
   });
+}
+
+async function packageModule(project) {
+  const dir = `${buildDir}/${project.fqn}`;
+  const file = `${buildDir}/${project.name}.zip`;
+  await writePkg(dir, project, { normalize: false });
+  await zipDirectory(dir, file);
 }
 
 function zipDirectory(source, out) {
