@@ -6,7 +6,7 @@ import { SidriveIQService } from './sidriveiq.service';
 import { TimeSeriesService } from './timeseries.service';
 
 // tslint:disable:no-console
-export class HPC {
+export class API {
   public assetManager: AssetService;
   public contentManager: ContentService;
   public secretsManager: SecretService;

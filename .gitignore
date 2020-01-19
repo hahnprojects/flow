@@ -1,17 +1,14 @@
 .idea/
 .settings/
+.vscode/
 
-coverage/
 lib/
 node_modules/
 
+.env*
+*.asc
 *.log
+*.todo
 
 .DS_Store
 Thumbs.db
-
-.vscode/*
-!.vscode/launch.json
-!.vscode/tasks.json
-
-__pycache__

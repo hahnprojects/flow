@@ -1,7 +1,7 @@
 export interface TimeSeries {
   id?: string;
   name: string;
-  description: string;
+  desc: string;
   readPermissions: [string];
   readWritePermissions: [string];
   assetRef?: string;
