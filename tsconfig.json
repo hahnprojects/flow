@@ -1,0 +1,21 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": ".",
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "removeComments": true,
+    "rootDir": "modules",
+    "sourceMap": false,
+    "target": "es2017",
+    "types": ["jest", "node"],
+    "typeRoots": ["node_modules/@types"]
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["dist", "node_modules"]
+}
