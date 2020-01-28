@@ -1,6 +1,6 @@
-import { HttpClient } from './http.service';
-
 import * as dotenv from 'dotenv';
+
+import { HttpClient } from '../src/api/http.service';
 
 dotenv.config();
 
@@ -26,12 +26,16 @@ describe('HTTP Service test', () => {
       for (let i = 0; i < reqMaxLength; i++) {
         req.push(client.get(`api/assets/${assets.docs[i].id}`));
       }
-      expect(client.getQueueStats().total).toBe(1);
+      expect(client.getQueueStats().total).toBe(2);
+      expect(client.getQueueStats().pending).toBe(1);
 
       Promise.all(req)
         .then(() => {
-          expect(client.getQueueStats().peak).toBe(reqMaxLength);
-          expect(client.getQueueStats().total).toBe(reqMaxLength + 1);
+          const stats = client.getQueueStats();
+          expect(stats.size).toBe(0);
+          expect(stats.pending).toBe(0);
+          expect(stats.peak).toBe(reqMaxLength - 1);
+          expect(stats.total).toBe(reqMaxLength + 1);
           resolve();
         })
         .catch((err) => reject(err));

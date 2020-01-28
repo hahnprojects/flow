@@ -1,6 +1,6 @@
 {
   "name": "@hahnpro/flow-sdk",
-  "version": "2.5.0",
+  "version": "3.0.0-beta.6",
   "description": "SDK for building Flow Modules",
   "license": "MIT",
   "main": "./lib/index.js",
@@ -17,7 +17,7 @@
     "lib/**/*"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.lib.json",
     "format": "prettier --write **/*.ts",
     "lint": "tslint -p .",
     "test": "yarn jest",
@@ -26,25 +26,28 @@
     "preversion": "yarn lint"
   },
   "dependencies": {
-    "axios": "^0.19.0",
-    "better-queue": "^3.8.10",
+    "axios": "^0.19.1",
+    "class-transformer": "^0.2.3",
+    "class-validator": "^0.11.0",
     "cloudevents-sdk": "^1.0.0",
+    "eventemitter3": "^4.0.0",
     "form-data": "^3.0.0",
-    "nanobus": "^4.4.0",
+    "p-queue": "^6.2.1",
     "querystring": "^0.2.0",
+    "reflect-metadata": "^0.1.13",
     "tslib": "^1.10.0"
   },
   "devDependencies": {
-    "@types/better-queue": "^3.8.1",
-    "@types/jest": "^24.0.23",
-    "@types/node": "^12.12.18",
+    "@types/jest": "^24.9.0",
+    "@types/node": "^12.12.25",
+    "dotenv": "^8.2.0",
     "jest": "^24.9.0",
     "prettier": "^1.19.1",
-    "ts-jest": "^24.2.0",
-    "ts-node": "^8.5.4",
+    "ts-jest": "^24.3.0",
+    "ts-node": "^8.6.2",
     "tslint": "^5.20.1",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.7.3"
+    "typescript": "^3.7.5"
   },
   "engines": {
     "node": ">=12"

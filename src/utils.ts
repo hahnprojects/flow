@@ -1,3 +1,5 @@
+import { FlowLogger } from './FlowLogger';
+
 export function fillTemplate(templateString: string, templateVariables: object): string {
   if (templateString === undefined) {
     return undefined;
@@ -29,4 +31,20 @@ export function toArray(value: string | string[] = []): string[] {
 
 export function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function handleApiError(error: any, logger: FlowLogger) {
+  if (error.isAxiosError) {
+    if (error.response && error.response.data) {
+      logger.error(error.response.data);
+    } else {
+      logger.error(`Error ${error.code}`);
+      logger.error(error.config);
+      if (error.stack) {
+        logger.error(error.stack);
+      }
+    }
+  } else {
+    logger.error(error);
+  }
 }

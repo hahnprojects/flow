@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import Queue, { QueueStats } from 'better-queue';
 import queryString from 'querystring';
+
+import { Queue } from '../Queue';
 
 export class HttpClient {
   private readonly axiosInstance: AxiosInstance;
@@ -20,20 +21,11 @@ export class HttpClient {
     authBaseUrl = authBaseUrl || apiBaseUrl;
     this.axiosInstance = axios.create({ baseURL: apiBaseUrl, timeout: 60000 });
     this.authAxiosInstance = axios.create({ baseURL: authBaseUrl, timeout: 10000 });
-
-    this.requestQueue = new Queue(
-      (config, cb) => {
-        this.axiosInstance
-          .request(config)
-          .then((r) => cb(undefined, r))
-          .catch((err) => cb(err));
-      },
-      { batchSize: 1 },
-    );
+    this.requestQueue = new Queue({ concurrent: 1 });
 
     // wait for access token before processing requests
     this.requestQueue.pause();
-    this.getAccessToken().then(() => this.requestQueue.resume());
+    this.getAccessToken().then(() => this.requestQueue.start());
 
     this.axiosInstance.interceptors.request.use(
       async (config: AxiosRequestConfig = {}) => {
@@ -52,7 +44,7 @@ export class HttpClient {
   public clone = (newApiBaseUrl: string = this.apiBaseUrl) =>
     new HttpClient(newApiBaseUrl, this.authBaseUrl, this.realm, this.client, this.secret);
 
-  public getQueueStats = (): QueueStats => this.requestQueue && this.requestQueue.getStats();
+  public getQueueStats = () => this.requestQueue && this.requestQueue.getStats();
 
   public delete = <T>(url: string, config?: AxiosRequestConfig) => this.request<T>('DELETE', url, config);
   public get = <T>(url: string, config?: AxiosRequestConfig) => this.request<T>('GET', url, config);
@@ -60,15 +52,15 @@ export class HttpClient {
   public put = <T>(url: string, data: any, config?: AxiosRequestConfig) => this.request<T>('PUT', url, config, data);
 
   private request = <T>(method, url, config, data?): Promise<T> => {
-    return new Promise<T>(async (resolve, reject) => {
-      this.requestQueue.push({ ...config, method, url, data }, (err, response) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(response.data);
-        }
-      });
-    });
+    return this.requestQueue.add(
+      () =>
+        new Promise((resolve, reject) => {
+          this.axiosInstance
+            .request<T>({ ...config, method, url, data })
+            .then((response) => resolve(response.data))
+            .catch((err) => reject(err));
+        }),
+    );
   };
 
   private getAccessToken = () => {
@@ -79,7 +71,7 @@ export class HttpClient {
         this.requestQueue.pause();
         this.getToken()
           .then((t) => {
-            this.requestQueue.resume();
+            this.requestQueue.start();
             resolve(t);
           })
           .catch((e) => reject(e));
