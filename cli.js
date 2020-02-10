@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require('reflect-metadata');
 
 const archiver = require('archiver');
 const chalk = require('chalk');
@@ -42,7 +43,7 @@ const CMD = {
 };
 
 program
-  .version('1.3.0', '-v, --version')
+  .version('2.0.0', '-v, --version')
   .usage('[command] [options]')
   .description('Flow Module Management Tool.')
   .on('--help', () => {});
@@ -76,6 +77,19 @@ program
     }
   });
 
+program.command('name [projectName]').action(async (projectName) => {
+  try {
+    if (checkIfAll(projectName)) process.exit(1);
+    const project = await findProject(projectName);
+    await clean(buildDir);
+    await exec(CMD.INSTALL, project);
+    await exec(CMD.BUILD, project);
+  } catch (err) {
+    if (err) log(err);
+    process.exit(1);
+  }
+});
+
 program
   .command('package [projectName]')
   .description('Builds specified Module and packages it as .zip File for manual upload to the platform.')
@@ -88,6 +102,7 @@ program
       await exec(CMD.BUILD, project);
       await exec(CMD.LINT, project);
       await exec(CMD.COPY, project);
+      await validateModule(project);
       await packageModule(project);
     } catch (err) {
       if (err) log(err);
@@ -108,6 +123,7 @@ program
       await exec(CMD.BUILD, project);
       await exec(CMD.LINT, project);
       await exec(CMD.COPY, project);
+      await validateModule(project);
       await getAccessToken();
       await publishModule(project);
     } catch (err) {
@@ -153,9 +169,6 @@ program
   .action(async (projectName) => {
     try {
       const project = await findProject(projectName);
-      await exec(CMD.INSTALL, project);
-      await exec(CMD.BUILD, project);
-      await exec(CMD.COPY, project);
       await exec(CMD.TEST, project);
     } catch (err) {
       if (err) log(err);
@@ -263,6 +276,7 @@ async function findProjects() {
           try {
             const pkg = await readPkg({ cwd: path.dirname(projectPath), normalize: false });
             pkg.location = path.posix.join(projectsRoot, file);
+            pkg.dist = path.posix.join(process.cwd(), buildDir, file);
             if (rootPkg) {
               pkg.dependencies = { ...pkg.dependencies, ...rootPkg.dependencies };
               pkg.repository = rootPkg.repository || {};
@@ -299,11 +313,7 @@ function findProject(projectName) {
       const location = path.parse(project.location);
       const dirName = location.name + location.ext;
       if (project.name === projectName || dirName === projectName) {
-        if (dirName !== project.fqn) {
-          return reject(new Error('Folder name of Module must match its fqn.'));
-        } else {
-          return resolve(project);
-        }
+        return resolve(project);
       }
     }
 
@@ -346,18 +356,21 @@ async function getAccessToken() {
   });
 }
 
+async function packageModule(project) {
+  const { location, dist, ...package } = project;
+  const file = path.posix.join(dist, '..', `${project.name}.zip`);
+  await writePkg(dist, package);
+  await zipDirectory(dist, file);
+  return file;
+}
+
 async function publishModule(project) {
   return new Promise(async (resolve, reject) => {
-    const dir = `${buildDir}/${project.fqn}`;
-    const file = `${project.name}.zip`;
-
-    await writePkg(dir, project, { normalize: false });
-    await zipDirectory(dir, file);
+    const file = await packageModule(project);
 
     const reqOptions = {
       formData: {
         file: fs.createReadStream(file),
-        fqn: project.fqn,
         name: project.name,
         description: project.description || '',
         version: project.version || '',
@@ -372,27 +385,42 @@ async function publishModule(project) {
     request.post(reqOptions, (err, res, body) => {
       if (err) {
         log(error('Publishing Module failed.'));
-        deleteFile(`${project.name}.zip`);
+        deleteFile(file);
         return reject(err);
       }
       if (res && res.statusCode >= 400) {
         log(error('Publishing Module failed.'));
         log(error(body));
-        deleteFile(`${project.name}.zip`);
+        deleteFile(file);
         return reject(err);
       }
       log(ok('Module published!'));
-      deleteFile(`${project.name}.zip`);
+      deleteFile(file);
       return resolve();
     });
   });
 }
 
-async function packageModule(project) {
-  const dir = `${buildDir}/${project.fqn}`;
-  const file = `${buildDir}/${project.name}.zip`;
-  await writePkg(dir, project, { normalize: false });
-  await zipDirectory(dir, file);
+async function validateModule(project) {
+  const module = require(project.dist);
+  const moduleName = Reflect.getMetadata('module:name', module.default);
+  const moduleDeclarations = Reflect.getMetadata('module:declarations', module.default);
+
+  const funcFqns = [];
+  for (const declaration of moduleDeclarations) {
+    const fqn = Reflect.getMetadata('element:functionFqn', declaration);
+    if (!fqn) {
+      throw new Error(`FlowFunction (${declaration.name}) metadata is missing or invalid.`);
+    }
+    funcFqns.push(fqn);
+  }
+
+  if (moduleName) {
+    project.name = moduleName;
+    project.functions = funcFqns;
+  } else {
+    throw new Error('Could not validate module name');
+  }
 }
 
 function zipDirectory(source, out) {
@@ -434,7 +462,7 @@ function getProcess(cmd) {
     case CMD.RUN:
       return 'node';
     case CMD.TEST:
-      return 'jest';
+      return './node_modules/.bin/jest';
     case CMD.WATCH:
       return './node_modules/.bin/nodemon';
     default:
@@ -445,7 +473,9 @@ function getProcess(cmd) {
 function getProcessArguments(cmd, project) {
   switch (cmd) {
     case CMD.BUILD:
-      return ['-p', project.location];
+      const filename = path.join(project.location, 'tsconfig.module.json');
+      const configFile = fs.existsSync(filename) ? filename : project.location;
+      return ['-p', configFile];
     case CMD.COPY:
       return [
         '-u',

@@ -1,3 +1,9 @@
-/node_modules
+.idea/
+.settings/
+.vscode/
 
+node_modules/
+
+.env*
 *.log
+*.todo
