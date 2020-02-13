@@ -5,41 +5,28 @@ import { API } from './api';
 import { FlowApplication, FlowContext } from './FlowApplication';
 import { FlowEvent } from './FlowEvent';
 import { FlowLogger } from './FlowLogger';
+import { handleApiError } from './utils';
 
 export abstract class FlowElement {
+  public readonly functionFqn: string;
+  protected readonly logger: FlowLogger;
   protected readonly metadata: ElementMetadata;
   protected readonly api?: API;
-  protected readonly logger: FlowLogger;
   private readonly app: FlowApplication;
-  private readonly logEvents: boolean;
 
-  constructor({ app, api, logger, logEvents, ...metadata }: Context) {
+  constructor({ app, api, logger, publishEvent, ...metadata }: Context) {
     this.app = app;
     this.api = api;
-    this.logEvents = logEvents || false;
-    this.logger = new FlowLogger(metadata, logger);
-    this.metadata = metadata;
-    if (!this.app) {
-      // this.logger.warn('Flow Application is not defined');
-    }
+    this.metadata = { ...metadata, functionFqn: this.functionFqn };
+    this.logger = new FlowLogger(this.metadata, logger, publishEvent);
   }
+
+  public handleApiError = (error: any) => handleApiError(error, this.logger);
 
   protected emitOutput(data: object = {}, outputId = 'default', time = new Date()): FlowEvent {
-    return this.emitEvent(new FlowEvent(this.metadata, data, outputId, time));
-  }
-
-  protected emitEvent(event: FlowEvent): FlowEvent {
-    const id = `${event.getSubject()}.${event.getType()}`;
+    const event = new FlowEvent(this.metadata, data, outputId, time);
     if (this.app) {
-      this.app.emit(id, event);
-      if (this.logEvents && event.getDataContentType() === 'application/json') {
-        const size = Buffer.byteLength(event.toString());
-        if (size <= 64 * 1024 /* 64 kb */) {
-          this.logger.verbose(event.getData());
-        } else {
-          this.logger.verbose(`Not logging emitted event because of its size: ${size} bytes`);
-        }
-      }
+      this.app.emit(event);
     }
     return event;
   }
@@ -66,8 +53,8 @@ export interface ElementMetadata {
   id: string;
   name?: string;
   deploymentId?: string;
-  diagramId?: string;
   flowId?: string;
+  functionFqn?: string;
 }
 
 export function InputStream(id: string = 'default', options?: { concurrent?: number }): MethodDecorator {
@@ -79,7 +66,7 @@ export function InputStream(id: string = 'default', options?: { concurrent?: num
   };
 }
 
-export function FlowFunction(fqn: string, options?: { concurrent?: number }): ClassDecorator {
+export function FlowFunction(fqn: string): ClassDecorator {
   const fqnRegExp = new RegExp('^([a-zA-Z][a-zA-Z0-9]*[.-])*[a-zA-Z][a-zA-Z0-9]*$');
   if (!fqnRegExp.test(fqn)) {
     throw new Error(`Flow Function FQN (${fqn}) is not valid`);
@@ -87,9 +74,7 @@ export function FlowFunction(fqn: string, options?: { concurrent?: number }): Cl
 
   return <TFunction extends Function>(target: TFunction): TFunction | void => {
     Reflect.defineMetadata('element:functionFqn', fqn, target);
-    if (options) {
-      Reflect.defineMetadata('element:options', options, target);
-    }
+    target.prototype.functionFqn = fqn;
   };
 }
 

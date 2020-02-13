@@ -1,21 +1,24 @@
-import EventEmitter from 'eventemitter3';
 import 'reflect-metadata';
+import { PartialObserver, Subject } from 'rxjs';
+import { catchError, mergeMap } from 'rxjs/operators';
 
 import { API } from './api';
 import { FlowElement } from './FlowElement';
 import { FlowEvent } from './FlowEvent';
-import { FlowLogger, Logger } from './FlowLogger';
-import { Queue, QueueOptions } from './Queue';
-import { handleApiError } from './utils';
+import { Logger } from './FlowLogger';
 
+/* tslint:disable:no-console */
 export class FlowApplication {
+  private context: FlowContext;
   private declarations: { [id: string]: ClassType<FlowElement> } = {};
   private elements: { [id: string]: FlowElement } = {};
-  private emitter = new EventEmitter();
-  private queues: { [id: string]: Queue } = {};
+
+  private outputStreamMap: {
+    [streamId: string]: Subject<FlowEvent>;
+  } = {};
 
   constructor(modules: Array<ClassType<any>>, flow: Flow) {
-    const defaultLogger = new FlowLogger({ id: 'default' });
+    this.context = { ...flow.context, app: this };
 
     for (const module of modules) {
       const moduleName = Reflect.getMetadata('module:name', module);
@@ -34,7 +37,7 @@ export class FlowApplication {
 
     for (const element of flow.elements) {
       const { id, name, properties, module, functionFqn } = element;
-      this.elements[id] = new this.declarations[`${module}.${functionFqn}`]({ ...flow.context, id, name, app: this }, properties);
+      this.elements[id] = new this.declarations[`${module}.${functionFqn}`]({ ...this.context, id, name }, properties);
     }
 
     for (const connection of flow.connections) {
@@ -43,7 +46,7 @@ export class FlowApplication {
         continue;
       }
 
-      const id = `${source}.${sourceStream}`;
+      const streamId = `${source}.${sourceStream}`;
       const element = this.elements[target];
 
       if (!element || !element.constructor) {
@@ -54,51 +57,43 @@ export class FlowApplication {
         throw new Error(`${target} does not implement a handler for ${targetStream}`);
       }
 
-      const streamOptions: QueueOptions = Reflect.getMetadata(`stream:options:${targetStream}`, element.constructor) || {};
-      let queue: Queue;
-      if (streamOptions.concurrent) {
-        queue = this.getQueue(`${target}:${targetStream}`, streamOptions);
-      } else {
-        const elementOptions: QueueOptions = Reflect.getMetadata('element:options', element.constructor) || {};
-        elementOptions.concurrent = elementOptions.concurrent || 1;
-        queue = this.getQueue(target, elementOptions);
+      const streamOptions: StreamOptions = Reflect.getMetadata(`stream:options:${targetStream}`, element.constructor) || {};
+      const concurrent = streamOptions.concurrent || 1;
+
+      const outputStream = this.getOutputStream(streamId);
+      outputStream
+        .pipe(
+          mergeMap((event: FlowEvent) => element[streamHandler](event), concurrent),
+          catchError((err, observable) => {
+            element.handleApiError(err);
+            return observable;
+          }),
+        )
+        .subscribe();
+    }
+  }
+
+  public subscribe = (streamId: string, observer: PartialObserver<FlowEvent>) => this.getOutputStream(streamId).subscribe(observer);
+
+  public emit = (event: FlowEvent) => {
+    if (event) {
+      this.getOutputStream(event.getStreamId()).next(event);
+      if (this.context.publishEvent && event && event.getDataContentType() === 'application/json') {
+        const size = Buffer.byteLength(event.toString());
+        if (size <= 64 * 1024 /* 64kb */) {
+          this.context.publishEvent(event);
+        }
       }
-
-      this.emitter.on(id, (event: FlowEvent) =>
-        queue.add(async () => {
-          try {
-            return element[streamHandler](event, targetStream);
-          } catch (err) {
-            handleApiError(err, defaultLogger);
-          }
-        }),
-      );
     }
-  }
+  };
 
-  public addListener = (id: string, listener: (event: FlowEvent) => void) => this.emitter.on(id, listener);
-
-  public emit = (id: string, event: FlowEvent) => this.emitter.emit(id, event);
-
-  public getQueueStats(id?: string) {
-    if (id) {
-      return this.queues[id].getStats();
+  private getOutputStream(id: string) {
+    const stream = this.outputStreamMap[id];
+    if (!stream) {
+      this.outputStreamMap[id] = new Subject<FlowEvent>();
+      return this.outputStreamMap[id];
     }
-    const stats = {};
-    for (const key of Object.keys(this.queues)) {
-      stats[key] = this.queues[key].getStats();
-    }
-    return stats;
-  }
-
-  private getQueue(id: string, options: QueueOptions = {}): Queue {
-    const queue = this.queues[id];
-    if (!queue) {
-      options.concurrent = options.concurrent || 1;
-      this.queues[id] = new Queue(options);
-      return this.queues[id];
-    }
-    return queue;
+    return stream;
   }
 }
 
@@ -120,16 +115,25 @@ export interface Flow {
   }>;
   context?: {
     api?: API;
+    deploymentId?: string;
+    diagramId?: string;
+    flowId?: string;
     logger?: Logger;
-    logEvents?: boolean;
   };
 }
 
+export interface StreamOptions {
+  concurrent?: number;
+}
+
 export interface FlowContext {
-  app: FlowApplication;
+  app: any;
   api?: API;
+  deploymentId?: string;
+  diagramId?: string;
+  flowId?: string;
   logger?: Logger;
-  logEvents?: boolean;
+  publishEvent?: (event: FlowEvent) => Promise<void>;
 }
 
 type ClassType<T> = new (...args: any[]) => T;

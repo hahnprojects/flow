@@ -123,9 +123,11 @@ The `@InputStream` annotation defines a method of a Flow-Function implementation
 
 #### Concurrency
 
-Both `@FlowFunction` and `@InputStream` accept an object of options as the second argument. Currently the only available option is to set the concurrency for the the element as whole or for the streams individually.
+`@InputStream` accepts an object of options as the second argument. Currently the only available option is to set the concurrency for the streams individually. The default concurrency is the to 1.
 
-The default concurrency is the to 1, meaning only one instance of the task or resource is processing at a time. Concurrency defined on an Input-Stream supersedes the concurrency set for the element as a whole.
+```typescript
+  @InputStream('example', { concurrent: Infinity })
+```
 
 #### Property Validation
 
@@ -220,7 +222,77 @@ A `.zip` file will be created in the `dist` folder. This file is ready to be upl
 
 ## Migration
 
-TODO
+#### Update Flow SDK and Flow CLI Version
+
+```bash
+npm update @hahnpro/flow-sdk@latest @hahnpro/flow-cli@latest --force
+```
+
+#### Floder Structure
+
+Folders no longer need to be named like the Flow Function FQN (f.k.a. Instance Type FQN)
+
+[see here](#project-setup-and-folder-structure)
+
+#### Migrate Flow Function (f.k.a. Instance Type)
+
+```diff
+- import { BaseArguments, BaseFlowElement, DataSet, Logger } from '@hahnpro/flow-sdk';
++ import { FlowEvent, FlowFunction, FlowTask, InputStream } from '@hahnpro/flow-sdk';
++ import { IsBoolean, IsOptional } from 'class-validator';
+
+- interface Arguments extends BaseArguments {
+-   logData?: boolean;
+- }
++ class Properties {
++   @IsBoolean()
++   @IsOptional()
++   logData?: boolean;
++ }
+
+- export class Noop extends BaseFlowElement {
++ @FlowFunction('default.tasks.Noop')
++ export class Noop extends FlowTask {
++   private readonly props: Properties;
+
+-  constructor(protected args: Arguments, logger?: Logger) {
+-    super(args, logger);
+-    this.setInputStream('default', (data: DataSet) => this.noop(data));
+-  }
++  constructor(context, properties: unknown) {
++    super(context);
++    this.props = this.validateProperties(Properties, properties, true);
++  }
+
+-  public noop(data: DataSet) {
+-    if (this.args.logData === true) {
+-      this.logger.log(data);
+-    }
+-    this.fireOutput(data);
+-  }
++  @InputStream()
++  public async noop(event: FlowEvent) {
++    const data = event.getData();
++    if (this.props.logData === true) {
++      this.logger.log(data);
++    }
++    return this.emitOutput(data);
++  }
+
+}
+```
+
+#### Flow-Modules `index.ts` File
+
+Create a `index.ts` file at the root of your module folder with content according to [this](#the-flow-modules-indexts-file)
+
+#### Review Changes
+
+[CHANGELOG](https://gitlab.com/hahnpro/flow-sdk/blob/master/CHANGELOG.md)
+
+#### Examples for Flow SDK v3 Modules
+
+See the [flow-module-examples](https://gitlab.com/hahnpro/flow-module-examples)
 
 ## License
 

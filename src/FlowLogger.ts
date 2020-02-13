@@ -1,4 +1,5 @@
 import { ElementMetadata } from './FlowElement';
+import { FlowEvent } from './FlowEvent';
 
 export interface Logger {
   debug(message, metadata?): void;
@@ -14,26 +15,39 @@ const defaultLogger: Logger = {
   error: (msg, metadata?) => console.error(msg),
   log: (msg, metadata?) => console.log(msg),
   warn: (msg, metadata?) => console.warn(msg),
-  verbose: (msg, metadata?) => console.log(msg),
+  verbose: (msg, metadata?) => console.log(msg, metadata),
 };
 /* tslint:enable:no-console */
 
 export class FlowLogger implements Logger {
-  private readonly logger: Logger;
-  private metadata: {
-    deploymentId: string;
-    diagramId: string;
-    elementId: string;
-  };
+  constructor(
+    private readonly metadata: ElementMetadata,
+    private readonly logger: Logger = defaultLogger,
+    private readonly publishEvent?: (event: FlowEvent) => Promise<void>,
+  ) {}
 
-  constructor({ deploymentId = '', diagramId = '', id: elementId }: ElementMetadata, logger: Logger = defaultLogger) {
-    this.logger = logger;
-    this.metadata = { deploymentId, diagramId, elementId };
+  public debug = (message) => this.publish(message, 'debug');
+  public error = (message) => this.publish(message, 'error');
+  public log = (message) => this.publish(message, 'info');
+  public warn = (message) => this.publish(message, 'warn');
+  public verbose = (message) => this.publish(message, 'verbose');
+
+  private publish(message, level: string) {
+    if (this.publishEvent) {
+      const event = new FlowEvent(this.metadata, message, `flow.log.${level}`, new Date());
+      this.publishEvent(event);
+    }
+    switch (level) {
+      case 'debug':
+        return this.logger.debug(message, this.metadata);
+      case 'error':
+        return this.logger.error(message, this.metadata);
+      case 'warn':
+        return this.logger.warn(message, this.metadata);
+      case 'verbose':
+        return this.logger.verbose(message, this.metadata);
+      default:
+        this.logger.log(message, this.metadata);
+    }
   }
-
-  debug = (message) => this.logger.debug(message, this.metadata);
-  error = (message) => this.logger.error(message, this.metadata);
-  log = (message) => this.logger.log(message, this.metadata);
-  warn = (message) => this.logger.warn(message, this.metadata);
-  verbose = (message) => this.logger.verbose(message, this.metadata);
 }

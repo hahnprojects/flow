@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import queryString from 'querystring';
 
-import { Queue } from '../Queue';
+import { Queue } from './Queue';
 
 export class HttpClient {
   private readonly axiosInstance: AxiosInstance;

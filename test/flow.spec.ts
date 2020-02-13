@@ -5,40 +5,55 @@ import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResour
 // tslint:disable:no-console
 describe('Flow Application', () => {
   test('Simple Flow Application with Long Running Task', async (done) => {
+    const size = 8;
     const flow = {
       elements: [
         { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
         { id: 'testResource', module: 'test.module', functionFqn: 'test.resource.TestResource' },
-        { id: 'longRunningTask', module: 'test.module', functionFqn: 'test.task.LongRunningTask', properties: { delay: 1000 } },
+        { id: 'longRunningTask', module: 'test.module', functionFqn: 'test.task.LongRunningTask', properties: { delay: 500 } },
       ],
       connections: [
         { id: 'testConnection1', source: 'testTrigger', target: 'testResource' },
         { id: 'testConnection2', source: 'testResource', target: 'longRunningTask' },
       ],
+      context: {
+        flowId: 'testFlow',
+        deploymentId: 'testDeployment',
+      },
     };
     const flowApp = new FlowApplication([TestModule], flow);
 
-    flowApp.addListener('testResource.default', (event: FlowEvent) => {
-      expect(event.getData()).toEqual({ hello: 'world' });
-    });
-    flowApp.addListener('longRunningTask.default', (event: FlowEvent) => {
-      expect(event.getData()).toEqual({ foo: 'bar' });
-      const stats = flowApp.getQueueStats();
-      console.log(stats);
-      if (stats['longRunningTask'].size === 0) {
-        done();
-      }
+    flowApp.subscribe('testResource.default', {
+      next: (event: FlowEvent) => {
+        expect(event.getData()).toEqual({ hello: 'world' });
+      },
     });
 
-    for (let i = 0; i < 10; i++) {
-      flowApp.emit('testTrigger.default', null);
+    let count = 0;
+    flowApp.subscribe('longRunningTask.default', {
+      next: (event: FlowEvent) => {
+        expect(event.getData()).toEqual({ foo: 'bar' });
+        expect(event.getDataContentType()).toBe('application/json');
+        expect(event.getSource()).toBe('flows/testFlow/deployment/testDeployment/elements/longRunningTask');
+        expect(event.getSubject()).toBe('test.task.LongRunningTask');
+        expect(event.getType()).toBe('default');
+        expect(event.getTime()).toBeDefined();
+
+        if (++count === size) {
+          done();
+        }
+      },
+    });
+
+    for (let i = 0; i < size; i++) {
+      flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
     }
   }, 60000);
 });
 
-@FlowFunction('test.resource.TestResource', { concurrent: 5 })
+@FlowFunction('test.resource.TestResource')
 class TestResource extends FlowResource {
-  @InputStream('default')
+  @InputStream('default', { concurrent: 5 })
   public async onDefault(event) {
     return this.emitOutput({ hello: 'world' });
   }

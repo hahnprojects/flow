@@ -7,7 +7,7 @@ All notable changes to [flow-sdk](https://gitlab.com/hahnpro/flow-sdk) are docum
 ### Features
 
 - decorators for flow-functions, flow-modules and input-streams
-- adjustable concurrency on a per stream or per element basis (queues)
+- adjustable concurrency on a per stream basis (queues)
 - validation for element properties and input- and output-stream properties (based on [class-validator](https://github.com/typestack/class-validator))
 - improved testability of flow-modules and flow-function implementations
 - standardised format for emitted events (based on [cloudevents](http://cloudevents.io/))
@@ -19,7 +19,7 @@ All notable changes to [flow-sdk](https://gitlab.com/hahnpro/flow-sdk) are docum
 - Instance Types have been renamed to Flow Functions
 - `FlowBaseElement` class has been deprecated and is replaced by `FlowResource` and `FlowTask` classes
 - `setInputStream` has been replaced by the `@InputStream` annotation
-- `fireOutput` has been replaced by `emitOutput` and `emitEvent`
+- `fireOutput` has been replaced by `emitOutput`
 - `DataSet` has been deprecated and is replaced by `FlowEvent`
 - building and packaging flow-modules requires [flow-cli](https://gitlab.com/hahnpro/flow-cli) version 2.0.0 or higher
 - the `fqn` field in a modules package.json is no longer required
