@@ -2,6 +2,13 @@
 
 All notable changes to [flow-sdk](https://gitlab.com/hahnpro/flow-sdk) are documented here. We use [semantic versioning](http://semver.org/) for releases.
 
+## [3.0.2](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.0.2)
+
+### Fixes
+
+- fix cloud-platform logging for strings
+- improve setting of content-type for flow-events
+
 ## [3.0.0](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.0.0)
 
 ### Features

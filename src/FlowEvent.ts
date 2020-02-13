@@ -6,8 +6,28 @@ export class FlowEvent {
   private event: Cloudevent;
   private metadata;
 
-  constructor(metadata: ElementMetadata, data: any, outputId = 'default', time = new Date(), dataType = 'application/json') {
+  constructor(metadata: ElementMetadata, data: any, outputId = 'default', time = new Date(), dataType?: string) {
     const { id: elementId, deploymentId, flowId, functionFqn } = metadata;
+    if (data instanceof Error) {
+      const error = { message: data.message, stack: data.stack };
+      data = error;
+    }
+    if (dataType == null) {
+      if (typeof data === 'string') {
+        try {
+          JSON.parse(data);
+          dataType = 'application/json';
+        } catch (err) {
+          dataType = 'text/plain';
+        }
+      } else if (typeof data === 'object' && data != null) {
+        dataType = 'application/json';
+      } else {
+        data = String(data);
+        dataType = 'text/plain';
+      }
+    }
+
     this.metadata = { deploymentId, elementId, flowId, functionFqn };
     this.event = event()
       .source(`flows/${flowId}/deployments/${deploymentId}/elements/${elementId}`)

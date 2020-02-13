@@ -1,6 +1,6 @@
 {
   "name": "@hahnpro/flow-sdk",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "description": "SDK for building Flow Modules",
   "license": "MIT",
   "main": "./lib/index.js",
@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@types/jest": "^24.9.1",
-    "@types/node": "^12.12.26",
+    "@types/node": "^12.12.27",
     "dotenv": "^8.2.0",
     "jest": "^24.9.0",
     "prettier": "^1.19.1",

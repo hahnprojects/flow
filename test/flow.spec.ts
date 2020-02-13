@@ -34,7 +34,7 @@ describe('Flow Application', () => {
       next: (event: FlowEvent) => {
         expect(event.getData()).toEqual({ foo: 'bar' });
         expect(event.getDataContentType()).toBe('application/json');
-        expect(event.getSource()).toBe('flows/testFlow/deployment/testDeployment/elements/longRunningTask');
+        expect(event.getSource()).toBe('flows/testFlow/deployments/testDeployment/elements/longRunningTask');
         expect(event.getSubject()).toBe('test.task.LongRunningTask');
         expect(event.getType()).toBe('default');
         expect(event.getTime()).toBeDefined();
