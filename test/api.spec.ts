@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 
 import { API } from '../src';
+import { AssetType } from '../src/api/asset.interface';
 
 dotenv.config();
 
@@ -22,6 +23,18 @@ describe('API test', () => {
 
     assets = await api.assetManager.getManyFiltered({ tags: ['test'] }).catch((err) => logError(err));
     expect(assets).toBeDefined();
+
+    assets = await api.assetManager.getMany({ populate: 'type' }).catch((err) => logError(err));
+    expect(assets).toBeDefined();
+    if (assets) {
+      expect(Array.isArray(assets.docs)).toBe(true);
+      expect(assets.docs.length).toBeGreaterThan(0);
+      const asset = assets.docs[0];
+      expect(asset).toBeDefined();
+      if (asset) {
+        expect(asset.type).toHaveProperty('id');
+      }
+    }
 
     done();
   }, 60000);
