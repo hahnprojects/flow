@@ -13,6 +13,7 @@ export interface RequestParameter {
   filter?: string;
   limit?: number;
   page?: number;
+  populate?: string;
   sort?: string;
 }
 
