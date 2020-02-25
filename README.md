@@ -225,7 +225,7 @@ A `.zip` file will be created in the `dist` folder. This file is ready to be upl
 #### Update Flow SDK and Flow CLI Version
 
 ```bash
-npm update @hahnpro/flow-sdk@latest @hahnpro/flow-cli@latest --force
+npm install @hahnpro/flow-sdk@latest @hahnpro/flow-cli@latest
 ```
 
 #### Floder Structure

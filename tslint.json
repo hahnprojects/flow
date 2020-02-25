@@ -18,7 +18,7 @@
     "no-string-literal": false,
     "no-submodule-imports": false,
     "object-literal-sort-keys": false,
-    "ordered-imports": [true, { "named-imports-order": "lowercase-first" }],
+    "ordered-imports": [true, { "named-imports-order": "lowercase-last" }],
     "quotemark": [true, "single", "avoid-escape"],
     "return-undefined": true,
     "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"]

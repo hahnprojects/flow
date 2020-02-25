@@ -77,11 +77,16 @@ export class FlowApplication {
 
   public emit = (event: FlowEvent) => {
     if (event) {
-      this.getOutputStream(event.getStreamId()).next(event);
-      if (this.context.publishEvent && event && event.getDataContentType() === 'application/json') {
+      try {
+        this.getOutputStream(event.getStreamId()).next(event);
+      } catch (err) {
+        this.context?.logger?.error(err);
+      }
+
+      if (this.context.publishEvent && event.getDataContentType() === 'application/json') {
         const size = Buffer.byteLength(event.toString());
         if (size <= 64 * 1024 /* 64kb */) {
-          this.context.publishEvent(event);
+          this.context.publishEvent(event).catch((err) => this.context?.logger?.error(err));
         }
       }
     }

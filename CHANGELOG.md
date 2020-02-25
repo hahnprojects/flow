@@ -2,11 +2,17 @@
 
 All notable changes to [flow-sdk](https://gitlab.com/hahnpro/flow-sdk) are documented here. We use [semantic versioning](http://semver.org/) for releases.
 
+## [3.1.1](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.1.1)
+
+### Fixes
+
+- error handling for unavailable amqp connections
+
 ## [3.1.0](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.1.0)
 
 ### Features
 
-- add ```populate``` as query parameter. Add the ability to populate fields. 
+- add `populate` as query parameter. Add the ability to populate fields.
 
 ## [3.0.2](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.0.2)
 
