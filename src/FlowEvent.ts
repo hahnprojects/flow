@@ -47,7 +47,7 @@ export class FlowEvent {
   public getSource = (): string => this.event.getSource();
   public getStreamId = (): string => `${this.metadata.elementId}.${this.event.getType()}`;
   public getSubject = (): string => this.event.getSubject();
-  public getTime = (): Date => this.event.getTime();
+  public getTime = (): Date => new Date(this.event.getTime());
   public getType = (): string => this.event.getType();
   public toString = (): string => this.event.toString();
 }
