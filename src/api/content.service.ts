@@ -6,7 +6,7 @@ import { HttpClient } from './http.service';
 
 export class ContentService extends DataService<Content> {
   constructor(httpClient: HttpClient) {
-    super(httpClient, 'api/contents');
+    super(httpClient, process.env.DEBUG_CONTENT_URL || 'api/contents');
   }
 
   upload = (form: FormData): Promise<Content> => {
