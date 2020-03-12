@@ -2,6 +2,12 @@
 
 All notable changes to [flow-sdk](https://gitlab.com/hahnpro/flow-sdk) are documented here. We use [semantic versioning](http://semver.org/) for releases.
 
+##  [3.1.3](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.1.2) 
+
+### Fixes
+
+- add more debugbillity for local development
+
 ##  [3.1.2](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.1.2) 
 
 ### Fixes
