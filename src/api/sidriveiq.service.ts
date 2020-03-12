@@ -5,7 +5,7 @@ export class SidriveIQService {
   private basePath: string;
 
   constructor(private readonly httpClient: HttpClient) {
-    this.basePath = 'api/sidrive';
+    this.basePath = process.env.DEBUG_SIDRIVE_URL || 'api/sidrive';
   }
 
   public getAssets(hierarchyTypes?: HierarchyType[]) {
