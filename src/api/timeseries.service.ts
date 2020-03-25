@@ -2,7 +2,10 @@ import { DataService, Paginated } from './data.service';
 import { HttpClient } from './http.service';
 import { TimeSeries, TimeSeriesValue } from './timeseries.interface';
 
+type TS_GROUPS  = '10s'|'1m'|'5m'|'15m'|'30m'|'1h'|'3h'|'6h'|'12h'|'1d'|'7d';
 export class TimeSeriesService extends DataService<TimeSeries> {
+  
+
   constructor(httpClient: HttpClient) {
     super(httpClient, process.env.DEBUG_TSM_URL || 'api/tsm');
   }
@@ -33,14 +36,16 @@ export class TimeSeriesService extends DataService<TimeSeries> {
     const params = before ? { before: before.toISOString() } : {};
     return this.httpClient.get<TimeSeriesValue>(`${this.basePath}/${id}/recent`, { params });
   }
-
-  public getValues(id: string, from: number, limit?: number) {
-    const params = limit ? { limit } : {};
+  
+  
+  public getValues(id: string, from: number, limit?: number, group?: TS_GROUPS) {
+    const params = { limit, group };
     return this.httpClient.get<TimeSeriesValue[]>(`${this.basePath}/${id}/${from}`, { params });
   }
 
-  public getValuesOfPeriod(id: string, from: number, to: number) {
-    return this.httpClient.get<TimeSeriesValue[]>(`${this.basePath}/${id}/${from}/${to}`);
+  public getValuesOfPeriod(id: string, from: number, to: number, group?: TS_GROUPS) {
+    const params = { group };
+    return this.httpClient.get<TimeSeriesValue[]>(`${this.basePath}/${id}/${from}/${to}`, { params });
   }
 
   public getManyByAsset(assetId: string, names?: string[]): Promise<Paginated<TimeSeries[]>> {
