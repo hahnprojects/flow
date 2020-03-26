@@ -1,6 +1,7 @@
 {
   "extends": ["tslint:latest", "tslint-config-prettier"],
   "rules": {
+    "array-type": false,
     "arrow-return-shorthand": true,
     "ban-types": false,
     "import-spacing": true,
