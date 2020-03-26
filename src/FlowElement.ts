@@ -23,6 +23,8 @@ export abstract class FlowElement {
 
   public handleApiError = (error: any) => handleApiError(error, this.logger);
 
+  public handleMessage?: (message: any) => void;
+
   protected emitOutput(data: object = {}, outputId = 'default', time = new Date()): FlowEvent {
     const event = new FlowEvent(this.metadata, data, outputId, time);
     if (this.app) {

@@ -92,6 +92,21 @@ export class FlowApplication {
     }
   };
 
+  public publishMessage = (msg: any, elementId?: string) => {
+    if (elementId) {
+      const element = this.elements[elementId];
+      if (element?.handleMessage) {
+        element.handleMessage(msg);
+      }
+    } else {
+      for (const element of Object.values(this.elements)) {
+        if (element?.handleMessage) {
+          element.handleMessage(msg);
+        }
+      }
+    }
+  };
+
   private getOutputStream(id: string) {
     const stream = this.outputStreamMap[id];
     if (!stream) {
