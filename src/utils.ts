@@ -1,3 +1,5 @@
+import { PythonShell } from 'python-shell';
+
 import { FlowLogger } from './FlowLogger';
 
 export function fillTemplate(templateString: string, templateVariables: object): string {
@@ -47,4 +49,26 @@ export function handleApiError(error: any, logger: FlowLogger) {
   } else {
     logger.error(error);
   }
+}
+
+export function runPyScript(scriptPath: string, data: object) {
+  return new Promise<any>((resolve, reject) => {
+    let pyData: any;
+
+    const pyshell = new PythonShell(scriptPath, { mode: 'text', pythonOptions: ['-u'] });
+    pyshell.send(JSON.stringify(data));
+    pyshell.on('message', (message) => {
+      try {
+        pyData = JSON.parse(message);
+      } catch (err) {
+        pyData = message;
+      }
+    });
+    pyshell.end((err, code, signal) => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve(pyData);
+    });
+  });
 }
