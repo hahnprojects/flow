@@ -2,13 +2,26 @@
 
 All notable changes to [flow-sdk](https://gitlab.com/hahnpro/flow-sdk) are documented here. We use [semantic versioning](http://semver.org/) for releases.
 
-##  [3.1.3](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.1.2) 
+## [3.2.1](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.2.1)
+
+### Chores
+
+- update dependencies
+
+## [3.2.0](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.2.0)
+
+### Features
+
+- add utility method for running python scripts
+- handle flow external message
+
+## [3.1.3](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.1.2)
 
 ### Fixes
 
 - add more debugbillity for local development
 
-##  [3.1.2](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.1.2) 
+## [3.1.2](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.1.2)
 
 ### Fixes
 
