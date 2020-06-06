@@ -1,3 +1,5 @@
+import { promises as fs } from 'fs';
+import { join } from 'path';
 import { PythonShell } from 'python-shell';
 
 import { FlowLogger } from './FlowLogger';
@@ -33,6 +35,12 @@ export function toArray(value: string | string[] = []): string[] {
 
 export function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export async function deleteFiles(...filenames: string[]) {
+  for (const filename of filenames) {
+    await fs.unlink(join(__dirname, filename)).catch((err) => {});
+  }
 }
 
 export function handleApiError(error: any, logger: FlowLogger) {
