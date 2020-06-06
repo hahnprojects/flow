@@ -60,6 +60,6 @@ export class SidriveIQService {
       propertyPaths: properties,
       maxDateTime,
     };
-    return this.httpClient.post<AssetPropertyValue>(`${this.basePath}/getRecentValuesforAssets`, body);
+    return this.httpClient.post<AssetPropertyValue[]>(`${this.basePath}/getRecentValuesforAssets`, body);
   }
 }
