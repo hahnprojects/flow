@@ -2,6 +2,28 @@
 
 All notable changes to [flow-sdk](https://gitlab.com/hahnpro/flow-sdk) are documented here. We use [semantic versioning](http://semver.org/) for releases.
 
+## [3.3.2](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.3.2)
+
+### Chores
+
+- update dependencies
+
+## [3.3.1](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.3.1)
+
+### Fixes
+
+- dirname for deleteFiles utility function
+
+### Chores
+
+- update dependencies
+
+## [3.3.0](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.3.0)
+
+### Features
+
+- add deleteFiles utility function
+
 ## [3.2.1](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.2.1)
 
 ### Chores
