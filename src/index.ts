@@ -9,3 +9,4 @@ export * from './FlowTask';
 export * from './TestModule';
 
 export { Context, ElementMetadata, FlowFunction, InputStream } from './FlowElement';
+export { IncompatableWith } from './extra-validators';
