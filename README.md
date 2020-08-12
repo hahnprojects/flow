@@ -179,7 +179,22 @@ The developer can choose to log additional messages with the provided logger. Us
 
 ### Running Python Scripts
 
-See the [flow-module-examples](https://gitlab.com/hahnpro/flow-module-examples) repository for an example of how to run python scripts in your Flow-Function implementation.
+There are two possibilities to run python scripts in your Flow-Functions.
+#### python-shell: 
+- communication over stdin and stdout
+- script starts, calculates, returns, gets destroyed
+- scripts gets instantiated on receiving of a message and gets destroyed after calculation is finished
+- has to be reinstantiated for every message
+- useful for short simple scripts that don´t have to keep data in memory
+
+#### rpc:
+- communication over rabbitmq
+- function calls equivalent to normal local function calls
+- script gets instantiated when the Flow-Function gets instantiated and destroyed when the Flow-Function gets destroyed
+- script stays running between messages
+- useful for complex scripts that have to keep running to save data in memory
+
+See the [flow-module-examples](https://gitlab.com/hahnpro/flow-module-examples) repository for examples of how to run python scripts in your Flow-Function implementation.
 
 ## Testing
 
