@@ -1,4 +1,4 @@
-from src.rpc_server import start_consumer, RemoteProcedure
+from utils.rpc_server import start_consumer, RemoteProcedure
 
 ''' 
 to use this you need to install the python utils for the flow-sdk
