@@ -14,7 +14,12 @@ export class API {
   public timeSeriesManager: TimeSeriesService;
 
   constructor() {
-    const apiBaseUrl = process.env.API_BASE_URL || 'https://testing.hahnpro.com';
+    let apiBaseUrl = process.env.API_BASE_URL || 'https://testing.hahnpro.com';
+    if (!apiBaseUrl.startsWith('https') && !apiBaseUrl.startsWith('http')) {
+      console.info('no protocol specified - using HTTPS');
+      apiBaseUrl = `https://${apiBaseUrl}`;
+    }
+
     const authBaseUrl = process.env.AUTH_BASE_URL || apiBaseUrl;
     const realm = process.env.AUTH_REALM || 'hpc';
     const client = process.env.API_USER || 'flow-executor-service';
