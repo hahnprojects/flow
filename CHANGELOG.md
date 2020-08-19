@@ -2,6 +2,14 @@
 
 All notable changes to [flow-sdk](https://gitlab.com/hahnpro/flow-sdk) are documented here. We use [semantic versioning](http://semver.org/) for releases.
 
+## [3.4.1](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.4.1)
+
+### Features
+
+- new IncompatibleWith validator
+- api base url protocol will be set to https if none is specified
+- rpc communication for long running python scripts
+
 ## [3.3.2](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.3.2)
 
 ### Chores

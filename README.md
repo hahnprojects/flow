@@ -180,14 +180,17 @@ The developer can choose to log additional messages with the provided logger. Us
 ### Running Python Scripts
 
 There are two possibilities to run python scripts in your Flow-Functions.
-#### python-shell: 
+
+#### python-shell:
+
 - communication over stdin and stdout
 - script starts, calculates, returns, gets destroyed
 - scripts gets instantiated on receiving of a message and gets destroyed after calculation is finished
 - has to be reinstantiated for every message
-- useful for short simple scripts that don´t have to keep data in memory
+- useful for short simple scripts that don't have to keep data in memory
 
 #### rpc:
+
 - communication over rabbitmq
 - function calls equivalent to normal local function calls
 - script gets instantiated when the Flow-Function gets instantiated and destroyed when the Flow-Function gets destroyed

@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+
+import { AmqpConnectionManager } from 'amqp-connection-manager';
 import { PartialObserver, Subject } from 'rxjs';
 import { catchError, mergeMap } from 'rxjs/operators';
 
@@ -6,12 +8,14 @@ import { API } from './api';
 import { FlowElement } from './FlowElement';
 import { FlowEvent } from './FlowEvent';
 import { Logger } from './FlowLogger';
+import { RpcClient } from './RpcClient';
 
 /* tslint:disable:no-console */
 export class FlowApplication {
   private context: FlowContext;
   private declarations: { [id: string]: ClassType<FlowElement> } = {};
   private elements: { [id: string]: FlowElement } = {};
+  private _rpcClient: RpcClient;
 
   private outputStreamMap: {
     [streamId: string]: Subject<FlowEvent>;
@@ -107,6 +111,17 @@ export class FlowApplication {
     }
   };
 
+  get rpcClient() {
+    if (!this._rpcClient) {
+      this._rpcClient = new RpcClient(this.context.amqpConnection);
+    }
+    return this._rpcClient;
+  }
+
+  public async destroy() {
+    await this._rpcClient?.close();
+  }
+
   private getOutputStream(id: string) {
     const stream = this.outputStreamMap[id];
     if (!stream) {
@@ -139,6 +154,8 @@ export interface Flow {
     diagramId?: string;
     flowId?: string;
     logger?: Logger;
+    publishEvent?: (event: FlowEvent) => Promise<void>;
+    amqpConnection?: AmqpConnectionManager;
   };
 }
 
@@ -154,6 +171,7 @@ export interface FlowContext {
   flowId?: string;
   logger?: Logger;
   publishEvent?: (event: FlowEvent) => Promise<void>;
+  amqpConnection?: AmqpConnectionManager;
 }
 
 type ClassType<T> = new (...args: any[]) => T;

@@ -10,7 +10,7 @@ export interface Logger {
 }
 
 /* tslint:disable:no-console */
-export const defaultLogger: Logger = {
+const defaultLogger: Logger = {
   debug: (msg, metadata?) => console.debug(msg),
   error: (msg, metadata?) => console.error(msg),
   log: (msg, metadata?) => console.log(msg),
@@ -20,20 +20,21 @@ export const defaultLogger: Logger = {
 /* tslint:enable:no-console */
 
 export class FlowLogger implements Logger {
-
   private static getStackTrace() {
     // get stacktrace without extra dependencies
     let stack;
 
     try {
       throw new Error('');
-    }
-    catch (error) {
+    } catch (error) {
       stack = error.stack || '';
     }
 
     // cleanup stacktrace and remove calls within this file
-    stack = stack.split('\n').map(line => line.trim()).filter(value => !value.includes('Logger'));
+    stack = stack
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((value) => !value.includes('Logger'));
     return stack.splice(1).join('\n');
   }
 
@@ -56,16 +57,17 @@ export class FlowLogger implements Logger {
     }
     // ensure correct message if message is an object
     // has no real effect if message is already a string
-    const stackTrace = JSON.stringify(message) + '\n' + FlowLogger.getStackTrace();
+    // FIXME: not working as expected
+    // const stackTrace = JSON.stringify(message) + '\n' + FlowLogger.getStackTrace();
     switch (level) {
       case 'debug':
         return this.logger.debug(message, this.metadata);
       case 'error':
-        return this.logger.error(stackTrace, this.metadata);
+        return this.logger.error(message, this.metadata);
       case 'warn':
-        return this.logger.warn(stackTrace, this.metadata);
+        return this.logger.warn(message, this.metadata);
       case 'verbose':
-        return this.logger.verbose(stackTrace, this.metadata);
+        return this.logger.verbose(message, this.metadata);
       default:
         this.logger.log(message, this.metadata);
     }
