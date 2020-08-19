@@ -16,6 +16,21 @@
     "types": ["jest", "node"],
     "typeRoots": ["node_modules/@types"]
   },
-  "include": ["**/*.ts"],
-  "exclude": ["dist", "node_modules"]
+  "include": [],
+  "exclude": ["dist", "node_modules"],
+  "files": [],
+  "references": [
+    {
+      "path": "./modules/example/tsconfig.json"
+    },
+    {
+      "path": "./modules/example/tsconfig.module.json"
+    },
+    {
+      "path": "./modules/python/tsconfig.json"
+    },
+    {
+      "path": "./modules/python/tsconfig.module.json"
+    }
+  ]
 }
