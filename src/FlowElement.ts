@@ -1,5 +1,6 @@
 import { plainToClass } from 'class-transformer';
 import { validateSync } from 'class-validator';
+import { Options, PythonShell } from 'python-shell';
 
 import { API } from './api';
 import { FlowApplication, FlowContext } from './FlowApplication';
@@ -13,12 +14,14 @@ export abstract class FlowElement {
   protected readonly metadata: ElementMetadata;
   protected readonly api?: API;
   private readonly app: FlowApplication;
+  private readonly rpcRoutingKey: string;
 
-  constructor({ app, api, logger, publishEvent, ...metadata }: Context) {
+  constructor({ app, api, logger, publishEvent, amqpConnection, ...metadata }: Context) {
     this.app = app;
     this.api = api;
     this.metadata = { ...metadata, functionFqn: this.functionFqn };
     this.logger = new FlowLogger(this.metadata, logger, publishEvent);
+    this.rpcRoutingKey = (metadata.flowId || '') + (metadata.deploymentId || '') + metadata.id;
   }
 
   public handleApiError = (error: any) => handleApiError(error, this.logger);
@@ -48,6 +51,28 @@ export abstract class FlowElement {
 
   protected validateEventData<P>(classType: ClassType<P>, event: FlowEvent, whitelist = false): P {
     return this.validateProperties(classType, event.getData(), whitelist);
+  }
+
+  protected async callRpcFunction(functionName: string, ...args: any[]) {
+    try {
+      return this.app?.rpcClient?.callFunction(this.rpcRoutingKey, functionName, ...args);
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
+
+  protected runPyRpcScript(scriptPath: string) {
+    const options: Options = {
+      mode: 'text',
+      pythonOptions: ['-u'],
+      args: [__dirname, this.rpcRoutingKey],
+    };
+    return PythonShell.run(scriptPath, options, (err, outputs) => {
+      if (err) {
+        this.logger.error(err);
+      }
+      this.logger.debug(outputs);
+    });
   }
 }
 
