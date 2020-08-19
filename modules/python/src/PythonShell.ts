@@ -1,5 +1,6 @@
 import { FlowEvent, FlowFunction, FlowTask, InputStream } from '@hahnpro/flow-sdk';
 import { IsNumber } from 'class-validator';
+import { join } from 'path';
 import { PythonShell } from 'python-shell';
 
 @FlowFunction('python.tasks.python-shell')
@@ -16,17 +17,17 @@ export class Python extends FlowTask {
     const data = event.getData();
     const { x } = data;
 
-    const pyshell = new PythonShell(__dirname + '/algebra.py');
+    const pyshell = new PythonShell(join(__dirname, 'algebra.py'));
     const numbers = {
       a: this.props.a,
       b: this.props.b,
-      x
+      x,
     };
 
     pyshell.send(JSON.stringify(numbers));
     pyshell.on('message', (msg) => {
       const response = JSON.parse(msg);
-      return this.emitOutput({ ...data, sum: response.sum, mul: response.mul, factorial: response.factorial});
+      return this.emitOutput({ ...data, sum: response.sum, mul: response.mul, factorial: response.factorial });
     });
     pyshell.end((err, exitCode, exitSignal) => {
       if (err) {

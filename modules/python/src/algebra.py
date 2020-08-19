@@ -20,11 +20,7 @@ def main():
     b = jsonData["b"]
     x = jsonData["x"]
 
-    data = {
-        "sum": sum(a, b, x),
-        "mul": multiply(a, b, x),
-        "factorial": factorial(a)
-    }
+    data = {"sum": sum(a, b, x), "mul": multiply(a, b, x), "factorial": factorial(a)}
 
     print(json.dumps(data))
 
