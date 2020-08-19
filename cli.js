@@ -3,7 +3,7 @@ require('reflect-metadata');
 
 const archiver = require('archiver');
 const chalk = require('chalk');
-const program = require('commander');
+const { Command } = require('commander');
 const execa = require('execa');
 const fs = require('fs');
 const ora = require('ora');
@@ -42,8 +42,10 @@ const CMD = {
   WATCH: 'watch',
 };
 
+const program = new Command();
+
 program
-  .version('2.0.0', '-v, --version')
+  .version('2.1.0', '-v, --version')
   .usage('[command] [options]')
   .description('Flow Module Management Tool.')
   .on('--help', () => {});
@@ -177,9 +179,6 @@ program
   });
 
 program.parse(process.argv);
-if (program.rawArgs.length < 3) {
-  program.help();
-}
 
 async function clean(buildFolder) {
   return new Promise((resolve, reject) => {
