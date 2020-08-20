@@ -2,6 +2,12 @@
 
 All notable changes to [flow-sdk](https://gitlab.com/hahnpro/flow-sdk) are documented here. We use [semantic versioning](http://semver.org/) for releases.
 
+## [3.5.1](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.5.1)
+
+### Fixes
+
+- improve fillTemplate uitlity function
+
 ## [3.5.0](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.5.0)
 
 ### Features

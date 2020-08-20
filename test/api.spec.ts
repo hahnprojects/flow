@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 
 import { API } from '../src';
-import { AssetType } from '../src/api/asset.interface';
 
 dotenv.config();
 

@@ -1,6 +1,6 @@
 {
   "name": "@hahnpro/flow-sdk",
-  "version": "3.5.0",
+  "version": "3.5.1",
   "description": "SDK for building Flow Modules",
   "license": "MIT",
   "main": "./lib/index.js",
@@ -39,7 +39,8 @@
     "python-shell": "^2.0.1",
     "querystring": "^0.2.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^6.6.2"
+    "rxjs": "^6.6.2",
+    "string-interp": "^0.3.1"
   },
   "devDependencies": {
     "@types/amqp-connection-manager": "^2.0.10",

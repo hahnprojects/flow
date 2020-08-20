@@ -1,19 +1,15 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { PythonShell } from 'python-shell';
+import interp from 'string-interp';
 
 import { FlowLogger } from './FlowLogger';
 
 export function fillTemplate(templateString: string, templateVariables: object): string {
-  if (templateString === undefined) {
-    return undefined;
+  if (!templateString || !templateString.includes('${')) {
+    return templateString;
   }
-  const keys = Object.keys(templateVariables);
-  const values = Object.values(templateVariables);
-
-  // tslint:disable-next-line
-  const templateFunction = new Function(...keys, `return \`${templateString}\`;`);
-  return templateFunction(...values);
+  return interp(templateString, templateVariables || {});
 }
 
 export function getCircularReplacer() {
