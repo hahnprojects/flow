@@ -1,9 +1,9 @@
-import Cloudevent, { event } from 'cloudevents-sdk/v1';
+import { CloudEvent } from 'cloudevents';
 
 import { ElementMetadata } from './FlowElement';
 
 export class FlowEvent {
-  private event: Cloudevent;
+  private event: CloudEvent;
   private metadata;
 
   constructor(metadata: ElementMetadata, data: any, outputId = 'default', time = new Date(), dataType?: string) {
@@ -29,25 +29,27 @@ export class FlowEvent {
     }
 
     this.metadata = { deploymentId, elementId, flowId, functionFqn };
-    this.event = event()
-      .source(`flows/${flowId}/deployments/${deploymentId}/elements/${elementId}`)
-      .subject(functionFqn)
-      .type(outputId)
-      .dataContentType(dataType)
-      .data(data)
-      .time(time);
+    this.event = new CloudEvent({
+      source: `flows/${flowId}/deployments/${deploymentId}/elements/${elementId}`,
+      type: outputId,
+      datacontenttype: dataType,
+      subject: functionFqn,
+      data,
+      time,
+    });
   }
 
-  public format = (): any => this.event.format();
-  public getData = (): any => this.event.getData() || {};
-  public getDataContentType = (): string => this.event.getDataContentType();
-  public getDataschema = (): string => this.event.getDataschema();
-  public getId = (): string => this.event.getId();
+  public format = (): any => this.event.toJSON();
+  public getData = (): any => this.event.data || {};
+  public getDataContentType = (): string => this.event.datacontenttype;
+  public getDataschema = (): string => this.event.dataschema;
+  public getId = (): string => this.event.id;
   public getMetadata = () => this.metadata;
-  public getSource = (): string => this.event.getSource();
-  public getStreamId = (): string => `${this.metadata.elementId}.${this.event.getType()}`;
-  public getSubject = (): string => this.event.getSubject();
-  public getTime = (): Date => new Date(this.event.getTime());
-  public getType = (): string => this.event.getType();
+  public getSource = (): string => this.event.source;
+  public getStreamId = (): string => `${this.metadata.elementId}.${this.event.type}`;
+  public getSubject = (): string => this.event.subject;
+  public getTime = (): Date => new Date(this.event.time);
+  public getType = (): string => this.event.type;
+  public toJSON = (): any => this.event.toJSON();
   public toString = (): string => this.event.toString();
 }

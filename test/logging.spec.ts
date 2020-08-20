@@ -16,6 +16,26 @@ describe('Logging', () => {
     expect(event.data).toEqual({ hello: 'world' });
     expect(event.datacontenttype).toEqual('application/json');
 
+    event = createEvent('[0, 1, 2, 3]');
+    expect(event.data).toEqual([0, 1, 2, 3]);
+    expect(event.datacontenttype).toEqual('application/json');
+
+    event = createEvent('["a", "b", "c"]');
+    expect(event.data).toEqual(['a', 'b', 'c']);
+    expect(event.datacontenttype).toEqual('application/json');
+
+    event = createEvent('[{ "hello": "world" }]');
+    expect(event.data).toEqual([{ hello: 'world' }]);
+    expect(event.datacontenttype).toEqual('application/json');
+
+    event = createEvent('true');
+    expect(event.data).toEqual(true);
+    expect(event.datacontenttype).toEqual('application/json');
+
+    event = createEvent('null');
+    expect(event.data).toEqual(null);
+    expect(event.datacontenttype).toEqual('application/json');
+
     event = createEvent(42);
     expect(event.data).toEqual('42');
     expect(event.datacontenttype).toEqual('text/plain');
