@@ -10,7 +10,7 @@ node_modules/
 
 __pycache__
 
-**/package-lock.json
+/modules/**/package-lock.json
 *.iml
 *.log
 *.out

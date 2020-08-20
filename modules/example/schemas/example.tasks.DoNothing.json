@@ -1,0 +1,21 @@
+{
+  "fqn": "example.tasks.DoNothing",
+  "category": "task",
+  "name": "DoNothing",
+  "description": "",
+  "isAbstract": false,
+  "supertype": "",
+  "propertiesSchema": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "logdata": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "inputStreams": [],
+  "outputStreams": [],
+  "tags": []
+}
