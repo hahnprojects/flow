@@ -4,8 +4,6 @@ import { HttpClient } from './http.service';
 import { TS_GROUPS, TimeSeries, TimeSeriesValue, TimeseriesInterface } from './timeseries.interface';
 
 export class TimeSeriesService extends DataService<TimeSeries> implements TimeseriesInterface {
-  
-
   constructor(httpClient: HttpClient) {
     super(httpClient, process.env.DEBUG_TSM_URL || 'api/tsm');
   }
@@ -36,8 +34,7 @@ export class TimeSeriesService extends DataService<TimeSeries> implements Timese
     const params = before ? { before: before.toISOString() } : {};
     return this.httpClient.get<TimeSeriesValue>(`${this.basePath}/${id}/recent`, { params });
   }
-  
-  
+
   public getValues(id: string, from: number, limit?: number, group?: TS_GROUPS) {
     const params = { limit, group };
     return this.httpClient.get<TimeSeriesValue[]>(`${this.basePath}/${id}/${from}`, { params });

@@ -19,7 +19,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.lib.json",
     "postbuild": "copyfiles -u 1 src/*.py lib",
-    "format": "prettier --write **/*.ts",
+    "format": "prettier --write .",
     "lint": "tslint -p .",
     "test": "yarn jest",
     "prepare": "yarn build",

@@ -1,17 +1,23 @@
 import { Paginated } from '../data.interface';
-import { TimeSeries, TimeseriesInterface, TimeSeriesValue, TS_GROUPS } from '../timeseries.interface';
+import { TS_GROUPS, TimeSeries, TimeSeriesValue, TimeseriesInterface } from '../timeseries.interface';
 import { DataMockService } from './data.mock.service';
 
 export class TimeseriesMockService extends DataMockService<TimeSeries & { data: TimeSeriesValue[] }> implements TimeseriesInterface {
   constructor(timeseries: TimeSeries[], timeseriesValues: TimeSeriesValue[][]) {
     super();
-    this.data = timeseries.map((value, index) => ({...value, data: timeseriesValues[index]}))
+    this.data = timeseries.map((value, index) => ({ ...value, data: timeseriesValues[index] }));
   }
 
-  addAssetTimeSeriesValues(assetId: string, name: string, readPermissions: string[], readWritePermissions: string[], values: { [p: string]: any }): Promise<TimeSeries> {
-    const ts = this.data.find(v => v.assetRef === assetId);
+  addAssetTimeSeriesValues(
+    assetId: string,
+    name: string,
+    readPermissions: string[],
+    readWritePermissions: string[],
+    values: { [p: string]: any },
+  ): Promise<TimeSeries> {
+    const ts = this.data.find((v) => v.assetRef === assetId);
     if (!ts) {
-      const data = values.map(v => ({ timestamp: Date.now(), ...v}))
+      const data = values.map((v) => ({ timestamp: Date.now(), ...v }));
       const dto: TimeSeries & { data: TimeSeriesValue[] } = {
         autoDelBucket: undefined,
         autoDelData: undefined,
@@ -23,11 +29,11 @@ export class TimeseriesMockService extends DataMockService<TimeSeries & { data: 
         readPermissions,
         readWritePermissions,
         assetRef: assetId,
-        data
-      }
+        data,
+      };
       return this.addOne(dto);
     }
-    ts.data = {...ts.data, ...values};
+    ts.data = { ...ts.data, ...values };
     return Promise.resolve(ts);
   }
 
@@ -39,7 +45,7 @@ export class TimeseriesMockService extends DataMockService<TimeSeries & { data: 
 
   getManyByAsset(assetId: string, names?: string[]): Promise<Paginated<TimeSeries[]>> {
     // get timeseries where assetRef is assetId
-    const page: Paginated<TimeSeries[]> = { docs: [], limit: 10, total: 0 }
+    const page: Paginated<TimeSeries[]> = { docs: [], limit: 10, total: 0 };
     for (const datum of this.data) {
       if (datum.assetRef === assetId) {
         page.docs.push(datum);
@@ -66,11 +72,11 @@ export class TimeseriesMockService extends DataMockService<TimeSeries & { data: 
     if (limit) {
       timeSeriesValues = timeSeriesValues.slice(0, limit);
     }
-    return timeSeriesValues
+    return timeSeriesValues;
   }
 
   async getValuesOfPeriod(id: string, from: number, to: number, group?: TS_GROUPS): Promise<TimeSeriesValue[]> {
     const ts = await this.getOne(id, {});
-    return ts.data.filter(v => v.timestamp < to && v.timestamp > from);
+    return ts.data.filter((v) => v.timestamp < to && v.timestamp > from);
   }
 }

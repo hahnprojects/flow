@@ -8,9 +8,9 @@ dotenv.config();
 describe('Mock-API test', () => {
   const api = new MockAPI({
     assets: [{ id: 'asset1', name: 'testAsset', type: { id: 'testId', name: 'testType' } }],
-    contents: [{ id: 'content1', filename: 'testContent.txt', filePath: __dirname, mimetype: 'text/plain'}],
-    secrets: [{ id: 'secret1', key: 'test', name: 'testSecret'}],
-    timeSeries: [{ id: 'timeseries1', name: 'testTimeseries', values: [{timestamp: Date.now(), value: 'test'}]}]
+    contents: [{ id: 'content1', filename: 'testContent.txt', filePath: __dirname, mimetype: 'text/plain' }],
+    secrets: [{ id: 'secret1', key: 'test', name: 'testSecret' }],
+    timeSeries: [{ id: 'timeseries1', name: 'testTimeseries', values: [{ timestamp: Date.now(), value: 'test' }] }],
   });
 
   // tests copied from api.spec.ts

@@ -1,4 +1,5 @@
 import { join } from 'path';
+
 import { APIInterface } from '../api.interface';
 import { Asset, AssetInterface, AssetType } from '../asset.interface';
 import { Content, ContentInterface, Storage } from '../content.interface';
@@ -18,19 +19,27 @@ export class MockAPI implements APIInterface {
   sidriveManager: SidriveiqInterface;
   timeSeriesManager: TimeseriesInterface;
 
-  constructor(initData: {
-    assets?: AssetInit[],
-    contents?: ContentInit[],
-    secrets?: SecretInit[],
-    timeSeries?: TimeSeriesInit[]
-  }
-    ) {
+  constructor(initData: { assets?: AssetInit[]; contents?: ContentInit[]; secrets?: SecretInit[]; timeSeries?: TimeSeriesInit[] }) {
     // convert init data to normal data that the services usually use
-    const assetTypes: AssetType[] = initData.assets.map(v => v.type).map(v => ({name: v.name, id: v.id, readPermissions: [], readWritePermissions: [], typeSchema: {}, uiSchema: {}}))
-    const assets: Asset[] = initData.assets.map((v, index) => ({...v, readPermissions: [], readWritePermissions: [], type: assetTypes[index] }));
-    const contents: Content[] = initData.contents.map(v => ({...v, readPermissions: [], readWritePermissions: [], size: 0, fileId: '', filename: join(v.filePath, v.filename)}));
-    const secrets: Secret[] = initData.secrets.map(v => ({...v, readPermissions: [], readWritePermissions: []}));
-    const timeseries: TimeSeries[] = initData.timeSeries.map(value => ({
+    const assetTypes: AssetType[] = initData.assets
+      .map((v) => v.type)
+      .map((v) => ({ name: v.name, id: v.id, readPermissions: [], readWritePermissions: [], typeSchema: {}, uiSchema: {} }));
+    const assets: Asset[] = initData.assets.map((v, index) => ({
+      ...v,
+      readPermissions: [],
+      readWritePermissions: [],
+      type: assetTypes[index],
+    }));
+    const contents: Content[] = initData.contents.map((v) => ({
+      ...v,
+      readPermissions: [],
+      readWritePermissions: [],
+      size: 0,
+      fileId: '',
+      filename: join(v.filePath, v.filename),
+    }));
+    const secrets: Secret[] = initData.secrets.map((v) => ({ ...v, readPermissions: [], readWritePermissions: [] }));
+    const timeseries: TimeSeries[] = initData.timeSeries.map((value) => ({
       id: value.id,
       name: value.name,
       description: '',
@@ -43,9 +52,9 @@ export class MockAPI implements APIInterface {
       tsRef: value.tsRef,
       condition: value.condition,
       autoDelData: new Date(),
-      autoDelBucket: new Date()
+      autoDelBucket: new Date(),
     }));
-    const timeseriesValues: TimeSeriesValue[][] = initData.timeSeries.map(v => v.values);
+    const timeseriesValues: TimeSeriesValue[][] = initData.timeSeries.map((v) => v.values);
 
     this.assetManager = new AssetMockService(this, assets);
     this.contentManager = new ContentMockService(contents);
@@ -53,7 +62,6 @@ export class MockAPI implements APIInterface {
     this.sidriveManager = new SidriveiqMockService();
     this.timeSeriesManager = new TimeseriesMockService(timeseries, timeseriesValues);
   }
-
 }
 
 export interface AssetInit {

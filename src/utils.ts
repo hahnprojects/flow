@@ -6,7 +6,7 @@ import interp from 'string-interp';
 import { FlowLogger } from './FlowLogger';
 
 export function fillTemplate(templateString: string, templateVariables: object): string {
-  if (!templateString || !templateString.includes('${')) {
+  if (!templateString?.includes?.('${')) {
     return templateString;
   }
   return interp(templateString, templateVariables || {});

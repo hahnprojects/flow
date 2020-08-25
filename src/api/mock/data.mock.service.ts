@@ -4,7 +4,7 @@ export class DataMockService<T> implements DataInterface<T> {
   protected data: T[] = [];
 
   async addMany(dto: any[]): Promise<T[]> {
-    const map = dto.map(v => this.addOne(v));
+    const map = dto.map((v) => this.addOne(v));
     return Promise.all(map);
   }
 
@@ -15,7 +15,7 @@ export class DataMockService<T> implements DataInterface<T> {
 
   deleteOne(id: string): Promise<any> {
     // @ts-ignore
-    const index = this.data.findIndex(v => v.id === id);
+    const index = this.data.findIndex((v) => v.id === id);
     this.data.splice(index, 1);
     return Promise.resolve(undefined);
   }
@@ -23,28 +23,31 @@ export class DataMockService<T> implements DataInterface<T> {
   getMany(params?: RequestParameter, parentId?: string): Promise<Paginated<T[]>> {
     let data = this.data;
     if (parentId) {
-      // @ts-ignore
-      data = this.data.filter(v => v.parent.id === v.id);
+      data = this.data.filter((v: any) => v.parent.id === v.id);
     }
     const page: Paginated<T[]> = {
-      docs: data, limit: params && params.limit ? params.limit : Number.MAX_SAFE_INTEGER, total: data.length
+      docs: data,
+      limit: params && params.limit ? params.limit : Number.MAX_SAFE_INTEGER,
+      total: data.length,
     };
     return Promise.resolve(page);
   }
 
   async getManyFiltered(filter: Filter, params: RequestParameter = {}, parentId?: string): Promise<Paginated<T[]>> {
     const paginated = await this.getMany(params, parentId);
-    // @ts-ignore
-    const newData = paginated.docs.filter(v => filter.parent === v.parent || filter.tags.some(tag => v.tags.contains(tag)) || filter.type === v.tag);
+    const newData = paginated.docs.filter(
+      (v: any) => filter.parent === v.parent || filter.tags.some((tag) => v.tags.contains(tag)) || filter.type === v.tag,
+    );
     const page: Paginated<T[]> = {
-      docs: newData, limit: paginated.limit || Number.MAX_SAFE_INTEGER, total: newData.length
-    }
+      docs: newData,
+      limit: paginated.limit || Number.MAX_SAFE_INTEGER,
+      total: newData.length,
+    };
     return Promise.resolve(page);
   }
 
   getOne(id: string, options: any): Promise<T> {
-    // @ts-ignore
-    const t = this.data.find(v => v.id === id);
+    const t = this.data.find((v: any) => v.id === id);
     return Promise.resolve(t);
   }
 

@@ -41,7 +41,7 @@ export interface TimeSeriesBucket {
   final: boolean;
 }
 
-export type TS_GROUPS  = '10s'|'1m'|'5m'|'15m'|'30m'|'1h'|'3h'|'6h'|'12h'|'1d'|'7d';
+export type TS_GROUPS = '10s' | '1m' | '5m' | '15m' | '30m' | '1h' | '3h' | '6h' | '12h' | '1d' | '7d';
 
 export interface TimeseriesInterface extends DataInterface<TimeSeries> {
   addValue(id: string, value: { [values: string]: any });
