@@ -1,10 +1,10 @@
 import FormData from 'form-data';
 
-import { Asset } from './asset.interface';
+import { Asset, AssetInterface } from './asset.interface';
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
 
-export class AssetService extends DataService<Asset> {
+export class AssetService extends DataService<Asset> implements AssetInterface {
   constructor(httpClient: HttpClient) {
     super(httpClient, process.env.DEBUG_ASSET_URL || 'api/assets');
   }

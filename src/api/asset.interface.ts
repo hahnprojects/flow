@@ -1,3 +1,6 @@
+import FormData from 'form-data';
+import { DataInterface } from './data.interface';
+
 export interface Asset {
   id?: string;
   name: string;
@@ -40,4 +43,8 @@ export interface Action {
   isAuthFromAsset?: boolean;
   url?: string;
   data?: string;
+}
+
+export interface AssetInterface extends DataInterface<Asset> {
+  addAttachment(id: string, form: FormData): Promise<Asset>;
 }

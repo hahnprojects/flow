@@ -59,3 +59,12 @@ export interface TimeSeries {
   inValue: number;
   outValue: number;
 }
+
+export interface SidriveiqInterface {
+  getAssets(hierarchyTypes?: HierarchyType[]);
+  getAssetInfo(assetId: number);
+  getAssetProperties(assetId: number);
+  getAssetTimeSeries(assetId: number, propertyId: string, from: string, to: string, resolution: number);
+  getAssetValues(assetId: number, properties: string, size: number, from: string, to: string);
+  getRecentValuesForAssets(assetIds: number[], properties: string[], maxDateTime: string);
+}

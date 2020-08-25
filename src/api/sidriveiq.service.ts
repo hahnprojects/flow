@@ -1,7 +1,16 @@
 import { HttpClient } from './http.service';
-import { AssetInfo, AssetProperty, AssetPropertyValue, AssetValue, Hierarchy, HierarchyType, TimeSeries } from './sidriveiq.interface';
+import {
+  AssetInfo,
+  AssetProperty,
+  AssetPropertyValue,
+  AssetValue,
+  Hierarchy,
+  HierarchyType,
+  SidriveiqInterface,
+  TimeSeries,
+} from './sidriveiq.interface';
 
-export class SidriveIQService {
+export class SidriveIQService implements SidriveiqInterface {
   private basePath: string;
 
   constructor(private readonly httpClient: HttpClient) {
@@ -54,7 +63,7 @@ export class SidriveIQService {
     return this.httpClient.get<AssetValue[]>(`${this.basePath}/assets/${assetId}/values`, { params });
   }
 
-  public getRecentValuesforAssets(assetIds: number[], properties: string[], maxDateTime: string) {
+  public getRecentValuesForAssets(assetIds: number[], properties: string[], maxDateTime: string) {
     const body = {
       refAssets: assetIds,
       propertyPaths: properties,

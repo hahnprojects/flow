@@ -1,29 +1,7 @@
+import { DataInterface, Filter, Paginated, RequestParameter } from './data.interface';
 import { HttpClient } from './http.service';
 
-export interface Paginated<T> {
-  docs: T;
-  total: number;
-  limit: number;
-  page?: number;
-  pages?: number;
-  offset?: number;
-}
-
-export interface RequestParameter {
-  filter?: string;
-  limit?: number;
-  page?: number;
-  populate?: string;
-  sort?: string;
-}
-
-export interface Filter {
-  tags?: string[];
-  type?: string;
-  parent?: string;
-}
-
-export class DataService<T> {
+export class DataService<T> implements DataInterface<T> {
   constructor(protected readonly httpClient: HttpClient, protected readonly basePath) {}
 
   public addOne(dto: any): Promise<T> {

@@ -1,8 +1,11 @@
+import FormData from 'form-data';
+import { DataInterface } from './data.interface';
+
 type FileType = 'original' | 'preview-sm' | 'preview-md' | 'preview-lg';
 
 type StorageProvider = 's3' | 'mongo';
 
-interface Storage {
+export interface Storage {
   id: string;
   filename: string;
   mimetype: string;
@@ -26,4 +29,9 @@ export interface Content {
   files?: Storage[];
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface ContentInterface extends DataInterface<Content> {
+  upload(form: FormData): Promise<Content>;
+  download(id: string, raw?: boolean): Promise<Blob | ArrayBuffer>;
 }
