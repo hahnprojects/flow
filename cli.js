@@ -68,6 +68,27 @@ program
   });
 
 program
+  .command('install [projectName]')
+  .description('Installs the dependencies of the specified Project.')
+  .action(async (projectName) => {
+    try {
+      if (projectName === 'all') {
+        const projects = await findProjects();
+        for (const project of projects) {
+          await exec(CMD.INSTALL, project);
+        }
+      } else {
+        if (checkIfAll(projectName)) process.exit(1);
+        const project = await findProject(projectName);
+        await exec(CMD.INSTALL, project);
+      }
+    } catch (err) {
+      if (err) log(err);
+      process.exit(1);
+    }
+  })
+
+program
   .command('format')
   .description('Formats all typescript files according to prettier configuration.')
   .action(async () => {
