@@ -78,7 +78,6 @@ program
           await exec(CMD.INSTALL, project);
         }
       } else {
-        if (checkIfAll(projectName)) process.exit(1);
         const project = await findProject(projectName);
         await exec(CMD.INSTALL, project);
       }
@@ -86,7 +85,7 @@ program
       if (err) log(err);
       process.exit(1);
     }
-  })
+  });
 
 program
   .command('format')
