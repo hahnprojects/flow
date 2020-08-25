@@ -201,6 +201,17 @@ See the [flow-module-examples](https://gitlab.com/hahnpro/flow-module-examples) 
 
 ## Testing
 
+If your tests need access to the Hahn-PRO API you should consider using the Mock-API. The Mock-API allows you to preset
+data that then gets used in the tests. It is a drop-in-replacement for the standard API. 
+
+```typescript
+new MockAPI({
+  assets: [{ id: 'asset1', name: 'testAsset', type: { id: 'testId', name: 'testType' } }],
+  contents: [...],
+  secrets: [...],
+  timeSeries: [...]
+})
+```
 For more information on how to test your Flow-Function implementations see the [flow-module-examples](https://gitlab.com/hahnpro/flow-module-examples) repository.
 
 ## Publishing

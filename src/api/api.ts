@@ -1,17 +1,23 @@
+import { APIInterface } from './api.interface';
+import { AssetInterface } from './asset.interface';
 import { AssetService } from './asset.service';
+import { ContentInterface } from './content.interface';
 import { ContentService } from './content.service';
 import { HttpClient } from './http.service';
+import { SecretInterface } from './secret.interface';
 import { SecretService } from './secret.service';
+import { SidriveiqInterface } from './sidriveiq.interface';
 import { SidriveIQService } from './sidriveiq.service';
+import { TimeseriesInterface } from './timeseries.interface';
 import { TimeSeriesService } from './timeseries.service';
 
 // tslint:disable:no-console
-export class API {
-  public assetManager: AssetService;
-  public contentManager: ContentService;
-  public secretsManager: SecretService;
-  public sidriveManager: SidriveIQService;
-  public timeSeriesManager: TimeSeriesService;
+export class API implements APIInterface {
+  public assetManager: AssetInterface;
+  public contentManager: ContentInterface;
+  public secretsManager: SecretInterface;
+  public sidriveManager: SidriveiqInterface;
+  public timeSeriesManager: TimeseriesInterface;
 
   constructor() {
     let apiBaseUrl = process.env.API_BASE_URL || 'https://testing.hahnpro.com';

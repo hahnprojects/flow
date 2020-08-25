@@ -1,9 +1,9 @@
-import { DataService, Paginated } from './data.service';
+import { Paginated } from './data.interface';
+import { DataService } from './data.service';
 import { HttpClient } from './http.service';
-import { TimeSeries, TimeSeriesValue } from './timeseries.interface';
+import { TS_GROUPS, TimeSeries, TimeSeriesValue, TimeseriesInterface } from './timeseries.interface';
 
-type TS_GROUPS  = '10s'|'1m'|'5m'|'15m'|'30m'|'1h'|'3h'|'6h'|'12h'|'1d'|'7d';
-export class TimeSeriesService extends DataService<TimeSeries> {
+export class TimeSeriesService extends DataService<TimeSeries> implements TimeseriesInterface {
   
 
   constructor(httpClient: HttpClient) {
@@ -32,7 +32,7 @@ export class TimeSeriesService extends DataService<TimeSeries> {
     return this.httpClient.post<TimeSeries>(`${this.basePath}/assets/${assetId}`, dto);
   }
 
-  public getMostRecentValue(id: string, before: Date) {
+  public getMostRecentValue(id: string, before: Date): Promise<TimeSeriesValue> {
     const params = before ? { before: before.toISOString() } : {};
     return this.httpClient.get<TimeSeriesValue>(`${this.basePath}/${id}/recent`, { params });
   }
