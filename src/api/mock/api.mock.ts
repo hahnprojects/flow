@@ -1,3 +1,4 @@
+import { readFileSync } from 'fs';
 import { join } from 'path';
 
 import { APIInterface } from '../api.interface';
@@ -22,7 +23,14 @@ export class MockAPI implements APIInterface {
   constructor(assets?: AssetInit[], contents?: ContentInit[], secrets?: SecretInit[], timeSeries?: TimeSeriesInit[]) {
     // convert init data to normal data that the services usually use
     const assetTypes: Array<AssetType | string> = assets.map((v) => v.type).map((v) => {
-      return typeof v === 'string'? v : {name: v.name, id: v.id, readPermissions: [], readWritePermissions: [], typeSchema: {}, uiSchema: {}}
+      return typeof v === 'string' ? v : {
+        name: v.name,
+        id: v.id,
+        readPermissions: [],
+        readWritePermissions: [],
+        typeSchema: {},
+        uiSchema: {},
+      };
     });
     const assets1: Asset[] = assets.map((v, index) => ({
       ...v,
@@ -36,8 +44,10 @@ export class MockAPI implements APIInterface {
       readWritePermissions: [],
       size: 0,
       fileId: '',
-      filename: join(v.filePath, v.filename),
     }));
+    const contentData: any[] = contents.map(v => {
+      return v.data ? v.data : readFileSync(join(v.filePath, v.filename));
+    })
     const secrets1: Secret[] = secrets.map((v) => ({ ...v, readPermissions: [], readWritePermissions: [] }));
     const timeSeries1: TimeSeries[] = timeSeries.map((value) => ({
       id: value.id,
@@ -57,7 +67,7 @@ export class MockAPI implements APIInterface {
     const timeseriesValues: TimeSeriesValue[][] = timeSeries.map((v) => v.values);
 
     this.assetManager = new AssetMockService(this, assets1);
-    this.contentManager = new ContentMockService(contents1);
+    this.contentManager = new ContentMockService(contents1, contentData);
     this.secretsManager = new SecretMockService(secrets1);
     this.sidriveManager = new SidriveiqMockService();
     this.timeSeriesManager = new TimeseriesMockService(timeSeries1, timeseriesValues);
@@ -102,6 +112,7 @@ export interface ContentInit {
   files?: Storage[];
   createdAt?: string;
   updatedAt?: string;
+  data?: any;
 }
 
 export interface SecretInit {
