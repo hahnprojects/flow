@@ -22,16 +22,20 @@ export class MockAPI implements APIInterface {
 
   constructor(assets?: AssetInit[], contents?: ContentInit[], secrets?: SecretInit[], timeSeries?: TimeSeriesInit[]) {
     // convert init data to normal data that the services usually use
-    const assetTypes: Array<AssetType | string> = assets.map((v) => v.type).map((v) => {
-      return typeof v === 'string' ? v : {
-        name: v.name,
-        id: v.id,
-        readPermissions: [],
-        readWritePermissions: [],
-        typeSchema: {},
-        uiSchema: {},
-      };
-    });
+    const assetTypes: Array<AssetType | string> = assets
+      .map((v) => v.type)
+      .map((v) => {
+        return typeof v === 'string'
+          ? v
+          : {
+              name: v.name,
+              id: v.id,
+              readPermissions: [],
+              readWritePermissions: [],
+              typeSchema: {},
+              uiSchema: {},
+            };
+      });
     const assets1: Asset[] = assets.map((v, index) => ({
       ...v,
       readPermissions: [],
@@ -44,11 +48,11 @@ export class MockAPI implements APIInterface {
       readWritePermissions: [],
       size: 0,
       fileId: '',
-      mimetype: v.mimetype || ''
+      mimetype: v.mimetype || '',
     }));
-    const contentData: any[] = contents.map(v => {
+    const contentData: any[] = contents.map((v) => {
       return v.data ? v.data : readFileSync(join(v.filePath, v.filename));
-    })
+    });
     const secrets1: Secret[] = secrets.map((v) => ({ ...v, readPermissions: [], readWritePermissions: [] }));
     const timeSeries1: TimeSeries[] = timeSeries.map((value) => ({
       id: value.id,
