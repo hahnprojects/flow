@@ -44,6 +44,7 @@ export class MockAPI implements APIInterface {
       readWritePermissions: [],
       size: 0,
       fileId: '',
+      mimetype: v.mimetype || ''
     }));
     const contentData: any[] = contents.map(v => {
       return v.data ? v.data : readFileSync(join(v.filePath, v.filename));
@@ -102,8 +103,8 @@ export interface ContentInit {
   id: string;
   fileId?: string;
   filename: string;
-  filePath: string;
-  mimetype: string;
+  filePath?: string;
+  mimetype?: string;
   size?: number;
   readPermissions?: string[];
   readWritePermissions?: string[];
