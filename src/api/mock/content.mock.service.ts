@@ -5,15 +5,18 @@ import { Content, ContentInterface } from '../content.interface';
 import { DataMockService } from './data.mock.service';
 
 export class ContentMockService extends DataMockService<Content> implements ContentInterface {
-  constructor(contents: Content[]) {
+  private contentData: Map<string, any>;
+
+  constructor(contents: Content[], contentData: any[]) {
     super();
     this.data = contents;
+    for (let i = 0; i < contents.length; i++) {
+      this.contentData.set(contents[i].id, contentData[i]);
+    }
   }
 
   download(id: string, raw: boolean): Promise<Blob | ArrayBuffer> {
-    const content = this.data.find((v) => v.id === id);
-    const buffer = fs.readFileSync(content.filename);
-    return Promise.resolve(buffer);
+    return Promise.resolve(Buffer.from(this.contentData.get(id)).buffer);
   }
 
   upload(form: FormData): Promise<Content> {
