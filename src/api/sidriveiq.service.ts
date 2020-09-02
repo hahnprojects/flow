@@ -7,7 +7,7 @@ import {
   Hierarchy,
   HierarchyType,
   SidriveiqInterface,
-  TimeSeries,
+  SidriveiqTimeSeries,
 } from './sidriveiq.interface';
 
 export class SidriveIQService implements SidriveiqInterface {
@@ -55,7 +55,7 @@ export class SidriveIQService implements SidriveiqInterface {
       to,
       resolution,
     };
-    return this.httpClient.post<TimeSeries[]>(`${this.basePath}/getTimeSeries`, body);
+    return this.httpClient.post<SidriveiqTimeSeries[]>(`${this.basePath}/getTimeSeries`, body);
   }
 
   public getAssetValues(assetId: number, properties: string, size: number, from: string, to: string) {
@@ -63,7 +63,7 @@ export class SidriveIQService implements SidriveiqInterface {
     return this.httpClient.get<AssetValue[]>(`${this.basePath}/assets/${assetId}/values`, { params });
   }
 
-  public getRecentValuesForAssets(assetIds: number[], properties: string[], maxDateTime: string) {
+  public getRecentValuesforAssets(assetIds: number[], properties: string[], maxDateTime: string) {
     const body = {
       refAssets: assetIds,
       propertyPaths: properties,

@@ -50,7 +50,7 @@ export interface AssetPropertyValue {
   isCompressed: boolean;
 }
 
-export interface TimeSeries {
+export interface SidriveiqTimeSeries {
   value: number;
   minValue: number;
   maxValue: number;
@@ -66,5 +66,5 @@ export interface SidriveiqInterface {
   getAssetProperties(assetId: number);
   getAssetTimeSeries(assetId: number, propertyId: string, from: string, to: string, resolution: number);
   getAssetValues(assetId: number, properties: string, size: number, from: string, to: string);
-  getRecentValuesForAssets(assetIds: number[], properties: string[], maxDateTime: string);
+  getRecentValuesforAssets(assetIds: number[], properties: string[], maxDateTime: string);
 }

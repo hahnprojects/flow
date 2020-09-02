@@ -21,7 +21,7 @@ export class SidriveiqMockService implements SidriveiqInterface {
     // TODO implement
   }
 
-  getRecentValuesForAssets(assetIds: number[], properties: string[], maxDateTime: string) {
+  getRecentValuesforAssets(assetIds: number[], properties: string[], maxDateTime: string) {
     // TODO implement
   }
 }
