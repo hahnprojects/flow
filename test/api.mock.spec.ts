@@ -6,12 +6,12 @@ dotenv.config();
 
 /* tslint:disable:no-console */
 describe('Mock-API test', () => {
-  const api = new MockAPI({
-    assets: [{ id: 'asset1', name: 'testAsset', type: { id: 'testId', name: 'testType' } }],
-    contents: [{ id: 'content1', filename: 'testContent.txt', filePath: __dirname, mimetype: 'text/plain' }],
-    secrets: [{ id: 'secret1', key: 'test', name: 'testSecret' }],
-    timeSeries: [{ id: 'timeseries1', name: 'testTimeseries', values: [{ timestamp: Date.now(), value: 'test' }] }],
-  });
+  const api = new MockAPI(
+    [{ id: 'asset1', name: 'testAsset', type: { id: 'testId', name: 'testType' } }],
+    [{ id: 'content1', filename: 'testContent.txt', filePath: __dirname, mimetype: 'text/plain' }],
+    [{ id: 'secret1', key: 'test', name: 'testSecret' }],
+    [{ id: 'timeseries1', name: 'testTimeseries', values: [{ timestamp: Date.now(), value: 'test' }] }],
+  );
 
   // tests copied from api.spec.ts
   // mock-api should behave the same way the normal api does

@@ -41,7 +41,12 @@ export class FlowApplication {
 
     for (const element of flow.elements) {
       const { id, name, properties, module, functionFqn } = element;
-      this.elements[id] = new this.declarations[`${module}.${functionFqn}`]({ ...this.context, id, name }, properties);
+      try {
+        this.elements[id] = new this.declarations[`${module}.${functionFqn}`]({ ...this.context, id, name }, properties);
+      } catch (err) {
+        console.error(err);
+        throw new Error(`Could not create FlowElement for ${module}.${functionFqn}`);
+      }
     }
 
     for (const connection of flow.connections) {
