@@ -1,8 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "rootDir": "src",
-    "types": ["node", "reflect-metadata"]
-  },
-  "exclude": ["lib", "node_modules", "test", "**/*.spec.ts"]
-}

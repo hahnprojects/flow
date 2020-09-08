@@ -1,8 +1,6 @@
-# Flow-SDK
+# Flow SDK & CLI
 
-For release notes, see the [CHANGELOG](https://gitlab.com/hahnpro/flow-sdk/blob/master/CHANGELOG.md)
-
-> **Migration:** If you are upgrading from `2.x.x` to `3.x.x`, please see our [migration guide](#migration) for information on how to migrate existing code to work with the new major version.
+For release notes, see the [CHANGELOG](https://gitlab.com/hahnpro/flow/blob/master/CHANGELOG.md)
 
 ## Installing
 
@@ -20,7 +18,7 @@ npm install --save-dev @hahnpro/flow-cli
 
 ## Usage and Getting Started
 
-You can find a project with a few example Flow-Modules here: [flow-module-examples](https://gitlab.com/hahnpro/flow-module-examples)
+You can find a project with a few example Flow-Modules here: [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples)
 
 A short walkthrough of creating a new Flow-Module can be found [below](#creating-a-new-flow-module)
 
@@ -28,13 +26,13 @@ A short walkthrough of creating a new Flow-Module can be found [below](#creating
 
 Flow-Modules should be developed in TypeScript. All required dependencies, including a current version of TypeScript, come bundled with the SDK.
 
-Examples for TypeScript configurations (`tsconfig.json` files) can be found in the [flow-module-examples](https://gitlab.com/hahnpro/flow-module-examples) repository.
+Examples for TypeScript configurations (`tsconfig.json` files) can be found in the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples) repository.
 
 ## Creating a New Flow-Module
 
 ### Project Setup and Folder Structure
 
-You can use the [flow-module-examples](https://gitlab.com/hahnpro/flow-module-examples) project as a template for creating new Flow-Modules.
+You can use the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples) project as a template for creating new Flow-Modules.
 
 A minimal project setup should look somthing like this:
 
@@ -137,7 +135,7 @@ The suggested way to do this is unsing the [`class-validator`](https://github.co
 
 For convenience the `validateProperties` and `validateEventData` methods are provided.
 
-For more information on how to validate properties see the example below and in the [flow-module-examples](https://gitlab.com/hahnpro/flow-module-examples) repository.
+For more information on how to validate properties see the example below and in the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples) repository.
 
 #### Example
 
@@ -197,7 +195,7 @@ There are two possibilities to run python scripts in your Flow-Functions.
 - script stays running between messages
 - useful for complex scripts that have to keep running to save data in memory
 
-See the [flow-module-examples](https://gitlab.com/hahnpro/flow-module-examples) repository for examples of how to run python scripts in your Flow-Function implementation.
+See the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples) repository for examples of how to run python scripts in your Flow-Function implementation.
 
 ## Testing
 
@@ -213,7 +211,7 @@ new MockAPI({
 })
 ```
 
-For more information on how to test your Flow-Function implementations see the [flow-module-examples](https://gitlab.com/hahnpro/flow-module-examples) repository.
+For more information on how to test your Flow-Function implementations see the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples) repository.
 
 ## Publishing
 
@@ -264,65 +262,17 @@ Folders no longer need to be named like the Flow Function FQN (f.k.a. Instance T
 
 [see here](#project-setup-and-folder-structure)
 
-#### Migrate Flow Function (f.k.a. Instance Type)
-
-```diff
-- import { BaseArguments, BaseFlowElement, DataSet, Logger } from '@hahnpro/flow-sdk';
-+ import { FlowEvent, FlowFunction, FlowTask, InputStream } from '@hahnpro/flow-sdk';
-+ import { IsBoolean, IsOptional } from 'class-validator';
-
-- interface Arguments extends BaseArguments {
--   logData?: boolean;
-- }
-+ class Properties {
-+   @IsBoolean()
-+   @IsOptional()
-+   logData?: boolean;
-+ }
-
-- export class Noop extends BaseFlowElement {
-+ @FlowFunction('default.tasks.Noop')
-+ export class Noop extends FlowTask {
-+   private readonly props: Properties;
-
--  constructor(protected args: Arguments, logger?: Logger) {
--    super(args, logger);
--    this.setInputStream('default', (data: DataSet) => this.noop(data));
--  }
-+  constructor(context, properties: unknown) {
-+    super(context);
-+    this.props = this.validateProperties(Properties, properties, true);
-+  }
-
--  public noop(data: DataSet) {
--    if (this.args.logData === true) {
--      this.logger.log(data);
--    }
--    this.fireOutput(data);
--  }
-+  @InputStream()
-+  public async noop(event: FlowEvent) {
-+    const data = event.getData();
-+    if (this.props.logData === true) {
-+      this.logger.log(data);
-+    }
-+    return this.emitOutput(data);
-+  }
-
-}
-```
-
 #### Flow-Modules `index.ts` File
 
 Create a `index.ts` file at the root of your module folder with content according to [this](#the-flow-modules-indexts-file)
 
 #### Review Changes
 
-[CHANGELOG](https://gitlab.com/hahnpro/flow-sdk/blob/master/CHANGELOG.md)
+[CHANGELOG](https://gitlab.com/hahnpro/flow/blob/master/CHANGELOG.md)
 
 #### Examples for Flow SDK v3 Modules
 
-See the [flow-module-examples](https://gitlab.com/hahnpro/flow-module-examples)
+See the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples)
 
 ## License
 

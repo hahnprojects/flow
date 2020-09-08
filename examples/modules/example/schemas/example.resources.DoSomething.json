@@ -1,0 +1,26 @@
+{
+  "fqn": "example.resources.DoSomething",
+  "category": "resource",
+  "name": "DoSomething",
+  "description": "",
+  "isAbstract": false,
+  "supertype": "",
+  "propertiesSchema": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "min": {
+          "type": "number",
+          "required": true
+        },
+        "max": {
+          "type": "number",
+          "required": true
+        }
+      }
+    }
+  },
+  "inputStreams": [],
+  "outputStreams": [],
+  "tags": []
+}

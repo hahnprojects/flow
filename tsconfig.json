@@ -1,7 +1,6 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": ".",
     "declaration": true,
     "emitDecoratorMetadata": true,
     "esModuleInterop": true,
@@ -9,12 +8,11 @@
     "importHelpers": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "outDir": "lib",
     "removeComments": true,
     "sourceMap": false,
     "target": "es2017",
     "types": ["jest", "node", "reflect-metadata"],
     "typeRoots": ["node_modules/@types"]
   },
-  "exclude": ["lib", "node_modules"]
+  "exclude": ["dist", "node_modules"]
 }

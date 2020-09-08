@@ -1,0 +1,22 @@
+{
+  "fqn": "example.tasks.ModifySomething",
+  "category": "task",
+  "name": "ModifySomething",
+  "description": "",
+  "isAbstract": false,
+  "supertype": "",
+  "propertiesSchema": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "num": {
+          "type": "number",
+          "required": true
+        }
+      }
+    }
+  },
+  "inputStreams": [],
+  "outputStreams": [],
+  "tags": []
+}
