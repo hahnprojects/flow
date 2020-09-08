@@ -14,7 +14,7 @@ export class ContentService extends DataService<Content> implements ContentInter
     return this.httpClient.post<Content>(`${this.basePath}`, form, { headers, maxContentLength: Infinity });
   };
 
-  download = (id: string, raw: boolean = false): Promise<Blob | ArrayBuffer> => {
+  download = (id: string, raw = false): Promise<Blob | ArrayBuffer> => {
     if (raw) {
       return this.httpClient.get<ArrayBuffer>(`${this.basePath}/${id}/download`, { responseType: 'arraybuffer' });
     } else {

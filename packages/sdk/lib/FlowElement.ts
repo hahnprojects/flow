@@ -28,7 +28,7 @@ export abstract class FlowElement {
 
   public handleMessage?: (message: any) => void;
 
-  protected emitOutput(data: object = {}, outputId = 'default', time = new Date()): FlowEvent {
+  protected emitOutput(data: any = {}, outputId = 'default', time = new Date()): FlowEvent {
     const event = new FlowEvent(this.metadata, data, outputId, time);
     if (this.app) {
       this.app.emit(event);
@@ -84,8 +84,8 @@ export interface ElementMetadata {
   functionFqn?: string;
 }
 
-export function InputStream(id: string = 'default', options?: { concurrent?: number }): MethodDecorator {
-  return (target: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
+export function InputStream(id = 'default', options?: { concurrent?: number }): MethodDecorator {
+  return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
     Reflect.defineMetadata(`stream:${id}`, propertyKey, target.constructor);
     if (options) {
       Reflect.defineMetadata(`stream:options:${id}`, options, target.constructor);
@@ -99,6 +99,7 @@ export function FlowFunction(fqn: string): ClassDecorator {
     throw new Error(`Flow Function FQN (${fqn}) is not valid`);
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
   return <TFunction extends Function>(target: TFunction): TFunction | void => {
     Reflect.defineMetadata('element:functionFqn', fqn, target);
     target.prototype.functionFqn = fqn;

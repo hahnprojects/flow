@@ -1,4 +1,4 @@
-import { FlowEvent } from '../src';
+import { FlowEvent } from '../lib';
 
 describe('Logging', () => {
   test('test logging of events', async (done) => {

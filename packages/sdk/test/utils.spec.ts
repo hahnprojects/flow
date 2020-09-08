@@ -1,8 +1,8 @@
-import { fillTemplate } from '../src';
+import { fillTemplate } from '../lib';
 
 describe('utils', () => {
   test('fillTemplate', () => {
-    let tmplString: string = 'foo';
+    let tmplString = 'foo';
     let tmplVars: any = { foo: 'bar' };
     let filled = fillTemplate(tmplString, tmplVars);
     expect(filled).toEqual('foo');

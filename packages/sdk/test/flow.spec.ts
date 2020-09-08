@@ -1,6 +1,6 @@
 import { IsNumber } from 'class-validator';
 
-import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream, delay } from '../src';
+import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream, delay } from '../lib';
 
 // tslint:disable:no-console
 describe('Flow Application', () => {

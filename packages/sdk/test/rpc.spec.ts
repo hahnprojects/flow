@@ -1,7 +1,7 @@
 import { connect } from 'amqp-connection-manager';
 import { join } from 'path';
 
-import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../src';
+import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 
 // tslint:disable:no-console
 describe('Flow RPC', () => {

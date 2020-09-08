@@ -1,4 +1,4 @@
-import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../src';
+import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 
 // tslint:disable:no-console
 describe('Flow SDK', () => {

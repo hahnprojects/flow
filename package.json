@@ -1,8 +1,88 @@
 {
   "name": "root",
   "private": true,
+  "scripts": {
+    "format": "prettier --write .",
+    "lint": "eslint '*/**/*.{js,ts}' --fix",
+    "pretest": "npm run lint",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@hahnpro/flow-cli": "file:packages/cli",
+    "@hahnpro/flow-sdk": "file:packages/sdk"
+  },
   "devDependencies": {
+    "@types/amqp-connection-manager": "^2.0.10",
+    "@types/amqplib": "^0.5.13",
+    "@types/jest": "^26.0.13",
+    "@types/node": "^12.12.55",
+    "@typescript-eslint/eslint-plugin": "^4.1.0",
+    "@typescript-eslint/parser": "^4.1.0",
+    "copyfiles": "^2.3.0",
+    "dotenv": "^8.2.0",
+    "eslint": "^7.8.1",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "jest": "^26.4.2",
     "lerna": "^3.22.1",
-    "prettier": "^2.1.1"
+    "prettier": "^2.1.1",
+    "ts-jest": "^26.3.0",
+    "ts-node": "^9.0.0",
+    "tslib": "^2.0.1",
+    "typescript": "^3.9.7"
+  },
+  "eslintConfig": {
+    "env": {
+      "node": true,
+      "commonjs": true
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "ecmaVersion": 2020,
+      "sourceType": "module"
+    },
+    "ignorePatterns": [
+      "dist/"
+    ],
+    "extends": [
+      "eslint:recommended",
+      "prettier/@typescript-eslint",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:prettier/recommended"
+    ],
+    "rules": {
+      "@typescript-eslint/explicit-module-boundary-types": "off",
+      "@typescript-eslint/no-empty-function": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-var-requires": "off",
+      "no-async-promise-executor": "off"
+    }
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.(t|j)sx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ]
+  },
+  "prettier": {
+    "arrowParens": "always",
+    "printWidth": 140,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "overrides": [
+      {
+        "files": "*.ts",
+        "options": {
+          "parser": "typescript"
+        }
+      }
+    ]
   }
 }

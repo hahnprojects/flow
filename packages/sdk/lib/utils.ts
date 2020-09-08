@@ -5,7 +5,7 @@ import interp from 'string-interp';
 
 import { FlowLogger } from './FlowLogger';
 
-export function fillTemplate(templateString: string, templateVariables: object): string {
+export function fillTemplate(templateString: string, templateVariables: any): string {
   if (!templateString?.includes?.('${')) {
     return templateString;
   }
@@ -55,7 +55,7 @@ export function handleApiError(error: any, logger: FlowLogger) {
   }
 }
 
-export function runPyScript(scriptPath: string, data: object) {
+export function runPyScript(scriptPath: string, data: any) {
   return new Promise<any>((resolve, reject) => {
     let pyData: any;
 

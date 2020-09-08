@@ -1,5 +1,5 @@
 import { validate } from 'class-validator';
-import { IncompatableWith } from '../src/extra-validators';
+import { IncompatableWith } from '../lib/extra-validators';
 
 class Test {
   @IncompatableWith(['test2'])

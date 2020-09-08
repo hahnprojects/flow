@@ -87,7 +87,7 @@ export interface AssetInit {
   readWritePermissions?: string[];
   tags?: string[];
   parent?: any | Asset;
-  data?: object;
+  data?: any;
   attachments?: string[];
   createdAt?: string;
   updatedAt?: string;
@@ -99,8 +99,8 @@ export interface AssetTypeInit {
   allowedParent?: string;
   readPermissions?: string[];
   readWritePermissions?: string[];
-  typeSchema?: object;
-  uiSchema?: object;
+  typeSchema?: any;
+  uiSchema?: any;
 }
 
 export interface ContentInit {

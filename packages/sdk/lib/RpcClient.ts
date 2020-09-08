@@ -28,7 +28,7 @@ export class RpcClient {
         case 'reply':
           resolve(response.value);
           break;
-        case 'error':
+        case 'error': {
           const err = new Error(response.message);
           if (response.stack) {
             const stack: string = RpcClient.formatTrace(response.stack);
@@ -38,6 +38,7 @@ export class RpcClient {
           }
           reject(err);
           break;
+        }
         default:
           reject(response);
           break;
@@ -72,7 +73,7 @@ export class RpcClient {
     return this.channel.close();
   }
 
-  public static formatTrace(stack: string = '') {
+  public static formatTrace(stack = '') {
     return stack.split('\n').splice(1).join('\n');
   }
 }

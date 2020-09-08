@@ -3,32 +3,29 @@
   "version": "3.6.4",
   "description": "SDK for building Flow Modules",
   "license": "MIT",
-  "main": "./lib/index.js",
-  "types": "./lib/index.d.ts",
-  "directories": {
-    "lib": "lib",
-    "test": "__tests__"
-  },
   "author": {
     "name": "Hahn Projects GmbH",
     "url": "https://hahnpro.com"
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.com:hahnpro/flow-sdk.git"
+    "url": "git@gitlab.com:hahnpro/flow.git"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
   },
   "files": [
-    "dist/**/*"
+    "dist"
   ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
     "build": "tsc -p tsconfig.lib.json",
     "postbuild": "copyfiles -u 1 src/*.py lib",
-    "format": "prettier --write .",
-    "lint": "tslint -p .",
-    "test": "yarn jest",
     "prepare": "yarn build",
     "prepublishOnly": "yarn lint",
     "preversion": "yarn lint"
@@ -48,22 +45,6 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.6.2",
     "string-interp": "^0.3.1"
-  },
-  "devDependencies": {
-    "@types/amqp-connection-manager": "^2.0.10",
-    "@types/amqplib": "^0.5.13",
-    "@types/jest": "^26.0.13",
-    "@types/node": "^12.12.55",
-    "copyfiles": "^2.3.0",
-    "dotenv": "^8.2.0",
-    "jest": "^26.4.2",
-    "prettier": "^2.1.1",
-    "ts-jest": "^26.3.0",
-    "ts-node": "^9.0.0",
-    "tslib": "^2.0.1",
-    "tslint": "^6.1.3",
-    "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.9.7"
   },
   "engines": {
     "node": ">=12"

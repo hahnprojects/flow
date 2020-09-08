@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 
-import { HttpClient } from '../src/api/http.service';
+import { HttpClient } from '../lib/api/http.service';
 
 dotenv.config();
 

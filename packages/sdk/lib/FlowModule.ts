@@ -6,6 +6,7 @@ export function FlowModule(metadata: { name: string; declarations: Array<ClassTy
     throw new Error(`Flow Module name (${metadata.name}) is not valid`);
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
   return <TFunction extends Function>(target: TFunction): TFunction | void => {
     Reflect.defineMetadata('module:name', metadata.name, target);
     Reflect.defineMetadata('module:declarations', metadata.declarations, target);

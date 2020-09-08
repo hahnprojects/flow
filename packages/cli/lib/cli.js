@@ -45,7 +45,7 @@ const CMD = {
 const program = new Command();
 
 program
-  .version('2.1.0', '-v, --version')
+  .version('2.2.0', '-v, --version')
   .usage('[command] [options]')
   .description('Flow Module Management Tool.')
   .on('--help', () => {});
@@ -491,10 +491,11 @@ function getProcess(cmd) {
 
 function getProcessArguments(cmd, project) {
   switch (cmd) {
-    case CMD.BUILD:
+    case CMD.BUILD: {
       const filename = path.join(project.location, 'tsconfig.module.json');
       const configFile = fs.existsSync(filename) ? filename : project.location;
       return ['-p', configFile];
+    }
     case CMD.COPY:
       return [
         '-u',

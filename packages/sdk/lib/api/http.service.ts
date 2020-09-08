@@ -9,7 +9,7 @@ export class HttpClient {
   private readonly requestQueue: Queue;
 
   private accessToken: string;
-  private accessTokenExpiration: number = 0;
+  private accessTokenExpiration = 0;
 
   constructor(
     private readonly apiBaseUrl: string,

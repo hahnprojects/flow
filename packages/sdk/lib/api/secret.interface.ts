@@ -8,4 +8,4 @@ export interface Secret {
   readWritePermissions: string[];
 }
 
-export interface SecretInterface extends DataInterface<Secret> {}
+export type SecretInterface = DataInterface<Secret>;

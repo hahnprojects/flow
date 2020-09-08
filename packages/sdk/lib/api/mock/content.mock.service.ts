@@ -1,11 +1,10 @@
 import FormData from 'form-data';
-import * as fs from 'fs';
 
 import { Content, ContentInterface } from '../content.interface';
 import { DataMockService } from './data.mock.service';
 
 export class ContentMockService extends DataMockService<Content> implements ContentInterface {
-  private contentData: Map<string, any>;
+  private contentData: Map<string, any> = new Map();
 
   constructor(contents: Content[], contentData: any[]) {
     super();

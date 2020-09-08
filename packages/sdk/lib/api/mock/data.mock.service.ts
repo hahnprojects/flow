@@ -14,8 +14,7 @@ export class DataMockService<T> implements DataInterface<T> {
   }
 
   deleteOne(id: string): Promise<any> {
-    // @ts-ignore
-    const index = this.data.findIndex((v) => v.id === id);
+    const index = this.data.findIndex((v: any) => v.id === id);
     this.data.splice(index, 1);
     return Promise.resolve(undefined);
   }

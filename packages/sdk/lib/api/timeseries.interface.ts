@@ -23,7 +23,7 @@ export interface TimeSeriesCondition {
 
 export interface TimeSeriesValue {
   timestamp: number;
-  value: number | string | object;
+  value: number | string | any;
   [key: string]: any;
 }
 
@@ -37,7 +37,7 @@ export interface TimeSeriesBucket {
   to: Date;
   bucketSize: number;
   data: TimeSeriesValue[];
-  meta: object;
+  meta: any;
   final: boolean;
 }
 

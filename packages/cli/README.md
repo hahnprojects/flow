@@ -1,1 +1,1 @@
-# Flow CLI
+# `@hahnpro/flow-cli`
