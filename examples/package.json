@@ -1,0 +1,21 @@
+{
+  "name": "flow-module-example",
+  "version": "1.2.1",
+  "description": "Flow Module Example",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "build": "flow build",
+    "lint": "flow lint",
+    "format": "flow format",
+    "test": "flow test",
+    "package": "flow package",
+    "publish": "flow publish-module"
+  },
+  "dependencies": {
+    "@hahnpro/flow-sdk": "^3.5.0"
+  },
+  "devDependencies": {
+    "@hahnpro/flow-cli": "^2.1.1"
+  }
+}

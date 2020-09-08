@@ -1,0 +1,26 @@
+{
+  "fqn": "python.tasks.python-rpc",
+  "category": "task",
+  "name": "python-rpc",
+  "description": "",
+  "isAbstract": false,
+  "supertype": "",
+  "propertiesSchema": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "type": "number",
+          "required": true
+        },
+        "b": {
+          "type": "number",
+          "required": true
+        }
+      }
+    }
+  },
+  "inputStreams": [],
+  "outputStreams": [],
+  "tags": []
+}
