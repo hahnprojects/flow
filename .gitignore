@@ -3,7 +3,7 @@
 .vscode/
 
 __pycache__/
-lib/
+dist/
 node_modules/
 
 .env*
