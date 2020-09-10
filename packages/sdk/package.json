@@ -26,9 +26,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.lib.json",
     "postbuild": "copyfiles -u 1 src/*.py lib",
-    "prepare": "yarn build",
-    "prepublishOnly": "yarn lint",
-    "preversion": "yarn lint"
+    "prepare": "yarn build"
   },
   "dependencies": {
     "amqp-connection-manager": "^3.2.0",

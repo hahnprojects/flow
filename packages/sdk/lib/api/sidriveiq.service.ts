@@ -1,74 +1,96 @@
 import { HttpClient } from './http.service';
-import {
-  AssetInfo,
-  AssetProperty,
-  AssetPropertyValue,
-  AssetValue,
-  Hierarchy,
-  HierarchyType,
-  SidriveiqInterface,
-  SidriveiqTimeSeries,
-} from './sidriveiq.interface';
+import { Asset, List, Log, Mail, Property, Severity, Subset, TimeSeries } from './sidriveiq.interface';
 
-export class SidriveIQService implements SidriveiqInterface {
+export class SiDriveIqService {
   private basePath: string;
 
   constructor(private readonly httpClient: HttpClient) {
-    this.basePath = process.env.DEBUG_SIDRIVE_URL || 'api/sidrive';
+    this.basePath = 'api/sidrive/api/v0';
   }
 
-  public getAssets(hierarchyTypes?: HierarchyType[]) {
-    const body: Hierarchy = {
-      hierarchyTypes: hierarchyTypes || [
-        { type: 'Continent', mType: 'Continent', nodes: [] },
-        { type: 'Country', mType: 'Country', nodes: [] },
-        { type: 'Customer', mType: 'Customer', nodes: [] },
-        { type: 'Plant', mType: 'Plant', nodes: [] },
-        { type: 'Plant', mType: 'Site', nodes: [] },
-        { type: 'Line', mType: 'Fleet', nodes: [] },
-        { type: 'Line', mType: 'Line', nodes: [] },
-        { type: 'Device', mType: 'Device', nodes: [] },
-        { type: 'Device', mType: 'Asset', nodes: [] },
-        { type: 'Device', mType: 'SimaticCp', nodes: [] },
-        { type: 'Device', mType: 'Tag', nodes: [] },
-        { type: 'Device', mType: 'Vehicle', nodes: [] },
-      ],
+  public getAssets(limit?: number, cursor?: string) {
+    const params = {
+      ...(limit && { limit }),
+      ...(cursor && { cursor }),
     };
-    return this.httpClient.post<Hierarchy>(`${this.basePath}/getAssets`, body);
+    return this.httpClient.get<List<Asset>>(`${this.basePath}/assets`, { params });
   }
 
-  public getAssetInfo(assetId: number) {
-    const body = { refAsset: assetId };
-    return this.httpClient.post<AssetInfo>(`${this.basePath}/getAssetInfo`, body);
+  public getAssetCount() {
+    return this.httpClient.get<number>(`${this.basePath}/assets/count`);
   }
 
-  public getAssetProperties(assetId: number) {
-    const body = { refItem: assetId };
-    return this.httpClient.post<AssetProperty[]>(`${this.basePath}/getVariables`, body);
+  public getAsset(assetId: string | number) {
+    return this.httpClient.get<Asset>(`${this.basePath}/assets/${assetId}`);
   }
 
-  public getAssetTimeSeries(assetId: number, propertyId: string, from: string, to: string, resolution: number) {
-    const body = {
-      refAsset: assetId,
-      propertyPath: propertyId,
-      from,
-      to,
-      resolution,
+  public getProperties(assetId: string | number, path_filter?: string, subset_filter?: string, limit?: number, cursor?: string) {
+    const params = {
+      ...(path_filter && { path_filter }),
+      ...(subset_filter && { subset_filter }),
+      ...(limit && { limit }),
+      ...(cursor && { cursor }),
     };
-    return this.httpClient.post<SidriveiqTimeSeries[]>(`${this.basePath}/getTimeSeries`, body);
+    return this.httpClient.get<List<Property>>(`${this.basePath}/assets/${assetId}/properties`, { params });
   }
 
-  public getAssetValues(assetId: number, properties: string, size: number, from: string, to: string) {
-    const params = { properties, size };
-    return this.httpClient.get<AssetValue[]>(`${this.basePath}/assets/${assetId}/values`, { params });
+  public getProperty(assetId: string | number, path: string) {
+    return this.httpClient.get<Property>(`${this.basePath}/assets/${assetId}/properties/${path}`);
   }
 
-  public getRecentValuesforAssets(assetIds: number[], properties: string[], maxDateTime: string) {
-    const body = {
-      refAssets: assetIds,
-      propertyPaths: properties,
-      maxDateTime,
+  public getTimeSeries(assetId: string | number, path: string, from?: Date, to?: Date, limit?: number, cursor?: string) {
+    const params = {
+      ...(from && { from }),
+      ...(to && { to }),
+      ...(limit && { limit }),
+      ...(cursor && { cursor }),
     };
-    return this.httpClient.post<AssetPropertyValue[]>(`${this.basePath}/getRecentValuesforAssets`, body);
+    return this.httpClient.get<List<TimeSeries>>(`${this.basePath}/assets/${assetId}/properties/${path}/timeseries`, { params });
+  }
+
+  public getTimeSeriesCount(assetId: string | number, path: string) {
+    return this.httpClient.get<number>(`${this.basePath}/assets/${assetId}/properties/${path}/timeseries/count`);
+  }
+
+  public getRecentTimeSeries(assetId: string | number, path: string, timestamp?: Date) {
+    const params = { ...(timestamp && { timestamp }) };
+    return this.httpClient.get<TimeSeries>(`${this.basePath}/assets/${assetId}/properties/${path}/timeseries/recent`, { params });
+  }
+
+  public addTimeSeries(assetId: string | number, path: string, values: TimeSeries[]) {
+    return this.httpClient.post<void>(`${this.basePath}/assets/${assetId}/properties/${path}/timeseries`, values);
+  }
+
+  public getSubsets(assetId: string | number) {
+    return this.httpClient.get<List<TimeSeries>>(`${this.basePath}/assets/${assetId}/subsets`);
+  }
+
+  public getSubset(assetId: string | number, subsetId: string) {
+    return this.httpClient.get<Subset>(`${this.basePath}/assets/${assetId}/subsets/${subsetId}`);
+  }
+
+  public getSubsetProperties(assetId: string | number, subsetId: string) {
+    return this.httpClient.get<List<Property>>(`${this.basePath}/assets/${assetId}/subsets/${subsetId}/properties`);
+  }
+
+  public getLogs(
+    assetId: string | number,
+    categories: string[],
+    options: {
+      from?: Date;
+      to?: Date;
+      severity?: Severity;
+      page?: number;
+      page_size?: number;
+      filter?: string;
+      sort?: string;
+    },
+  ) {
+    const params = { categories, ...options };
+    return this.httpClient.get<List<Log>>(`${this.basePath}/assets/${assetId}/logs`, { params });
+  }
+
+  public sendMail(mail: Mail) {
+    return this.httpClient.post<string>(`${this.basePath}/mails`, mail);
   }
 }

@@ -1,70 +1,57 @@
-export interface Hierarchy {
-  hierarchyTypes: HierarchyType[];
-}
-
-export interface HierarchyType {
-  type: string;
-  mType: string;
-  nodes: HierarchyNode[];
-}
-
-export interface HierarchyNode {
-  id: number;
-  refType: string;
-  hierarchyPath: string;
-  parentMachinePath: string;
-  machineType: string;
-  name: string;
-  severity: string;
-}
-
-export interface AssetInfo {
-  assetName: string;
-  refType: number;
-  location: string;
-  customer: string;
-  plant: string;
-  line: string;
-  image: string;
-  isImageCompressed: boolean;
-}
-
-export interface AssetProperty {
+export interface Asset {
   id: string;
+  type_id: string;
+  name: string;
+  description: string;
+  tag: string;
+  agent_id: string;
+  is_active: boolean;
+}
+
+export interface List<T> {
+  cursor: string;
+  values: T[];
+}
+
+export interface Log {
+  ref_id: string;
+  ref_type: RefType;
+  severity: Severity;
+  created_at: string;
+  text: string;
+  actor: string;
+  category: string;
+  item_type: string;
+  gone_at: string;
+}
+
+export interface Mail {
+  from: string;
+  to: string;
+  cc?: string;
+  subject: string;
+  body: string;
+  is_html: boolean;
+}
+
+export interface Property {
+  path: string;
   name: string;
   unit: string;
-  type: string;
-  isHeaderData: boolean;
+  data_type: string;
+  is_mandatory: boolean;
 }
 
-export interface AssetValue {
-  timeStamp: string;
-  value: any;
+export type RefType = 'Unknown' | 'Asset' | 'AssetType' | 'Container' | 'ContainerType' | 'Action' | 'AssetReport' | 'ReportType';
+
+export type Severity = 'Info' | 'Warning' | 'Error' | 'All';
+
+export interface Subset {
+  id: string;
+  name: string;
 }
 
-export interface AssetPropertyValue {
-  refAsset: number;
-  propertyPath: string;
-  timeStamp: string;
-  value: any;
-  isCompressed: boolean;
-}
-
-export interface SidriveiqTimeSeries {
-  value: number;
-  minValue: number;
-  maxValue: number;
-  count: number;
-  dateOfOccurrence: string;
-  inValue: number;
-  outValue: number;
-}
-
-export interface SidriveiqInterface {
-  getAssets(hierarchyTypes?: HierarchyType[]);
-  getAssetInfo(assetId: number);
-  getAssetProperties(assetId: number);
-  getAssetTimeSeries(assetId: number, propertyId: string, from: string, to: string, resolution: number);
-  getAssetValues(assetId: number, properties: string, size: number, from: string, to: string);
-  getRecentValuesforAssets(assetIds: number[], properties: string[], maxDateTime: string);
+export interface TimeSeries {
+  ts: string;
+  v: any;
 }

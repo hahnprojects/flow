@@ -5,20 +5,18 @@ import { APIInterface } from '../api.interface';
 import { Asset, AssetInterface, AssetType } from '../asset.interface';
 import { Content, ContentInterface, Storage } from '../content.interface';
 import { Secret, SecretInterface } from '../secret.interface';
-import { SidriveiqInterface } from '../sidriveiq.interface';
 import { TimeSeries, TimeSeriesCondition, TimeSeriesValue, TimeseriesInterface } from '../timeseries.interface';
 import { AssetMockService } from './asset.mock.service';
 import { ContentMockService } from './content.mock.service';
 import { SecretMockService } from './secret.mock.service';
-import { SidriveiqMockService } from './sidriveiq.mock.service';
 import { TimeseriesMockService } from './timeseries.mock.service';
 
 export class MockAPI implements APIInterface {
   assetManager: AssetInterface;
   contentManager: ContentInterface;
   secretsManager: SecretInterface;
-  sidriveManager: SidriveiqInterface;
   timeSeriesManager: TimeseriesInterface;
+  sidriveManager = null;
 
   constructor(assets?: AssetInit[], contents?: ContentInit[], secrets?: SecretInit[], timeSeries?: TimeSeriesInit[]) {
     // convert init data to normal data that the services usually use
@@ -74,7 +72,6 @@ export class MockAPI implements APIInterface {
     this.assetManager = new AssetMockService(this, assets1);
     this.contentManager = new ContentMockService(contents1, contentData);
     this.secretsManager = new SecretMockService(secrets1);
-    this.sidriveManager = new SidriveiqMockService();
     this.timeSeriesManager = new TimeseriesMockService(timeSeries1, timeseriesValues);
   }
 }

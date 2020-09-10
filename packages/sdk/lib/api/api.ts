@@ -6,8 +6,9 @@ import { ContentService } from './content.service';
 import { HttpClient } from './http.service';
 import { SecretInterface } from './secret.interface';
 import { SecretService } from './secret.service';
-import { SidriveiqInterface } from './sidriveiq.interface';
-import { SidriveIQService } from './sidriveiq.service';
+import { SiDriveIqService } from './sidriveiq.service';
+import { SiDriveIqLegacyInterface } from './sidriveiq.legacy.interface';
+import { SiDriveIqLegacyService } from './sidriveiq.legacy.service';
 import { TimeseriesInterface } from './timeseries.interface';
 import { TimeSeriesService } from './timeseries.service';
 
@@ -16,7 +17,8 @@ export class API implements APIInterface {
   public assetManager: AssetInterface;
   public contentManager: ContentInterface;
   public secretsManager: SecretInterface;
-  public sidriveManager: SidriveiqInterface;
+  public siDrive: SiDriveIqService;
+  public sidriveManager: SiDriveIqLegacyInterface;
   public timeSeriesManager: TimeseriesInterface;
 
   constructor() {
@@ -38,7 +40,8 @@ export class API implements APIInterface {
     this.assetManager = new AssetService(httpClient);
     this.contentManager = new ContentService(httpClient);
     this.secretsManager = new SecretService(httpClient);
-    this.sidriveManager = new SidriveIQService(httpClient);
+    this.siDrive = new SiDriveIqService(httpClient);
+    this.sidriveManager = new SiDriveIqLegacyService(httpClient);
     this.timeSeriesManager = new TimeSeriesService(httpClient);
   }
 }
