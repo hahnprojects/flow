@@ -40,8 +40,8 @@ export class SiDriveIqService {
 
   public getTimeSeries(assetId: string | number, path: string, from?: Date, to?: Date, limit?: number, cursor?: string) {
     const params = {
-      ...(from && { from }),
-      ...(to && { to }),
+      ...(from && { from: from.toISOString() }),
+      ...(to && { to: to.toISOString() }),
       ...(limit && { limit }),
       ...(cursor && { cursor }),
     };
@@ -53,7 +53,7 @@ export class SiDriveIqService {
   }
 
   public getRecentTimeSeries(assetId: string | number, path: string, timestamp?: Date) {
-    const params = { ...(timestamp && { timestamp }) };
+    const params = { ...(timestamp && { timestamp: timestamp.toISOString() }) };
     return this.httpClient.get<TimeSeries>(`${this.basePath}/assets/${assetId}/properties/${path}/timeseries/recent`, { params });
   }
 
@@ -77,8 +77,8 @@ export class SiDriveIqService {
     assetId: string | number,
     categories: string[],
     options: {
-      from?: Date;
-      to?: Date;
+      from?: string;
+      to?: string;
       severity?: Severity;
       page?: number;
       page_size?: number;
