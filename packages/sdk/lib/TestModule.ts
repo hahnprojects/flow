@@ -1,7 +1,6 @@
-import { FlowFunction, InputStream } from './FlowElement';
+import { FlowFunction, FlowTask, InputStream } from './FlowElement';
 import { FlowEvent } from './FlowEvent';
 import { FlowModule } from './FlowModule';
-import { FlowTask } from './FlowTask';
 
 @FlowFunction('test.task.Trigger')
 class TestTrigger extends FlowTask {

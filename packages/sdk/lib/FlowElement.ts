@@ -109,3 +109,8 @@ export function FlowFunction(fqn: string): ClassDecorator {
 export type Context = FlowContext & ElementMetadata;
 
 type ClassType<T> = new (...args: any[]) => T;
+
+export abstract class FlowResource extends FlowElement {}
+export abstract class FlowTask extends FlowElement {}
+export abstract class FlowTrigger extends FlowElement {}
+export abstract class FlowDashboard extends FlowResource {}
