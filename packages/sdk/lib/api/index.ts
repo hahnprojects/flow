@@ -8,14 +8,4 @@ export * from './secret.interface';
 export * from './timeseries.interface';
 export * from './mock';
 
-export {
-  Asset as SiDriveAsset,
-  List,
-  Log,
-  Mail,
-  Property,
-  RefType,
-  Severity,
-  Subset,
-  TimeSeries as SiDriveTimeSeries,
-} from './sidriveiq.interface';
+export * as SiDrive from './sidriveiq.interface';
