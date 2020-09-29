@@ -5,11 +5,13 @@ const archiver = require('archiver');
 const chalk = require('chalk');
 const { Command } = require('commander');
 const execa = require('execa');
+const FormData = require('form-data');
 const fs = require('fs');
+const glob = require('glob');
+const got = require('got');
 const ora = require('ora');
 const path = require('path');
 const readPkg = require('read-pkg');
-const request = require('request-promise-native');
 const rimraf = require('rimraf');
 const writePkg = require('write-pkg');
 
@@ -25,7 +27,6 @@ const baseUrl = process.env.PLATFORM_URL;
 const buildDir = process.env.BUILD_DIR || 'dist';
 const realm = process.env.REALM;
 const authUrl = process.env.AUTH_URL || `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/token`;
-const targetUrl = process.env.TARGET_URL || `${baseUrl}/api/flow/modules`;
 
 let apiToken;
 let projectsRoot = 'modules';
@@ -134,20 +135,60 @@ program
 
 program
   .command('publish-module [projectName]')
+  .option('-f, --functions', 'publish flow functions')
+  .option('-u, --update', 'update existing flow functions')
   .description('Publishes specified Module to Cloud Platform.')
-  .action(async (projectName) => {
+  .action(async (projectName, cmdObj) => {
     try {
-      if (checkIfAll(projectName)) process.exit(1);
       if (checkEnvModules()) process.exit(1);
-      const project = await findProject(projectName);
-      await clean(buildDir);
-      await exec(CMD.INSTALL, project);
-      await exec(CMD.BUILD, project);
-      await exec(CMD.LINT, project);
-      await exec(CMD.COPY, project);
-      await validateModule(project);
+      const projects = [];
+      if (projectName === 'all') {
+        for (const project of await findProjects()) {
+          projects.push(project);
+        }
+      } else {
+        projects.push(await findProject(projectName));
+      }
+
       await getAccessToken();
-      await publishModule(project);
+      for (const project of projects) {
+        await clean(buildDir);
+        await exec(CMD.INSTALL, project);
+        await exec(CMD.BUILD, project);
+        await exec(CMD.LINT, project);
+        await exec(CMD.COPY, project);
+        await validateModule(project);
+        await publishModule(project);
+        if (cmdObj.functions) {
+          await publishFunctions(project, cmdObj.update);
+        }
+      }
+    } catch (err) {
+      if (err) log(err);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('publish-functions [projectName]')
+  .option('-u, --update', 'update existing flow functions')
+  .description('Publishes all Flow Functions inside specified Module to Cloud Platform.')
+  .action(async (projectName, cmdObj) => {
+    try {
+      if (checkEnvModules()) process.exit(1);
+      const projects = [];
+      if (projectName === 'all') {
+        for (const project of await findProjects()) {
+          projects.push(project);
+        }
+      } else {
+        projects.push(await findProject(projectName));
+      }
+
+      await getAccessToken();
+      for (const project of projects) {
+        await publishFunctions(project, cmdObj.update);
+      }
     } catch (err) {
       if (err) log(err);
       process.exit(1);
@@ -342,36 +383,31 @@ function findProject(projectName) {
 }
 
 async function getAccessToken() {
-  const options = {
-    headers: {
-      'Content-type': 'application/x-www-form-urlencoded',
-    },
-    form: {
-      client_id: apiUser,
-      client_secret: apiKey,
-      grant_type: 'client_credentials',
-    },
-    url: authUrl,
-  };
-  return new Promise((resolve, reject) => {
-    request.post(options, (err, res, body) => {
-      if (err) {
-        log(error('Could not get AccessToken'));
-        return reject(err);
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await got
+        .post(authUrl, {
+          headers: {
+            'Content-type': 'application/x-www-form-urlencoded',
+          },
+          form: {
+            client_id: apiUser,
+            client_secret: apiKey,
+            grant_type: 'client_credentials',
+          },
+        })
+        .json();
+
+      if (!response || !response.access_token) {
+        throw new Error();
       }
-      try {
-        const data = JSON.parse(body);
-        if (!data || !data.access_token) {
-          throw new Error();
-        }
-        apiToken = data.access_token;
-        log(ok('AccessToken acquired'));
-        return resolve();
-      } catch (err) {
-        log(error('Could not get AccessToken'));
-        return reject(err);
-      }
-    });
+      apiToken = response.access_token;
+      log(ok('AccessToken acquired'));
+      return resolve();
+    } catch (err) {
+      log(error('Could not get AccessToken'));
+      return reject(err);
+    }
   });
 }
 
@@ -387,36 +423,30 @@ async function publishModule(project) {
   return new Promise(async (resolve, reject) => {
     const file = await packageModule(project);
 
-    const reqOptions = {
-      formData: {
-        file: fs.createReadStream(file),
-        name: project.name,
-        description: project.description || '',
-        version: project.version || '',
-      },
-      headers: {
-        Authorization: `Bearer ${apiToken}`,
-        'Content-type': 'multipart/form-data',
-      },
-      url: targetUrl,
-    };
+    const form = new FormData();
+    form.append('file', fs.createReadStream(file));
+    form.append('name', project.name);
+    form.append('description', project.description || '');
+    form.append('version', project.version || '');
 
-    request.post(reqOptions, (err, res, body) => {
-      if (err) {
-        log(error('Publishing Module failed.'));
-        deleteFile(file);
-        return reject(err);
-      }
-      if (res && res.statusCode >= 400) {
-        log(error('Publishing Module failed.'));
-        log(error(body));
-        deleteFile(file);
-        return reject(err);
-      }
+    try {
+      await got.post(`${baseUrl}/api/flow/modules`, {
+        headers: {
+          ...form.getHeaders(),
+          Authorization: `Bearer ${apiToken}`,
+        },
+        body: form,
+      });
+
       log(ok('Module published!'));
-      deleteFile(file);
       return resolve();
-    });
+    } catch (err) {
+      log(error('Publishing Module failed.'));
+      handleApiError(err);
+      return reject(err);
+    } finally {
+      deleteFile(file);
+    }
   });
 }
 
@@ -439,6 +469,63 @@ async function validateModule(project) {
     project.functions = funcFqns;
   } else {
     throw new Error('Could not validate module name');
+  }
+}
+
+async function publishFunctions(project, update) {
+  return new Promise(async (resolve, reject) => {
+    const globOptions = {
+      cwd: project.location,
+      ignore: ['node_modules/**/*', '**/package*.json', '**/tsconfig*.json'],
+    };
+    glob('**/*.json', globOptions, async (err, files) => {
+      if (err) {
+        return reject(err);
+      }
+      const headers = { Authorization: `Bearer ${apiToken}` };
+
+      for (const file of files) {
+        try {
+          const data = await fs.promises.readFile(path.join(globOptions.cwd, file));
+          const json = JSON.parse(data);
+          if (json.hasOwnProperty('fqn') && json.hasOwnProperty('category')) {
+            if (update) {
+              try {
+                await got.put(`${baseUrl}/api/flow/functions/${json.fqn}`, { headers, json });
+                log(ok(`Flow Function "${json.fqn}" has been updated`));
+              } catch (err) {
+                log(error(`Flow Function "${json.fqn}" could not be updated`));
+                handleApiError(err);
+              }
+            } else {
+              try {
+                await got.post(`${baseUrl}/api/flow/functions`, { headers, json });
+                log(ok(`Flow Function "${json.fqn}" has been created`));
+              } catch (err) {
+                log(error(`Flow Function "${json.fqn}" could not be created`));
+                handleApiError(err);
+              }
+            }
+          }
+        } catch (err) {
+          log(error(err));
+        }
+      }
+      return resolve();
+    });
+  });
+}
+
+function handleApiError(err) {
+  if (err.response) {
+    try {
+      const body = JSON.parse(err.response.body);
+      log(error(`${body.statusCode || err.response.statusCode} ${body.error || err.response.statusMessage}: ${body.message}`));
+    } catch (e) {
+      log(error(`${err.response.statusCode} ${err.response.statusMessage}: ${err.response.body}`));
+    }
+  } else {
+    log(error(err));
   }
 }
 
