@@ -94,8 +94,9 @@ export class SiDriveIqService {
   }
 
   public downloadFile(assetId: string | number, fileId: string) {
-    return this.httpClient.get<Blob>(`${this.basePath}/assets/${assetId}/files/import/${fileId}/download`, {
-      responseType: 'blob' as 'json',
+    return this.httpClient.get<ArrayBuffer>(`${this.basePath}/assets/${assetId}/files/import/${fileId}/download`, {
+      headers: { 'response-type': 'arraybuffer' },
+      responseType: 'arraybuffer',
     });
   }
 

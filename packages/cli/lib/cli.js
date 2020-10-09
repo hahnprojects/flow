@@ -488,7 +488,7 @@ async function publishFunctions(project, update) {
         try {
           const data = await fs.promises.readFile(path.join(globOptions.cwd, file));
           const json = JSON.parse(data);
-          if (json.hasOwnProperty('fqn') && json.hasOwnProperty('category')) {
+          if (json.fqn && json.category) {
             if (update) {
               try {
                 await got.put(`${baseUrl}/api/flow/functions/${json.fqn}`, { headers, json });
