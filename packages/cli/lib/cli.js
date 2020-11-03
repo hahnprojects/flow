@@ -231,8 +231,17 @@ program
   .description('Runs tests for your Project.')
   .action(async (projectName) => {
     try {
-      const project = await findProject(projectName);
-      await exec(CMD.TEST, project);
+      // check if it is running in Gitlab CI
+      if (process.env.CI && projectName === 'all') {
+        const projects = await findProjects();
+        for (const project1 of projects.filter((project) => !project['excludeTestsInCI'])) {
+          // only run tests that can be run in CI
+          await exec(CMD.TEST, project1);
+        }
+      } else {
+        const project = await findProject(projectName);
+        await exec(CMD.TEST, project);
+      }
     } catch (err) {
       if (err) log(err);
       process.exit(1);
@@ -606,8 +615,8 @@ function getProcessArguments(cmd, project) {
       return [project.location];
     case CMD.TEST:
       return project.name === 'all'
-        ? ['--runInBand', '--coverage', '--forceExit', '--verbose']
-        : ['roots', project.location, '--forceExit', '--verbose'];
+        ? ['--runInBand', '--coverage', '--forceExit', '--verbose', '--passWithNoTests']
+        : ['roots', project.location, '--forceExit', '--verbose', '--passWithNoTests'];
     case CMD.WATCH:
       return ['--inspect', project.location];
     default:
