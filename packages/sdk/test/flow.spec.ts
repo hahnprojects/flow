@@ -21,7 +21,7 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApp = new FlowApplication([TestModule], flow);
+    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
 
     flowApp.subscribe('testResource.default', {
       next: (event: FlowEvent) => {
@@ -60,12 +60,9 @@ class TestResource extends FlowResource {
 }
 
 @FlowFunction('test.task.LongRunningTask')
-class LongRunningTask extends FlowTask {
-  private properties: Properties;
-
-  constructor(context, properties: unknown) {
-    super(context);
-    this.properties = this.validateProperties(Properties, properties);
+class LongRunningTask extends FlowTask<Properties> {
+  constructor(context, properties) {
+    super(context, properties, Properties);
   }
 
   @InputStream()

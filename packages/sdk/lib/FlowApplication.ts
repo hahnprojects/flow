@@ -1,28 +1,48 @@
 import 'reflect-metadata';
 
-import { AmqpConnectionManager } from 'amqp-connection-manager';
+import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq';
+import { CloudEvent } from 'cloudevents';
+import sizeof from 'object-sizeof';
 import { PartialObserver, Subject } from 'rxjs';
 import { catchError, mergeMap } from 'rxjs/operators';
+import { inspect } from 'util';
+import { v4 as uuid } from 'uuid';
 
 import { API } from './api';
+import { ClassType, Flow, FlowContext, FlowElementContext, DeploymentMessage, StreamOptions } from './flow.interface';
 import { FlowElement } from './FlowElement';
 import { FlowEvent } from './FlowEvent';
-import { Logger } from './FlowLogger';
+import { Logger, defaultLogger } from './FlowLogger';
 import { RpcClient } from './RpcClient';
+
+const MAX_EVENT_SIZE_BYTES = 512 * 1024; // 512kb
 
 /* tslint:disable:no-console */
 export class FlowApplication {
+  public api: API;
   private context: FlowContext;
   private declarations: { [id: string]: ClassType<FlowElement> } = {};
   private elements: { [id: string]: FlowElement } = {};
+  private logger: Logger;
+  private properties: Record<string, any>;
   private _rpcClient: RpcClient;
 
   private outputStreamMap: {
     [streamId: string]: Subject<FlowEvent>;
   } = {};
 
-  constructor(modules: Array<ClassType<any>>, flow: Flow) {
-    this.context = { ...flow.context, app: this };
+  constructor(modules: Array<ClassType<any>>, flow: Flow, logger?: Logger, private amqpConnection?: AmqpConnection, skipApi = false) {
+    this.context = { ...flow.context };
+    this.properties = flow.properties || {};
+    this.logger = logger || defaultLogger;
+
+    try {
+      if (!skipApi) {
+        this.api = new API();
+      }
+    } catch (err) {
+      this.logger.error(err?.message || err);
+    }
 
     for (const module of modules) {
       const moduleName = Reflect.getMetadata('module:name', module);
@@ -42,7 +62,8 @@ export class FlowApplication {
     for (const element of flow.elements) {
       const { id, name, properties, module, functionFqn } = element;
       try {
-        this.elements[id] = new this.declarations[`${module}.${functionFqn}`]({ ...this.context, id, name }, properties);
+        const context: Context = { ...this.context, id, name, logger, app: this };
+        this.elements[id] = new this.declarations[`${module}.${functionFqn}`](context, properties);
       } catch (err) {
         console.error(err);
         throw new Error(`Could not create FlowElement for ${module}.${functionFqn}`);
@@ -80,6 +101,14 @@ export class FlowApplication {
         )
         .subscribe();
     }
+
+    if (this.amqpConnection) {
+      this.amqpConnection.createSubscriber((msg: any) => this.onMessage(msg), {
+        exchange: 'deployment',
+        routingKey: this.context.deploymentId,
+        queueOptions: { durable: false, exclusive: true },
+      });
+    }
   }
 
   public subscribe = (streamId: string, observer: PartialObserver<FlowEvent>) => this.getOutputStream(streamId).subscribe(observer);
@@ -89,41 +118,112 @@ export class FlowApplication {
       try {
         this.getOutputStream(event.getStreamId()).next(event);
       } catch (err) {
-        this.context?.logger?.error(err);
+        this.logger?.error(err);
       }
-
-      if (this.context.publishEvent && event.getDataContentType() === 'application/json') {
-        const size = Buffer.byteLength(event.toString());
-        if (size <= 64 * 1024 /* 64kb */) {
-          this.context.publishEvent(event).catch((err) => this.context?.logger?.error(err));
-        }
-      }
+      this.publishEvent(event);
     }
   };
 
-  public publishMessage = (msg: any, elementId?: string) => {
-    if (elementId) {
-      const element = this.elements[elementId];
-      if (element?.handleMessage) {
-        element.handleMessage(msg);
+  public getProperties() {
+    return this.properties;
+  }
+
+  public onMessage = async (event: CloudEvent): Promise<Nack | undefined> => {
+    if (event.type === 'com.flowstudio.deployment.update') {
+      try {
+        const flow = event.data as Flow;
+        if (!flow) {
+          return new Nack(false);
+        }
+        let context: Partial<FlowElementContext> = {};
+        if (flow.context) {
+          this.context = { ...this.context, ...flow.context };
+          context = this.context;
+        }
+        if (flow.properties) {
+          this.properties = flow.properties;
+          for (const element of Object.values(this.elements)) {
+            element.onFlowPropertiesChanged?.(flow.properties);
+          }
+        }
+
+        if (Object.keys(context).length > 0) {
+          for (const element of flow.elements || []) {
+            context = { ...context, name: element.name };
+            this.elements?.[element.id]?.onContextChanged(context);
+          }
+        }
+        for (const element of flow.elements || []) {
+          this.elements?.[element.id]?.onPropertiesChanged(element.properties);
+        }
+
+        const statusEvent = {
+          eventId: uuid(),
+          eventTime: new Date().toISOString(),
+          eventType: 'com.hahnpro.event.health',
+          contentType: 'application/json',
+          data: { deploymentId: this.context.deploymentId, status: 'updated' },
+        };
+        this.amqpConnection?.publish('deployment', 'health', statusEvent).catch((err) => this.logger.error(err));
+      } catch (err) {
+        this.logger.error(err);
+
+        const statusEvent = {
+          eventId: uuid(),
+          eventTime: new Date().toISOString(),
+          eventType: 'com.hahnpro.event.health',
+          contentType: 'application/json',
+          data: { deploymentId: this.context.deploymentId, status: 'updating failed' },
+        };
+        this.amqpConnection?.publish('deployment', 'health', statusEvent).catch((err) => this.logger.error(err));
       }
-    } else {
-      for (const element of Object.values(this.elements)) {
-        if (element?.handleMessage) {
-          element.handleMessage(msg);
+    } else if (event.type === 'com.flowstudio.deployment.message') {
+      const data = event.data as DeploymentMessage;
+      const elementId = data?.elementId;
+      if (elementId) {
+        this.elements?.[elementId]?.onMessage?.(data);
+      } else {
+        for (const element of Object.values(this.elements)) {
+          element?.onMessage?.(data);
         }
       }
+    } else if (event.type === 'com.flowstudio.deployment.destroy') {
+      this.destroy();
+    } else {
+      return new Nack(false);
+    }
+    return undefined;
+  };
+
+  public publishEvent = (event: FlowEvent): Promise<void> => {
+    if (!this.amqpConnection) {
+      return;
+    }
+    try {
+      const message = event.format();
+      if (sizeof(message) > MAX_EVENT_SIZE_BYTES) {
+        message.data = this.truncate(message.data);
+      }
+      return this.amqpConnection.publish('flowlogs', '', message);
+    } catch (err) {
+      this.logger.error(err);
     }
   };
 
   get rpcClient() {
+    if (!this.amqpConnection?.managedConnection) {
+      throw new Error('No AMQP connection available');
+    }
     if (!this._rpcClient) {
-      this._rpcClient = new RpcClient(this.context.amqpConnection);
+      this._rpcClient = new RpcClient(this.amqpConnection.managedConnection);
     }
     return this._rpcClient;
   }
 
   public async destroy() {
+    for (const element of Object.values(this.elements)) {
+      element?.onDestroy?.();
+    }
     await this._rpcClient?.close();
   }
 
@@ -135,48 +235,17 @@ export class FlowApplication {
     }
     return stream;
   }
+
+  private truncate(msg: any): string {
+    let truncated = inspect(msg, { depth: 4, maxStringLength: 1000 });
+    if (truncated.startsWith("'") && truncated.endsWith("'")) {
+      truncated = truncated.substring(1, truncated.length - 1);
+    }
+    return truncated;
+  }
 }
 
-export interface Flow {
-  elements: Array<{
-    id: string;
-    name?: string;
-    properties?: unknown;
-    module: string;
-    functionFqn: string;
-  }>;
-  connections: Array<{
-    id: string;
-    name?: string;
-    source: string;
-    target: string;
-    sourceStream?: string;
-    targetStream?: string;
-  }>;
-  context?: {
-    api?: API;
-    deploymentId?: string;
-    diagramId?: string;
-    flowId?: string;
-    logger?: Logger;
-    publishEvent?: (event: FlowEvent) => Promise<void>;
-    amqpConnection?: AmqpConnectionManager;
-  };
-}
-
-export interface StreamOptions {
-  concurrent?: number;
-}
-
-export interface FlowContext {
-  app: any;
-  api?: API;
-  deploymentId?: string;
-  diagramId?: string;
-  flowId?: string;
+export interface Context extends FlowElementContext {
+  app?: FlowApplication;
   logger?: Logger;
-  publishEvent?: (event: FlowEvent) => Promise<void>;
-  amqpConnection?: AmqpConnectionManager;
 }
-
-type ClassType<T> = new (...args: any[]) => T;

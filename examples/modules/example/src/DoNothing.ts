@@ -2,18 +2,15 @@ import { FlowEvent, FlowFunction, FlowTask, InputStream } from '@hahnpro/flow-sd
 import { IsBoolean, IsOptional } from 'class-validator';
 
 @FlowFunction('example.tasks.DoNothing')
-export class DoNothing extends FlowTask {
-  private readonly props: Properties;
-
+export class DoNothing extends FlowTask<Properties> {
   constructor(context, properties: unknown) {
-    super(context);
-    this.props = this.validateProperties(Properties, properties, true);
+    super(context, properties, Properties, true);
   }
 
   @InputStream()
   public async noop(event: FlowEvent) {
     const data = event.getData();
-    if (this.props.logData === true) {
+    if (this.properties.logData === true) {
       this.logger.log(data);
     }
     return this.emitOutput(data);

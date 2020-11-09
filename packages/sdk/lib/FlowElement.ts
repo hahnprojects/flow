@@ -1,32 +1,67 @@
 import { plainToClass } from 'class-transformer';
 import { validateSync } from 'class-validator';
 import { Options, PythonShell } from 'python-shell';
+import interp from 'string-interp';
 
 import { API } from './api';
-import { FlowApplication, FlowContext } from './FlowApplication';
+import { ClassType, FlowElementContext, DeploymentMessage, FlowContext } from './flow.interface';
+import { Context, FlowApplication } from './FlowApplication';
 import { FlowEvent } from './FlowEvent';
 import { FlowLogger } from './FlowLogger';
 import { handleApiError } from './utils';
 
-export abstract class FlowElement {
+export abstract class FlowElement<T = any> {
   public readonly functionFqn: string;
-  protected readonly logger: FlowLogger;
-  protected readonly metadata: ElementMetadata;
   protected readonly api?: API;
-  private readonly app: FlowApplication;
+  protected readonly logger: FlowLogger;
+  protected metadata: FlowElementContext;
+  protected properties: T;
+  private readonly app?: FlowApplication;
   private readonly rpcRoutingKey: string;
 
-  constructor({ app, api, logger, publishEvent, amqpConnection, ...metadata }: Context) {
+  constructor(
+    { app, logger, ...metadata }: Context,
+    properties?: unknown,
+    private readonly propertiesClassType?: ClassType<T>,
+    private readonly whitelist = false,
+  ) {
     this.app = app;
-    this.api = api;
+    this.api = this.app?.api;
     this.metadata = { ...metadata, functionFqn: this.functionFqn };
-    this.logger = new FlowLogger(this.metadata, logger, publishEvent);
-    this.rpcRoutingKey = (metadata.flowId || '') + (metadata.deploymentId || '') + metadata.id;
+    this.logger = new FlowLogger(this.metadata, logger || undefined, this.app?.publishEvent);
+    this.rpcRoutingKey = (this.metadata.flowId || '') + (this.metadata.deploymentId || '') + this.metadata.id;
+    if (properties) {
+      if (this.propertiesClassType) {
+        this.properties = this.validateProperties(this.propertiesClassType, properties, this.whitelist);
+      } else {
+        this.properties = properties as T;
+      }
+    }
   }
 
-  public handleApiError = (error: any) => handleApiError(error, this.logger);
+  get flowProperties() {
+    return this.app?.getProperties() || {};
+  }
 
-  public handleMessage?: (message: any) => void;
+  public onDestroy?: () => void;
+
+  public onMessage?: (message: DeploymentMessage) => void;
+
+  public onFlowPropertiesChanged?: (properties: Record<string, any>) => void;
+
+  public onContextChanged = (context: Partial<FlowContext>): void => {
+    this.metadata = { ...this.metadata, ...context };
+  };
+
+  public onPropertiesChanged = (properties: T): void => {
+    if (this.propertiesClassType) {
+      this.properties = this.validateProperties(this.propertiesClassType, properties, this.whitelist);
+    } else {
+      this.properties = properties;
+    }
+  };
+
+  public handleApiError = (error: any) => handleApiError(error, this.logger);
 
   protected emitOutput(data: any = {}, outputId = 'default', time = new Date()): FlowEvent {
     const event = new FlowEvent(this.metadata, data, outputId, time);
@@ -49,8 +84,21 @@ export abstract class FlowElement {
     }
   }
 
-  protected validateEventData<P>(classType: ClassType<P>, event: FlowEvent, whitelist = false): P {
+  protected validateEventData<E>(classType: ClassType<E>, event: FlowEvent, whitelist = false): E {
     return this.validateProperties(classType, event.getData(), whitelist);
+  }
+
+  protected interpolate(text: string, ...templateVariables: any): string {
+    if (!text?.includes?.('${')) {
+      return text;
+    }
+    for (const variables of templateVariables) {
+      const result = interp(text, variables || {});
+      if (result) {
+        return result;
+      }
+    }
+    return text;
   }
 
   protected async callRpcFunction(functionName: string, ...args: any[]) {
@@ -76,14 +124,6 @@ export abstract class FlowElement {
   }
 }
 
-export interface ElementMetadata {
-  id: string;
-  name?: string;
-  deploymentId?: string;
-  flowId?: string;
-  functionFqn?: string;
-}
-
 export function InputStream(id = 'default', options?: { concurrent?: number }): MethodDecorator {
   return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
     Reflect.defineMetadata(`stream:${id}`, propertyKey, target.constructor);
@@ -106,11 +146,7 @@ export function FlowFunction(fqn: string): ClassDecorator {
   };
 }
 
-export type Context = FlowContext & ElementMetadata;
-
-type ClassType<T> = new (...args: any[]) => T;
-
-export abstract class FlowResource extends FlowElement {}
-export abstract class FlowTask extends FlowElement {}
-export abstract class FlowTrigger extends FlowElement {}
-export abstract class FlowDashboard extends FlowResource {}
+export abstract class FlowResource<T = any> extends FlowElement<T> {}
+export abstract class FlowTask<T = any> extends FlowElement<T> {}
+export abstract class FlowTrigger<T = any> extends FlowElement<T> {}
+export abstract class FlowDashboard<T = any> extends FlowResource<T> {}

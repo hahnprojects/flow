@@ -3,12 +3,9 @@ import { IsNumber } from 'class-validator';
 import { join } from 'path';
 
 @FlowFunction('python.tasks.python-rpc')
-export class PythonRPC extends FlowTask {
-  private readonly props: Properties;
-
+export class PythonRPC extends FlowTask<Properties> {
   constructor(context, properties: unknown) {
-    super(context);
-    this.props = this.validateProperties(Properties, properties, true);
+    super(context, properties, Properties, true);
     this.runPyRpcScript(join(__dirname, 'algebra_rpc.py'));
   }
 
@@ -19,9 +16,9 @@ export class PythonRPC extends FlowTask {
 
     this.emitOutput({
       ...data,
-      sum: await this.sum(this.props.a, this.props.b, x),
-      mul: await this.multiply(this.props.a, this.props.b, x),
-      factorial: await this.factorial(this.props.a),
+      sum: await this.sum(this.properties.a, this.properties.b, x),
+      mul: await this.multiply(this.properties.a, this.properties.b, x),
+      factorial: await this.factorial(this.properties.a),
     });
   }
 

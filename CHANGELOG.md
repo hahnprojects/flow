@@ -2,6 +2,18 @@
 
 All notable changes to [flow-sdk](https://gitlab.com/hahnpro/flow-sdk) are documented here. We use [semantic versioning](http://semver.org/) for releases.
 
+## [4.0.0](https://gitlab.com/hahnpro/flow-sdk/-/tags/v4.0.0)
+
+### Features
+
+- flows can be updated during runtime (only properties and context changes)
+- allow access to flow context properties inside flow elements
+
+### Breaking Changes
+
+- flow element method `handleMessage` has been renamed to `onMessage`
+- flow element properties should now be passed to the super constructor. They'll be validated there if a validator class is also passed. see the updated examples
+
 ## [3.6.0](https://gitlab.com/hahnpro/flow-sdk/-/tags/v3.6.0)
 
 ### Features

@@ -2,19 +2,16 @@ import { FlowEvent, FlowFunction, FlowResource, InputStream } from '@hahnpro/flo
 import { IsNumber } from 'class-validator';
 
 @FlowFunction('example.resources.DoSomething')
-export class DoSomething extends FlowResource {
-  private readonly props: Properties;
-
+export class DoSomething extends FlowResource<Properties> {
   constructor(context, properties: unknown) {
-    super(context);
-    this.props = this.validateProperties(Properties, properties, true);
+    super(context, properties, Properties, true);
   }
 
   @InputStream()
   public async generateRandomNumber(event: FlowEvent) {
     const data = event.getData();
 
-    const num = this.rnd(this.props.min, this.props.max);
+    const num = this.rnd(this.properties.min, this.properties.max);
     return this.emitOutput({ ...data, num });
   }
 

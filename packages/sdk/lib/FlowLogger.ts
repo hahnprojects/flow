@@ -1,4 +1,4 @@
-import { ElementMetadata } from './FlowElement';
+import { FlowElementContext } from './flow.interface';
 import { FlowEvent } from './FlowEvent';
 
 export interface Logger {
@@ -10,7 +10,7 @@ export interface Logger {
 }
 
 /* tslint:disable:no-console */
-const defaultLogger: Logger = {
+export const defaultLogger: Logger = {
   debug: (msg, metadata?) => console.debug(msg),
   error: (msg, metadata?) => console.error(msg),
   log: (msg, metadata?) => console.log(msg),
@@ -39,7 +39,7 @@ export class FlowLogger implements Logger {
   }
 
   constructor(
-    private readonly metadata: ElementMetadata,
+    private readonly metadata: FlowElementContext,
     private readonly logger: Logger = defaultLogger,
     private readonly publishEvent?: (event: FlowEvent) => Promise<void>,
   ) {}
@@ -53,7 +53,7 @@ export class FlowLogger implements Logger {
   private publish(message, level: string) {
     if (this.publishEvent) {
       const event = new FlowEvent(this.metadata, message, `flow.log.${level}`);
-      this.publishEvent(event).catch((err) => this.logger.error(err, this.metadata));
+      this.publishEvent(event)?.catch((err) => this.logger.error(err, this.metadata));
     }
     // ensure correct message if message is an object
     // has no real effect if message is already a string

@@ -38,7 +38,7 @@ describe('Example Test', () => {
         { id: 'c2', source: 'something1', target: 'modify' },
       ],
     };
-    const flowApp = new FlowApplication([ExampleModule, TestModule], flow);
+    const flowApp = new FlowApplication([ExampleModule, TestModule], flow, null, null, true);
 
     flowApp.subscribe('something1.default', {
       next: (event: FlowEvent) => {

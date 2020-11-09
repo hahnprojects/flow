@@ -1,12 +1,12 @@
 import { CloudEvent } from 'cloudevents';
 
-import { ElementMetadata } from './FlowElement';
+import { FlowElementContext } from './flow.interface';
 
 export class FlowEvent {
   private event: CloudEvent;
   private metadata;
 
-  constructor(metadata: ElementMetadata, data: any, outputId = 'default', time = new Date(), dataType?: string) {
+  constructor(metadata: FlowElementContext, data: any, outputId = 'default', time = new Date(), dataType?: string) {
     const { id: elementId, deploymentId, flowId, functionFqn } = metadata;
     if (data instanceof Error) {
       const error = { message: data.message, stack: data.stack };
@@ -32,8 +32,8 @@ export class FlowEvent {
     this.event = new CloudEvent({
       source: `flows/${flowId}/deployments/${deploymentId}/elements/${elementId}`,
       type: outputId,
-      datacontenttype: dataType,
       subject: functionFqn,
+      datacontenttype: dataType,
       data,
       time,
     });

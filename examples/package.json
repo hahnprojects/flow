@@ -13,10 +13,10 @@
     "publish": "flow publish-module"
   },
   "dependencies": {
-    "@hahnpro/flow-sdk": "^3.9.0"
+    "@hahnpro/flow-sdk": "^4.0.0"
   },
   "devDependencies": {
-    "@hahnpro/flow-cli": "^2.3.1"
+    "@hahnpro/flow-cli": "^2.4.0"
   },
   "prettier": {
     "arrowParens": "always",

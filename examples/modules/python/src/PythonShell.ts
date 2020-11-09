@@ -4,12 +4,9 @@ import { join } from 'path';
 import { PythonShell } from 'python-shell';
 
 @FlowFunction('python.tasks.python-shell')
-export class Python extends FlowTask {
-  private readonly props: Properties;
-
+export class Python extends FlowTask<Properties> {
   constructor(context, properties: unknown) {
-    super(context);
-    this.props = this.validateProperties(Properties, properties, true);
+    super(context, properties, Properties, true);
   }
 
   @InputStream()
@@ -19,8 +16,8 @@ export class Python extends FlowTask {
 
     const pyshell = new PythonShell(join(__dirname, 'algebra.py'));
     const numbers = {
-      a: this.props.a,
-      b: this.props.b,
+      a: this.properties.a,
+      b: this.properties.b,
       x,
     };
 

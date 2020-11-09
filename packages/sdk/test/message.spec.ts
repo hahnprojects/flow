@@ -1,3 +1,5 @@
+import { CloudEvent } from 'cloudevents';
+
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 
 // tslint:disable:no-console
@@ -14,16 +16,21 @@ describe('Flow SDK', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApp = new FlowApplication([TestModule], flow);
+    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
 
     flowApp.subscribe('testResource.default', {
       next: (event: FlowEvent) => {
-        expect(event.getData()).toEqual({ test: 123 });
+        expect(event.getData()).toEqual({ elementId: 'testResource', test: 123 });
         done();
       },
     });
 
-    flowApp.publishMessage({ test: 123 }, 'testResource');
+    let event = new CloudEvent({
+      source: 'flowstudio/deployments',
+      type: 'com.flowstudio.deployment.message',
+      data: { elementId: 'testResource', test: 123 },
+    });
+    await flowApp.onMessage(event);
   }, 60000);
 });
 
@@ -34,7 +41,7 @@ class TestResource extends FlowResource {
     return this.emitOutput({ hello: 'world' });
   }
 
-  public handleMessage = (msg) => {
+  public onMessage = (msg) => {
     this.emitOutput(msg);
   };
 }
