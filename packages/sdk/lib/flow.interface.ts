@@ -4,14 +4,6 @@ export interface FlowContext {
   flowId?: string;
 }
 
-export interface FlowElement {
-  id: string;
-  name?: string;
-  properties?: Record<string, any>;
-  module: string;
-  functionFqn: string;
-}
-
 export interface FlowElementContext extends FlowContext {
   id: string;
   name?: string;
@@ -22,7 +14,15 @@ export interface DeploymentMessage extends Record<string, any> {
   elementId?: string;
 }
 
-export interface FlowConnection {
+interface FlowElement {
+  id: string;
+  name?: string;
+  properties?: Record<string, any>;
+  module: string;
+  functionFqn: string;
+}
+
+interface FlowConnection {
   id: string;
   name?: string;
   source: string;
