@@ -1,6 +1,6 @@
 import { FlowEvent } from '../lib';
 
-describe('Logging', () => {
+describe('Events', () => {
   test('test logging of events', async (done) => {
     let event;
 
@@ -49,12 +49,12 @@ describe('Logging', () => {
     expect(event.datacontenttype).toEqual('text/plain');
 
     event = createEvent(undefined);
-    expect(event.data).toEqual('undefined');
-    expect(event.datacontenttype).toEqual('text/plain');
+    expect(event.data).toEqual({});
+    expect(event.datacontenttype).toEqual('application/json');
 
     event = createEvent(null);
-    expect(event.data).toEqual('null');
-    expect(event.datacontenttype).toEqual('text/plain');
+    expect(event.data).toEqual({});
+    expect(event.datacontenttype).toEqual('application/json');
 
     event = createEvent(NaN);
     expect(event.data).toEqual('NaN');
@@ -82,6 +82,55 @@ describe('Logging', () => {
     expect(event.data.stack).toBeDefined();
     expect(typeof event.data.stack).toBe('string');
     expect(event.datacontenttype).toEqual('application/json');
+
+    done();
+  });
+
+  test('test imutability of event data', async (done) => {
+    let data;
+    let event;
+
+    data = { test: 'abc' };
+    event = new FlowEvent({ id: 'test' }, data);
+    expect(event.getData()).toEqual(data);
+    data.test = 'xyz';
+    expect(event.getData()).not.toEqual(data);
+    expect(event.getData()).toEqual({ ...data, test: 'abc' });
+
+    data = { test: 'abc', x: { y: 'z' } };
+    event = new FlowEvent({ id: 'test' }, data);
+    expect(event.getData()).toEqual(data);
+    data.test = 'xyz';
+    data.x.y = 'A';
+    expect(event.getData()).not.toEqual(data);
+    expect(event.getData()).toEqual({ test: 'abc', x: { y: 'z' } });
+
+    data = 'foo';
+    event = new FlowEvent({ id: 'test' }, data);
+    expect(event.getData()).toEqual(data);
+    data = 'bar';
+    expect(event.getData()).not.toEqual(data);
+    expect(event.getData()).toEqual('foo');
+
+    data = { test: 'abc' };
+    event = new FlowEvent({ id: 'test' }, data);
+    const eventData = event.getData();
+    expect(eventData).toEqual(data);
+    data.test = 'xyz';
+    expect(eventData).not.toEqual(data);
+    expect(eventData).toEqual({ test: 'abc' });
+
+    data = {};
+    event = new FlowEvent({ id: 'test' }, data);
+    expect(event.getData()).toEqual({});
+
+    data = null;
+    event = new FlowEvent({ id: 'test' }, data);
+    expect(event.getData()).toEqual({});
+
+    data = undefined;
+    event = new FlowEvent({ id: 'test' }, data);
+    expect(event.getData()).toEqual({});
 
     done();
   });

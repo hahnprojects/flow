@@ -1,4 +1,5 @@
 import { CloudEvent } from 'cloudevents';
+import { cloneDeep } from 'lodash';
 
 import { FlowElementContext } from './flow.interface';
 
@@ -11,6 +12,12 @@ export class FlowEvent {
     if (data instanceof Error) {
       const error = { message: data.message, stack: data.stack };
       data = error;
+    } else {
+      data = cloneDeep(data);
+    }
+
+    if (data == null) {
+      data = {};
     }
     if (dataType == null) {
       if (typeof data === 'string') {

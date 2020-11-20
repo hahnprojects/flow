@@ -40,7 +40,7 @@ export abstract class FlowElement<T = any> {
   }
 
   get flowProperties() {
-    return this.app?.getProperties() || {};
+    return this.app?.getProperties?.() || {};
   }
 
   public onDestroy?: () => void;

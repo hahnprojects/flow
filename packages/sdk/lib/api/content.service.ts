@@ -11,7 +11,7 @@ export class ContentService extends DataService<Content> implements ContentInter
 
   upload = (form: FormData): Promise<Content> => {
     const headers = { ...form.getHeaders() };
-    return this.httpClient.post<Content>(`${this.basePath}`, form, { headers, maxContentLength: Infinity });
+    return this.httpClient.post<Content>(`${this.basePath}`, form, { headers, maxBodyLength: Infinity, maxContentLength: Infinity });
   };
 
   download = (id: string, raw = false): Promise<Blob | ArrayBuffer> => {

@@ -25,7 +25,9 @@ export class HttpClient {
 
     // wait for access token before processing requests
     this.requestQueue.pause();
-    this.getAccessToken().then(() => this.requestQueue.start());
+    this.getAccessToken()
+      .then(() => this.requestQueue.start())
+      .catch((err) => console.error(err));
 
     this.axiosInstance.interceptors.request.use(
       async (config: AxiosRequestConfig = {}) => {

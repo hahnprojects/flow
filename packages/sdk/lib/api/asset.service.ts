@@ -11,6 +11,10 @@ export class AssetService extends DataService<Asset> implements AssetInterface {
 
   addAttachment = (id: string, form: FormData): Promise<Asset> => {
     const headers = { ...form.getHeaders() };
-    return this.httpClient.post<Asset>(`${this.basePath}/${id}/attachment`, form, { headers, maxContentLength: Infinity });
+    return this.httpClient.post<Asset>(`${this.basePath}/${id}/attachment`, form, {
+      headers,
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity,
+    });
   };
 }
