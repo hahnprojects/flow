@@ -116,11 +116,11 @@ export class FlowApplication {
   public emit = (event: FlowEvent) => {
     if (event) {
       try {
+        this.publishEvent(event);
         this.getOutputStream(event.getStreamId()).next(event);
       } catch (err) {
         this.logger?.error(err);
       }
-      this.publishEvent(event);
     }
   };
 

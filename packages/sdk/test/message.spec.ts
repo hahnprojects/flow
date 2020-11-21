@@ -25,7 +25,7 @@ describe('Flow SDK', () => {
       },
     });
 
-    let event = new CloudEvent({
+    const event = new CloudEvent({
       source: 'flowstudio/deployments',
       type: 'com.flowstudio.deployment.message',
       data: { elementId: 'testResource', test: 123 },

@@ -96,11 +96,10 @@ describe('Flow Application', () => {
         const data = event.getData();
         expect(data).toBeDefined();
         expect(data.assetId).toBe('123abcd');
+        done();
       },
     });
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { x: 'y' }));
-
-    done();
   });
 });
 
