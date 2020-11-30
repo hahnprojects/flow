@@ -2,7 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "rootDir": "lib",
-    "types": ["node", "reflect-metadata"]
+    "types": ["jest", "node", "reflect-metadata"]
   },
   "exclude": ["dist", "node_modules", "test", "**/*.spec.ts"]
 }

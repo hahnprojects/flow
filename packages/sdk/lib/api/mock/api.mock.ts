@@ -10,6 +10,8 @@ import { AssetMockService } from './asset.mock.service';
 import { ContentMockService } from './content.mock.service';
 import { SecretMockService } from './secret.mock.service';
 import { TimeseriesMockService } from './timeseries.mock.service';
+import { Task, TaskInterface } from '../task.interface';
+import { TaskMockService } from './task.mock.service';
 
 export class MockAPI implements APIInterface {
   assetManager: AssetInterface;
@@ -17,8 +19,9 @@ export class MockAPI implements APIInterface {
   secretsManager: SecretInterface;
   timeSeriesManager: TimeseriesInterface;
   sidriveManager = null;
+  taskManager: TaskInterface;
 
-  constructor(assets?: AssetInit[], contents?: ContentInit[], secrets?: SecretInit[], timeSeries?: TimeSeriesInit[]) {
+  constructor(assets?: AssetInit[], contents?: ContentInit[], secrets?: SecretInit[], timeSeries?: TimeSeriesInit[], tasks?: TaskInit[]) {
     // convert init data to normal data that the services usually use
     const assetTypes: Array<AssetType | string> = assets
       .map((v) => v.type)
@@ -67,12 +70,26 @@ export class MockAPI implements APIInterface {
       autoDelData: new Date(),
       autoDelBucket: new Date(),
     }));
+    // TODO: ...
+    const tasks1: Task[] = tasks.map((v, index) => ({
+      id: v.id,
+      name: v.name,
+      readPermissions: [],
+      readWritePermissions: [],
+      assetRef: v.assetRef,
+      subTasks: [],
+      assignedTo: v.assignedTo,
+      status: v.status,
+      acceptedBy: v.acceptedBy,
+    }));
     const timeseriesValues: TimeSeriesValue[][] = timeSeries.map((v) => v.values);
 
     this.assetManager = new AssetMockService(this, assets1);
     this.contentManager = new ContentMockService(contents1, contentData);
     this.secretsManager = new SecretMockService(secrets1);
     this.timeSeriesManager = new TimeseriesMockService(timeSeries1, timeseriesValues);
+    // TODO: implement that MockService!!!
+    this.taskManager = new TaskMockService(this, tasks1);
   }
 }
 
@@ -134,4 +151,16 @@ export interface TimeSeriesInit {
   tsRef?: [string];
   condition?: TimeSeriesCondition;
   values: TimeSeriesValue[];
+}
+
+export interface TaskInit {
+  id?: string;
+  name: string;
+  readPermissions?: string[];
+  readWritePermissions?: string[];
+  assetRef?: string;
+  subTasks?: string[];
+  assignedTo: string[];
+  status?: string;
+  acceptedBy?: string;
 }
