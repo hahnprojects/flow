@@ -68,7 +68,7 @@ describe('API test', () => {
     done();
   }, 60000);
 
-  test('timeseries', async (done) => {
+  test.skip('timeseries', async (done) => {
     const timeseries = await api.timeSeriesManager.getMany().catch((err) => logError(err));
     expect(timeseries).toBeDefined();
 
@@ -78,9 +78,23 @@ describe('API test', () => {
       const tsId = timeseries.docs[0].id;
       const ts = await api.timeSeriesManager.getOne(tsId).catch((err) => logError(err));
       expect(ts).toBeDefined();
-
       const values = await api.timeSeriesManager.getValues(tsId, 0).catch((err) => logError(err));
       expect(values).toBeDefined();
+    }
+
+    done();
+  }, 60000);
+
+  test('tasks', async (done) => {
+    const tasks = await api.taskManager.getMany().catch((err) => logError(err));
+    expect(tasks).toBeDefined();
+
+    if (tasks) {
+      expect(Array.isArray(tasks.docs)).toBe(true);
+      expect(tasks.docs.length).toBeGreaterThan(0);
+      const tskId = tasks.docs[0].id;
+      const tsk = await api.taskManager.getOne(tskId).catch((err) => logError(err));
+      expect(tsk).toBeDefined();
     }
 
     done();

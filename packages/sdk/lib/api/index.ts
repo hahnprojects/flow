@@ -6,6 +6,7 @@ export * from './data.service';
 export * from './sidriveiq.legacy.interface';
 export * from './secret.interface';
 export * from './timeseries.interface';
+export * from './task.interface';
 export * from './mock';
 
 export * as SiDrive from './sidriveiq.interface';

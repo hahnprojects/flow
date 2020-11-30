@@ -11,6 +11,7 @@ describe('Mock-API test', () => {
     [{ id: 'content1', filename: 'testContent.txt', filePath: __dirname, mimetype: 'text/plain' }],
     [{ id: 'secret1', key: 'test', name: 'testSecret' }],
     [{ id: 'timeseries1', name: 'testTimeseries', values: [{ timestamp: Date.now(), value: 'test' }] }],
+    [{ id: 'tasks1', name: 'testTasks', assignedTo: ['alice'] }], // TODO: TEST Tasks API
   );
 
   // tests copied from api.spec.ts
@@ -88,6 +89,21 @@ describe('Mock-API test', () => {
 
       const values = await api.timeSeriesManager.getValues(tsId, 0).catch((err) => logError(err));
       expect(values).toBeDefined();
+    }
+
+    done();
+  }, 60000);
+
+  test('tasks', async (done) => {
+    const tasks = await api.taskManager.getMany().catch((err) => logError(err));
+    expect(tasks).toBeDefined();
+
+    if (tasks) {
+      expect(Array.isArray(tasks.docs)).toBe(true);
+      expect(tasks.docs.length).toBeGreaterThan(0);
+      const tskId = tasks.docs[0].id;
+      const tsk = await api.taskManager.getOne(tskId).catch((err) => logError(err));
+      expect(tsk).toBeDefined();
     }
 
     done();
