@@ -88,7 +88,6 @@ export class MockAPI implements APIInterface {
     this.contentManager = new ContentMockService(contents1, contentData);
     this.secretsManager = new SecretMockService(secrets1);
     this.timeSeriesManager = new TimeseriesMockService(timeSeries1, timeseriesValues);
-    // TODO: implement that MockService!!!
     this.taskManager = new TaskMockService(this, tasks1);
   }
 }
