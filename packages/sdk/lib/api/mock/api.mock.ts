@@ -21,7 +21,13 @@ export class MockAPI implements APIInterface {
   sidriveManager = null;
   taskManager: TaskInterface;
 
-  constructor(assets?: AssetInit[], contents?: ContentInit[], secrets?: SecretInit[], timeSeries?: TimeSeriesInit[], tasks?: TaskInit[]) {
+  constructor(
+    assets: AssetInit[] = [],
+    contents: ContentInit[] = [],
+    secrets: SecretInit[] = [],
+    timeSeries: TimeSeriesInit[] = [],
+    tasks: TaskInit[] = [],
+  ) {
     // convert init data to normal data that the services usually use
     const assetTypes: Array<AssetType | string> = assets
       .map((v) => v.type)
