@@ -31,11 +31,7 @@ export abstract class FlowElement<T = any> {
     this.logger = new FlowLogger(this.metadata, logger || undefined, this.app?.publishEvent);
     this.rpcRoutingKey = (this.metadata.flowId || '') + (this.metadata.deploymentId || '') + this.metadata.id;
     if (properties) {
-      if (this.propertiesClassType) {
-        this.properties = this.validateProperties(this.propertiesClassType, properties, this.whitelist);
-      } else {
-        this.properties = properties as T;
-      }
+      this.setProperties(properties as T);
     }
   }
 
@@ -54,6 +50,10 @@ export abstract class FlowElement<T = any> {
   };
 
   public onPropertiesChanged = (properties: T): void => {
+    this.setProperties(properties);
+  };
+
+  protected setProperties = (properties: T): void => {
     if (this.propertiesClassType) {
       this.properties = this.validateProperties(this.propertiesClassType, properties, this.whitelist);
     } else {

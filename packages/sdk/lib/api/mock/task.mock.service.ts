@@ -11,7 +11,7 @@ export class TaskMockService extends DataMockService<Task> implements TaskInterf
     this.data = tasks;
   }
 
-  async createTaskAttachedToAsset(dto: any): Promise<Task>{
+  async createTaskAttachedToAsset(dto: any): Promise<Task> {
     this.data.push(dto as Task);
     return Promise.resolve(dto as Task);
   }

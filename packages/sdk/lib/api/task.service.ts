@@ -8,7 +8,7 @@ export class TaskService extends DataService<Task> implements TaskInterface {
   }
 
   // we may not need this method (already have the addOne method from DataService)
-  createTaskAttachedToAsset(dto: any){
+  createTaskAttachedToAsset(dto: any) {
     return this.httpClient.post<Task>(this.basePath, dto);
-  };
+  }
 }

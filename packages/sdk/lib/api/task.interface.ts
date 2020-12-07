@@ -23,6 +23,6 @@ export interface Task {
   updatedAt?: string;
 }
 
-export interface TaskInterface extends DataInterface<Task>{
+export interface TaskInterface extends DataInterface<Task> {
   createTaskAttachedToAsset(dto: any);
 }

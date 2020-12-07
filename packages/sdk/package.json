@@ -1,6 +1,6 @@
 {
   "name": "@hahnpro/flow-sdk",
-  "version": "4.2.1",
+  "version": "4.2.2",
   "description": "SDK for building Flow Modules",
   "license": "MIT",
   "author": {
@@ -41,7 +41,7 @@
     "lodash": "^4.17.20",
     "object-sizeof": "^1.6.1",
     "p-queue": "^6.6.2",
-    "python-shell": "^2.0.2",
+    "python-shell": "^2.0.3",
     "querystring": "^0.2.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.6.2",
