@@ -1,0 +1,48 @@
+{
+  "fqn": "example.tasks.ModifySomething",
+  "category": "task",
+  "name": "ModifySomething",
+  "description": "",
+  "isAbstract": false,
+  "supertype": "",
+  "propertiesSchema": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "num": {
+          "type": "number",
+          "required": true
+        }
+      }
+    }
+  },
+  "inputStreams": [
+    {
+      "name": "default",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "num": {
+            "type": "number",
+            "required": true
+          }
+        }
+      }
+    }
+  ],
+  "outputStreams": [
+    {
+      "name": "default",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "num": {
+            "type": "number",
+            "required": true
+          }
+        }
+      }
+    }
+  ],
+  "tags": []
+}

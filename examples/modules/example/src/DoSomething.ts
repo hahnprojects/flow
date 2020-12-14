@@ -27,3 +27,10 @@ class Properties {
   @IsNumber()
   max: number;
 }
+
+class InputProperties {}
+
+class OutputProperties {
+  @IsNumber()
+  num: number;
+}

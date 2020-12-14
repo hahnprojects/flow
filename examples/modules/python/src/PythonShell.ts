@@ -41,3 +41,19 @@ class Properties {
   @IsNumber()
   b: number;
 }
+
+class InputProperties {
+  @IsNumber()
+  x: number;
+}
+
+class OutputProperties extends InputProperties {
+  @IsNumber()
+  sum: number;
+
+  @IsNumber()
+  mul: number;
+
+  @IsNumber()
+  factorial: number;
+}

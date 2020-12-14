@@ -1,0 +1,20 @@
+stages:
+  - test
+
+commit-messages:
+  stage: test
+  image: outillage/commitsar
+  script:
+    - commitsar
+  allow_failure: true
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+
+test:
+  stage: test
+  image: node:14
+  script:
+    - npx lerna bootstrap
+    - npm test packages/cli
+  rules:
+    - if: $CI_MERGE_REQUEST_ID

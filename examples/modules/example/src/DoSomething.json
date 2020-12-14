@@ -20,7 +20,28 @@
       }
     }
   },
-  "inputStreams": [],
-  "outputStreams": [],
+  "inputStreams": [
+    {
+      "name": "default",
+      "schema": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  ],
+  "outputStreams": [
+    {
+      "name": "default",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "num": {
+            "type": "number",
+            "required": true
+          }
+        }
+      }
+    }
+  ],
   "tags": []
 }

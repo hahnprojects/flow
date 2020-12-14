@@ -1,5 +1,5 @@
 import { delay, FlowEvent, FlowFunction, FlowTask, InputStream } from '@hahnpro/flow-sdk';
-import { IsNumber } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 
 @FlowFunction('example.tasks.ModifySomething')
 export class ModifySomething extends FlowTask {
@@ -15,7 +15,14 @@ export class ModifySomething extends FlowTask {
   }
 }
 
+class Properties {
+  @IsNumber()
+  num: number;
+}
+
 class InputProperties {
   @IsNumber()
   num: number;
 }
+
+class OutputProperties extends InputProperties {}

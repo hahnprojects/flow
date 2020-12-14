@@ -9,13 +9,29 @@
     "schema": {
       "type": "object",
       "properties": {
-        "logdata": {
+        "logData": {
           "type": "boolean"
         }
       }
     }
   },
-  "inputStreams": [],
-  "outputStreams": [],
+  "inputStreams": [
+    {
+      "name": "default",
+      "schema": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  ],
+  "outputStreams": [
+    {
+      "name": "default",
+      "schema": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  ],
   "tags": []
 }
