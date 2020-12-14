@@ -1,0 +1,59 @@
+{
+  "fqn": "python.tasks.python-shell",
+  "category": "task",
+  "name": "python.tasks.python-shell",
+  "description": "",
+  "isAbstract": false,
+  "supertype": "",
+  "propertiesSchema": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "type": "number",
+          "required": true
+        },
+        "b": {
+          "type": "number",
+          "required": true
+        }
+      }
+    }
+  },
+  "inputStreams": [
+    {
+      "name": "default",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  ],
+  "outputStreams": [
+    {
+      "name": "default",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "sum": {
+            "type": "number"
+          },
+          "mul": {
+            "type": "number"
+          },
+          "factorial": {
+            "type": "number"
+          },
+          "x": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  ],
+  "tags": []
+}

@@ -248,7 +248,233 @@ program
     }
   });
 
-program.parse(process.argv);
+program
+  .command('generate-schemas [projectName]')
+  .description('Generates Input, Output and Properties-Schemas for the project.')
+  .option('-h, --hide', 'hide warnings')
+  .option('-v, --verbose', 'get more output info')
+  .action(async (projectName) => {
+    try {
+      const project = await findProject(projectName);
+      const globOptions = {
+        cwd: project.location,
+        ignore: ['node_modules/**/*', '**/package*.json', '**/tsconfig*.json'],
+      };
+      glob('**/*.*', globOptions, async (err, files) => {
+        const filtered = files.filter((file) => !file.endsWith('.spec.ts'));
+        const tsJsonMap = filtered.reduce((acc, cur, i, arr) => {
+          if (cur.endsWith('.ts')) {
+            // get json file for current function
+            const json = arr.find((v) => v === `${cur.split('.')[0]}.json`);
+            if (json) {
+              acc.push({
+                ts: path.join(globOptions.cwd, cur),
+                json: path.join(globOptions.cwd, json),
+              });
+            }
+          }
+          return acc;
+        }, []);
+        tsJsonMap.forEach((entry) => {
+          generateSchemasForFile(entry.ts, entry.json);
+        });
+      });
+    } catch (err) {
+      if (err) log(err);
+      process.exit(1);
+    }
+  });
+
+if (process.env.NODE_ENV !== 'test') {
+  program.parse(process.argv);
+}
+
+function generateSchemasForFile(tsPath, jsonPath) {
+  // get schema
+  let json = require(path.join(process.cwd(), jsonPath));
+
+  const filePath = path.join(process.cwd(), tsPath);
+  const tsFile = String(fs.readFileSync(filePath));
+  const dir = path.dirname(filePath);
+
+  execa('ts-node', ['-T', '--dir', dir], { input: prepareTsFile(tsFile), preferLocal: true }).then((result) => {
+    json = handleConvertedOutput(result.stdout, jsonPath, json);
+
+    fs.writeFileSync(path.join(process.cwd(), jsonPath), JSON.stringify(json, null, 2) + '\n');
+  });
+}
+
+function handleConvertedOutput(result, jsonPath, json) {
+  let schema;
+  try {
+    schema = JSON.parse(result);
+  } catch (e) {
+    console.log('ERROR', result);
+    return json;
+  }
+  [
+    ['propertiesSchema', 'Properties'],
+    ['inputStreams', 'InputProperties'],
+    ['outputStreams', 'OutputProperties'],
+  ].forEach((value) => {
+    const propsSchema = schema[value[1]] || {};
+    (propsSchema.required || []).forEach((reqProp) => {
+      propsSchema.properties[reqProp] = { ...propsSchema.properties[reqProp], required: true };
+    });
+    // remove required field
+    delete propsSchema.required;
+
+    checkTypes(getTypes(jsonPath), propsSchema, jsonPath);
+
+    const completeSchema = {
+      schema: {
+        type: 'object',
+        properties: {
+          ...propsSchema.properties,
+        },
+      },
+    };
+
+    if (value[0] === 'propertiesSchema') {
+      if (!json['propertiesSchema']) {
+        json['propertiesSchema'] = completeSchema;
+      }
+    } else {
+      // check if config for default input/output stream exists
+      if (!json[value[0]].find((v) => v.name === 'default')) {
+        if (propsSchema) {
+          json[value[0]].push({
+            name: 'default',
+            ...completeSchema,
+          });
+        }
+      }
+    }
+  });
+
+  // add definitions
+  if (Object.keys(schema).some((key) => !['Properties', 'InputProperties', 'OutputProperties'].includes(key))) {
+    const typeDefinitions = Object.keys(schema).filter((key) => !['Properties', 'InputProperties', 'OutputProperties'].includes(key));
+    json.definitions = typeDefinitions.reduce((previousValue, currentValue) => {
+      const additionalSchema = schema[currentValue];
+      (additionalSchema.required || []).forEach((reqProp) => {
+        additionalSchema.properties[reqProp] = { ...additionalSchema.properties[reqProp], required: true };
+      });
+      delete additionalSchema.required;
+      previousValue[currentValue] = additionalSchema;
+      return previousValue;
+    }, {});
+  }
+  return json;
+}
+
+function checkTypes(definedTypes, propsSchema, jsonPath) {
+  const knownTypes = [
+    ...definedTypes,
+    'string',
+    'undefined',
+    'number',
+    'boolean',
+    'any',
+    'object',
+    'array',
+    'integer',
+    'Asset',
+    'Flow',
+    'Secret',
+    'TimeSeries',
+    'AssetType',
+  ];
+
+  // check if all types are known
+  const props = propsSchema.properties || {};
+  for (const prop of Object.keys(props)) {
+    if (props[prop].type && !knownTypes.includes(props[prop].type)) {
+      log(
+        error(`ERROR: unknown type ${props[prop].type}. 
+                    \n Please add a schema for this type in ${jsonPath} 
+                    \n for more info check: TODO write doku and link here`),
+      );
+      return false;
+    }
+  }
+  return true;
+}
+
+function prepareTsFile(file) {
+  // if a class extends another and does not have its own fields no metadata is generated and so no schema can be generated
+  // in this case replace empty block with the block it inherits from
+  let codeBlocks = getCodeBlocks(file);
+  const emptyExtendsBlock = codeBlocks.find((block) => classNameIncludes(block, 'extends') && isBlockEmpty(block));
+  if (emptyExtendsBlock) {
+    // replace block and remove extends
+    let replBlock = `${emptyExtendsBlock}`;
+    if (replBlock.replace(/\s\s+/g, ' ').trim().startsWith('class OutputProperties')) {
+      // remove extends
+      replBlock = replBlock.replace('extends InputProperties', '');
+      // replace block with InputProperties block
+      const inputPropsBlock = codeBlocks.find((v) => classNameIncludes(v, 'InputProperties') && !classNameIncludes(v, 'OutputProperties'));
+      replBlock = replBlock.replace(getBlockContent(replBlock), getBlockContent(inputPropsBlock));
+
+      file = file.replace(emptyExtendsBlock, replBlock);
+    }
+  }
+  return (
+    `import { validationMetadatasToSchemas as v } from 'class-validator-jsonschema';\n` +
+    `import { defaultMetadataStorage } from 'class-transformer/storage'\n` +
+    `${file}\n` +
+    `const s = v({ classTransformerMetadataStorage: defaultMetadataStorage });\n` +
+    `console.log(JSON.stringify(s));`
+  );
+}
+
+function getCodeBlocks(str) {
+  const blocks = [];
+  let counter = 0;
+  let start = 0;
+  let lastNewline = 0;
+  [...str].forEach((char, index) => {
+    if (char === '\n') {
+      lastNewline = index;
+    }
+    if (char === '{') {
+      if (counter === 0) {
+        // first bracket of block
+        start = lastNewline;
+      }
+      counter++;
+    } else if (char === '}') {
+      counter--;
+      if (counter === 0) {
+        // last bracket of block
+        blocks.push(str.substring(start, index + 1));
+      }
+    }
+  });
+  return blocks;
+}
+
+function classNameIncludes(str, className) {
+  return str.trim().split('\n', 1)[0].includes(className);
+}
+
+function getBlockContent(block) {
+  return block.substring(block.indexOf('{'), block.lastIndexOf('}') + 1);
+}
+
+function isBlockEmpty(block) {
+  const blockContent = block.substring(block.indexOf('{') + 1, block.lastIndexOf('}'));
+  return !blockContent.trim();
+}
+
+function getTypes(filePath) {
+  try {
+    const json = require(path.join(process.cwd(), filePath));
+    return json.definitions ? Object.keys(json.definitions) : [];
+  } catch (e) {
+    return [];
+  }
+}
 
 async function clean(buildFolder) {
   return new Promise((resolve, reject) => {
@@ -680,3 +906,9 @@ function checkEnvModules() {
   }
   return missing;
 }
+
+exports.prepareTsFile = prepareTsFile;
+exports.getCodeBlocks = getCodeBlocks;
+exports.checkTypes = checkTypes;
+exports.getTypes = getTypes;
+exports.handleConvertedOutput = handleConvertedOutput;

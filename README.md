@@ -166,6 +166,83 @@ class Properties {
 }
 ```
 
+### The Flow-Function Instance-Type File
+
+- The name has to be the same as the Flow-Function with the `.json` ending (`DoSomething.ts` -> `DoSomething.json`)
+- It defines properties like `fqn`, `category`, `name` and `tags`
+- A field for an optional description
+- lists for the used input and output streams
+- schema field for the properties and input/output properties of the function
+
+The schema field follow the [JSON Schema](https://json-schema.org/) standard.
+The content of the fields is similar to `Properties`, `InputProperties` and `OutputProperties` classes of the function´s typescript file.
+The types that can be used here are standard typescript types (`string`, `number`, `boolean`, `array`, `object`) and
+commonly used types of the Hahn PRO Cloud (`Asset`, `Flow`, `Content`, `Secret`, `TimeSeries`, `AssetType`).
+
+You can define extra type schemas in `types`.
+
+#### Example
+
+````json
+{
+  "fqn": "example.task.DoSomething",
+  "category": "task",
+  "name": "DoSomething",
+  "description": "does something",
+  "isAbstract": false,
+  "supertype": "",
+  "propertiesSchema": {
+    "schema": {
+      "type": "object",
+      "properties": {
+        "assetId": {
+          "type": "string",
+          "description": "strProp"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "exampleType": {
+      "type": "object",
+      "properties": {
+        "test-attr1": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "inputStreams": [
+    {
+      "name": "default",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "example": {
+            "type": "exampleType"
+          }
+        }
+      }
+    }
+  ],
+  "outputStreams": [
+    {
+      "name": "default",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "num": {
+            "type": "number",
+            "required": true
+          }
+        }
+      }
+    }
+  ],
+  "tags": []
+}
+```
+
 ### Logging
 
 When running on the Flow-Executor all emitted event data (up to a max of 64kb per event) gets logged by default.
@@ -209,6 +286,7 @@ new MockAPI({
 ```
 
 For more information on how to test your Flow-Function implementations see the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples) repository.
+For information on running Flow-Module tests in CI see [this](/examples/flow-testing-pipeline.md)
 
 ## Publishing
 
