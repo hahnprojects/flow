@@ -12,7 +12,6 @@ const got = require('got');
 const ora = require('ora');
 const path = require('path');
 const readPkg = require('read-pkg');
-const rimraf = require('rimraf');
 const writePkg = require('write-pkg');
 
 require('dotenv').config();
@@ -46,7 +45,7 @@ const CMD = {
 const program = new Command();
 
 program
-  .version('2.2.0', '-v, --version')
+  .version('2.5.0', '-v, --version')
   .usage('[command] [options]')
   .description('Flow Module Management Tool.')
   .on('--help', () => {});
@@ -99,19 +98,6 @@ program
       process.exit(1);
     }
   });
-
-program.command('name [projectName]').action(async (projectName) => {
-  try {
-    if (checkIfAll(projectName)) process.exit(1);
-    const project = await findProject(projectName);
-    await clean(buildDir);
-    await exec(CMD.INSTALL, project);
-    await exec(CMD.BUILD, project);
-  } catch (err) {
-    if (err) log(err);
-    process.exit(1);
-  }
-});
 
 program
   .command('package [projectName]')
@@ -380,10 +366,10 @@ function checkTypes(definedTypes, propsSchema, jsonPath) {
     'array',
     'integer',
     'Asset',
+    'AssetType',
     'Flow',
     'Secret',
     'TimeSeries',
-    'AssetType',
   ];
 
   // check if all types are known
@@ -391,9 +377,9 @@ function checkTypes(definedTypes, propsSchema, jsonPath) {
   for (const prop of Object.keys(props)) {
     if (props[prop].type && !knownTypes.includes(props[prop].type)) {
       log(
-        error(`ERROR: unknown type ${props[prop].type}. 
-                    \n Please add a schema for this type in ${jsonPath} 
-                    \n for more info check: TODO write doku and link here`),
+        error(`ERROR: unknown type ${props[prop].type}.
+       Please add a schema for this type in ${jsonPath}
+       for more info check the documentation`),
       );
       return false;
     }
@@ -479,7 +465,7 @@ function getTypes(filePath) {
 async function clean(buildFolder) {
   return new Promise((resolve, reject) => {
     const spinner = getSpinner('Cleaning').start();
-    rimraf(buildFolder, (err) => {
+    fs.rmdir(buildFolder, { recursive: true }, (err) => {
       if (err) {
         spinner.stop();
         log(error('Cleaning failed'));

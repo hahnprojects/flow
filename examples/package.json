@@ -10,13 +10,14 @@
     "format": "flow format",
     "test": "flow test",
     "package": "flow package",
-    "publish": "flow publish-module"
+    "publish": "flow publish-module",
+    "generate-schemas": "flow generate-schemas"
   },
   "dependencies": {
-    "@hahnpro/flow-sdk": "^4.0.0"
+    "@hahnpro/flow-sdk": "^4.2.2"
   },
   "devDependencies": {
-    "@hahnpro/flow-cli": "^2.4.0"
+    "@hahnpro/flow-cli": "^2.5.0"
   },
   "prettier": {
     "arrowParens": "always",
