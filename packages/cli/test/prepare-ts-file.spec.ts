@@ -4,7 +4,7 @@ describe('prepare ts-file for schema extraction', () => {
   test('should add import and console-log', () => {
     const result = prepareTsFile('');
     expect(result).toContain("import { validationMetadatasToSchemas as v } from 'class-validator-jsonschema';");
-    expect(result).toContain("import { defaultMetadataStorage } from 'class-transformer/storage'")
+    expect(result).toContain("import { defaultMetadataStorage } from 'class-transformer/storage'");
     expect(result).toContain('const s = v({ classTransformerMetadataStorage: defaultMetadataStorage });');
     expect(result).toContain('console.log(JSON.stringify(s));');
   });

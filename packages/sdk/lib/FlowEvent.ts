@@ -42,11 +42,22 @@ export class FlowEvent {
       subject: functionFqn,
       datacontenttype: dataType,
       data,
-      time,
+      time: time.toISOString(),
     });
   }
 
-  public format = (): any => this.event.toJSON();
+  public format = (): any => {
+    const event = this.event.toJSON();
+    if (event.datacontenttype === 'application/json') {
+      try {
+        event.data = JSON.parse(event.data as string);
+      } catch (err) {
+        /* ignore error */
+      }
+    }
+    return event;
+  };
+
   public getData = (): any => this.event.data || {};
   public getDataContentType = (): string => this.event.datacontenttype;
   public getDataschema = (): string => this.event.dataschema;
