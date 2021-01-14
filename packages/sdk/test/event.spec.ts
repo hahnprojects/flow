@@ -89,6 +89,7 @@ describe('Events', () => {
   test('test imutability of event data', async (done) => {
     let data;
     let event;
+    let eventData;
 
     data = { test: 'abc' };
     event = new FlowEvent({ id: 'test' }, data);
@@ -114,11 +115,21 @@ describe('Events', () => {
 
     data = { test: 'abc' };
     event = new FlowEvent({ id: 'test' }, data);
-    const eventData = event.getData();
+    eventData = event.getData();
     expect(eventData).toEqual(data);
     data.test = 'xyz';
     expect(eventData).not.toEqual(data);
     expect(eventData).toEqual({ test: 'abc' });
+
+    data = { test: 'abc' };
+    event = new FlowEvent({ id: 'test' }, data);
+    eventData = event.getData();
+    expect(eventData).toEqual(data);
+    eventData.test = 'xyz';
+    expect(eventData).not.toEqual(data);
+    expect(eventData).toEqual({ test: 'xyz' });
+    expect(event.getData()).toEqual({ test: 'abc' });
+    expect(data).toEqual({ test: 'abc' });
 
     data = {};
     event = new FlowEvent({ id: 'test' }, data);

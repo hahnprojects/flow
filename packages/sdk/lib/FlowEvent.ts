@@ -58,7 +58,7 @@ export class FlowEvent {
     return event;
   };
 
-  public getData = (): any => this.event.data || {};
+  public getData = (): any => cloneDeep(this.event.data || {});
   public getDataContentType = (): string => this.event.datacontenttype;
   public getDataschema = (): string => this.event.dataschema;
   public getId = (): string => this.event.id;
