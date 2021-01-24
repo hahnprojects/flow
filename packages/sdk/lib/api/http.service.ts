@@ -65,7 +65,7 @@ export class HttpClient {
     );
   };
 
-  private getAccessToken = () => {
+  public getAccessToken = () => {
     return new Promise<string>((resolve, reject) => {
       if (this.isTokenValid()) {
         resolve(this.accessToken);

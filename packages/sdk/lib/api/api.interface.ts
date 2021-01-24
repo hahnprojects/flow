@@ -3,6 +3,7 @@ import { ContentInterface } from './content.interface';
 import { SecretInterface } from './secret.interface';
 import { TimeseriesInterface } from './timeseries.interface';
 import { TaskInterface } from './task.interface';
+import { UserInterface } from './user.interface';
 
 export interface APIInterface {
   assetManager: AssetInterface;
@@ -11,4 +12,5 @@ export interface APIInterface {
   sidriveManager: any;
   timeSeriesManager: TimeseriesInterface;
   taskManager: TaskInterface;
+  userManager: UserInterface;
 }
