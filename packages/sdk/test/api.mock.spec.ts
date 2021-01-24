@@ -12,6 +12,7 @@ describe('Mock-API test', () => {
     [{ id: 'secret1', key: 'test', name: 'testSecret' }],
     [{ id: 'timeseries1', name: 'testTimeseries', values: [{ timestamp: Date.now(), value: 'test' }] }],
     [{ id: 'tasks1', name: 'testTasks', assignedTo: ['alice'] }], // TODO: TEST Tasks API
+    { roles: ['test1', 'test2'] },
   );
 
   // tests copied from api.spec.ts
@@ -108,6 +109,19 @@ describe('Mock-API test', () => {
 
     done();
   }, 60000);
+
+  test('user', async (done) => {
+    const roles = await api.userManager.getCurrentUserRoles();
+    expect(roles).toBeDefined();
+
+    if (roles) {
+      expect(Array.isArray(roles)).toBe(true);
+      expect(roles.length).toBeGreaterThan(0);
+      expect(roles).toEqual(['test1', 'test2']);
+    }
+
+    done();
+  });
 });
 
 function logError(err: any) {

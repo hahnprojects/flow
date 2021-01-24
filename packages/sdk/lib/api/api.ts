@@ -13,6 +13,7 @@ import { TimeseriesInterface } from './timeseries.interface';
 import { TimeSeriesService } from './timeseries.service';
 import { TaskInterface } from './task.interface';
 import { TaskService } from './task.service';
+import { UserService } from './user.service';
 
 // tslint:disable:no-console
 export class API implements APIInterface {
@@ -23,6 +24,7 @@ export class API implements APIInterface {
   public sidriveManager: SiDriveIqLegacyInterface;
   public timeSeriesManager: TimeseriesInterface;
   public taskManager: TaskInterface;
+  public userManager: UserService;
 
   constructor() {
     let apiBaseUrl = process.env.API_BASE_URL || 'https://testing.hahnpro.com';
@@ -47,5 +49,6 @@ export class API implements APIInterface {
     this.sidriveManager = new SiDriveIqLegacyService(httpClient);
     this.timeSeriesManager = new TimeSeriesService(httpClient);
     this.taskManager = new TaskService(httpClient);
+    this.userManager = new UserService(httpClient);
   }
 }

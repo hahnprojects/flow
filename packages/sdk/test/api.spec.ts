@@ -68,7 +68,7 @@ describe('API test', () => {
     done();
   }, 60000);
 
-  test.skip('timeseries', async (done) => {
+  test('timeseries', async (done) => {
     const timeseries = await api.timeSeriesManager.getMany().catch((err) => logError(err));
     expect(timeseries).toBeDefined();
 
@@ -97,6 +97,17 @@ describe('API test', () => {
       expect(tsk).toBeDefined();
     }
 
+    done();
+  }, 60000);
+
+  test('user', async (done) => {
+    const roles = await api.userManager.getCurrentUserRoles();
+    expect(roles).toBeDefined();
+
+    if (roles) {
+      expect(Array.isArray(roles)).toBe(true);
+      expect(roles.length).toBeGreaterThan(0);
+    }
     done();
   }, 60000);
 });

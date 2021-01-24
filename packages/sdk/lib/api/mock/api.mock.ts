@@ -12,6 +12,8 @@ import { SecretMockService } from './secret.mock.service';
 import { TimeseriesMockService } from './timeseries.mock.service';
 import { Task, TaskInterface } from '../task.interface';
 import { TaskMockService } from './task.mock.service';
+import { UserInterface } from '../user.interface';
+import { UserMockService } from './user.mock.service';
 
 export class MockAPI implements APIInterface {
   assetManager: AssetInterface;
@@ -20,6 +22,7 @@ export class MockAPI implements APIInterface {
   timeSeriesManager: TimeseriesInterface;
   sidriveManager = null;
   taskManager: TaskInterface;
+  userManager: UserInterface;
 
   constructor(
     assets: AssetInit[] = [],
@@ -27,6 +30,7 @@ export class MockAPI implements APIInterface {
     secrets: SecretInit[] = [],
     timeSeries: TimeSeriesInit[] = [],
     tasks: TaskInit[] = [],
+    users: UserInit = { roles: [] },
   ) {
     // convert init data to normal data that the services usually use
     const assetTypes: Array<AssetType | string> = assets
@@ -95,6 +99,7 @@ export class MockAPI implements APIInterface {
     this.secretsManager = new SecretMockService(secrets1);
     this.timeSeriesManager = new TimeseriesMockService(timeSeries1, timeseriesValues);
     this.taskManager = new TaskMockService(this, tasks1);
+    this.userManager = new UserMockService(users);
   }
 }
 
@@ -168,4 +173,8 @@ export interface TaskInit {
   assignedTo: string[];
   status?: string;
   acceptedBy?: string;
+}
+
+export interface UserInit {
+  roles: string[];
 }
