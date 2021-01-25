@@ -6,7 +6,7 @@ CI environment.
 ### Preparation
 
 CI tests are designed to test your code and your code only. This means the Flow-Functions
-should not rely on the availability of the API. A test, that relys on the API,
+should not rely on the availability of the API. A test, that relies on the API,
 could fail either because there is an actual problem with the code or because
 the API is unavailable. The availability of the API should not affect the
 outcome of the tests.
