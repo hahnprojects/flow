@@ -34,7 +34,7 @@ Examples for TypeScript configurations (`tsconfig.json` files) can be found in t
 
 You can use the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples) project as a template for creating new Flow-Modules.
 
-A minimal project setup should look somthing like this:
+A minimal project setup should look something like this:
 
 ```
 project
@@ -53,7 +53,7 @@ project
 |   tsconfig.json
 ```
 
-The project root folder should contain a `package.json`, a `tsconfig.json` and a `modules` folder. The `modules` folder contains one or many subfolders. Each subfolder represents a Flow-Module. All Flow-Module folders should contain an `index.ts`, a `package,json`, `tsconfig.json` and `tsconfig.module.json` file. The `src` folder contains all Flow-Function implementations of the module.
+The project root folder should contain a `package.json`, a `tsconfig.json` and a `modules` folder. The `modules` folder contains one or many subdirectories. Each subdirectory represents a Flow-Module. All Flow-Module folders should contain an `index.ts`, a `package,json`, `tsconfig.json` and `tsconfig.module.json` file. The `src` folder contains all Flow-Function implementations of the module.
 
 ### The Flow-Modules `index.ts` File
 
@@ -63,7 +63,7 @@ The `@FlowModule` annotation is what actually defines the module.
 
 All Flow-Function implementations that are part of the module should be imported and listed in the `declarations` array.
 
-For consistency the `name` property should be (but doesn't have to be) the same as the modules folder name and the same as the `name` field in the modules `package.json`
+For consistency the `name` property should be (but doesn't have to be) the same as the modules' folder name and the same as the `name` field in the modules `package.json`
 
 ##### Example
 
@@ -84,8 +84,8 @@ export default class SomeModule {}
 
 ### The Flow-Modules `package.json` File
 
-- `name`and `version` are the only required fields. A `description` can be supplied optionally.
-- The `name` should follow the same guidelines as the Flow Funtion FQN.
+- `name` and `version` are the only required fields. A `description` can be supplied optionally.
+- The `name` should follow the same guidelines as the Flow Function FQN.
 - The `version` filed must be in [semver](http://semver.org/) format.
 - The modules dependencies are also defined here. These dependencies will be packaged together with the module when it gets published.
 
@@ -121,7 +121,7 @@ The `@InputStream` annotation defines a method of a Flow-Function implementation
 
 #### Concurrency
 
-`@InputStream` accepts an object of options as the second argument. Currently the only available option is to set the concurrency for the streams individually. The default concurrency is the to 1.
+`@InputStream` accepts an object of options as the second argument. Currently, the only available option is to set the concurrency for the streams individually. The default concurrency is the to 1.
 
 ```typescript
   @InputStream('example', { concurrent: Infinity })
@@ -131,7 +131,7 @@ The `@InputStream` annotation defines a method of a Flow-Function implementation
 
 Flow-Function properties and properties on Input- and Output-Streams should be validated.
 
-The suggested way to do this is unsing the [`class-validator`](https://github.com/typestack/class-validator) and [`class-transformer`](https://github.com/typestack/class-transformer) npm packages (both come bundled with the SDK)
+The suggested way to do this is using the [`class-validator`](https://github.com/typestack/class-validator) and [`class-transformer`](https://github.com/typestack/class-transformer) npm packages (both come bundled with the SDK)
 
 For convenience the `validateProperties` and `validateEventData` methods are provided.
 
@@ -241,11 +241,14 @@ You can define extra type schemas in `types`.
   ],
   "tags": []
 }
-```
+````
+
+### More-Examples
+- [Flow Function examples](examples/modules/example)
 
 ### Logging
 
-When running on the Flow-Executor all emitted event data (up to a max of 64kb per event) gets logged by default.
+When running on the Flow-Executor, all emitted event data (up to a max of 64kb per event) gets logged by default.
 
 The developer can choose to log additional messages with the provided logger. Using`console.log` should be avoided outside of testing.
 
@@ -257,7 +260,7 @@ There are two possibilities to run python scripts in your Flow-Functions.
 
 - communication over stdin and stdout
 - script starts, calculates, returns, gets destroyed
-- scripts gets instantiated on receiving of a message and gets destroyed after calculation is finished
+- script gets instantiated on receiving of a message and gets destroyed after calculation is finished
 - has to be reinstantiated for every message
 - useful for short simple scripts that don't have to keep data in memory
 
@@ -271,9 +274,13 @@ There are two possibilities to run python scripts in your Flow-Functions.
 
 See the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples) repository for examples of how to run python scripts in your Flow-Function implementation.
 
+#### Python integration examples
+
+- [Python integration in Flow Function](examples/modules/python)
+
 ## Testing
 
-If your tests need access to the Hahn-PRO API you should consider using the Mock-API. The Mock-API allows you to preset
+If your tests need access to the Hahn-PRO API, you should consider using the Mock-API. The Mock-API allows you to preset
 data that then gets used in the tests. It is a drop-in-replacement for the standard API.
 
 ```typescript
@@ -286,7 +293,15 @@ new MockAPI({
 ```
 
 For more information on how to test your Flow-Function implementations see the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples) repository.
-For information on running Flow-Module tests in CI see [this](/examples/flow-testing-pipeline.md)
+For information on running Flow-Module tests in CI see [this](/doc/flow-testing-pipeline.md)
+
+### Testing examples
+
+- [Simple Test](examples/modules/example/src/simple.spec.ts)
+
+- [Complex Flow Test](examples/modules/example/src/flow.spec.ts)
+
+- [Flow Function CI Testing](doc/flow-testing-pipeline.md)
 
 ## Publishing
 
@@ -323,6 +338,13 @@ npm run package <yourmodulename>
 
 A `.zip` file will be created in the `dist` folder. This file is ready to be uploaded to the cloud platform.
 
+## Working with the Hahn-PRO API
+
+In the API Dev-Docs you will find examples for common use-cases of the API. The examples
+are provided in both typescript and python. 
+
+- [API Dev Docs](doc/dev-docs.md)
+
 ## Migration
 
 #### Update Flow SDK and Flow CLI Version
@@ -331,7 +353,7 @@ A `.zip` file will be created in the `dist` folder. This file is ready to be upl
 npm install @hahnpro/flow-sdk@latest @hahnpro/flow-cli@latest
 ```
 
-#### Floder Structure
+#### Directory Structure
 
 Folders no longer need to be named like the Flow Function FQN (f.k.a. Instance Type FQN)
 
