@@ -183,7 +183,7 @@ You can define extra type schemas in `types`.
 
 #### Example
 
-````json
+```json
 {
   "fqn": "example.task.DoSomething",
   "category": "task",
@@ -241,9 +241,10 @@ You can define extra type schemas in `types`.
   ],
   "tags": []
 }
-````
+```
 
 ### More-Examples
+
 - [Flow Function examples](examples/modules/example)
 
 ### Logging
@@ -341,7 +342,7 @@ A `.zip` file will be created in the `dist` folder. This file is ready to be upl
 ## Working with the Hahn-PRO API
 
 In the API Dev-Docs you will find examples for common use-cases of the API. The examples
-are provided in both typescript and python. 
+are provided in both typescript and python.
 
 - [API Dev Docs](doc/dev-docs.md)
 
@@ -374,4 +375,7 @@ See the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/exa
 ## License
 
 This SDK is distributed under the [MIT License](https://opensource.org/licenses/mit-license.php), see LICENSE for more information.
-````
+
+```
+
+```

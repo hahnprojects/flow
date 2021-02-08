@@ -32,6 +32,11 @@ export class FlowApplication {
   } = {};
 
   constructor(modules: Array<ClassType<any>>, flow: Flow, logger?: Logger, private amqpConnection?: AmqpConnection, skipApi = false) {
+    process.on('SIGTERM', () => {
+      this.logger.log('Flow Application is terminating.');
+      this.destroy().finally(() => process.exit(0));
+    });
+
     this.context = { ...flow.context };
     this.properties = flow.properties || {};
     this.logger = logger || defaultLogger;

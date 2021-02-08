@@ -7,8 +7,6 @@ import { HttpClient } from './http.service';
 import { SecretInterface } from './secret.interface';
 import { SecretService } from './secret.service';
 import { SiDriveIqService } from './sidriveiq.service';
-import { SiDriveIqLegacyInterface } from './sidriveiq.legacy.interface';
-import { SiDriveIqLegacyService } from './sidriveiq.legacy.service';
 import { TimeseriesInterface } from './timeseries.interface';
 import { TimeSeriesService } from './timeseries.service';
 import { TaskInterface } from './task.interface';
@@ -17,11 +15,11 @@ import { UserService } from './user.service';
 
 // tslint:disable:no-console
 export class API implements APIInterface {
+  public httpClient: HttpClient;
   public assetManager: AssetInterface;
   public contentManager: ContentInterface;
   public secretsManager: SecretInterface;
   public siDrive: SiDriveIqService;
-  public sidriveManager: SiDriveIqLegacyInterface;
   public timeSeriesManager: TimeseriesInterface;
   public taskManager: TaskInterface;
   public userManager: UserService;
@@ -41,14 +39,13 @@ export class API implements APIInterface {
       throw new Error('"API_BASE_URL", "API_USER", "AUTH_REALM" and "AUTH_SECRET" environment variables must be set');
     }
 
-    const httpClient = new HttpClient(apiBaseUrl, authBaseUrl, realm, client, secret);
-    this.assetManager = new AssetService(httpClient);
-    this.contentManager = new ContentService(httpClient);
-    this.secretsManager = new SecretService(httpClient);
-    this.siDrive = new SiDriveIqService(httpClient);
-    this.sidriveManager = new SiDriveIqLegacyService(httpClient);
-    this.timeSeriesManager = new TimeSeriesService(httpClient);
-    this.taskManager = new TaskService(httpClient);
-    this.userManager = new UserService(httpClient);
+    this.httpClient = new HttpClient(apiBaseUrl, authBaseUrl, realm, client, secret);
+    this.assetManager = new AssetService(this.httpClient);
+    this.contentManager = new ContentService(this.httpClient);
+    this.secretsManager = new SecretService(this.httpClient);
+    this.siDrive = new SiDriveIqService(this.httpClient);
+    this.timeSeriesManager = new TimeSeriesService(this.httpClient);
+    this.taskManager = new TaskService(this.httpClient);
+    this.userManager = new UserService(this.httpClient);
   }
 }

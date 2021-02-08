@@ -9,7 +9,6 @@ export interface APIInterface {
   assetManager: AssetInterface;
   contentManager: ContentInterface;
   secretsManager: SecretInterface;
-  sidriveManager: any;
   timeSeriesManager: TimeseriesInterface;
   taskManager: TaskInterface;
   userManager: UserInterface;
