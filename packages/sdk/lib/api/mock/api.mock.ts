@@ -1,3 +1,5 @@
+import { EndpointMockService } from './endpoint.mock.service';
+import { Endpoint } from './../endpoint.interface';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -8,6 +10,7 @@ import { Secret, SecretInterface } from '../secret.interface';
 import { TimeSeries, TimeSeriesCondition, TimeSeriesValue, TimeseriesInterface } from '../timeseries.interface';
 import { AssetMockService } from './asset.mock.service';
 import { ContentMockService } from './content.mock.service';
+import { EndpointInterface } from '../endpoint.interface';
 import { SecretMockService } from './secret.mock.service';
 import { TimeseriesMockService } from './timeseries.mock.service';
 import { Task, TaskInterface } from '../task.interface';
@@ -18,6 +21,7 @@ import { UserMockService } from './user.mock.service';
 export class MockAPI implements APIInterface {
   assetManager: AssetInterface;
   contentManager: ContentInterface;
+  endpointManager: EndpointInterface;
   secretsManager: SecretInterface;
   timeSeriesManager: TimeseriesInterface;
   sidriveManager = null;
@@ -27,6 +31,7 @@ export class MockAPI implements APIInterface {
   constructor(
     assets: AssetInit[] = [],
     contents: ContentInit[] = [],
+    endpoints: EndpointInit[] = [],
     secrets: SecretInit[] = [],
     timeSeries: TimeSeriesInit[] = [],
     tasks: TaskInit[] = [],
@@ -80,6 +85,15 @@ export class MockAPI implements APIInterface {
       autoDelData: new Date(),
       autoDelBucket: new Date(),
     }));
+    const endpoint1: Endpoint[] = endpoints.map((value) => ({
+      id: value.id,
+      name: value.name,
+      description: value.description,
+      status: value.status,
+      config: value.config,
+      readPermissions: [],
+      readWritePermissions: [],
+    }));
     // TODO: ...
     const tasks1: Task[] = tasks.map((v, index) => ({
       id: v.id,
@@ -96,6 +110,7 @@ export class MockAPI implements APIInterface {
 
     this.assetManager = new AssetMockService(this, assets1);
     this.contentManager = new ContentMockService(contents1, contentData);
+    this.endpointManager = new EndpointMockService(endpoint1);
     this.secretsManager = new SecretMockService(secrets1);
     this.timeSeriesManager = new TimeseriesMockService(timeSeries1, timeseriesValues);
     this.taskManager = new TaskMockService(this, tasks1);
@@ -142,6 +157,21 @@ export interface ContentInit {
   createdAt?: string;
   updatedAt?: string;
   data?: any;
+}
+
+export interface EndpointInit {
+  id?: string;
+  name: string;
+  description?: string;
+  status?: string;
+  config?: {
+    type: string;
+    url?: string;
+    authToken: string;
+    recipients?: string[];
+  };
+  readPermissions?: string[];
+  readWritePermissions?: string[];
 }
 
 export interface SecretInit {
