@@ -53,6 +53,13 @@ describe('API test', () => {
     done();
   }, 60000);
 
+  test('endpoint', async (done) => {
+    const mockedSendFn = jest.spyOn(api.endpointManager, 'sendNotification');
+    await api.endpointManager.sendNotification('endpoint1', 'test', 'Test').catch((err) => logError(err));
+    expect(mockedSendFn).toHaveBeenCalledWith('endpoint1', 'test', 'Test');
+    done();
+  }, 60000);
+
   test('secrets', async (done) => {
     const secrets = await api.secretsManager.getMany().catch((err) => logError(err));
     expect(secrets).toBeDefined();

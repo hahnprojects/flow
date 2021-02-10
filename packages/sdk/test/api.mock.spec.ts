@@ -9,6 +9,7 @@ describe('Mock-API test', () => {
   const api = new MockAPI(
     [{ id: 'asset1', name: 'testAsset', type: { id: 'testId', name: 'testType' } }],
     [{ id: 'content1', filename: 'testContent.txt', filePath: __dirname, mimetype: 'text/plain' }],
+    [{ id: 'endpoint1', name: 'test' }],
     [{ id: 'secret1', key: 'test', name: 'testSecret' }],
     [{ id: 'timeseries1', name: 'testTimeseries', values: [{ timestamp: Date.now(), value: 'test' }] }],
     [{ id: 'tasks1', name: 'testTasks', assignedTo: ['alice'] }], // TODO: TEST Tasks API
@@ -59,6 +60,14 @@ describe('Mock-API test', () => {
       expect(content).toBeDefined();
     }
 
+    done();
+  }, 60000);
+
+  test('endpoint', async (done) => {
+    const test = await api.endpointManager.sendNotification('endpoint1', 'test', 'Test').catch((err) => logError(err));
+    expect(test).toBeDefined();
+    expect(test.subject).toBe('test');
+    expect(test.message).toBe('Test');
     done();
   }, 60000);
 
