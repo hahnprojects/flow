@@ -3,7 +3,7 @@ stages:
 
 commit-messages:
   stage: test
-  image: outillage/commitsar
+  image: outillage/commitsar:0.15.0
   script:
     - commitsar
   allow_failure: true
