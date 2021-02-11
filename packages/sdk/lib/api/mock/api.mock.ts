@@ -1,5 +1,5 @@
 import { EndpointMockService } from './endpoint.mock.service';
-import { Endpoint } from './../endpoint.interface';
+import { Endpoint } from '../endpoint.interface';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -28,15 +28,16 @@ export class MockAPI implements APIInterface {
   taskManager: TaskInterface;
   userManager: UserInterface;
 
-  constructor(
-    assets: AssetInit[] = [],
-    contents: ContentInit[] = [],
-    endpoints: EndpointInit[] = [],
-    secrets: SecretInit[] = [],
-    timeSeries: TimeSeriesInit[] = [],
-    tasks: TaskInit[] = [],
-    users: UserInit = { roles: [] },
-  ) {
+  constructor(initData: {
+    assets?: AssetInit[];
+    contents?: ContentInit[];
+    endpoints?: EndpointInit[];
+    secrets?: SecretInit[];
+    timeSeries?: TimeSeriesInit[];
+    tasks?: TaskInit[];
+    users?: UserInit;
+  }) {
+    const { assets = [], contents = [], endpoints = [], secrets = [], timeSeries = [], tasks = [], users } = initData;
     // convert init data to normal data that the services usually use
     const assetTypes: Array<AssetType | string> = assets
       .map((v) => v.type)
@@ -95,7 +96,7 @@ export class MockAPI implements APIInterface {
       readWritePermissions: [],
     }));
     // TODO: ...
-    const tasks1: Task[] = tasks.map((v, index) => ({
+    const tasks1: Task[] = tasks.map((v) => ({
       id: v.id,
       name: v.name,
       readPermissions: [],
