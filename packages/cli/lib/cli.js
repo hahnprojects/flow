@@ -31,6 +31,7 @@ let apiToken;
 let projectsRoot = 'modules';
 
 const CMD = {
+  AUDIT: 'audit',
   BUILD: 'build',
   COPY: 'copy',
   FORMAT: 'format',
@@ -58,6 +59,7 @@ program
       if (checkIfAll(projectName)) process.exit(1);
       const project = await findProject(projectName);
       await exec(CMD.INSTALL, project);
+      await exec(CMD.AUDIT, project);
       await exec(CMD.BUILD, project);
       await exec(CMD.LINT, project);
       await exec(CMD.COPY, project);
@@ -88,6 +90,26 @@ program
   });
 
 program
+  .command('audit [projectName]')
+  .description('Audit dependencies')
+  .action(async (projectName) => {
+    try {
+      if (projectName === 'all') {
+        const projects = await findProjects();
+        for (const project of projects) {
+          await exec(CMD.AUDIT, project);
+        }
+      } else {
+        const project = await findProject(projectName);
+        await exec(CMD.AUDIT, project);
+      }
+    } catch (err) {
+      if (err) log(err);
+      process.exit(1);
+    }
+  });
+
+program
   .command('format')
   .description('Formats all typescript files according to prettier configuration.')
   .action(async () => {
@@ -108,6 +130,7 @@ program
       const project = await findProject(projectName);
       await clean(buildDir);
       await exec(CMD.INSTALL, project);
+      await exec(CMD.AUDIT, project);
       await exec(CMD.BUILD, project);
       await exec(CMD.LINT, project);
       await exec(CMD.COPY, project);
@@ -140,6 +163,7 @@ program
       for (const project of projects) {
         await clean(buildDir);
         await exec(CMD.INSTALL, project);
+        await exec(CMD.AUDIT, project);
         await exec(CMD.BUILD, project);
         await exec(CMD.LINT, project);
         await exec(CMD.COPY, project);
@@ -189,6 +213,7 @@ program
       if (checkIfAll(projectName)) process.exit(1);
       const project = await findProject(projectName);
       await exec(CMD.INSTALL, project);
+      await exec(CMD.AUDIT, project);
       await exec(CMD.BUILD, project);
       await exec(CMD.COPY, project);
       await exec(CMD.WATCH, project);
@@ -783,6 +808,7 @@ function getProcess(cmd) {
     case CMD.FORMAT:
       return './node_modules/.bin/prettier';
     case CMD.INSTALL:
+    case CMD.AUDIT:
       return 'npm';
     case CMD.LINT:
       return './node_modules/.bin/tslint';
@@ -799,6 +825,8 @@ function getProcess(cmd) {
 
 function getProcessArguments(cmd, project) {
   switch (cmd) {
+    case CMD.AUDIT:
+      return ['audit', '--audit-level=moderate'];
     case CMD.BUILD: {
       const filename = path.join(project.location, 'tsconfig.module.json');
       const configFile = fs.existsSync(filename) ? filename : project.location;
