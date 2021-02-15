@@ -246,6 +246,7 @@ You can define extra type schemas in `types`.
 ### More-Examples
 
 - [Flow Function examples](examples/modules/example)
+- [Flow Function Input/Output](doc/flow-modules-in-out-docs.md)
 
 ### Logging
 

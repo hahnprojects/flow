@@ -1,0 +1,93 @@
+completeStatement
+  ::= '{' statement '}'
+  ;
+
+statement
+  ::= forEachStatement
+  | typeOfStatement
+  | forIStatement
+  | ifStatement
+  | elseStatement
+  | 'unknown'
+  ;
+
+forEachStatement
+  ::= (simpleForEachStatement | selectForeach) ('|' IDENTIFIER)?
+  ;
+
+typeOfStatement
+  ::= 'typeOf' ':' readStreamFunction
+  ;
+
+forIStatement
+  ::= 'fori' ':' (simplePropertiesStatement | 'unknown')
+  ;
+
+ifStatement
+  ::= 'if' ':' (propertiesCondition | typeOfStatement)
+  ;
+
+elseStatement
+  ::= 'else' (':' ifStatement)?
+  ;
+
+simpleForEachStatement
+  ::= 'forEach' ':' propertiesStatement
+  ;
+
+selectForeach
+  ::= '(' simpleForEachStatement ')' ('.' IDENTIFIER)+
+  ;
+
+readStreamFunction
+  ::= 'readStream' '(' IDENTIFIER ',' (IDENTIFIER | mapFunction) ')'
+  ;
+
+propertiesStatement
+  ::= simplePropertiesStatement | streamPropertiesStatement
+  ;
+
+simplePropertiesStatement
+  ::= 'properties' ('.' IDENTIFIER)+
+  ;
+
+streamPropertiesStatement
+  ::= 'streamProperties' '(' IDENTIFIER (',' IDENTIFIER)* ')'
+  ;
+
+propertiesCondition
+  ::= propertiesStatement comparator (IDENTIFIER | INTEGER)
+  ;
+
+mapFunction
+  ::= 'map' '(' simplePropertiesStatement mapFunctionParam mapFunctionParam ')'
+  ;
+
+mapFunctionParam
+  ::= ',' IDENTIFIER ('=' IDENTIFIER)
+  ;
+
+comparator
+  ::= equals
+  | notEquals
+  | greaterEquals
+  | lessEquals
+  | '>'
+  | '<'
+  ;
+
+equals
+  ::= '=' '=' '='
+  ;
+
+notEquals
+  ::= '!' '=' '='
+  ;
+
+greaterEquals
+  ::= '>' '=' '='
+  ;
+
+lessEquals
+  ::= '>' '=' '='
+  ;
