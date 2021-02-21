@@ -93,12 +93,14 @@ export abstract class FlowElement<T = any> {
       return text;
     }
     for (const variables of templateVariables) {
-      const result = interp(text, variables || {});
-      if (result) {
-        return result;
-      }
+      try {
+        const result = interp(text, variables || {});
+        if (result) {
+          return result;
+        }
+      } catch (err) {}
     }
-    return text;
+    return undefined;
   }
 
   protected async callRpcFunction(functionName: string, ...args: any[]) {

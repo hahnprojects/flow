@@ -57,6 +57,11 @@ describe('utils', () => {
     filled = fillTemplate(tmplString, tmplVars);
     expect(filled).toEqual(undefined);
 
+    tmplString = '${foo.bar.baz}';
+    tmplVars = {};
+    filled = fillTemplate(tmplString, tmplVars);
+    expect(filled).toEqual(undefined);
+
     tmplString = '${foo}';
     tmplVars = undefined;
     filled = fillTemplate(tmplString, tmplVars);

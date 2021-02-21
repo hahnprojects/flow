@@ -9,7 +9,11 @@ export function fillTemplate(templateString: string, templateVariables: any): st
   if (!templateString?.includes?.('${')) {
     return templateString;
   }
-  return interp(templateString, templateVariables || {});
+  try {
+    return interp(templateString, templateVariables || {});
+  } catch (err) {
+    return undefined;
+  }
 }
 
 export function getCircularReplacer() {
