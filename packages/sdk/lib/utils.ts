@@ -1,18 +1,35 @@
 import { promises as fs } from 'fs';
+import isPlainObject from 'lodash/isPlainObject';
 import { join } from 'path';
 import { PythonShell } from 'python-shell';
 import interp from 'string-interp';
 
 import { FlowLogger } from './FlowLogger';
 
-export function fillTemplate(templateString: string, templateVariables: any): string {
-  if (!templateString?.includes?.('${')) {
-    return templateString;
-  }
-  try {
-    return interp(templateString, templateVariables || {});
-  } catch (err) {
-    return undefined;
+export function fillTemplate(value: any, ...templateVariables: any): any {
+  if (isPlainObject(value)) {
+    for (const key of Object.keys(value)) {
+      value[key] = fillTemplate(value[key], ...templateVariables);
+    }
+    return value;
+  } else if (Array.isArray(value) && value.length > 0) {
+    value.forEach(function (v, index) {
+      this[index] = fillTemplate(v, ...templateVariables);
+    }, value);
+    return value;
+  } else if (value != null && typeof value === 'string' && value.includes('${')) {
+    for (const variables of templateVariables) {
+      try {
+        const result = interp(value, variables || {});
+        if (result) {
+          return result;
+        }
+      } catch (err) {
+        // ignore
+      }
+    }
+  } else {
+    return value;
   }
 }
 
