@@ -1,8 +1,9 @@
+import asyncio
 import json
+from asyncio import Future
+from functools import partial, wraps
+from aio_pika import IncomingMessage, Exchange, Message, connect_robust, ExchangeType
 import os
-from functools import wraps
-
-import pika
 
 host = ""
 try:
@@ -37,68 +38,67 @@ def RemoteProcedure(func):
     return function_wrapper
 
 
-class PikaMassenger:
-    def __init__(self, routingKey, *args, **kwargs):
-        self.conn = pika.BlockingConnection(
-            pika.ConnectionParameters(host=host, port=port)
-        )
-        self.channel = self.conn.channel()
-        self.routingKey = routingKey
+loop = asyncio.get_event_loop()
 
-    def consume(self, callback):
-        self.channel.exchange_declare(
-            exchange="rpc_direct_exchange", exchange_type="direct"
-        )
 
-        result = self.channel.queue_declare("", exclusive=True)
-        queue_name = result.method.queue
+async def on_message(exchange: Exchange, message: IncomingMessage):
+    def callback(future: Future):
+        try:
+            res = future.result()
+            reply1 = {"type": "reply", "value": res}
+        except Exception as err:
+            # print(traceback.format_list(traceback.extract_stack(err)))
+            reply1 = {"type": "error", "message": str(err), "stack": "failed"}
 
-        self.channel.queue_bind(
-            exchange="rpc_direct_exchange",
-            queue=queue_name,
-            routing_key=self.routingKey,
-        )
+        asyncio.ensure_future(sendReply(exchange, reply1, message), loop=loop)
 
-        self.channel.basic_consume(queue=queue_name, on_message_callback=callback)
+    with message.process():
+        request = json.loads(message.body.decode())
 
-        self.channel.start_consuming()
+        # call function
+        if remoteProcedures.keys().__contains__(request["functionName"]):
+            func = remoteProcedures.get(request["functionName"])
+            coro = asyncio.to_thread(func, *request["arguments"])
+            task = asyncio.create_task(coro)
+            task.add_done_callback(callback)
 
-    def __enter__(self):
-        return self
+        else:
+            reply = {
+                "type": "error",
+                "message": request["functionName"] + " is not a function",
+            }
+            await sendReply(exchange, reply, originalMessage=message)
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.conn.close()
+
+async def sendReply(exchange: Exchange, reply, originalMessage: Message):
+    await exchange.publish(
+        Message(
+            body=json.dumps(reply).encode("utf-8"),
+            correlation_id=originalMessage.correlation_id
+        ),
+        routing_key=originalMessage.reply_to,
+    )
+
+
+async def main(loop, routing_key):
+    url = "amqp://guest:guest@%s:%s/" % (host, port)
+    connection = await connect_robust(
+        url, loop=loop
+    )
+
+    channel = await connection.channel()
+
+    dest_exchange = await channel.declare_exchange(name="rpc_direct_exchange", type=ExchangeType.DIRECT)
+
+    queue = await channel.declare_queue("rpc_queue")
+
+    await queue.bind(dest_exchange, routing_key)
+
+    await queue.consume(partial(
+        on_message, channel.default_exchange)
+    )
 
 
 def start_consumer(routing_key=routingKey):
-    def callback(ch, method, props, body):
-        reply = ""
-        try:
-            request = json.loads(body)
-
-            # call function
-            if remoteProcedures.keys().__contains__(request["functionName"]):
-                func = remoteProcedures.get(request["functionName"])
-                res = func(*request["arguments"])
-                reply = {"type": "reply", "value": res}
-            else:
-                reply = {
-                    "type": "error",
-                    "message": request["functionName"] + " is not a function",
-                }
-
-        except Exception as err:
-            # print(traceback.format_list(traceback.extract_stack(err)))
-            reply = {"type": "error", "message": str(err), "stack": "failed"}
-        finally:
-            # print(props)
-            ch.basic_publish(
-                exchange="",
-                routing_key=props.reply_to,
-                properties=pika.BasicProperties(correlation_id=props.correlation_id),
-                body=json.dumps(reply),
-            )
-            ch.basic_ack(delivery_tag=method.delivery_tag)
-
-    with PikaMassenger(routing_key) as consumer:
-        consumer.consume(callback=callback)
+    loop.create_task(main(loop, routing_key))
+    loop.run_forever()
