@@ -18,5 +18,4 @@ def testB(arg):
 def testC():
     return 1 / 0
 
-
 start_consumer(sys.argv[2])

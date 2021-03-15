@@ -36,7 +36,7 @@ describe('Flow RPC', () => {
     });
 
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}, 'a'));
-  });
+  }, 60000);
 
   test('return sent value', async (done) => {
     flowApp.subscribe('testResource.b', {
@@ -47,7 +47,7 @@ describe('Flow RPC', () => {
     });
 
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { value: 'bar' }, 'b'));
-  });
+  }, 60000);
 
   test('error in remote procedure', async (done) => {
     flowApp.subscribe('testResource.c', {
@@ -58,7 +58,7 @@ describe('Flow RPC', () => {
     });
 
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}, 'c'));
-  });
+  }, 60000);
 
   test('rpc function does not exist', async (done) => {
     flowApp.subscribe('testResource.d', {
@@ -69,7 +69,7 @@ describe('Flow RPC', () => {
     });
 
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}, 'd'));
-  });
+  }, 60000);
 
   afterAll(async () => {
     await flowApp.destroy();
