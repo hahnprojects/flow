@@ -3,14 +3,15 @@
 ## Static I/O
 
 If the function always accepts the same inputs and produces the same outputs, the Input and Output-Schemas are similar to the
-Function-Properties Schemas. 
+Function-Properties Schemas.
 
 The Schemas have to be defined for every Input and Output-Stream.
 
 ## Examples
+
 ### Basic Example
 
-````json
+```json
 {
   ...
   "inputStreams": [
@@ -47,11 +48,11 @@ The Schemas have to be defined for every Input and Output-Stream.
   ],
   ...
 }
-````
+```
 
 ### Multiple Streams
 
-````json
+```json
 {
   ...
   "outputStreams": [
@@ -82,19 +83,20 @@ The Schemas have to be defined for every Input and Output-Stream.
   ],
   ...
 }
-````
+```
 
-## Generating Schemas 
+## Generating Schemas
 
-The Flow-CLI can generate these schemas from `Input/OutputProperties` classes that can be defined in the `.ts`-file of the 
+The Flow-CLI can generate these schemas from `Input/OutputProperties` classes that can be defined in the `.ts`-file of the
 function. By using `class-validator` decorators you can define attributes of the properties.
 
 Use the command `flow generate-schemas [project-name]` to generate schemas.
 
 ### Example
+
 The class:
 
-````typescript
+```typescript
 class InputProperties {
   @IsNumber()
   num: number;
@@ -103,10 +105,11 @@ class InputProperties {
   @IsOptional()
   str: string;
 }
-````
+```
 
 results in:
-````json
+
+```json
 {
   ...
   "inputStreams": [
@@ -128,113 +131,127 @@ results in:
   ],
   ...
 }
-````
-
+```
 
 ## Dynamic I/O
 
-If the Input/OutputProperties depend on the data produced by the previous function in a flow or by the properties of the function, 
+If the Input/OutputProperties depend on the data produced by the previous function in a flow or by the properties of the function,
 the schemas are more complicated. These schemas contain definitions on how to generate the schema.
 
 ### Foreach
+
 #### Schema:
-````json
+
+```json
 "{{foreach:properties.variables}}": {
   "type": "string"
 }
-````
+```
 
 #### Properties:
-````typescript
+
+```typescript
 {
-  variables: ['test1', 'test2']
+  variables: ['test1', 'test2'];
 }
-````
+```
 
 #### Result:
-````json
+
+```json
 "test1": {
   "type": "string"
 },
 "test2": {
   "type": "string"
 }
-````
+```
 
 ### Foreach with Selection
+
 #### Schema:
-````json
+
+```json
 "{{(foreach:properties.injections).key}}": {
   "type": "string"
 }
-````
+```
 
 #### Properties:
-````typescript
+
+```typescript
 {
-  injections: [ 
-    { 
+  injections: [
+    {
       key: 'test1',
-      value: 'value1'
-    }, 
+      value: 'value1',
+    },
     {
       key: 'test2',
-      value: 'value2'
-    }
-  ]
+      value: 'value2',
+    },
+  ];
 }
-````
+```
 
 #### Result:
-````json
+
+```json
 "test1": {
   "type": "string"
 },
 "test2": {
   "type": "string"
 }
-````
+```
 
 ### Foreach Property of Input-Stream
+
 #### Schema:
-````json
+
+```json
 "{{foreach:streamProperties(default)}}": {
   "type": "string"
 }
-````
+```
 
 #### Schema of Input Stream:
-````json
+
+```json
 "test1": {
   "type": "number"
 },
 "test2": {
   "type": "boolean"
 }
-````
+```
 
 #### Result:
-````json
+
+```json
 "test1": {
   "type": "string"
 },
 "test2": {
   "type": "string"
 }
-````
+```
 
 ### For i
+
 #### Schema:
-````json
+
+```json
 "{{fori:3}}": {
   "test": {
     "type": "string"
   }
 }
-````
+```
 
-#### Result: 
-````json
+#### Result:
+
+```json
 [
   {
     "test": {
@@ -252,25 +269,29 @@ the schemas are more complicated. These schemas contain definitions on how to ge
     }
   }
 ]
-````
+```
 
 ### Foreach with propertyname assignment and typeof readStream
+
 #### Schema:
-````json
+
+```json
 "{{foreach:properties.prop | propname}}": {
   "type": "{{typeof:readStream(default, propname)}}"
 }
-````
+```
 
 #### Properties:
-````typescript
+
+```typescript
 {
-  prop: ['test1', 'test2']
+  prop: ['test1', 'test2'];
 }
-````
+```
 
 #### Schema of Input Stream:
-````json
+
+```json
 "test1": {
   "type": "number"
 },
@@ -280,21 +301,24 @@ the schemas are more complicated. These schemas contain definitions on how to ge
 "test3": {
 "type": "object"
 }
-````
+```
 
 #### Result:
-````json
+
+```json
 "test1": {
   "type": "number"
 },
 "test2": {
   "type": "boolean"
 }
-````
+```
 
 ### If/Else
+
 #### Schema:
-````json
+
+```json
 "{{if:someCondition}}": {
   "test1": {
     "type": "string"
@@ -305,25 +329,31 @@ the schemas are more complicated. These schemas contain definitions on how to ge
     "type": "number"
   }
 }
-````
+```
 
 #### Result:
+
 if someCondition is true
-````json
+
+```json
 "test1": {
   "type": "string"
 }
-````
+```
+
 if someCondition is false
-````json
+
+```json
 "otherName": {
     "type": "number"
   }
-````
+```
 
 ### If/ElseIf
+
 #### Schema:
-````json
+
+```json
 "{{if:someCondition}}": {
   "str": {
     "type": "string"
@@ -339,26 +369,34 @@ if someCondition is false
     "type": "boolean"
   }
 }
-````
+```
 
 #### Result:
+
 if someCondition is true
-````json
+
+```json
 "str": {
   "type": "string"
 }
-````
+```
+
 if someCondition is false and someOtherCondition is true
-````json
+
+```json
 "num": {
     "type": "number"
   }
-````
+```
+
 if both conditions are false
-````json
+
+```json
 "bool": {
     "type": "boolean"
   }
-````
+```
+
 # Grammar
+
 Find the complete Grammar [here](json-meta-schema.bnf)

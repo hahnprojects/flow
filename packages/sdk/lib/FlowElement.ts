@@ -1,14 +1,13 @@
 import { plainToClass } from 'class-transformer';
 import { validateSync } from 'class-validator';
 import { Options, PythonShell } from 'python-shell';
-import interp from 'string-interp';
 
 import { API } from './api';
 import { ClassType, FlowElementContext, DeploymentMessage, FlowContext } from './flow.interface';
 import { Context, FlowApplication } from './FlowApplication';
 import { FlowEvent } from './FlowEvent';
 import { FlowLogger } from './FlowLogger';
-import { handleApiError } from './utils';
+import { handleApiError, fillTemplate } from './utils';
 
 export abstract class FlowElement<T = any> {
   public readonly functionFqn: string;
@@ -88,20 +87,7 @@ export abstract class FlowElement<T = any> {
     return this.validateProperties(classType, event.getData(), whitelist);
   }
 
-  protected interpolate(text: string, ...templateVariables: any): string {
-    if (!text?.includes?.('${')) {
-      return text;
-    }
-    for (const variables of templateVariables) {
-      try {
-        const result = interp(text, variables || {});
-        if (result) {
-          return result;
-        }
-      } catch (err) {}
-    }
-    return undefined;
-  }
+  protected interpolate = (value: any, ...templateVariables: any) => fillTemplate(value, ...templateVariables);
 
   protected async callRpcFunction(functionName: string, ...args: any[]) {
     try {

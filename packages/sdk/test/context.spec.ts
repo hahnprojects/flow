@@ -69,12 +69,17 @@ describe('Flow Application', () => {
   }, 60000);
 
   test('string interpolation with event data', async (done) => {
-    const tr = new TestResource({ id: 'testResource' }, { assetId: '${test}' });
-
-    const event = await tr.onDefault(new FlowEvent({ id: 'tr' }, { test: 'xyz' }));
-    const data = event.getData();
+    let tr = new TestResource({ id: 'testResource' }, { assetId: '${test}' });
+    let event = await tr.onDefault(new FlowEvent({ id: 'tr' }, { test: 'xyz' }));
+    let data = event.getData();
     expect(data).toBeDefined();
     expect(data.assetId).toBe('xyz');
+
+    tr = new TestResource({ id: 'testResource' }, { assetId: '${test}' });
+    event = await tr.onDefault(new FlowEvent({ id: 'tr' }, { nottest: 'xyz' }));
+    data = event.getData();
+    expect(data).toBeDefined();
+    expect(data.assetId).toBeUndefined();
 
     done();
   });
@@ -91,15 +96,22 @@ describe('Flow Application', () => {
     };
     const flowApp = new FlowApplication([TestModule], flow, null, null, true);
 
+    let count = 0;
     flowApp.subscribe('testResource.default', {
       next: (event: FlowEvent) => {
         const data = event.getData();
         expect(data).toBeDefined();
-        expect(data.assetId).toBe('123abcd');
-        done();
+        if (count === 1) {
+          expect(data.assetId).toBe('987zyx');
+          done();
+        } else {
+          expect(data.assetId).toBe('123abcd');
+          count++;
+        }
       },
     });
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { x: 'y' }));
+    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { test: '987zyx' }));
   });
 });
 
