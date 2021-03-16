@@ -90,7 +90,7 @@ async def main(loop, routing_key):
 
     dest_exchange = await channel.declare_exchange(name="rpc_direct_exchange", type=ExchangeType.DIRECT)
 
-    queue = await channel.declare_queue("rpc_queue")
+    queue = await channel.declare_queue("", exclusive=True)
 
     await queue.bind(dest_exchange, routing_key)
 
