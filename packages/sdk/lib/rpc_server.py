@@ -5,6 +5,18 @@ from functools import partial, wraps
 from aio_pika import IncomingMessage, Exchange, Message, connect_robust, ExchangeType
 import os
 
+user = ""
+try:
+    user = os.environ["RABBIT_USER"]
+except:
+    user = "guest"
+
+password = ""
+try:
+    password = os.environ["RABBIT_PASSWORD"]
+except:
+    password = "guest"
+
 host = ""
 try:
     host = os.environ["RABBIT_HOST"]
@@ -81,7 +93,7 @@ async def sendReply(exchange: Exchange, reply, originalMessage: Message):
 
 
 async def main(loop, routing_key):
-    url = "amqp://guest:guest@%s:%s/" % (host, port)
+    url = "amqp://%s:%s@%s:%s/" % (user, password, host, port)
     connection = await connect_robust(
         url, loop=loop
     )
