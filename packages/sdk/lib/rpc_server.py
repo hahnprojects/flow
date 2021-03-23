@@ -70,9 +70,8 @@ async def on_message(exchange: Exchange, message: IncomingMessage):
         # call function
         if remoteProcedures.keys().__contains__(request["functionName"]):
             func = remoteProcedures.get(request["functionName"])
-            coro = asyncio.to_thread(func, *request["arguments"])
-            task = asyncio.create_task(coro)
-            task.add_done_callback(callback)
+            future = loop.run_in_executor(None, func, *request["arguments"])
+            future.add_done_callback(callback)
 
         else:
             reply = {
