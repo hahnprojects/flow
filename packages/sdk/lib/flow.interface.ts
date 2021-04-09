@@ -8,6 +8,7 @@ export interface FlowElementContext extends FlowContext {
   id: string;
   name?: string;
   functionFqn?: string;
+  inputStreamId?: string;
 }
 
 export interface DeploymentMessage extends Record<string, any> {

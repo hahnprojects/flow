@@ -129,6 +129,20 @@ export class FlowApplication {
     }
   };
 
+  public emitPartial = (completeEvent: FlowEvent, partialEvent: FlowEvent) => {
+    // send complete event, log only partial event
+    try {
+      if (completeEvent) {
+        this.getOutputStream(completeEvent.getStreamId()).next(completeEvent);
+      }
+      if (partialEvent) {
+        this.publishEvent(partialEvent);
+      }
+    } catch (err) {
+      this.logger?.error(err);
+    }
+  };
+
   public getProperties() {
     return this.properties;
   }

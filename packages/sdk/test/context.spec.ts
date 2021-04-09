@@ -46,7 +46,7 @@ describe('Flow Application', () => {
       },
     });
 
-    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+    await flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
 
     let event = new CloudEvent({
       source: 'flowstudio/deployments',
@@ -54,7 +54,7 @@ describe('Flow Application', () => {
       data: { elements: [{ id: 'testResource', properties: { assetId: 'xyz' } }] },
     });
     await flowApp.onMessage(event);
-    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+    await flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {})); // await necessary as otherwise the event gets lost for some reason
 
     event = new CloudEvent({
       source: 'flowstudio/deployments',
@@ -65,7 +65,7 @@ describe('Flow Application', () => {
       },
     });
     await flowApp.onMessage(event);
-    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+    await flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
   }, 60000);
 
   test('string interpolation with event data', async (done) => {

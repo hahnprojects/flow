@@ -8,7 +8,7 @@ export class FlowEvent {
   private metadata;
 
   constructor(metadata: FlowElementContext, data: any, outputId = 'default', time = new Date(), dataType?: string) {
-    const { id: elementId, deploymentId, flowId, functionFqn } = metadata;
+    const { id: elementId, deploymentId, flowId, functionFqn, inputStreamId } = metadata;
     if (data instanceof Error) {
       const error = { message: data.message, stack: data.stack };
       data = error;
@@ -27,7 +27,7 @@ export class FlowEvent {
         } catch (err) {
           dataType = 'text/plain';
         }
-      } else if (typeof data === 'object' && data != null) {
+      } else if (typeof data === 'object') {
         dataType = 'application/json';
       } else {
         data = String(data);
@@ -35,7 +35,7 @@ export class FlowEvent {
       }
     }
 
-    this.metadata = { deploymentId, elementId, flowId, functionFqn };
+    this.metadata = { deploymentId, elementId, flowId, functionFqn, inputStreamId };
     this.event = new CloudEvent({
       source: `flows/${flowId}/deployments/${deploymentId}/elements/${elementId}`,
       type: outputId,

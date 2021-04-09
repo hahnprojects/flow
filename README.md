@@ -119,12 +119,22 @@ The `@FlowFunction` annotation declares the class as a Flow-Function implementat
 
 The `@InputStream` annotation defines a method of a Flow-Function implementation as an Input-Stream. The first argument of the annotations is the stream ID with the default being `'default'`, the second an object of options (see `concurrency` below)
 
-#### Concurrency
+#### Options
 
-`@InputStream` accepts an object of options as the second argument. Currently, the only available option is to set the concurrency for the streams individually. The default concurrency is the to 1.
+`@InputStream` accepts an object of options as the second argument. 
+
+One available option is to set the concurrency for the streams individually. The default concurrency is the to 1.
 
 ```typescript
   @InputStream('example', { concurrent: Infinity })
+```
+
+By default, the data that is sent into a FlowFunction will be merged with the data produced by the
+Function and sent to the next Function in the flow. This can be stopped with the `stopPropagation`
+option. If set, only the data produced by the function will be sent.
+
+```typescript
+  @InputStream('example', { stopPropagation: true })
 ```
 
 #### Property Validation
