@@ -10,7 +10,7 @@ commit-messages:
   rules:
     - if: $CI_MERGE_REQUEST_ID
 
-test:
+test-cli:
   stage: test
   image: node:14
   script:
@@ -18,3 +18,18 @@ test:
     - npm test packages/cli
   rules:
     - if: $CI_MERGE_REQUEST_ID
+      changes:
+        - packages/cli/**/*
+        - package.json
+
+test-sdk:
+  stage: test
+  image: node:14
+  script:
+    - npx lerna bootstrap
+    - npm test packages/sdk -- --testPathIgnorePatterns api.spec.ts http.service.spec.ts rpc.spec.ts sidrive.spec.ts
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+      changes:
+        - packages/sdk/**/*
+        - package.json

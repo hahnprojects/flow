@@ -3,11 +3,11 @@ import { validateSync } from 'class-validator';
 import { Options, PythonShell } from 'python-shell';
 
 import { API } from './api';
-import { ClassType, FlowElementContext, DeploymentMessage, FlowContext } from './flow.interface';
+import { ClassType, DeploymentMessage, FlowContext, FlowElementContext } from './flow.interface';
 import { Context, FlowApplication } from './FlowApplication';
 import { FlowEvent } from './FlowEvent';
 import { FlowLogger } from './FlowLogger';
-import { handleApiError, fillTemplate } from './utils';
+import { fillTemplate, handleApiError } from './utils';
 
 export abstract class FlowElement<T = any> {
   public readonly functionFqn: string;
@@ -17,6 +17,8 @@ export abstract class FlowElement<T = any> {
   protected properties: T;
   private readonly app?: FlowApplication;
   private readonly rpcRoutingKey: string;
+
+  private stopPropagateStream: Map<string, boolean> = new Map<string, boolean>();
 
   constructor(
     { app, logger, ...metadata }: Context,
@@ -62,12 +64,25 @@ export abstract class FlowElement<T = any> {
 
   public handleApiError = (error: any) => handleApiError(error, this.logger);
 
+  /**
+   * @deprecated since version 4.8.0, will be removed in 5.0.0, use emitEvent(...) instead
+   */
   protected emitOutput(data: any = {}, outputId = 'default', time = new Date()): FlowEvent {
-    const event = new FlowEvent(this.metadata, data, outputId, time);
-    if (this.app) {
-      this.app.emit(event);
+    return this.emitEvent(data, null, outputId, time);
+  }
+
+  protected emitEvent(data: any, inputEvent: FlowEvent, outputId = 'default', time = new Date()): FlowEvent {
+    const partialEvent = new FlowEvent(this.metadata, data, outputId, time);
+    const completeEvent = new FlowEvent(this.metadata, { ...(inputEvent?.getData() || {}), ...data }, outputId, time);
+
+    const streamID = inputEvent?.getMetadata()?.inputStreamId || '';
+    if ((this.stopPropagateStream.has(streamID) && this.stopPropagateStream.get(streamID)) || !this.stopPropagateStream.has(streamID)) {
+      this.app?.emit(partialEvent);
+      return partialEvent;
+    } else {
+      this.app?.emitPartial(completeEvent, partialEvent);
+      return completeEvent;
     }
-    return event;
   }
 
   protected validateProperties<P>(classType: ClassType<P>, properties: any = {}, whitelist = false): P {
@@ -112,12 +127,26 @@ export abstract class FlowElement<T = any> {
   }
 }
 
-export function InputStream(id = 'default', options?: { concurrent?: number }): MethodDecorator {
-  return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+export function InputStream(id = 'default', options?: { concurrent?: number; stopPropagation?: boolean }): MethodDecorator {
+  return (target: any, propertyKey: string, propertyDescriptor: PropertyDescriptor) => {
     Reflect.defineMetadata(`stream:${id}`, propertyKey, target.constructor);
     if (options) {
       Reflect.defineMetadata(`stream:options:${id}`, options, target.constructor);
     }
+
+    const method = propertyDescriptor.value;
+
+    propertyDescriptor.value = function (event: FlowEvent) {
+      if (!this.stopPropagateStream.has(id)) {
+        this.stopPropagateStream.set(id, options?.stopPropagation ?? false);
+      }
+
+      // add input stream to data to later determine if data should be propagated
+      return method.call(
+        this,
+        new FlowEvent({ ...event.getMetadata(), inputStreamId: id }, event.getData(), event.getType(), new Date(event.getTime())),
+      );
+    };
   };
 }
 

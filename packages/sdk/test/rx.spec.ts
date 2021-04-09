@@ -1,7 +1,16 @@
-import { Subject, interval } from 'rxjs';
+import { interval, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
 
-import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream, delay } from '../lib';
+import {
+  delay,
+  FlowApplication,
+  FlowEvent,
+  FlowFunction,
+  FlowModule,
+  FlowResource,
+  FlowTask,
+  InputStream,
+} from '../lib';
 
 /* tslint:disable:no-console */
 describe('rx', () => {
