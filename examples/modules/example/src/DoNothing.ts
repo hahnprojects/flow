@@ -13,7 +13,7 @@ export class DoNothing extends FlowTask<Properties> {
     if (this.properties.logData === true) {
       this.logger.log(data);
     }
-    return this.emitOutput(data);
+    return this.emitEvent(data, event);
   }
 }
 

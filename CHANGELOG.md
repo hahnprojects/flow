@@ -2,6 +2,16 @@
 
 All notable changes to [flow-sdk](https://gitlab.com/hahnpro/flow-sdk) are documented here. We use [semantic versioning](http://semver.org/) for releases.
 
+## [4.8.0](https://gitlab.com/hahnpro/flow-sdk/-/tags/v4.8.0)
+
+### Features
+
+- Emitted event data for Flow Functions is merged with incoming event data with the help of the new `emitEvent` method. See the updated examples for more information
+
+### Breaking Changes
+
+- The `emitOutput` method of FlowElement has been deprecated in favor of `emitEvent`. All Flow Functions should migrate to the new method. `emitOutput` will be removed in a future version.
+
 ## [4.0.0](https://gitlab.com/hahnpro/flow-sdk/-/tags/v4.0.0)
 
 ### Features

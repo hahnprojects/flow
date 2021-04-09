@@ -14,10 +14,10 @@
     "generate-schemas": "flow generate-schemas"
   },
   "dependencies": {
-    "@hahnpro/flow-sdk": "^4.2.2"
+    "@hahnpro/flow-sdk": "^4.8.0"
   },
   "devDependencies": {
-    "@hahnpro/flow-cli": "^2.5.4"
+    "@hahnpro/flow-cli": "^2.7.6"
   },
   "prettier": {
     "arrowParens": "always",

@@ -11,8 +11,7 @@ export class Python extends FlowTask<Properties> {
 
   @InputStream()
   public async handleInputStream(event: FlowEvent) {
-    const data = event.getData();
-    const { x } = data;
+    const { x } = event.getData();
 
     const pyshell = new PythonShell(join(__dirname, 'algebra.py'));
     const numbers = {
@@ -24,7 +23,7 @@ export class Python extends FlowTask<Properties> {
     pyshell.send(JSON.stringify(numbers));
     pyshell.on('message', (msg) => {
       const response = JSON.parse(msg);
-      return this.emitOutput({ ...data, sum: response.sum, mul: response.mul, factorial: response.factorial });
+      return this.emitEvent({ sum: response.sum, mul: response.mul, factorial: response.factorial }, event);
     });
     pyshell.end((err, exitCode, exitSignal) => {
       if (err) {

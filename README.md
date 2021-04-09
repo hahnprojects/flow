@@ -121,7 +121,7 @@ The `@InputStream` annotation defines a method of a Flow-Function implementation
 
 #### Options
 
-`@InputStream` accepts an object of options as the second argument. 
+`@InputStream` accepts an object of options as the second argument.
 
 One available option is to set the concurrency for the streams individually. The default concurrency is the to 1.
 
@@ -357,31 +357,15 @@ are provided in both typescript and python.
 
 - [API Dev Docs](doc/dev-docs.md)
 
-## Migration
-
-#### Update Flow SDK and Flow CLI Version
+## Updating Flow SDK and Flow CLI Version
 
 ```bash
 npm install @hahnpro/flow-sdk@latest @hahnpro/flow-cli@latest
 ```
 
-#### Directory Structure
-
-Folders no longer need to be named like the Flow Function FQN (f.k.a. Instance Type FQN)
-
-[see here](#project-setup-and-folder-structure)
-
-#### Flow-Modules `index.ts` File
-
-Create a `index.ts` file at the root of your module folder with content according to [this](#the-flow-modules-indexts-file)
-
-#### Review Changes
+### Review Changes
 
 [CHANGELOG](https://gitlab.com/hahnpro/flow/blob/master/CHANGELOG.md)
-
-#### Examples for Flow SDK v3 Modules
-
-See the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples)
 
 ## License
 

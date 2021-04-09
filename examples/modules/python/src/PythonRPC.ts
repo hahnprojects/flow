@@ -11,15 +11,16 @@ export class PythonRPC extends FlowTask<Properties> {
 
   @InputStream()
   public async handleInputStream(event: FlowEvent) {
-    const data = event.getData();
-    const { x } = data;
+    const { x } = event.getData();
 
-    this.emitOutput({
-      ...data,
-      sum: await this.sum(this.properties.a, this.properties.b, x),
-      mul: await this.multiply(this.properties.a, this.properties.b, x),
-      factorial: await this.factorial(this.properties.a),
-    });
+    this.emitEvent(
+      {
+        sum: await this.sum(this.properties.a, this.properties.b, x),
+        mul: await this.multiply(this.properties.a, this.properties.b, x),
+        factorial: await this.factorial(this.properties.a),
+      },
+      event,
+    );
   }
 
   private sum = (a: number, b: number, c: number) => this.callRpcFunction('sum', a, b, c);

@@ -9,10 +9,8 @@ export class DoSomething extends FlowResource<Properties> {
 
   @InputStream()
   public async generateRandomNumber(event: FlowEvent) {
-    const data = event.getData();
-
     const num = this.rnd(this.properties.min, this.properties.max);
-    return this.emitOutput({ ...data, num });
+    return this.emitEvent({ num }, event);
   }
 
   private rnd(min: number, max: number): number {
