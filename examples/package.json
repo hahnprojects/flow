@@ -14,7 +14,7 @@
     "generate-schemas": "flow generate-schemas"
   },
   "dependencies": {
-    "@hahnpro/flow-sdk": "^4.8.0"
+    "@hahnpro/flow-sdk": "^4.8.1"
   },
   "devDependencies": {
     "@hahnpro/flow-cli": "^2.7.6"
