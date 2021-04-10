@@ -4,6 +4,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "dist",
+    "removeComments": false,
     "types": ["jest", "node", "reflect-metadata"],
     "typeRoots": ["node_modules/@types"]
   },

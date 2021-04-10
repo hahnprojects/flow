@@ -25,8 +25,9 @@
   },
   "scripts": {
     "build": "../../node_modules/.bin/tsc -p tsconfig.lib.json",
+    "build:nocomments": "../../node_modules/.bin/tsc -p tsconfig.nocomments.json",
     "postbuild": "../../node_modules/.bin/copyfiles -u 1 lib/*.py dist",
-    "prepublishOnly": "yarn build"
+    "prepublishOnly": "yarn build && yarn build:nocomments"
   },
   "dependencies": {
     "@golevelup/nestjs-rabbitmq": "^1.16.0",
