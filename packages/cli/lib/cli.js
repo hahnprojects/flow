@@ -2,15 +2,17 @@
 require('reflect-metadata');
 
 const archiver = require('archiver');
+let axios = require('axios').default;
 const chalk = require('chalk');
 const { Command } = require('commander');
 const execa = require('execa');
 const FormData = require('form-data');
 const fs = require('fs');
 const glob = require('glob');
-const got = require('got');
+const HttpsProxyAgent = require('https-proxy-agent');
 const ora = require('ora');
 const path = require('path');
+const queryString = require('querystring');
 const readPkg = require('read-pkg');
 const writePkg = require('write-pkg');
 
@@ -26,6 +28,11 @@ const baseUrl = process.env.PLATFORM_URL;
 const buildDir = process.env.BUILD_DIR || 'dist';
 const realm = process.env.REALM;
 const authUrl = process.env.AUTH_URL || `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/token`;
+
+if (process.env.HTTP_PROXY) {
+  const httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
+  axios = axios.create({ httpsAgent });
+}
 
 let apiToken;
 let projectsRoot = 'modules';
@@ -46,7 +53,7 @@ const CMD = {
 const program = new Command();
 
 program
-  .version('2.5.0', '-v, --version')
+  .version('2.7.7', '-v, --version')
   .usage('[command] [options]')
   .description('Flow Module Management Tool.')
   .on('--help', () => {});
@@ -146,8 +153,9 @@ program
   .command('publish-module [projectName]')
   .option('-f, --functions', 'publish flow functions')
   .option('-u, --update', 'update existing flow functions')
+  .option('-s, --skip', 'skip modules that already exists with the current version')
   .description('Publishes specified Module to Cloud Platform.')
-  .action(async (projectName, cmdObj) => {
+  .action(async (projectName, options) => {
     try {
       if (checkEnvModules()) process.exit(1);
       const projects = [];
@@ -168,9 +176,25 @@ program
         await exec(CMD.LINT, project);
         await exec(CMD.COPY, project);
         await validateModule(project);
-        await publishModule(project);
-        if (cmdObj.functions) {
-          await publishFunctions(project, cmdObj.update);
+        try {
+          await publishModule(project);
+        } catch (e) {
+          if (
+            options.skip &&
+            e &&
+            e.response &&
+            e.response.data &&
+            e.response.data.message === 'New module version must greater than latest version'
+          ) {
+            log(ok(`Module "${project.name}" is up to date. Skipping.`));
+          } else {
+            log(error(`Publishing Module "${project.name}" failed.`));
+            handleApiError(e);
+            process.exit(1);
+          }
+        }
+        if (options.functions) {
+          await publishFunctions(project, options.update);
         }
       }
     } catch (err) {
@@ -183,7 +207,7 @@ program
   .command('publish-functions [projectName]')
   .option('-u, --update', 'update existing flow functions')
   .description('Publishes all Flow Functions inside specified Module to Cloud Platform.')
-  .action(async (projectName, cmdObj) => {
+  .action(async (projectName, options) => {
     try {
       if (checkEnvModules()) process.exit(1);
       const projects = [];
@@ -197,7 +221,7 @@ program
 
       await getAccessToken();
       for (const project of projects) {
-        await publishFunctions(project, cmdObj.update);
+        await publishFunctions(project, options.update);
       }
     } catch (err) {
       if (err) log(err);
@@ -585,7 +609,7 @@ async function findProjects() {
             pkg.dist = path.posix.join(process.cwd(), buildDir, file);
             if (rootPkg) {
               pkg.dependencies = { ...pkg.dependencies, ...rootPkg.dependencies };
-              pkg.repository = rootPkg.repository || {};
+              pkg.repository = rootPkg.repository;
             }
             projects.push(pkg);
           } catch (err) {
@@ -631,18 +655,13 @@ function findProject(projectName) {
 async function getAccessToken() {
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await got
-        .post(authUrl, {
-          headers: {
-            'Content-type': 'application/x-www-form-urlencoded',
-          },
-          form: {
-            client_id: apiUser,
-            client_secret: apiKey,
-            grant_type: 'client_credentials',
-          },
-        })
-        .json();
+      const body = queryString.stringify({
+        client_id: apiUser,
+        client_secret: apiKey,
+        grant_type: 'client_credentials',
+      });
+      const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+      const response = (await axios.post(authUrl, body, { headers })).data;
 
       if (!response || !response.access_token) {
         throw new Error();
@@ -652,7 +671,8 @@ async function getAccessToken() {
       return resolve();
     } catch (err) {
       log(error('Could not get AccessToken'));
-      return reject(err);
+      handleApiError(err);
+      return reject();
     }
   });
 }
@@ -676,19 +696,16 @@ async function publishModule(project) {
     form.append('version', project.version || '');
 
     try {
-      await got.post(`${baseUrl}/api/flow/modules`, {
+      await axios.post(`${baseUrl}/api/flow/modules`, form, {
         headers: {
           ...form.getHeaders(),
           Authorization: `Bearer ${apiToken}`,
         },
-        body: form,
       });
 
-      log(ok('Module published!'));
+      log(ok(`Module "${project.name}" published!`));
       return resolve();
     } catch (err) {
-      log(error('Publishing Module failed.'));
-      handleApiError(err);
       return reject(err);
     } finally {
       deleteFile(file);
@@ -737,7 +754,7 @@ async function publishFunctions(project, update) {
           if (json.fqn && json.category) {
             if (update) {
               try {
-                await got.put(`${baseUrl}/api/flow/functions/${json.fqn}`, { headers, json });
+                await axios.put(`${baseUrl}/api/flow/functions/${json.fqn}`, json, { headers });
                 log(ok(`Flow Function "${json.fqn}" has been updated`));
               } catch (err) {
                 log(error(`Flow Function "${json.fqn}" could not be updated`));
@@ -745,7 +762,7 @@ async function publishFunctions(project, update) {
               }
             } else {
               try {
-                await got.post(`${baseUrl}/api/flow/functions`, { headers, json });
+                await axios.post(`${baseUrl}/api/flow/functions`, json, { headers });
                 log(ok(`Flow Function "${json.fqn}" has been created`));
               } catch (err) {
                 log(error(`Flow Function "${json.fqn}" could not be created`));
@@ -763,12 +780,10 @@ async function publishFunctions(project, update) {
 }
 
 function handleApiError(err) {
-  if (err.response) {
-    try {
-      const body = JSON.parse(err.response.body);
-      log(error(`${body.statusCode || err.response.statusCode} ${body.error || err.response.statusMessage}: ${body.message}`));
-    } catch (e) {
-      log(error(`${err.response.statusCode} ${err.response.statusMessage}: ${err.response.body}`));
+  if (err.isAxiosError && err.response) {
+    log(error(`${err.response.status} ${err.response.statusText}`));
+    if (err.response.data) {
+      log(error(JSON.stringify(err.response.data)));
     }
   } else {
     log(error(err));
@@ -881,9 +896,9 @@ function getLabel(cmd) {
 }
 
 function getSpinner(message) {
-  return new ora({
+  return ora({
     color: 'magenta',
-    spinner: 'bouncingBar',
+    spinner: 'dots',
     text: message,
   });
 }

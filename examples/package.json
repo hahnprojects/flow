@@ -17,7 +17,7 @@
     "@hahnpro/flow-sdk": "^4.8.1"
   },
   "devDependencies": {
-    "@hahnpro/flow-cli": "^2.7.6"
+    "@hahnpro/flow-cli": "^2.7.7"
   },
   "prettier": {
     "arrowParens": "always",
