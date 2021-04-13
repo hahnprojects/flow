@@ -165,7 +165,7 @@ export class Noop extends SomeFunctionImplementation<Properties> {
     if (this.properties.someProp === true) {
       this.logger.log(data);
     }
-    return this.emitOutput(data);
+    return this.emitEvent(data, event);
   }
 }
 
@@ -366,6 +366,33 @@ npm install @hahnpro/flow-sdk@latest @hahnpro/flow-cli@latest
 ### Review Changes
 
 [CHANGELOG](https://gitlab.com/hahnpro/flow/blob/master/CHANGELOG.md)
+
+### Migration to version 4.8.0+
+
+Replace all occurrences of `emitOutput(data)` with `emitEvent(data, event)`, using the 
+input event of the function.
+
+from:
+```typescript
+  @InputStream()
+  public onDefault(event: FlowEvent) {
+    
+    ...
+  
+    return this.emitOutput(data, 'notdefault');
+  }
+```
+
+to:
+```typescript
+  @InputStream()
+  public onDefault(event: FlowEvent) {
+    
+    ...
+  
+    return this.emitEvent(data, event, 'notdefault');
+  }
+```
 
 ## License
 
