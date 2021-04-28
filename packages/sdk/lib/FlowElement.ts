@@ -112,11 +112,11 @@ export abstract class FlowElement<T = any> {
     }
   }
 
-  protected runPyRpcScript(scriptPath: string) {
+  protected runPyRpcScript(scriptPath: string, ...args: (string | boolean | number)[]) {
     const options: Options = {
       mode: 'text',
       pythonOptions: ['-u'],
-      args: [__dirname, this.rpcRoutingKey],
+      args: [__dirname, this.rpcRoutingKey, ...args.map((v) => v.toString())],
     };
     return PythonShell.run(scriptPath, options, (err, outputs) => {
       if (err) {

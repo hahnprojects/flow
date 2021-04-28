@@ -64,7 +64,7 @@ describe('InputStreamDecorator', () => {
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
     };
-    const amqpConnection: any = { createSubscriber: jest.fn(), publish: jest.fn() };
+    const amqpConnection: any = { createSubscriber: jest.fn(), publish: jest.fn(), channel: { assertExchange: jest.fn() } };
     const flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, true);
     const spyInstance = jest.spyOn(amqpConnection, 'publish').mockImplementation((exchange: string, routingKey: string, message: any) => {
       return Promise.resolve();

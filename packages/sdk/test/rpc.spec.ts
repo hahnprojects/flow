@@ -15,6 +15,7 @@ describe('Flow RPC', () => {
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'b', target: 'testResource', targetStream: 'b' },
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'c', target: 'testResource', targetStream: 'c' },
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'd', target: 'testResource', targetStream: 'd' },
+        { id: 'testConnection1', source: 'testTrigger', sourceStream: 'e', target: 'testResource', targetStream: 'e' },
       ],
       context: {
         flowId: 'testFlow',
@@ -60,15 +61,26 @@ describe('Flow RPC', () => {
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}, 'c'));
   }, 60000);
 
-  test('rpc function does not exist', async (done) => {
+  test('should return argument', async (done) => {
     flowApp.subscribe('testResource.d', {
+      next: (event: FlowEvent) => {
+        expect(event.getData()).toEqual('10');
+        done();
+      },
+    });
+
+    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}, 'd'));
+  }, 60000);
+
+  test('rpc function does not exist', async (done) => {
+    flowApp.subscribe('testResource.e', {
       next: (event: FlowEvent) => {
         expect(event.getData().err).toBeDefined();
         done();
       },
     });
 
-    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}, 'd'));
+    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}, 'e'));
   }, 60000);
 
   afterAll(async () => {
@@ -80,7 +92,7 @@ describe('Flow RPC', () => {
 class TestResource extends FlowResource {
   constructor(context) {
     super(context);
-    this.runPyRpcScript(join(__dirname, 'rpc.test.py'));
+    this.runPyRpcScript(join(__dirname, 'rpc.test.py'), 10);
   }
 
   @InputStream('a')
@@ -108,9 +120,16 @@ class TestResource extends FlowResource {
   public async onD(event) {
     this.callRpcFunction('testD')
       .then((res: any) => this.emitOutput(res, 'd'))
+      .catch((err) => this.emitOutput({ err }, 'd'));
+  }
+
+  @InputStream('e')
+  public async onE(event) {
+    this.callRpcFunction('testE')
+      .then((res: any) => this.emitOutput(res, 'e'))
       .catch((err) => {
         this.logger.error(err);
-        this.emitOutput({ err }, 'd');
+        this.emitOutput({ err }, 'e');
       });
   }
 }
