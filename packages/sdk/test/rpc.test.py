@@ -18,4 +18,8 @@ def testB(arg):
 def testC():
     return 1 / 0
 
+@RemoteProcedure
+def testD():
+    return sys.argv[3]
+
 start_consumer(sys.argv[2])

@@ -9,10 +9,10 @@ import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
 
 import { API } from './api';
-import { ClassType, Flow, FlowContext, FlowElementContext, DeploymentMessage, StreamOptions } from './flow.interface';
+import { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, StreamOptions } from './flow.interface';
 import { FlowElement } from './FlowElement';
 import { FlowEvent } from './FlowEvent';
-import { Logger, defaultLogger } from './FlowLogger';
+import { defaultLogger, Logger } from './FlowLogger';
 import { RpcClient } from './RpcClient';
 
 const MAX_EVENT_SIZE_BYTES = 512 * 1024; // 512kb
@@ -108,11 +108,19 @@ export class FlowApplication {
     }
 
     if (this.amqpConnection) {
-      this.amqpConnection.createSubscriber((msg: any) => this.onMessage(msg), {
-        exchange: 'deployment',
-        routingKey: this.context.deploymentId,
-        queueOptions: { durable: false, exclusive: true },
-      });
+      this.amqpConnection.channel
+        .assertExchange('deployment', 'direct', { durable: true })
+        ?.then((r) => this.amqpConnection.channel.assertExchange('flowlogs', 'fanout', { durable: true }))
+        ?.then((r) =>
+          this.amqpConnection.createSubscriber((msg: any) => this.onMessage(msg), {
+            exchange: 'deployment',
+            routingKey: this.context.deploymentId,
+            queueOptions: { durable: false, exclusive: true },
+          }),
+        )
+        .catch((error) => {
+          this.logger.error('could not assert Exchange!\nError:\n' + error.toString());
+        });
     }
   }
 
