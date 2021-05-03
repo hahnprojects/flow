@@ -29,6 +29,7 @@ export interface Content {
   files?: Storage[];
   createdAt?: string;
   updatedAt?: string;
+  deletedAt?: string;
 }
 
 export interface ContentInterface extends DataInterface<Content> {

@@ -29,4 +29,5 @@ export interface DataInterface<T> {
   getManyFiltered(filter: Filter, params?: RequestParameter, parentId?: string): Promise<Paginated<T[]>>;
   updateOne(id: string, dto: any): Promise<T>;
   deleteOne(id: string): Promise<any>;
+  checkDeletionDate(offset: any): Promise<any>;
 }

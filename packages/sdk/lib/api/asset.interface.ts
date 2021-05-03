@@ -13,6 +13,7 @@ export interface Asset {
   attachments?: string[];
   createdAt?: string;
   updatedAt?: string;
+  deletedAt?: string;
 }
 
 export interface AssetType {

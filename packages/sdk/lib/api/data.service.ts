@@ -52,4 +52,11 @@ export class DataService<T> implements DataInterface<T> {
     }
     return filters.join(';');
   }
+
+  public checkDeletionDate(offset: any): Promise<any> {
+    const body = {
+      offset,
+    }
+    return this.httpClient.delete(`${this.basePath}/paperbin/clean`, body);
+  }
 }
