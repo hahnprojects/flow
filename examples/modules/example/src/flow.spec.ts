@@ -1,11 +1,11 @@
-import { FlowApplication, FlowEvent, TestModule } from '@hahnpro/flow-sdk';
+import { Flow, FlowApplication, FlowEvent, TestModule } from '@hahnpro/flow-sdk';
 
 import ExampleModule from '../';
 
 /* tslint:disable:no-console */
 describe('Example Test', () => {
   test('flow', async (done) => {
-    const flow = {
+    const flow: Flow = {
       elements: [
         { id: 'trigger', module: 'test', functionFqn: 'test.task.Trigger' },
         {

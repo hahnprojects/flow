@@ -10,7 +10,7 @@ describe('Python', () => {
   beforeAll(async () => {
     const flow = {
       elements: [
-        { id: 'pythonrpc', module: 'python', functionFqn: 'python.tasks.python-rpc', properties: { a: 4, b: 7 } },
+        { id: 'pythonrpc', module: 'python', functionFqn: 'python.tasks.python-rpc', properties: { a: 4, b: 7, count: 10 } },
         { id: 'pythonshell', module: 'python', functionFqn: 'python.tasks.python-shell', properties: { a: 4, b: 7 } },
       ],
       connections: [
@@ -31,7 +31,7 @@ describe('Python', () => {
   test('rpc', async (done) => {
     flowApp.subscribe('pythonrpc.default', {
       next: (event: FlowEvent) => {
-        expect(event.getData()).toEqual({ factorial: 24, mul: 280, sum: 21, x: 10 });
+        expect(event.getData()).toEqual({ factorial: 24, mul: 280, sum: 21, x: 10, randomCalc: 1632 });
         done();
       },
     });

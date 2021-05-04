@@ -6,7 +6,7 @@ import { join } from 'path';
 export class PythonRPC extends FlowTask<Properties> {
   constructor(context, properties: unknown) {
     super(context, properties, Properties, true);
-    this.runPyRpcScript(join(__dirname, 'algebra_rpc.py'));
+    this.runPyRpcScript(join(__dirname, 'algebra_rpc.py'), this.properties.count);
   }
 
   @InputStream()
@@ -18,6 +18,7 @@ export class PythonRPC extends FlowTask<Properties> {
         sum: await this.sum(this.properties.a, this.properties.b, x),
         mul: await this.multiply(this.properties.a, this.properties.b, x),
         factorial: await this.factorial(this.properties.a),
+        randomCalc: await this.executeRandomCalc(5),
       },
       event,
     );
@@ -26,6 +27,7 @@ export class PythonRPC extends FlowTask<Properties> {
   private sum = (a: number, b: number, c: number) => this.callRpcFunction('sum', a, b, c);
   private multiply = (a: number, b: number, c: number) => this.callRpcFunction('multiply', a, b, c);
   private factorial = (n: number) => this.callRpcFunction('factorial', n);
+  private executeRandomCalc = (n: number) => this.callRpcFunction('executeRandomCalc', n);
 }
 
 class Properties {
@@ -34,6 +36,9 @@ class Properties {
 
   @IsNumber()
   b: number;
+
+  @IsNumber()
+  count: number;
 }
 
 class InputProperties {
