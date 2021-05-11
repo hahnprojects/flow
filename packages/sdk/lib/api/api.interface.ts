@@ -1,3 +1,4 @@
+import { EventsInterface } from './events.interface';
 import { AssetInterface } from './asset.interface';
 import { ContentInterface } from './content.interface';
 import { SecretInterface } from './secret.interface';
@@ -11,5 +12,6 @@ export interface APIInterface {
   secretsManager: SecretInterface;
   timeSeriesManager: TimeseriesInterface;
   taskManager: TaskInterface;
+  eventsManager: EventsInterface;
   userManager: UserInterface;
 }
