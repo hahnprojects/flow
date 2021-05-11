@@ -7,6 +7,7 @@ export * from './endpoint.interface';
 export * from './secret.interface';
 export * from './timeseries.interface';
 export * from './task.interface';
+export * from './events.interface';
 export * from './mock';
 
 export * as SiDrive from './sidriveiq.interface';

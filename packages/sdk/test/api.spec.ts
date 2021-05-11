@@ -75,6 +75,21 @@ describe('API test', () => {
     done();
   }, 60000);
 
+  test('events', async (done) => {
+    const events = await api.eventsManager.getMany().catch((err) => logError(err));
+    expect(events).toBeDefined();
+
+    if (events) {
+      expect(Array.isArray(events.docs)).toBe(true);
+      expect(events.docs.length).toBeGreaterThan(0);
+      const eventId = events.docs[0].id;
+      const event = await api.eventsManager.getOne(eventId).catch((err) => logError(err));
+      expect(event).toBeDefined();
+    }
+
+    done();
+  }, 60000);
+
   test('timeseries', async (done) => {
     const timeseries = await api.timeSeriesManager.getMany().catch((err) => logError(err));
     expect(timeseries).toBeDefined();

@@ -13,6 +13,7 @@ describe('Mock-API test', () => {
     secrets: [{ id: 'secret1', key: 'test', name: 'testSecret' }],
     timeSeries: [{ id: 'timeseries1', name: 'testTimeseries', values: [{ timestamp: Date.now(), value: 'test' }] }],
     tasks: [{ id: 'tasks1', name: 'testTasks', assignedTo: ['alice'] }], // TODO: TEST Tasks API
+    events: [{ id: 'events1', name: 'testEvents', level: 'OK', cause: 'test' }],
     users: { roles: ['test1', 'test2'] },
   });
 
@@ -81,6 +82,21 @@ describe('Mock-API test', () => {
       const secretId = secrets.docs[0].id;
       const secret = await api.secretsManager.getOne(secretId).catch((err) => logError(err));
       expect(secret).toBeDefined();
+    }
+
+    done();
+  }, 60000);
+
+  test('events', async (done) => {
+    const events = await api.eventsManager.getMany().catch((err) => logError(err));
+    expect(events).toBeDefined();
+
+    if (events) {
+      expect(Array.isArray(events.docs)).toBe(true);
+      expect(events.docs.length).toBeGreaterThan(0);
+      const eventId = events.docs[0].id;
+      const event = await api.eventsManager.getOne(eventId).catch((err) => logError(err));
+      expect(event).toBeDefined();
     }
 
     done();

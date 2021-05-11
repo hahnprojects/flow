@@ -1,3 +1,4 @@
+import { Event, EventsInterface } from '../events.interface';
 import { EndpointMockService } from './endpoint.mock.service';
 import { Endpoint } from '../endpoint.interface';
 import { readFileSync } from 'fs';
@@ -17,6 +18,7 @@ import { Task, TaskInterface } from '../task.interface';
 import { TaskMockService } from './task.mock.service';
 import { UserInterface } from '../user.interface';
 import { UserMockService } from './user.mock.service';
+import { EventsMockService } from './events.mock.service';
 
 export class MockAPI implements APIInterface {
   assetManager: AssetInterface;
@@ -26,6 +28,7 @@ export class MockAPI implements APIInterface {
   timeSeriesManager: TimeseriesInterface;
   sidriveManager = null;
   taskManager: TaskInterface;
+  eventsManager: EventsInterface;
   userManager: UserInterface;
 
   constructor(initData: {
@@ -35,9 +38,10 @@ export class MockAPI implements APIInterface {
     secrets?: SecretInit[];
     timeSeries?: TimeSeriesInit[];
     tasks?: TaskInit[];
+    events?: EventInit[];
     users?: UserInit;
   }) {
-    const { assets = [], contents = [], endpoints = [], secrets = [], timeSeries = [], tasks = [], users } = initData;
+    const { assets = [], contents = [], endpoints = [], secrets = [], timeSeries = [], tasks = [], events = [], users } = initData;
     // convert init data to normal data that the services usually use
     const assetTypes: Array<AssetType | string> = assets
       .map((v) => v.type)
@@ -107,6 +111,17 @@ export class MockAPI implements APIInterface {
       status: v.status,
       acceptedBy: v.acceptedBy,
     }));
+
+    const events1: Event[] = events.map((v) => ({
+      id: v.id,
+      name: v.name,
+      readPermissions: [],
+      readWritePermissions: [],
+      assetRef: v.assetRef,
+      cause: v.cause,
+      level: v.level,
+    }));
+
     const timeseriesValues: TimeSeriesValue[][] = timeSeries.map((v) => v.values);
 
     this.assetManager = new AssetMockService(this, assets1);
@@ -115,6 +130,7 @@ export class MockAPI implements APIInterface {
     this.secretsManager = new SecretMockService(secrets1);
     this.timeSeriesManager = new TimeseriesMockService(timeSeries1, timeseriesValues);
     this.taskManager = new TaskMockService(this, tasks1);
+    this.eventsManager = new EventsMockService(events1);
     this.userManager = new UserMockService(users);
   }
 }
@@ -204,6 +220,19 @@ export interface TaskInit {
   assignedTo: string[];
   status?: string;
   acceptedBy?: string;
+}
+
+export interface EventInit {
+  id?: string;
+  name: string;
+  readPermissions?: string[];
+  readWritePermissions?: string[];
+  assetRef?: string;
+  alertRef?: string;
+  tsRef?: string;
+  eventRef?: string;
+  cause?: string;
+  level?: string;
 }
 
 export interface UserInit {

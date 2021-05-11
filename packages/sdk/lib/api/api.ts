@@ -1,3 +1,5 @@
+import { EventsInterface } from './events.interface';
+import { EventsService } from './events.service';
 import { APIInterface } from './api.interface';
 import { AssetInterface } from './asset.interface';
 import { AssetService } from './asset.service';
@@ -25,6 +27,7 @@ export class API implements APIInterface {
   public siDrive: SiDriveIqService;
   public timeSeriesManager: TimeseriesInterface;
   public taskManager: TaskInterface;
+  public eventsManager: EventsInterface;
   public userManager: UserService;
 
   constructor() {
@@ -50,6 +53,7 @@ export class API implements APIInterface {
     this.siDrive = new SiDriveIqService(this.httpClient);
     this.timeSeriesManager = new TimeSeriesService(this.httpClient);
     this.taskManager = new TaskService(this.httpClient);
+    this.eventsManager = new EventsService(this.httpClient);
     this.userManager = new UserService(this.httpClient);
   }
 }
