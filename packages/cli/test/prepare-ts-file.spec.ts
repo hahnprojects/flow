@@ -5,7 +5,18 @@ describe('prepare ts-file for schema extraction', () => {
     const result = prepareTsFile('');
     expect(result).toContain("import { validationMetadatasToSchemas as v } from 'class-validator-jsonschema';");
     expect(result).toContain("import { defaultMetadataStorage } from 'class-transformer/storage'");
-    expect(result).toContain('const s = v({ classTransformerMetadataStorage: defaultMetadataStorage });');
+    expect(result).toContain(`const s = v({\n
+      additionalConverters: {\n
+        UnitArgsValidator: (meta) => {\n
+          return {\n
+            measure: meta.constraints[0],\n
+            unit: meta.constraints[1],\n
+            type: 'number',\n
+          };\n
+        },\n
+      },\n
+      classTransformerMetadataStorage: defaultMetadataStorage\n
+    });\n`);
     expect(result).toContain('console.log(JSON.stringify(s));');
   });
 

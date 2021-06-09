@@ -458,7 +458,18 @@ function prepareTsFile(file) {
     `import { validationMetadatasToSchemas as v } from 'class-validator-jsonschema';\n` +
     `import { defaultMetadataStorage } from 'class-transformer/storage'\n` +
     `${file}\n` +
-    `const s = v({ classTransformerMetadataStorage: defaultMetadataStorage });\n` +
+    `const s = v({\n
+      additionalConverters: {\n
+        UnitArgsValidator: (meta) => {\n
+          return {\n
+            measure: meta.constraints[0],\n
+            unit: meta.constraints[1],\n
+            type: 'number',\n
+          };\n
+        },\n
+      },\n
+      classTransformerMetadataStorage: defaultMetadataStorage\n
+    });\n` +
     `console.log(JSON.stringify(s));`
   );
 }
