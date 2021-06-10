@@ -29,9 +29,9 @@ const buildDir = process.env.BUILD_DIR || 'dist';
 const realm = process.env.REALM;
 const authUrl = process.env.AUTH_URL || `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/token`;
 
-if (process.env.HTTP_PROXY) {
-  const httpsAgent = new HttpsProxyAgent(process.env.HTTP_PROXY);
-  axios = axios.create({ httpsAgent });
+if (process.env.https_proxy || process.env.http_proxy) {
+  const httpsAgent = new HttpsProxyAgent(process.env.https_proxy || process.env.http_proxy);
+  axios = axios.create({ httpsAgent, proxy: false });
 }
 
 let apiToken;
