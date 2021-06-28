@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 
-import { MockAPI } from '../lib';
+import { MockAPI, ReturnType } from '../lib';
+import { Readable } from 'stream';
 
 dotenv.config();
 
@@ -8,7 +9,10 @@ dotenv.config();
 describe('Mock-API test', () => {
   const api = new MockAPI({
     assets: [{ id: 'asset1', name: 'testAsset', type: { id: 'testId', name: 'testType' } }],
-    contents: [{ id: 'content1', filename: 'testContent.txt', filePath: __dirname, mimetype: 'text/plain' }],
+    contents: [
+      { id: 'content1', filename: 'testContent.txt', filePath: __dirname, mimetype: 'text/plain' },
+      { id: 'content2', data: '{"test": "data"}', filename: 'something.json' },
+    ],
     endpoints: [{ id: 'endpoint1', name: 'test' }],
     secrets: [{ id: 'secret1', key: 'test', name: 'testSecret' }],
     timeSeries: [{ id: 'timeseries1', name: 'testTimeseries', values: [{ timestamp: Date.now(), value: 'test' }] }],
@@ -59,6 +63,31 @@ describe('Mock-API test', () => {
       const contentId = contents.docs[0].id;
       const content = await api.contentManager.download(contentId).catch((err) => logError(err));
       expect(content).toBeDefined();
+
+      const testDownloadId = contents.docs[1].id;
+      const arrBuf = await api.contentManager.download(testDownloadId, true).catch((err) => logError(err));
+      expect(arrBuf instanceof ArrayBuffer).toBeTruthy();
+
+      const str = await api.contentManager.download(testDownloadId).catch((err) => logError(err));
+      expect(typeof str).toBe('string');
+      expect(str).toBe('{"test": "data"}');
+
+      const json = await api.contentManager.download(testDownloadId, ReturnType.TEXT).catch((err) => logError(err));
+      expect(typeof json).toBe('string');
+      expect(json).toBe('{"test": "data"}');
+
+      const parsedJson = await api.contentManager.download(testDownloadId, ReturnType.JSON).catch((err) => logError(err));
+      expect(typeof parsedJson).toBe('object');
+      expect(parsedJson).toEqual({ test: 'data' });
+
+      const ab = await api.contentManager.download(testDownloadId, ReturnType.ARRAYBUFFER).catch((err) => logError(err));
+      expect(ab instanceof ArrayBuffer).toBeTruthy();
+
+      const buf = await api.contentManager.download(testDownloadId, ReturnType.NODEBUFFER).catch((err) => logError(err));
+      expect(buf instanceof Buffer).toBeTruthy();
+
+      const stream = await api.contentManager.download(testDownloadId, ReturnType.NODESTREAM).catch((err) => logError(err));
+      expect(stream instanceof Readable).toBeTruthy();
     }
 
     done();
