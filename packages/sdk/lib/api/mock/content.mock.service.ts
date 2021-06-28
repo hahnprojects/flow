@@ -2,6 +2,7 @@ import FormData from 'form-data';
 
 import { Content, ContentInterface, ReturnType } from '../content.interface';
 import { DataMockService } from './data.mock.service';
+import { Readable } from 'stream';
 
 export class ContentMockService extends DataMockService<Content> implements ContentInterface {
   private contentData: Map<string, any> = new Map();
@@ -14,24 +15,26 @@ export class ContentMockService extends DataMockService<Content> implements Cont
     }
   }
 
-  download(id: string, raw: boolean): Promise<Blob | ArrayBuffer> {
-    if (raw) {
-      return Promise.resolve(Buffer.from(this.contentData.get(id)).buffer);
-    } else {
-      return Promise.resolve(this.contentData.get(id).toString());
-    }
-  }
+  download(id: string, raw?: boolean): Promise<Blob | ArrayBuffer>;
 
-  download2(id: string, returnType: ReturnType): Promise<string | Record<string, unknown> | Buffer | Blob | ArrayBuffer> {
+  download(id: string, returnType: ReturnType): Promise<string | Record<string, unknown> | Buffer | Blob | ArrayBuffer | Readable>;
+
+  download(id: string, second: any): Promise<string | Record<string, unknown> | Buffer | Blob | ArrayBuffer | Readable> {
+    let returnType: ReturnType;
+    if (typeof second === 'boolean' || !second) {
+      returnType = second ? ReturnType.ARRAYBUFFER : ReturnType.BLOB;
+    } else {
+      returnType = second;
+    }
     const content = this.contentData.get(id);
     switch (returnType) {
-      case ReturnType.JSON:
+      case ReturnType.TEXT:
         if (typeof content === 'string') {
           return Promise.resolve(content);
         } else {
           return Promise.resolve(JSON.stringify(content));
         }
-      case ReturnType.PARSEDJSON:
+      case ReturnType.JSON:
         if (typeof content !== 'string') {
           return Promise.resolve(content);
         } else {
@@ -40,9 +43,19 @@ export class ContentMockService extends DataMockService<Content> implements Cont
       case ReturnType.NODEBUFFER:
         return Promise.resolve(Buffer.from(this.contentData.get(id)));
       case ReturnType.BLOB:
-        return Promise.resolve(new Blob([Buffer.from(this.contentData.get(id)).buffer]));
+        if (global.Blob) {
+          return Promise.resolve(new Blob([Buffer.from(this.contentData.get(id)).buffer]));
+        } else {
+          if (typeof content === 'string') {
+            return Promise.resolve(content);
+          } else {
+            return Promise.resolve(JSON.stringify(content));
+          }
+        }
       case ReturnType.ARRAYBUFFER:
         return Promise.resolve(Buffer.from(this.contentData.get(id)).buffer);
+      case ReturnType.NODESTREAM:
+        return Promise.resolve(Readable.from(this.contentData.get(id)));
     }
   }
 

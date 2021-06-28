@@ -1,5 +1,6 @@
 import FormData from 'form-data';
 import { DataInterface } from './data.interface';
+import { Readable } from 'stream';
 
 type FileType = 'original' | 'preview-sm' | 'preview-md' | 'preview-lg';
 
@@ -34,13 +35,14 @@ export interface Content {
 export interface ContentInterface extends DataInterface<Content> {
   upload(form: FormData): Promise<Content>;
   download(id: string, raw?: boolean): Promise<Blob | ArrayBuffer>;
-  download2(id: string, returnType: ReturnType): Promise<string | Record<string, unknown> | Buffer | Blob | ArrayBuffer>;
+  download(id: string, returnType: ReturnType): Promise<string | Record<string, unknown> | Buffer | Blob | ArrayBuffer | Readable>;
 }
 
 export enum ReturnType {
+  TEXT,
   JSON,
-  PARSEDJSON,
   NODEBUFFER,
   BLOB,
   ARRAYBUFFER,
+  NODESTREAM,
 }
