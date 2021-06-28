@@ -34,4 +34,13 @@ export interface Content {
 export interface ContentInterface extends DataInterface<Content> {
   upload(form: FormData): Promise<Content>;
   download(id: string, raw?: boolean): Promise<Blob | ArrayBuffer>;
+  download2(id: string, returnType: ReturnType): Promise<string | Record<string, unknown> | Buffer | Blob | ArrayBuffer>;
+}
+
+export enum ReturnType {
+  JSON,
+  PARSEDJSON,
+  NODEBUFFER,
+  BLOB,
+  ARRAYBUFFER,
 }

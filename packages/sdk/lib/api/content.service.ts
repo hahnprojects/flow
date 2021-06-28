@@ -1,6 +1,6 @@
 import FormData from 'form-data';
 
-import { Content, ContentInterface } from './content.interface';
+import { Content, ContentInterface, ReturnType } from './content.interface';
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
 
@@ -21,4 +21,21 @@ export class ContentService extends DataService<Content> implements ContentInter
       return this.httpClient.get<Blob>(`${this.basePath}/${id}/download`, { responseType: 'blob' });
     }
   };
+
+  async download2(id: string, returnType: ReturnType): Promise<string | Record<string, unknown> | Buffer | Blob | ArrayBuffer> {
+    switch (returnType) {
+      case ReturnType.JSON:
+        return this.httpClient.get<string>(`${this.basePath}/${id}/download`, { responseType: 'json' });
+      case ReturnType.PARSEDJSON:
+        return JSON.parse(await this.httpClient.get<string>(`${this.basePath}/${id}/download`, { responseType: 'json' }));
+      case ReturnType.NODEBUFFER:
+        return Buffer.from(
+          new Uint8Array(await this.httpClient.get<ArrayBuffer>(`${this.basePath}/${id}/download`, { responseType: 'arraybuffer' })),
+        );
+      case ReturnType.BLOB:
+        return this.httpClient.get<Blob>(`${this.basePath}/${id}/download`, { responseType: 'blob' });
+      case ReturnType.ARRAYBUFFER:
+        return this.httpClient.get<ArrayBuffer>(`${this.basePath}/${id}/download`, { responseType: 'arraybuffer' });
+    }
+  }
 }
