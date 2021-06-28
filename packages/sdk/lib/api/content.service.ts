@@ -15,9 +15,14 @@ export class ContentService extends DataService<Content> implements ContentInter
     return this.httpClient.post<Content>(`${this.basePath}`, form, { headers, maxBodyLength: Infinity, maxContentLength: Infinity });
   };
 
-  async download(id: string, raw?: boolean): Promise<Blob | ArrayBuffer>;
+  download(id: string, raw?: boolean): Promise<Blob | ArrayBuffer>;
 
-  async download(id: string, returnType: ReturnType): Promise<string | Record<string, unknown> | Buffer | Blob | ArrayBuffer | Readable>;
+  download(id: string, returnType: ReturnType.TEXT): Promise<string>;
+  download(id: string, returnType: ReturnType.JSON): Promise<Record<string, unknown>>;
+  download(id: string, returnType: ReturnType.NODEBUFFER): Promise<Buffer>;
+  download(id: string, returnType: ReturnType.BLOB): Promise<Blob>;
+  download(id: string, returnType: ReturnType.ARRAYBUFFER): Promise<ArrayBuffer>;
+  download(id: string, returnType: ReturnType.NODESTREAM): Promise<Readable>;
 
   async download(id: string, second: any): Promise<string | Record<string, unknown> | Buffer | Blob | ArrayBuffer | Readable> {
     let returnType: ReturnType;
