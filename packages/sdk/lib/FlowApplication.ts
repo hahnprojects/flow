@@ -1,17 +1,17 @@
 import 'reflect-metadata';
 
-import { AmqpConnection, Nack } from '@golevelup/nestjs-rabbitmq';
-import { CloudEvent } from 'cloudevents';
+import type { CloudEvent } from 'cloudevents';
 import sizeof from 'object-sizeof';
 import { PartialObserver, Subject } from 'rxjs';
 import { catchError, mergeMap } from 'rxjs/operators';
 import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
 
+import { AmqpConnection, Nack } from './amqp';
 import { API } from './api';
-import { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, StreamOptions } from './flow.interface';
-import { FlowElement } from './FlowElement';
-import { FlowEvent } from './FlowEvent';
+import type { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, StreamOptions } from './flow.interface';
+import type { FlowElement } from './FlowElement';
+import type { FlowEvent } from './FlowEvent';
 import { defaultLogger, Logger } from './FlowLogger';
 import { RpcClient } from './RpcClient';
 
