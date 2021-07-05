@@ -30,6 +30,14 @@ describe('extra validators', () => {
     });
   });
 
+  test('should fail if both are not present', (done) => {
+    const test = new Test();
+    validate(test).then((errors) => {
+      expect(errors.length).toEqual(2);
+      done();
+    });
+  });
+
   test('validation should fail when incompatible fields are present', (done) => {
     const test = new Test();
     test.test1 = 'test';

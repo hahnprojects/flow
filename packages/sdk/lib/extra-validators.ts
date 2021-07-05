@@ -1,11 +1,11 @@
 import {
+  isDefined,
+  registerDecorator,
   ValidateIf,
   ValidationArguments,
   ValidationOptions,
   ValidatorConstraint,
   ValidatorConstraintInterface,
-  isDefined,
-  registerDecorator,
 } from 'class-validator';
 
 @ValidatorConstraint({ async: false })
@@ -13,12 +13,17 @@ class IsNotSiblingOfConstraint implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
     if (isDefined(value)) {
       return this.getFailedConstraints(args).length === 0;
+    } else {
+      return !args.constraints.every((prop) => !isDefined(args.object[prop]));
     }
-    return true;
   }
 
   defaultMessage(args: ValidationArguments) {
-    return `${args.property} cannot exist alongside the following defined properties: ${this.getFailedConstraints(args).join(', ')}`;
+    if (args.value) {
+      return `${args.property} cannot exist alongside the following defined properties: ${this.getFailedConstraints(args).join(', ')}`;
+    } else {
+      return `at least one of the properties must be defined`;
+    }
   }
 
   getFailedConstraints(args: ValidationArguments) {
