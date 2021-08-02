@@ -13,6 +13,9 @@ export interface Event {
   eventRef?: string;
   cause: string;
   level: string;
+  group?: string;
 }
 
-export type EventsInterface = DataInterface<Event>;
+export interface EventsInterface extends DataInterface<Event> {
+  getLastEventByAssetAndGroup(assetId: string, group: string): Promise<Event>;
+}

@@ -94,10 +94,15 @@ describe('Mock-API test', () => {
   }, 60000);
 
   test('endpoint', async (done) => {
-    const test = await api.endpointManager.sendNotification('endpoint1', 'test', 'Test').catch((err) => logError(err));
+    const test = await api.endpointManager.sendNotification('endpoint1', 'test', 'Test', 'test').catch((err) => logError(err));
     expect(test).toBeDefined();
     expect(test.subject).toBe('test');
     expect(test.message).toBe('Test');
+    expect(test.group).toBe('test');
+
+    const log = await api.endpointManager.readLastLogByGroup('endpoint1', 'test');
+    expect(log).toBeDefined();
+
     done();
   }, 60000);
 
@@ -126,6 +131,9 @@ describe('Mock-API test', () => {
       const eventId = events.docs[0].id;
       const event = await api.eventsManager.getOne(eventId).catch((err) => logError(err));
       expect(event).toBeDefined();
+
+      const lastEvent = await api.eventsManager.getLastEventByAssetAndGroup('asset1', 'test').catch((err) => logError(err));
+      expect(lastEvent).toBeDefined();
     }
 
     done();
