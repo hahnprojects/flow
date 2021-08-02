@@ -6,4 +6,8 @@ export class EventsService extends DataService<Event> implements EventsInterface
   constructor(httpClient: HttpClient) {
     super(httpClient, process.env.DEBUG_EVENTS_URL || 'api/events');
   }
+
+  getLastEventByAssetAndGroup(assetId: string, group: string): Promise<Event> {
+    return this.httpClient.get<Event>(`${this.basePath}/last/${assetId}/${group}`);
+  }
 }

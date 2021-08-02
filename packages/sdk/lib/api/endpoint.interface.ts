@@ -15,6 +15,16 @@ export interface Endpoint {
   readWritePermissions: string[];
 }
 
+export interface EndpointLog {
+  id?: string;
+  endpoint: string;
+  type?: 'info' | 'error';
+  data?: string;
+  group?: string;
+  updatedAt?: string;
+}
+
 export interface EndpointInterface extends DataInterface<Endpoint> {
-  sendNotification(endpointId: string, subject: string, message: string);
+  sendNotification(endpointId: string, subject: string, message: string, group: string);
+  readLastLogByGroup(endpointId: string, group: string);
 }

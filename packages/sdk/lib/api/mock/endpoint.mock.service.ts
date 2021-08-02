@@ -7,8 +7,12 @@ export class EndpointMockService extends DataMockService<Endpoint> implements En
     this.data = endpoints;
   }
 
-  sendNotification(endpointId: string, subject: string, message: string) {
+  sendNotification(endpointId: string, subject: string, message: string, group: string) {
     const endpoint = this.getOne(endpointId, {});
-    return Promise.resolve({ endpoint, subject, message });
+    return Promise.resolve({ endpoint, subject, message, group });
+  }
+
+  readLastLogByGroup(endpointId: string, group: string) {
+    return Promise.resolve({ id: 'endpointlog1', group: 'test', data: 'OK', createdAt: new Date(), updatedAt: new Date() });
   }
 }
