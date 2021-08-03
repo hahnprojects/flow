@@ -8,7 +8,7 @@ import { APIInterface } from '../api.interface';
 import { Asset, AssetInterface, AssetType } from '../asset.interface';
 import { Content, ContentInterface, Storage } from '../content.interface';
 import { Secret, SecretInterface } from '../secret.interface';
-import { TimeSeries, TimeSeriesCondition, TimeSeriesValue, TimeseriesInterface } from '../timeseries.interface';
+import { TimeSeries, TimeSeriesValue, TimeseriesInterface } from '../timeseries.interface';
 import { AssetMockService } from './asset.mock.service';
 import { ContentMockService } from './content.mock.service';
 import { EndpointInterface } from '../endpoint.interface';
@@ -147,7 +147,7 @@ export interface AssetInit {
   id: string;
   name: string;
   type: AssetTypeInit | string;
-  type$name: string;
+  type$name?: string;
   readPermissions?: string[];
   readWritePermissions?: string[];
   notificationEndpoints?: string[];
