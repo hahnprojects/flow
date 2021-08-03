@@ -8,6 +8,7 @@ export interface Event {
   readPermissions: string[];
   readWritePermissions: string[];
   assetRef?: string;
+  assetRef$name?: string;
   alertRef?: string;
   tsRef?: string;
   eventRef?: string;

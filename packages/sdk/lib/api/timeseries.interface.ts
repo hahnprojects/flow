@@ -13,7 +13,6 @@ export interface TimeSeries {
   metrics?: string[];
   maxBucketTimeRange: number;
   tsRef?: [string];
-  condition: TimeSeriesCondition;
   autoDelData: Date;
   autoDelBucket: Date;
 }
