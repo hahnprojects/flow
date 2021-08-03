@@ -7,8 +7,10 @@ export interface TimeSeries {
   readPermissions: string[];
   readWritePermissions: string[];
   assetRef?: string;
+  assetRef$name?: string;
   assetTsId?: string;
   minDate: Date;
+  metrics?: string[];
   maxBucketTimeRange: number;
   tsRef?: [string];
   condition: TimeSeriesCondition;
