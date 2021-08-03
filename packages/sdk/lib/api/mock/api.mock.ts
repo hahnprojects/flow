@@ -8,7 +8,7 @@ import { APIInterface } from '../api.interface';
 import { Asset, AssetInterface, AssetType } from '../asset.interface';
 import { Content, ContentInterface, Storage } from '../content.interface';
 import { Secret, SecretInterface } from '../secret.interface';
-import { TimeSeries, TimeSeriesCondition, TimeSeriesValue, TimeseriesInterface } from '../timeseries.interface';
+import { TimeSeries, TimeSeriesValue, TimeseriesInterface } from '../timeseries.interface';
 import { AssetMockService } from './asset.mock.service';
 import { ContentMockService } from './content.mock.service';
 import { EndpointInterface } from '../endpoint.interface';
@@ -82,11 +82,11 @@ export class MockAPI implements APIInterface {
       readPermissions: [],
       readWritePermissions: [],
       assetRef: value.assetRef,
+      assetRef$name: value.assetRef$name,
       assetTsId: value.assetTsId,
       minDate: value.minDate,
       maxBucketTimeRange: 0,
       tsRef: value.tsRef,
-      condition: value.condition,
       autoDelData: new Date(),
       autoDelBucket: new Date(),
     }));
@@ -106,6 +106,7 @@ export class MockAPI implements APIInterface {
       readPermissions: [],
       readWritePermissions: [],
       assetRef: v.assetRef,
+      assetRef$name: v.assetRef$name,
       subTasks: [],
       assignedTo: v.assignedTo,
       status: v.status,
@@ -118,6 +119,12 @@ export class MockAPI implements APIInterface {
       readPermissions: [],
       readWritePermissions: [],
       assetRef: v.assetRef,
+      assetRef$name: v.assetRef$name,
+      alertRef: v.alertRef,
+      alertRef$name: v.alertRef$name,
+      tsRef: v.tsRef,
+      tsRef$name: v.tsRef$name,
+      tags: v.tags,
       cause: v.cause,
       level: v.level,
       group: v.group,
@@ -140,11 +147,16 @@ export interface AssetInit {
   id: string;
   name: string;
   type: AssetTypeInit | string;
+  type$name?: string;
   readPermissions?: string[];
   readWritePermissions?: string[];
+  notificationEndpoints?: string[];
   tags?: string[];
   parent?: any | Asset;
+  parent$name?: string;
   data?: any;
+  actions?: string[];
+  image?: string;
   attachments?: string[];
   createdAt?: string;
   updatedAt?: string;
@@ -154,10 +166,14 @@ export interface AssetTypeInit {
   id: string;
   name: string;
   allowedParent?: string;
+  allowedParent$name?: string;
   readPermissions?: string[];
   readWritePermissions?: string[];
   typeSchema?: any;
   uiSchema?: any;
+  supertype?: string;
+  supertype$name?: string;
+  actions?: string[];
 }
 
 export interface ContentInit {
@@ -204,11 +220,14 @@ export interface TimeSeriesInit {
   id: string;
   name: string;
   assetRef?: string;
+  assetRef$name?: string;
   assetTsId?: string;
   minDate?: Date;
   tsRef?: [string];
-  condition?: TimeSeriesCondition;
+  metrics?: string[];
   values: TimeSeriesValue[];
+  readPermissions?: string[];
+  readWritePermissions?: string[];
 }
 
 export interface TaskInit {
@@ -217,6 +236,7 @@ export interface TaskInit {
   readPermissions?: string[];
   readWritePermissions?: string[];
   assetRef?: string;
+  assetRef$name?: string;
   subTasks?: string[];
   assignedTo: string[];
   status?: string;
@@ -226,11 +246,15 @@ export interface TaskInit {
 export interface EventInit {
   id?: string;
   name: string;
+  tags?: string[];
   readPermissions?: string[];
   readWritePermissions?: string[];
   assetRef?: string;
+  assetRef$name?: string;
   alertRef?: string;
+  alertRef$name?: string;
   tsRef?: string;
+  tsRef$name?: string;
   eventRef?: string;
   cause?: string;
   level?: string;

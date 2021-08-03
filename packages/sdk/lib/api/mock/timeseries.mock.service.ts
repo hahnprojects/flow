@@ -21,7 +21,6 @@ export class TimeseriesMockService extends DataMockService<TimeSeries & { data: 
       const dto: TimeSeries & { data: TimeSeriesValue[] } = {
         autoDelBucket: undefined,
         autoDelData: undefined,
-        condition: undefined,
         description: '',
         maxBucketTimeRange: 0,
         minDate: undefined,
