@@ -120,6 +120,7 @@ export class MockAPI implements APIInterface {
       assetRef: v.assetRef,
       cause: v.cause,
       level: v.level,
+      group: v.group,
     }));
 
     const timeseriesValues: TimeSeriesValue[][] = timeSeries.map((v) => v.values);
@@ -233,6 +234,7 @@ export interface EventInit {
   eventRef?: string;
   cause?: string;
   level?: string;
+  group?: string;
 }
 
 export interface UserInit {
