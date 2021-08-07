@@ -5,7 +5,7 @@ import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, Inp
 
 // tslint:disable:no-console
 describe('Flow Application', () => {
-  test('Simple Flow Application with Long Running Task', async (done) => {
+  test('Simple Flow Application with Long Running Task', (done) => {
     const flow = {
       elements: [
         { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource', properties: { assetId: '' } },
@@ -46,29 +46,36 @@ describe('Flow Application', () => {
       },
     });
 
-    await flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
 
     let event = new CloudEvent({
       source: 'flowstudio/deployments',
       type: 'com.flowstudio.deployment.update',
       data: { elements: [{ id: 'testResource', properties: { assetId: 'xyz' } }] },
     });
-    await flowApp.onMessage(event);
-    await flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {})); // await necessary as otherwise the event gets lost for some reason
 
-    event = new CloudEvent({
-      source: 'flowstudio/deployments',
-      type: 'com.flowstudio.deployment.update',
-      data: {
-        elements: [{ id: 'testResource', properties: { assetId: '123' } }],
-        properties: { test: 42 },
-      },
-    });
-    await flowApp.onMessage(event);
-    await flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+    flowApp
+      .onMessage(event)
+      .then(() => {
+        return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+      })
+      .then(() => {
+        event = new CloudEvent({
+          source: 'flowstudio/deployments',
+          type: 'com.flowstudio.deployment.update',
+          data: {
+            elements: [{ id: 'testResource', properties: { assetId: '123' } }],
+            properties: { test: 42 },
+          },
+        });
+        return flowApp.onMessage(event);
+      })
+      .then(() => {
+        return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+      });
   }, 60000);
 
-  test('string interpolation with event data', async (done) => {
+  test('string interpolation with event data', async () => {
     let tr = new TestResource({ id: 'testResource' }, { assetId: '${test}' });
     let event = await tr.onDefault(new FlowEvent({ id: 'tr' }, { test: 'xyz' }));
     let data = event.getData();
@@ -80,11 +87,9 @@ describe('Flow Application', () => {
     data = event.getData();
     expect(data).toBeDefined();
     expect(data.assetId).toBeUndefined();
-
-    done();
   });
 
-  test('string interpolation with flow context properties', async (done) => {
+  test('string interpolation with flow context properties', (done) => {
     const flow = {
       elements: [
         { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource', properties: { assetId: '' } },

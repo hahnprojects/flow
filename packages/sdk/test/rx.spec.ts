@@ -5,7 +5,7 @@ import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResour
 
 /* tslint:disable:no-console */
 describe('rx', () => {
-  test('rx', async (done) => {
+  test('rx', (done) => {
     const size = 3;
     const flow = {
       elements: [

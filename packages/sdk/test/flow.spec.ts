@@ -4,7 +4,7 @@ import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResour
 
 // tslint:disable:no-console
 describe('Flow Application', () => {
-  test('Simple Flow Application with Long Running Task', async (done) => {
+  test('Simple Flow Application with Long Running Task', (done) => {
     const size = 8;
     const flow = {
       elements: [

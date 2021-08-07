@@ -28,7 +28,7 @@ describe('Python', () => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
   });
 
-  test('rpc', async (done) => {
+  test('rpc', (done) => {
     flowApp.subscribe('pythonrpc.default', {
       next: (event: FlowEvent) => {
         expect(event.getData()).toEqual({ factorial: 24, mul: 280, sum: 21, x: 10, randomCalc: 1632 });
@@ -39,7 +39,7 @@ describe('Python', () => {
     flowApp.emit(new FlowEvent({ id: 'testTriggerRpc' }, { x: 10 }));
   });
 
-  test('shell', async (done) => {
+  test('shell', (done) => {
     flowApp.subscribe('pythonshell.default', {
       next: (event: FlowEvent) => {
         expect(event.getData()).toEqual({ factorial: 24, mul: 280, sum: 21, x: 10 });

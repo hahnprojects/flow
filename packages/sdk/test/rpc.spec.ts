@@ -28,7 +28,7 @@ describe('Flow RPC', () => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
   });
 
-  test('publish message', async (done) => {
+  test('publish message', (done) => {
     flowApp.subscribe('testResource.a', {
       next: (event: FlowEvent) => {
         expect(event.getData()).toEqual('foo');
@@ -39,7 +39,7 @@ describe('Flow RPC', () => {
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}, 'a'));
   }, 60000);
 
-  test('return sent value', async (done) => {
+  test('return sent value', (done) => {
     flowApp.subscribe('testResource.b', {
       next: (event: FlowEvent) => {
         expect(event.getData()).toEqual('bar');
@@ -50,7 +50,7 @@ describe('Flow RPC', () => {
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { value: 'bar' }, 'b'));
   }, 60000);
 
-  test('error in remote procedure', async (done) => {
+  test('error in remote procedure', (done) => {
     flowApp.subscribe('testResource.c', {
       next: (event: FlowEvent) => {
         expect(event.getData().err).toBeDefined();
@@ -61,7 +61,7 @@ describe('Flow RPC', () => {
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}, 'c'));
   }, 60000);
 
-  test('should return argument', async (done) => {
+  test('should return argument', (done) => {
     flowApp.subscribe('testResource.d', {
       next: (event: FlowEvent) => {
         expect(event.getData()).toEqual('10');
@@ -72,7 +72,7 @@ describe('Flow RPC', () => {
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}, 'd'));
   }, 60000);
 
-  test('rpc function does not exist', async (done) => {
+  test('rpc function does not exist', (done) => {
     flowApp.subscribe('testResource.e', {
       next: (event: FlowEvent) => {
         expect(event.getData().err).toBeDefined();

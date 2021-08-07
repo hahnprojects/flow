@@ -4,7 +4,7 @@ import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, Inp
 
 // tslint:disable:no-console
 describe('Flow SDK', () => {
-  test('publish message', async (done) => {
+  test('publish message', (done) => {
     const flow = {
       elements: [
         { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
@@ -30,7 +30,7 @@ describe('Flow SDK', () => {
       type: 'com.flowstudio.deployment.message',
       data: { elementId: 'testResource', test: 123 },
     });
-    await flowApp.onMessage(event);
+    flowApp.onMessage(event);
   }, 60000);
 });
 

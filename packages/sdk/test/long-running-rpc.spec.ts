@@ -20,7 +20,7 @@ describe('Flow RPC long running task', () => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
   });
 
-  test('rpc long running task', async (done) => {
+  test('rpc long running task', (done) => {
     flowApp.subscribe('testResource.a', {
       next: (event: FlowEvent) => {
         console.log(event.getData());
