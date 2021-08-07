@@ -1,7 +1,7 @@
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
 
 describe('InputStreamDecorator', () => {
-  test('should return input event data', async (done) => {
+  test('should return input event data', async () => {
     const testRes = new TestResource({ id: 'test' });
     const result = await testRes.onDefaultRessource(new FlowEvent({ id: '1' }, { test1: 'data', test2: 'otherData' }));
 
@@ -9,20 +9,18 @@ describe('InputStreamDecorator', () => {
     expect(data.test1).toBeDefined();
     expect(data.test2).toBeDefined();
     expect(data.hello).toBeDefined();
-    done();
   }, 60000);
 
-  test('should not return input event data if stopPropagation is set', async (done) => {
+  test('should not return input event data if stopPropagation is set', async () => {
     const testRes = new TestResourceNoProp({ id: 'test' });
     const result = await testRes.onDefaultNoProp(new FlowEvent({ id: '1' }, { test1: 'data' }));
 
     const data = result.getData();
     expect(data.test1).toBeUndefined();
     expect(data.hello).toBeDefined();
-    done();
   }, 60000);
 
-  test('should overwrite input event data', async (done) => {
+  test('should overwrite input event data', async () => {
     const testRes = new TestResource({ id: 'test' });
     const result = await testRes.onDefaultRessource(new FlowEvent({ id: '1' }, { test1: 'data', hello: 'otherData' }));
 
@@ -31,10 +29,9 @@ describe('InputStreamDecorator', () => {
     expect(data.test1).toBeDefined();
     expect(data.hello).toBeDefined();
     expect(data.hello).toEqual('world');
-    done();
   }, 60000);
 
-  test('should return input event data in a flow', async (done) => {
+  test('should return input event data in a flow', (done) => {
     const flow = {
       elements: [
         { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
@@ -56,7 +53,7 @@ describe('InputStreamDecorator', () => {
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { test1: 'data', test2: 'otherData' }));
   }, 60000);
 
-  test('should only log partial events', async (done) => {
+  test('should only log partial events', (done) => {
     const flow = {
       elements: [
         { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
@@ -121,7 +118,7 @@ describe('InputStreamDecorator', () => {
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { input: 'data' }));
   }, 20000);
 
-  test('stopPropagation should work in a mixed function', async (done) => {
+  test('stopPropagation should work in a mixed function', async () => {
     const testRes = new TestResource({ id: 'test' });
 
     let result = await testRes.onDefaultRessource(new FlowEvent({ id: '1' }, { baz: 42 }));
@@ -129,11 +126,9 @@ describe('InputStreamDecorator', () => {
 
     result = await testRes.onNotDefault(new FlowEvent({ id: '2' }, { baz: 42 }));
     expect(result.getData()).toEqual({ foo: 'bar' });
-
-    done();
   });
 
-  test('event propagation should work for parallel events', async (done) => {
+  test('event propagation should work for parallel events', (done) => {
     const task = new LongRunningTask({ id: 'test' });
 
     task.onB(new FlowEvent({ id: '2' }, { input: 'b' })).then((r) => {
@@ -146,11 +141,10 @@ describe('InputStreamDecorator', () => {
     });
   });
 
-  test('arrow functions should work', async (done) => {
+  test('arrow functions should work', async () => {
     const task = new Arrow({ id: 'test' });
     const result = await task.onDefault(new FlowEvent({ id: '2' }, { x: 23, y: 19 }));
     expect(result.getData()).toEqual({ x: 23, y: 19, z: 42 });
-    done();
   });
 
   test('test single function with multiple streams with different configs', (done) => {
@@ -205,7 +199,7 @@ describe('InputStreamDecorator', () => {
     expect(stateful.prop).toEqual(2);
   });
 
-  test('stateful function should work in flow', async (done) => {
+  test('stateful function should work in flow', (done) => {
     const flow = {
       elements: [
         { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
@@ -228,10 +222,12 @@ describe('InputStreamDecorator', () => {
     });
 
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
-    // no waiting...
-    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+
+    setTimeout(() => {
+      flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+      // no waiting...
+      flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+    }, 100);
   });
 
   test('deprecated should still work as expected', () => {

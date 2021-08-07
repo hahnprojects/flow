@@ -338,7 +338,7 @@ function handleConvertedOutput(result, jsonPath, json) {
   try {
     schema = JSON.parse(result);
   } catch (e) {
-    console.log('ERROR', result);
+    log(error(result));
     return json;
   }
   [
@@ -419,7 +419,7 @@ function checkTypes(definedTypes, propsSchema, jsonPath) {
   const props = propsSchema.properties || {};
   for (const prop of Object.keys(props)) {
     if (props[prop].type && !knownTypes.includes(props[prop].type)) {
-      log(
+      console.log(
         error(`ERROR: unknown type ${props[prop].type}.
        Please add a schema for this type in ${jsonPath}
        for more info check the documentation`),

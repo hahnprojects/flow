@@ -1,7 +1,7 @@
 import { FlowEvent } from '../lib';
 
 describe('Events', () => {
-  test('test logging of events', async (done) => {
+  test('test logging of events', () => {
     let event;
 
     event = createEvent('test');
@@ -82,11 +82,9 @@ describe('Events', () => {
     expect(event.data.stack).toBeDefined();
     expect(typeof event.data.stack).toBe('string');
     expect(event.datacontenttype).toEqual('application/json');
-
-    done();
   });
 
-  test('test imutability of event data', async (done) => {
+  test('test imutability of event data', () => {
     let data;
     let event;
     let eventData;
@@ -142,8 +140,6 @@ describe('Events', () => {
     data = undefined;
     event = new FlowEvent({ id: 'test' }, data);
     expect(event.getData()).toEqual({});
-
-    done();
   });
 });
 

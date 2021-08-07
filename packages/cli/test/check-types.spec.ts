@@ -1,6 +1,26 @@
 import { checkTypes } from '../lib/cli';
 
+const chalk = require('chalk');
+jest.mock('chalk', () => ({
+  blue: jest.fn(),
+  green: jest.fn(),
+  yellow: jest.fn(),
+  red: jest.fn(),
+  bold: {
+    green: jest.fn(),
+    red: jest.fn(),
+  },
+}));
+
 describe('check types', () => {
+  beforeAll(() => {
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+  });
+
+  afterAll(() => {
+    jest.clearAllMocks();
+  });
+
   test('should handle schemas with stock types', () => {
     expect(
       checkTypes(
@@ -88,5 +108,8 @@ describe('check types', () => {
         '',
       ),
     ).toBeFalsy();
+
+    expect(chalk.bold.red).toHaveBeenCalledTimes(1);
+    expect(console.log).toHaveBeenCalledTimes(1);
   });
 });

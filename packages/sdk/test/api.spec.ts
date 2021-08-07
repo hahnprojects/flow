@@ -8,7 +8,7 @@ dotenv.config();
 describe('API test', () => {
   const api = new API();
 
-  test('assets', async (done) => {
+  test('assets', async () => {
     let assets = await api.assetManager.getMany().catch((err) => logError(err));
     expect(assets).toBeDefined();
 
@@ -34,11 +34,9 @@ describe('API test', () => {
         expect(asset.type).toHaveProperty('id');
       }
     }
-
-    done();
   }, 60000);
 
-  test('content', async (done) => {
+  test('content', async () => {
     const contents = await api.contentManager.getMany().catch((err) => logError(err));
     expect(contents).toBeDefined();
 
@@ -49,18 +47,15 @@ describe('API test', () => {
       const content = await api.contentManager.download(contentId).catch((err) => logError(err));
       expect(content).toBeDefined();
     }
-
-    done();
   }, 60000);
 
-  test('endpoint', async (done) => {
+  test('endpoint', async () => {
     const mockedSendFn = jest.spyOn(api.endpointManager, 'sendNotification');
     await api.endpointManager.sendNotification('endpoint1', 'test', 'Test', 'test').catch((err) => logError(err));
     expect(mockedSendFn).toHaveBeenCalledWith('endpoint1', 'test', 'Test', 'test');
-    done();
   }, 60000);
 
-  test('secrets', async (done) => {
+  test('secrets', async () => {
     const secrets = await api.secretsManager.getMany().catch((err) => logError(err));
     expect(secrets).toBeDefined();
 
@@ -71,11 +66,9 @@ describe('API test', () => {
       const secret = await api.secretsManager.getOne(secretId).catch((err) => logError(err));
       expect(secret).toBeDefined();
     }
-
-    done();
   }, 60000);
 
-  test('events', async (done) => {
+  test('events', async () => {
     const events = await api.eventsManager.getMany().catch((err) => logError(err));
     expect(events).toBeDefined();
 
@@ -86,11 +79,9 @@ describe('API test', () => {
       const event = await api.eventsManager.getOne(eventId).catch((err) => logError(err));
       expect(event).toBeDefined();
     }
-
-    done();
   }, 60000);
 
-  test('timeseries', async (done) => {
+  test('timeseries', async () => {
     const timeseries = await api.timeSeriesManager.getMany().catch((err) => logError(err));
     expect(timeseries).toBeDefined();
 
@@ -103,11 +94,9 @@ describe('API test', () => {
       const values = await api.timeSeriesManager.getValues(tsId, 0).catch((err) => logError(err));
       expect(values).toBeDefined();
     }
-
-    done();
   }, 60000);
 
-  test('tasks', async (done) => {
+  test('tasks', async () => {
     const tasks = await api.taskManager.getMany().catch((err) => logError(err));
     expect(tasks).toBeDefined();
 
@@ -118,11 +107,9 @@ describe('API test', () => {
       const tsk = await api.taskManager.getOne(tskId).catch((err) => logError(err));
       expect(tsk).toBeDefined();
     }
-
-    done();
   }, 60000);
 
-  test('user', async (done) => {
+  test('user', async () => {
     const roles = await api.userManager.getCurrentUserRoles();
     expect(roles).toBeDefined();
 
@@ -130,7 +117,6 @@ describe('API test', () => {
       expect(Array.isArray(roles)).toBe(true);
       expect(roles.length).toBeGreaterThan(0);
     }
-    done();
   }, 60000);
 });
 

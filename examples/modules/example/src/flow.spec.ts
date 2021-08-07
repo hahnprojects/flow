@@ -4,7 +4,7 @@ import ExampleModule from '../';
 
 /* tslint:disable:no-console */
 describe('Example Test', () => {
-  test('flow', async (done) => {
+  test('flow', (done) => {
     const flow: Flow = {
       elements: [
         { id: 'trigger', module: 'test', functionFqn: 'test.task.Trigger' },
