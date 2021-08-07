@@ -13,8 +13,6 @@ const HttpsProxyAgent = require('https-proxy-agent');
 const ora = require('ora');
 const path = require('path');
 const queryString = require('querystring');
-const readPkg = require('read-pkg');
-const writePkg = require('write-pkg');
 
 require('dotenv').config();
 
@@ -66,7 +64,6 @@ program
       if (checkIfAll(projectName)) process.exit(1);
       const project = await findProject(projectName);
       await exec(CMD.INSTALL, project);
-      await exec(CMD.AUDIT, project);
       await exec(CMD.BUILD, project);
       await exec(CMD.LINT, project);
       await exec(CMD.COPY, project);
@@ -137,7 +134,6 @@ program
       const project = await findProject(projectName);
       await clean(buildDir);
       await exec(CMD.INSTALL, project);
-      await exec(CMD.AUDIT, project);
       await exec(CMD.BUILD, project);
       await exec(CMD.LINT, project);
       await exec(CMD.COPY, project);
@@ -171,7 +167,6 @@ program
       for (const project of projects) {
         await clean(buildDir);
         await exec(CMD.INSTALL, project);
-        await exec(CMD.AUDIT, project);
         await exec(CMD.BUILD, project);
         await exec(CMD.LINT, project);
         await exec(CMD.COPY, project);
@@ -237,7 +232,6 @@ program
       if (checkIfAll(projectName)) process.exit(1);
       const project = await findProject(projectName);
       await exec(CMD.INSTALL, project);
-      await exec(CMD.AUDIT, project);
       await exec(CMD.BUILD, project);
       await exec(CMD.COPY, project);
       await exec(CMD.WATCH, project);
@@ -546,13 +540,15 @@ function exec(cmd, project) {
       log(`${chalk.red('Wrong command options.')} Type "hpc ${cmd} --help" to see how to use this command.`);
       return reject();
     }
+
+    const options = { ...getProcessOptions(cmd, project), env: process.env };
     if (cmd === CMD.RUN || cmd === CMD.WATCH) {
       log(ok(`\n${getLabel(cmd)} ${project.name}:\n`));
-      execa(getProcess(cmd), getProcessArguments(cmd, project), getProcessOptions(cmd, project)).stdout.pipe(process.stdout);
+      execa(getProcess(cmd), getProcessArguments(cmd, project), options).stdout.pipe(process.stdout);
     } else {
       const spinner = getSpinner(`${getLabel(cmd)} ${project.name}`);
       spinner.start();
-      execa(getProcess(cmd), getProcessArguments(cmd, project), getProcessOptions(cmd, project))
+      execa(getProcess(cmd), getProcessArguments(cmd, project), options)
         .then((result) => {
           spinner.stop();
           log(result.stdout);
@@ -605,7 +601,7 @@ async function findProjects() {
       });
     });
 
-  const rootPkg = await readPkg({ normalize: false });
+  const rootPkg = await readJson(path.join(process.cwd(), 'package.json'));
 
   const projects = [];
   const files = await readDir(projectsRoot);
@@ -615,7 +611,7 @@ async function findProjects() {
         const projectPath = path.join(projectsRoot, file, 'package.json');
         if (await isProject(path.join(projectsRoot, file))) {
           try {
-            const pkg = await readPkg({ cwd: path.dirname(projectPath), normalize: false });
+            const pkg = await readJson(path.join(path.dirname(projectPath), 'package.json'));
             pkg.location = path.posix.join(projectsRoot, file);
             pkg.dist = path.posix.join(process.cwd(), buildDir, file);
             if (rootPkg) {
@@ -691,7 +687,7 @@ async function getAccessToken() {
 async function packageModule(project) {
   const { location, dist, ...package } = project;
   const file = path.posix.join(dist, '..', `${project.name}.zip`);
-  await writePkg(dist, package);
+  await writeJson(path.join(dist, 'package.json'), package);
   await zipDirectory(dist, file);
   return file;
 }
@@ -828,22 +824,22 @@ function deleteFile(path) {
 function getProcess(cmd) {
   switch (cmd) {
     case CMD.BUILD:
-      return './node_modules/.bin/tsc';
+      return 'tsc';
     case CMD.COPY:
-      return './node_modules/.bin/copyfiles';
+      return 'copyfiles';
     case CMD.FORMAT:
-      return './node_modules/.bin/prettier';
+      return 'prettier';
     case CMD.INSTALL:
     case CMD.AUDIT:
       return 'npm';
     case CMD.LINT:
-      return './node_modules/.bin/tslint';
+      return 'tslint';
     case CMD.RUN:
       return 'node';
     case CMD.TEST:
-      return './node_modules/.bin/jest';
+      return 'jest';
     case CMD.WATCH:
-      return './node_modules/.bin/nodemon';
+      return 'nodemon';
     default:
       return '';
   }
@@ -945,6 +941,34 @@ function checkEnvModules() {
     missing = true;
   }
   return missing;
+}
+
+function readJson(path) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, { encoding: 'utf8' }, (err, data) => {
+      if (err) return reject(err);
+      try {
+        return resolve(JSON.parse(data));
+      } catch (e) {
+        return reject(e);
+      }
+    });
+  });
+}
+
+function writeJson(path, data) {
+  return new Promise((resolve, reject) => {
+    let dataString;
+    try {
+      dataString = JSON.stringify(data, null, 2) + '\n';
+    } catch (err) {
+      return reject(err);
+    }
+    fs.writeFile(path, dataString, (err) => {
+      if (err) return reject(err);
+      return resolve();
+    });
+  });
 }
 
 exports.prepareTsFile = prepareTsFile;
