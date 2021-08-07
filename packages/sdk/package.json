@@ -45,7 +45,7 @@
     "python-shell": "^3.0.0",
     "querystring": "^0.2.1",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^6.6.7",
+    "rxjs": "^7.3.0",
     "string-interp": "^0.3.6",
     "uuid": "^8.3.2"
   },
