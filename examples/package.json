@@ -14,10 +14,17 @@
     "generate-schemas": "flow generate-schemas"
   },
   "dependencies": {
-    "@hahnpro/flow-sdk": "workspace:*"
+    "@hahnpro/flow-sdk": "workspace:*",
+    "class-validator": "~0.12.2",
+    "python-shell": "^3.0.0"
   },
   "devDependencies": {
-    "@hahnpro/flow-cli": "workspace:*"
+    "@golevelup/nestjs-rabbitmq": "^1.17.1",
+    "@hahnpro/flow-cli": "workspace:*",
+    "@nestjs/common": "^6",
+    "@nestjs/core": "^6",
+    "reflect-metadata": "~0.1.12",
+    "rxjs": "^6"
   },
   "prettier": {
     "arrowParens": "always",

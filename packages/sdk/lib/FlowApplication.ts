@@ -31,7 +31,7 @@ export class FlowApplication {
     [streamId: string]: Subject<FlowEvent>;
   } = {};
 
-  constructor(modules: Array<ClassType<any>>, flow: Flow, logger?: Logger, private amqpConnection?: AmqpConnection, skipApi = false) {
+  constructor(modules: Array<ClassType<any>>, flow: Flow, logger?: Logger, private amqpConnection?: any, skipApi = false) {
     process.on('SIGTERM', () => {
       this.logger.log('Flow Application is terminating.');
       this.destroy().finally(() => process.exit(0));

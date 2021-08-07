@@ -13,10 +13,12 @@ export interface AmqpConnection {
   publish(exchange: string, routingKey: string, message: any, options?: Options.Publish): Promise<void>;
 }
 
-export declare class Nack {
-  private readonly _requeue;
-  constructor(_requeue?: boolean);
-  get requeue(): boolean;
+export class Nack {
+  constructor(private readonly _requeue: boolean = false) {}
+
+  get requeue() {
+    return this._requeue;
+  }
 }
 
 export interface MessageHandlerOptions {

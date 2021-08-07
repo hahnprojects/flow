@@ -1,11 +1,11 @@
 {
-  "name": "root",
+  "name": "flow",
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "format": "prettier --write .",
     "lint": "eslint '*/**/*.{js,ts}' --fix",
-    "pretest": "npm run lint",
+    "pretest": "pnpm run lint",
     "test": "jest"
   },
   "devDependencies": {

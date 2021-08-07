@@ -10,12 +10,17 @@ commit-messages:
   rules:
     - if: $CI_MERGE_REQUEST_ID
 
-test-cli:
-  stage: test
+.pnpm:
   image: node:14
+  before_script:
+    - npm install -g pnpm
+    - pnpm install
+
+test-cli:
+  extends: .pnpm
+  stage: test
   script:
-    - npx lerna bootstrap
-    - npm test packages/cli
+    - pnpm test packages/cli
   rules:
     - if: $CI_MERGE_REQUEST_ID
       changes:
@@ -23,11 +28,10 @@ test-cli:
         - package.json
 
 test-sdk:
+  extends: .pnpm
   stage: test
-  image: node:14
   script:
-    - npx lerna bootstrap
-    - npm test packages/sdk -- --testPathIgnorePatterns api.spec.ts http.service.spec.ts rpc.spec.ts sidrive.spec.ts
+    - pnpm test packages/sdk -- --testPathIgnorePatterns api.spec.ts http.service.spec.ts rpc.spec.ts sidrive.spec.ts
   rules:
     - if: $CI_MERGE_REQUEST_ID
       changes:
