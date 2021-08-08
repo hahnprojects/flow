@@ -12,7 +12,6 @@ const glob = require('glob');
 const HttpsProxyAgent = require('https-proxy-agent');
 const ora = require('ora');
 const path = require('path');
-const queryString = require('querystring');
 
 require('dotenv').config();
 
@@ -662,13 +661,13 @@ function findProject(projectName) {
 async function getAccessToken() {
   return new Promise(async (resolve, reject) => {
     try {
-      const body = queryString.stringify({
-        client_id: apiUser,
-        client_secret: apiKey,
-        grant_type: 'client_credentials',
-      });
+      const params = new URLSearchParams([
+        ['client_id', apiUser],
+        ['client_secret', apiKey],
+        ['grant_type', 'client_credentials'],
+      ]);
       const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
-      const response = (await axios.post(authUrl, body, { headers })).data;
+      const response = (await axios.post(authUrl, params.toString(), { headers })).data;
 
       if (!response || !response.access_token) {
         throw new Error();
