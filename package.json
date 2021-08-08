@@ -4,6 +4,7 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "changeset": "changeset",
+    "format": "prettier --write . '!**/dist'",
     "lint": "eslint '*/**/*.{js,ts}' --fix",
     "pretest": "pnpm run lint",
     "test": "jest"
