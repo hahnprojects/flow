@@ -6,7 +6,6 @@
     "changeset": "changeset",
     "format": "prettier --write . '!**/dist'",
     "lint": "eslint '*/**/*.{js,ts}' --fix",
-    "pretest": "pnpm run lint",
     "test": "jest"
   },
   "devDependencies": {
