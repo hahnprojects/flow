@@ -1,6 +1,7 @@
 import FormData from 'form-data';
 
 import { Asset, AssetInterface } from './asset.interface';
+import { Paginated, RequestParameter } from './data.interface';
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
 
@@ -9,7 +10,7 @@ export class AssetService extends DataService<Asset> implements AssetInterface {
     super(httpClient, process.env.DEBUG_ASSET_URL || 'api/assets');
   }
 
-  addAttachment = (id: string, form: FormData): Promise<Asset> => {
+  public addAttachment = (id: string, form: FormData): Promise<Asset> => {
     const headers = { ...form.getHeaders() };
     return this.httpClient.post<Asset>(`${this.basePath}/${id}/attachment`, form, {
       headers,
@@ -17,4 +18,8 @@ export class AssetService extends DataService<Asset> implements AssetInterface {
       maxContentLength: Infinity,
     });
   };
+
+  public getChildren(assetId: string, params: RequestParameter = {}): Promise<Paginated<Asset[]>> {
+    return this.getManyFiltered({ parent: assetId }, params);
+  }
 }
