@@ -3,13 +3,14 @@
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "format": "prettier --write .",
+    "changeset": "changeset",
+    "format": "prettier --write . '!**/dist'",
     "lint": "eslint '*/**/*.{js,ts}' --fix",
     "pretest": "pnpm run lint",
     "test": "jest"
   },
   "devDependencies": {
-    "@types/amqplib": "^0.8.1",
+    "@changesets/cli": "^2.16.0",
     "@types/jest": "^26.0.24",
     "@types/node": "^14.17.9",
     "@typescript-eslint/eslint-plugin": "^4.29.0",
@@ -53,18 +54,6 @@
       "@typescript-eslint/no-var-requires": "off",
       "no-async-promise-executor": "off"
     }
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "transform": {
-      "^.+\\.(t|j)sx?$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-      "ts",
-      "js",
-      "json"
-    ]
   },
   "prettier": {
     "arrowParens": "always",

@@ -27,7 +27,7 @@
     "build": "../../node_modules/.bin/tsc -p tsconfig.lib.json",
     "build:nocomments": "../../node_modules/.bin/tsc -p tsconfig.nocomments.json",
     "postbuild": "../../node_modules/.bin/copyfiles -u 1 lib/*.py dist",
-    "prepublishOnly": "yarn build && yarn build:nocomments"
+    "prepublishOnly": "pnpm build && pnpm build:nocomments"
   },
   "dependencies": {
     "amqp-connection-manager": "^3.2.2",
@@ -43,7 +43,6 @@
     "object-sizeof": "^1.6.1",
     "p-queue": "^6.6.2",
     "python-shell": "^3.0.0",
-    "querystring": "^0.2.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.3.0",
     "string-interp": "^0.3.6",

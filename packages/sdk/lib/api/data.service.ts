@@ -17,16 +17,15 @@ export class DataService<T> implements DataInterface<T> {
     return this.httpClient.get<T>(`${this.basePath}/${id}`, { params });
   }
 
-  public getMany(params: RequestParameter = {}, parentId?: string): Promise<Paginated<T[]>> {
+  public getMany(params: RequestParameter = {}): Promise<Paginated<T[]>> {
     params.limit = params.limit || 0;
     params.page = params.page || 1;
-    parentId = parentId ? '/' + parentId : '';
-    return this.httpClient.get<Paginated<T[]>>(`${this.basePath}${parentId}`, { params });
+    return this.httpClient.get<Paginated<T[]>>(`${this.basePath}`, { params });
   }
 
-  public getManyFiltered(filter: Filter, params: RequestParameter = {}, parentId?: string): Promise<Paginated<T[]>> {
+  public getManyFiltered(filter: Filter, params: RequestParameter = {}): Promise<Paginated<T[]>> {
     params.filter = this.getFilterString(filter);
-    return this.getMany(params, parentId);
+    return this.getMany(params);
   }
 
   public updateOne(id: string, dto: any): Promise<T> {

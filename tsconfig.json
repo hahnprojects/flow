@@ -15,5 +15,10 @@
     "types": ["jest", "node"],
     "typeRoots": ["node_modules/@types"]
   },
-  "exclude": ["dist", "node_modules"]
+  "exclude": ["**/dist", "**/node_modules"],
+  "references": [
+    {
+      "path": "./packages/sdk/tsconfig.json"
+    }
+  ]
 }

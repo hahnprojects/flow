@@ -5,6 +5,7 @@ const archiver = require('archiver');
 let axios = require('axios').default;
 const chalk = require('chalk');
 const { Command } = require('commander');
+const copyfiles = require('copyfiles');
 const execa = require('execa');
 const FormData = require('form-data');
 const fs = require('fs');
@@ -12,7 +13,6 @@ const glob = require('glob');
 const HttpsProxyAgent = require('https-proxy-agent');
 const ora = require('ora');
 const path = require('path');
-const queryString = require('querystring');
 
 require('dotenv').config();
 
@@ -38,7 +38,6 @@ let projectsRoot = 'modules';
 const CMD = {
   AUDIT: 'audit',
   BUILD: 'build',
-  COPY: 'copy',
   FORMAT: 'format',
   INSTALL: 'install',
   LINT: 'lint',
@@ -51,22 +50,21 @@ const CMD = {
 const program = new Command();
 
 program
-  .version('2.7.7', '-v, --version')
+  .version('2.10.0', '-v, --version')
   .usage('[command] [options]')
-  .description('Flow Module Management Tool.')
+  .description('Flow Module Management Tool')
   .on('--help', () => {});
 
 program
   .command('build [projectName]')
-  .description('Builds specified Project.')
+  .description('Builds specified project')
   .action(async (projectName) => {
     try {
       if (checkIfAll(projectName)) process.exit(1);
       const project = await findProject(projectName);
       await exec(CMD.INSTALL, project);
       await exec(CMD.BUILD, project);
-      await exec(CMD.LINT, project);
-      await exec(CMD.COPY, project);
+      await copyProjectFiles(project);
     } catch (err) {
       if (err) log(err);
       process.exit(1);
@@ -75,7 +73,7 @@ program
 
 program
   .command('install [projectName]')
-  .description('Installs the dependencies of the specified Project.')
+  .description('Installs the dependencies of the specified project')
   .action(async (projectName) => {
     try {
       if (projectName === 'all') {
@@ -114,8 +112,25 @@ program
   });
 
 program
+  .command('lint [projectName]')
+  .description('Lint project files')
+  .action(async (projectName) => {
+    try {
+      let project;
+      if (projectName === 'all') {
+        project = { location: '.' };
+      }
+      project = await findProject(projectName);
+      await exec(CMD.LINT, project);
+    } catch (err) {
+      if (err) log(err);
+      process.exit(1);
+    }
+  });
+
+program
   .command('format')
-  .description('Formats all typescript files according to prettier configuration.')
+  .description('Formats all typescript files according to prettier configuration')
   .action(async () => {
     try {
       await exec(CMD.FORMAT, { name: 'all' });
@@ -127,7 +142,7 @@ program
 
 program
   .command('package [projectName]')
-  .description('Builds specified Module and packages it as .zip File for manual upload to the platform.')
+  .description('Builds specified Module and packages it as .zip File for manual upload to the platform')
   .action(async (projectName) => {
     try {
       if (checkIfAll(projectName)) process.exit(1);
@@ -135,8 +150,7 @@ program
       await clean(buildDir);
       await exec(CMD.INSTALL, project);
       await exec(CMD.BUILD, project);
-      await exec(CMD.LINT, project);
-      await exec(CMD.COPY, project);
+      await copyProjectFiles(project);
       await validateModule(project);
       await packageModule(project);
     } catch (err) {
@@ -150,7 +164,7 @@ program
   .option('-f, --functions', 'publish flow functions')
   .option('-u, --update', 'update existing flow functions')
   .option('-s, --skip', 'skip modules that already exists with the current version')
-  .description('Publishes specified Module to Cloud Platform.')
+  .description('Publishes specified Module to Cloud Platform')
   .action(async (projectName, options) => {
     try {
       if (checkEnvModules()) process.exit(1);
@@ -168,8 +182,7 @@ program
         await clean(buildDir);
         await exec(CMD.INSTALL, project);
         await exec(CMD.BUILD, project);
-        await exec(CMD.LINT, project);
-        await exec(CMD.COPY, project);
+        await copyProjectFiles(project);
         await validateModule(project);
         try {
           await publishModule(project);
@@ -201,7 +214,7 @@ program
 program
   .command('publish-functions [projectName]')
   .option('-u, --update', 'update existing flow functions')
-  .description('Publishes all Flow Functions inside specified Module to Cloud Platform.')
+  .description('Publishes all Flow Functions inside specified Module to Cloud Platform')
   .action(async (projectName, options) => {
     try {
       if (checkEnvModules()) process.exit(1);
@@ -226,14 +239,14 @@ program
 
 program
   .command('serve [projectName]')
-  .description('Builds and serves your Project. Rebuilding on file changes.')
+  .description('Builds and serves your project. Rebuilding on file changes')
   .action(async (projectName) => {
     try {
       if (checkIfAll(projectName)) process.exit(1);
       const project = await findProject(projectName);
       await exec(CMD.INSTALL, project);
       await exec(CMD.BUILD, project);
-      await exec(CMD.COPY, project);
+      await copyProjectFiles(project);
       await exec(CMD.WATCH, project);
     } catch (err) {
       if (err) log(err);
@@ -243,7 +256,7 @@ program
 
 program
   .command('start [projectName]')
-  .description('Runs your project.')
+  .description('Runs your project')
   .action(async (projectName) => {
     try {
       if (checkIfAll(projectName)) process.exit(1);
@@ -257,7 +270,7 @@ program
 
 program
   .command('test [projectName]')
-  .description('Runs tests for your Project.')
+  .description('Runs tests for your project')
   .action(async (projectName) => {
     try {
       // check if it is running in Gitlab CI
@@ -279,7 +292,7 @@ program
 
 program
   .command('generate-schemas [projectName]')
-  .description('Generates Input, Output and Properties-Schemas for the project.')
+  .description('Generates Input, Output and Properties-Schemas for the project')
   .option('-h, --hide', 'hide warnings')
   .option('-v, --verbose', 'get more output info')
   .action(async (projectName) => {
@@ -537,7 +550,7 @@ async function clean(buildFolder) {
 function exec(cmd, project) {
   return new Promise((resolve, reject) => {
     if (!project) {
-      log(`${chalk.red('Wrong command options.')} Type "hpc ${cmd} --help" to see how to use this command.`);
+      log(`${chalk.red('Wrong command options.')} Type "hpc ${cmd} --help" to see how to use this command`);
       return reject();
     }
 
@@ -633,7 +646,7 @@ async function findProjects() {
 function findProject(projectName) {
   return new Promise(async (resolve, reject) => {
     if (!projectName) {
-      log(error('No Project specified.'));
+      log(error('No project specified'));
       return reject();
     }
     if (projectName === 'all') {
@@ -662,13 +675,13 @@ function findProject(projectName) {
 async function getAccessToken() {
   return new Promise(async (resolve, reject) => {
     try {
-      const body = queryString.stringify({
-        client_id: apiUser,
-        client_secret: apiKey,
-        grant_type: 'client_credentials',
-      });
+      const params = new URLSearchParams([
+        ['client_id', apiUser],
+        ['client_secret', apiKey],
+        ['grant_type', 'client_credentials'],
+      ]);
       const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
-      const response = (await axios.post(authUrl, body, { headers })).data;
+      const response = (await axios.post(authUrl, params.toString(), { headers })).data;
 
       if (!response || !response.access_token) {
         throw new Error();
@@ -825,15 +838,13 @@ function getProcess(cmd) {
   switch (cmd) {
     case CMD.BUILD:
       return 'tsc';
-    case CMD.COPY:
-      return 'copyfiles';
     case CMD.FORMAT:
       return 'prettier';
     case CMD.INSTALL:
     case CMD.AUDIT:
       return 'npm';
     case CMD.LINT:
-      return 'tslint';
+      return 'eslint';
     case CMD.RUN:
       return 'node';
     case CMD.TEST:
@@ -845,6 +856,24 @@ function getProcess(cmd) {
   }
 }
 
+function copyProjectFiles(project) {
+  return new Promise((resolve, reject) => {
+    copyfiles(
+      [`${project.location}/**`, `${buildDir}/`],
+      {
+        exclude: [`${project.location}/*.json`, `${project.location}/**/*.ts`, `${project.location}/**/test/**`],
+        up: 1,
+      },
+      (err) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve();
+      },
+    );
+  });
+}
+
 function getProcessArguments(cmd, project) {
   switch (cmd) {
     case CMD.AUDIT:
@@ -854,25 +883,12 @@ function getProcessArguments(cmd, project) {
       const configFile = fs.existsSync(filename) ? filename : project.location;
       return ['-p', configFile];
     }
-    case CMD.COPY:
-      return [
-        '-u',
-        '1',
-        '-e',
-        `${project.location}/*.json`,
-        '-e',
-        `${project.location}/**/*.ts`,
-        '-e',
-        `${project.location}/**/test/**`,
-        `${project.location}/**`,
-        `${buildDir}/`,
-      ];
     case CMD.FORMAT:
       return ['--write', '**/*.ts'];
     case CMD.INSTALL:
       return ['install', '--no-package-lock'];
     case CMD.LINT:
-      return ['-p', project.location, 'stylish'];
+      return [project.location + '/**/*.{js,ts}', '--fix'];
     case CMD.RUN:
       return [project.location];
     case CMD.TEST:
@@ -912,7 +928,7 @@ function getSpinner(message) {
 
 function checkIfAll(projectName) {
   if (projectName === 'all') {
-    log(error(`Please specify a Project. Command can't be run for all.`));
+    log(error(`Please specify a project. Command can't be run for all.`));
     return true;
   }
   return false;
@@ -921,23 +937,23 @@ function checkIfAll(projectName) {
 function checkEnvModules() {
   let missing = false;
   if (!apiUser) {
-    log(error('"API_USER" env var is not set.'));
+    log(error('"API_USER" env var is not set'));
     missing = true;
   }
   if (!apiKey) {
-    log(error('"API_KEY" env var is not set.'));
+    log(error('"API_KEY" env var is not set'));
     missing = true;
   }
   if (!baseUrl) {
-    log(error('"PLATFORM_URL" env var is not set.'));
+    log(error('"PLATFORM_URL" env var is not set'));
     missing = true;
   }
   if (!realm) {
-    log(error('"REALM" env var is not set.'));
+    log(error('"REALM" env var is not set'));
     missing = true;
   }
   if (!buildDir) {
-    log(error('"BUILD_DIR" env var is not set.'));
+    log(error('"BUILD_DIR" env var is not set'));
     missing = true;
   }
   return missing;

@@ -1,5 +1,4 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import queryString from 'querystring';
 
 import { Queue } from './Queue';
 
@@ -91,14 +90,14 @@ export class HttpClient {
 
   private getToken = async () => {
     return new Promise<string>((resolve, reject) => {
-      const params = {
-        grant_type: 'client_credentials',
-        client_id: this.client,
-        client_secret: this.secret,
-      };
+      const params = new URLSearchParams([
+        ['client_id', this.client],
+        ['client_secret', this.secret],
+        ['grant_type', 'client_credentials'],
+      ]);
       const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
       this.authAxiosInstance
-        .post(`/auth/realms/${this.realm}/protocol/openid-connect/token`, queryString.stringify(params), { headers })
+        .post(`/auth/realms/${this.realm}/protocol/openid-connect/token`, params.toString(), { headers })
         .then((res) => {
           if (res && res.data && res.data.access_token && res.data.expires_in) {
             this.accessToken = res.data.access_token;
