@@ -1,12 +1,10 @@
 {
   "extends": "../../tsconfig.json",
-  "compileOnSave": false,
   "compilerOptions": {
+    "composite": true,
     "baseUrl": ".",
     "outDir": "dist",
     "removeComments": false,
-    "types": ["jest", "node", "reflect-metadata"],
-    "typeRoots": ["node_modules/@types"]
-  },
-  "exclude": ["dist", "node_modules"]
+    "types": ["jest", "node", "reflect-metadata"]
+  }
 }

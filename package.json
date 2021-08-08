@@ -54,18 +54,6 @@
       "no-async-promise-executor": "off"
     }
   },
-  "jest": {
-    "testEnvironment": "node",
-    "transform": {
-      "^.+\\.(t|j)sx?$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-      "ts",
-      "js",
-      "json"
-    ]
-  },
   "prettier": {
     "arrowParens": "always",
     "printWidth": 140,
