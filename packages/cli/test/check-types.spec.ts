@@ -21,7 +21,7 @@ describe('check types', () => {
     jest.clearAllMocks();
   });
 
-  test('should handle schemas with stock types', () => {
+  test('CLI.CT.1 should handle schemas with stock types', () => {
     expect(
       checkTypes(
         [],
@@ -50,7 +50,7 @@ describe('check types', () => {
     ).toBeTruthy();
   });
 
-  test('should handle schemas with HPC types', () => {
+  test('CLI.CT.2 should handle schemas with HPC types', () => {
     expect(
       checkTypes(
         [],
@@ -78,7 +78,7 @@ describe('check types', () => {
     ).toBeTruthy();
   });
 
-  test('should handle schemas with custom types', () => {
+  test('CLI.CT.2 should handle schemas with custom types', () => {
     expect(
       checkTypes(
         ['CustomType'],
@@ -94,7 +94,7 @@ describe('check types', () => {
     ).toBeTruthy();
   });
 
-  test('should not handle schemas with custom types if the type is not defined', () => {
+  test('CLI.CT.3 should not handle schemas with custom types if the type is not defined', () => {
     expect(
       checkTypes(
         [],

@@ -8,7 +8,7 @@ dotenv.config();
 describe('SiDriveIQ API', () => {
   const api = new API();
 
-  test('sidrive', () => {
+  test('FLOW.SID.1 sidrive', () => {
     // const assets = await api.siDriveIq.getAssetCount().catch((err) => logError(err));
     // expect(assets).toBeDefined();
     // const prop = await api.siDriveIq.getProperty(3100, 'SCS.TRAIR1I.TDt').catch((err) => logError(err));

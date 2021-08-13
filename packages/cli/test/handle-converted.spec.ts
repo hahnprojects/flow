@@ -1,7 +1,7 @@
 import { handleConvertedOutput } from '../lib/cli';
 
 describe('handle converted output form ts-node', () => {
-  test('', () => {
+  test('CLI.HCO.1', () => {
     const output =
       '{"Properties":{"properties":{"num":{"type":"number"}},"type":"object","required":["num"]},"InputProperties":{"properties":{"num":{"type":"number"}},"type":"object","required":["num"]},"OutputProperties":{"properties":{"num":{"type":"number"}},"type":"object","required":["num"]}}';
 

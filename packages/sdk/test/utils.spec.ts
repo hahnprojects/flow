@@ -1,7 +1,7 @@
 import { fillTemplate } from '../lib';
 
 describe('utils', () => {
-  test('template string interpolation for flow properties', () => {
+  test('FLOW.UTIL.1 template string interpolation for flow properties', () => {
     let tmplString = '${test}';
     let tmplVars: any = { test: 'hello world' };
     let filled = fillTemplate(tmplString, tmplVars);
@@ -98,7 +98,7 @@ describe('utils', () => {
     expect(filled).toEqual('foo');
   });
 
-  test('deep interpolation', () => {
+  test('FLOW.UTIL.2 deep interpolation', () => {
     let input: any = { foo: '${bar}' };
     let props: any = { bar: 'baz' };
     let res = fillTemplate(input, props);
@@ -135,7 +135,7 @@ describe('utils', () => {
     expect(res).toEqual({ foo: { x: ['a', 'b', undefined] } });
   });
 
-  test('fillTemplate', () => {
+  test('FLOW.UTIL.3 fillTemplate', () => {
     let tmplString = 'foo';
     let tmplVars: any = { foo: 'bar' };
     let filled = fillTemplate(tmplString, tmplVars);

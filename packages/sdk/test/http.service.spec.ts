@@ -6,7 +6,7 @@ dotenv.config();
 
 /* tslint:disable:no-console */
 describe('HTTP Service test', () => {
-  test('Concurrent Requests', () => {
+  test('FLOW.HS.1 Concurrent Requests', () => {
     const client = new HttpClient(
       process.env.API_BASE_URL || 'https://testing.hahnpro.com',
       process.env.AUTH_BASE_URL || process.env.API_BASE_URL || 'https://testing.hahnpro.com',

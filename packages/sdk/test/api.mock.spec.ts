@@ -23,7 +23,7 @@ describe('Mock-API test', () => {
 
   // tests copied from api.spec.ts
   // mock-api should behave the same way the normal api does
-  test('assets', async () => {
+  test('FLOW.API.MOCK.1 assets', async () => {
     let assets = await api.assetManager.getMany().catch((err) => logError(err));
     expect(assets).toBeDefined();
 
@@ -51,7 +51,7 @@ describe('Mock-API test', () => {
     }
   }, 60000);
 
-  test('content', async () => {
+  test('FLOW.API.MOCK.2 content', async () => {
     const contents = await api.contentManager.getMany().catch((err) => logError(err));
     expect(contents).toBeDefined();
 
@@ -89,7 +89,7 @@ describe('Mock-API test', () => {
     }
   }, 60000);
 
-  test('endpoint', async () => {
+  test('FLOW.API.MOCK.3 endpoint', async () => {
     const test = await api.endpointManager.sendNotification('endpoint1', 'test', 'Test', 'test').catch((err) => logError(err));
     expect(test).toBeDefined();
     expect(test.subject).toBe('test');
@@ -100,7 +100,7 @@ describe('Mock-API test', () => {
     expect(log).toBeDefined();
   }, 60000);
 
-  test('secrets', async () => {
+  test('FLOW.API.MOCK.4 secrets', async () => {
     const secrets = await api.secretsManager.getMany().catch((err) => logError(err));
     expect(secrets).toBeDefined();
 
@@ -113,7 +113,7 @@ describe('Mock-API test', () => {
     }
   }, 60000);
 
-  test('events', async () => {
+  test('FLOW.API.MOCK.5 events', async () => {
     const events = await api.eventsManager.getMany().catch((err) => logError(err));
     expect(events).toBeDefined();
 
@@ -129,7 +129,7 @@ describe('Mock-API test', () => {
     }
   }, 60000);
 
-  test('timeseries', async () => {
+  test('FLOW.API.MOCK.6 timeseries', async () => {
     const timeseries = await api.timeSeriesManager.getMany().catch((err) => logError(err));
     expect(timeseries).toBeDefined();
 
@@ -145,7 +145,7 @@ describe('Mock-API test', () => {
     }
   }, 60000);
 
-  test('tasks', async () => {
+  test('FLOW.API.MOCK.7 tasks', async () => {
     const tasks = await api.taskManager.getMany().catch((err) => logError(err));
     expect(tasks).toBeDefined();
 
@@ -158,7 +158,7 @@ describe('Mock-API test', () => {
     }
   }, 60000);
 
-  test('user', async () => {
+  test('FLOW.API.MOCK.8 user', async () => {
     const roles = await api.userManager.getCurrentUserRoles();
     expect(roles).toBeDefined();
 
