@@ -1,10 +1,19 @@
 import { IsNumber } from 'class-validator';
 
-import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
+import {
+  delay,
+  FlowApplication,
+  FlowEvent,
+  FlowFunction,
+  FlowModule,
+  FlowResource,
+  FlowTask,
+  InputStream,
+} from '../lib';
 
 // tslint:disable:no-console
 describe('Flow Application', () => {
-  test('Simple Flow Application with Long Running Task', (done) => {
+  test('FLOW.FA.1 Simple Flow Application with Long Running Task', (done) => {
     const size = 8;
     const flow = {
       elements: [

@@ -8,7 +8,7 @@ class Test {
 }
 
 describe('unit decorators', () => {
-  test('voltage', async () => {
+  test('FLOW.UD.1 voltage', async () => {
     const schemas = validationMetadatasToSchemas({
       additionalConverters: {
         UnitArgsValidator: (meta) => {
@@ -28,7 +28,7 @@ describe('unit decorators', () => {
     });
   });
 
-  test('verifyUnit', () => {
+  test('FLOW.UD.2 verifyUnit', () => {
     expect(verifyUnit('in', 'length')).toEqual(1 / 39.3701);
     expect(verifyUnit('kNcm', 'torque')).toEqual(10);
     expect(verifyUnit('m/s', 'translationalVelocity')).toEqual(1);
@@ -50,7 +50,7 @@ describe('unit decorators', () => {
     expect(verifyUnit('', '')).toEqual(-1);
   });
 
-  test('computeUnits', () => {
+  test('FLOW.UD.3 computeUnits', () => {
     expect(computeUnitOptions('L-2')).toEqual(computeUnitOptions('L2'));
   });
 });

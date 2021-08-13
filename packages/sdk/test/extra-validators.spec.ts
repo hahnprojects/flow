@@ -21,7 +21,7 @@ class Test2 {
 }
 
 describe('extra validators', () => {
-  test('should work when no incompatible field is present', (done) => {
+  test('FLOW.EXV.1 should work when no incompatible field is present', (done) => {
     const test = new Test();
     test.test1 = 'test';
     validate(test).then((errors) => {
@@ -30,7 +30,7 @@ describe('extra validators', () => {
     });
   });
 
-  test('should fail if both are not present', (done) => {
+  test('FLOW.EXV.2 should fail if both are not present', (done) => {
     const test = new Test();
     validate(test).then((errors) => {
       expect(errors.length).toEqual(2);
@@ -38,7 +38,7 @@ describe('extra validators', () => {
     });
   });
 
-  test('validation should fail when incompatible fields are present', (done) => {
+  test('FLOW.EXV.3 validation should fail when incompatible fields are present', (done) => {
     const test = new Test();
     test.test1 = 'test';
     test.test2 = 'test';
@@ -48,7 +48,7 @@ describe('extra validators', () => {
     });
   });
 
-  test('validation should work with multiple incompatible fields', (done) => {
+  test('FLOW.EXV.4 validation should work with multiple incompatible fields', (done) => {
     const test = new Test2();
     test.test1 = 'test';
     validate(test).then((errors) => {
@@ -57,7 +57,7 @@ describe('extra validators', () => {
     });
   });
 
-  test('validation should fail when multiple incompatible fields are present', (done) => {
+  test('FLOW.EXV.5 validation should fail when multiple incompatible fields are present', (done) => {
     const test = new Test2();
     test.test1 = 'test';
     test.test2 = 'test';

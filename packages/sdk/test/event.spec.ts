@@ -1,7 +1,7 @@
 import { FlowEvent } from '../lib';
 
 describe('Events', () => {
-  test('test logging of events', () => {
+  test('FLOW.EVE.1 test logging of events', () => {
     let event;
 
     event = createEvent('test');
@@ -84,7 +84,7 @@ describe('Events', () => {
     expect(event.datacontenttype).toEqual('application/json');
   });
 
-  test('test imutability of event data', () => {
+  test('FLOW.EVE.2 test imutability of event data', () => {
     let data;
     let event;
     let eventData;

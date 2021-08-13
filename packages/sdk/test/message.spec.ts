@@ -4,7 +4,7 @@ import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, Inp
 
 // tslint:disable:no-console
 describe('Flow SDK', () => {
-  test('publish message', (done) => {
+  test('FLOW.SDK.1 publish message', (done) => {
     const flow = {
       elements: [
         { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },

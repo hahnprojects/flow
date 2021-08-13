@@ -5,7 +5,7 @@ import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, Inp
 
 // tslint:disable:no-console
 describe('Flow Application', () => {
-  test('Simple Flow Application with Long Running Task', (done) => {
+  test('FLOW.CON.1 Simple Flow Application with Long Running Task', (done) => {
     const flow = {
       elements: [
         { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource', properties: { assetId: '' } },
@@ -75,7 +75,7 @@ describe('Flow Application', () => {
       });
   }, 60000);
 
-  test('string interpolation with event data', async () => {
+  test('FLOW.CON.2 string interpolation with event data', async () => {
     let tr = new TestResource({ id: 'testResource' }, { assetId: '${test}' });
     let event = await tr.onDefault(new FlowEvent({ id: 'tr' }, { test: 'xyz' }));
     let data = event.getData();
@@ -89,7 +89,7 @@ describe('Flow Application', () => {
     expect(data.assetId).toBeUndefined();
   });
 
-  test('string interpolation with flow context properties', (done) => {
+  test('FLOW.CON.3 string interpolation with flow context properties', (done) => {
     const flow = {
       elements: [
         { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource', properties: { assetId: '' } },
