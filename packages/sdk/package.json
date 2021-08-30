@@ -30,7 +30,7 @@
     "prepublishOnly": "pnpm build && pnpm build:nocomments && pnpm postbuild"
   },
   "dependencies": {
-    "amqp-connection-manager": "^3.2.2",
+    "amqp-connection-manager": "^3.6.0",
     "amqplib": "^0.8.0",
     "axios": "^0.21.1",
     "class-transformer": "0.3.1",
@@ -51,12 +51,12 @@
   "devDependencies": {
     "@golevelup/nestjs-rabbitmq": "^1.17.1",
     "@types/amqp-connection-manager": "^2.0.12",
-    "@types/amqplib": "^0.8.1",
+    "@types/amqplib": "^0.8.2",
     "@types/jest": "^27.0.1",
     "@types/lodash": "^4.14.172",
-    "@types/node": "^14.17.9",
+    "@types/node": "^14.17.12",
     "jest": "^27.0.6",
-    "typescript": "^4.3.5"
+    "typescript": "^4.4.2"
   },
   "engines": {
     "node": ">=v14.13"
