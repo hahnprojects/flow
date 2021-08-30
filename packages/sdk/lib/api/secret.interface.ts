@@ -1,5 +1,3 @@
-import { DataInterface } from './data.interface';
-
 export interface Secret {
   id?: string;
   name: string;
@@ -7,5 +5,3 @@ export interface Secret {
   readPermissions: string[];
   readWritePermissions: string[];
 }
-
-export type SecretInterface = DataInterface<Secret>;

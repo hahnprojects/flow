@@ -1,8 +1,7 @@
 import { HttpClient } from './http.service';
-import { UserInterface } from './user.interface';
 import jwtDecode from 'jwt-decode';
 
-export class UserService implements UserInterface {
+export class UserService {
   constructor(private httpClient: HttpClient) {}
 
   async getCurrentUserRoles(): Promise<string[]> {

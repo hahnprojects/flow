@@ -1,8 +1,9 @@
 import { Paginated } from '../data.interface';
-import { TS_GROUPS, TimeSeries, TimeSeriesValue, TimeseriesInterface } from '../timeseries.interface';
+import { TS_GROUPS, TimeSeries, TimeSeriesValue } from '../timeseries.interface';
+import { TimeSeriesService } from '../timeseries.service';
 import { DataMockService } from './data.mock.service';
 
-export class TimeseriesMockService extends DataMockService<TimeSeries & { data: TimeSeriesValue[] }> implements TimeseriesInterface {
+export class TimeseriesMockService extends DataMockService<TimeSeries & { data: TimeSeriesValue[] }> implements TimeSeriesService {
   constructor(timeseries: TimeSeries[], timeseriesValues: TimeSeriesValue[][]) {
     super();
     this.data = timeseries.map((value, index) => ({ ...value, data: timeseriesValues[index] }));
@@ -36,10 +37,10 @@ export class TimeseriesMockService extends DataMockService<TimeSeries & { data: 
     return Promise.resolve(ts);
   }
 
-  async addValue(id: string, value: { [p: string]: any }): Promise<TimeSeries> {
+  async addValue(id: string, value: { [p: string]: any }): Promise<void> {
     const ts = await this.getOne(id, {});
     ts.data.push({ timestamp: new Date().getDate(), value });
-    return ts;
+    return;
   }
 
   getManyByAsset(assetId: string, names?: string[]): Promise<Paginated<TimeSeries[]>> {

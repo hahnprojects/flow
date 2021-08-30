@@ -1,35 +1,47 @@
-import { Event, EventsInterface } from '../events.interface';
-import { EndpointMockService } from './endpoint.mock.service';
-import { Endpoint } from '../endpoint.interface';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-import { APIInterface } from '../api.interface';
-import { Asset, AssetInterface, AssetType } from '../asset.interface';
-import { Content, ContentInterface, Storage } from '../content.interface';
-import { Secret, SecretInterface } from '../secret.interface';
-import { TimeSeries, TimeSeriesValue, TimeseriesInterface } from '../timeseries.interface';
+import { API } from '../api';
+import { Asset, AssetType } from '../asset.interface';
+import { Content, Storage } from '../content.interface';
+import { Secret } from '../secret.interface';
+import { TimeSeries, TimeSeriesValue } from '../timeseries.interface';
 import { AssetMockService } from './asset.mock.service';
+import { AssetTypesMockService } from './assetTypes.mock.service';
 import { ContentMockService } from './content.mock.service';
-import { EndpointInterface } from '../endpoint.interface';
-import { SecretMockService } from './secret.mock.service';
-import { TimeseriesMockService } from './timeseries.mock.service';
-import { Task, TaskInterface } from '../task.interface';
-import { TaskMockService } from './task.mock.service';
-import { UserInterface } from '../user.interface';
-import { UserMockService } from './user.mock.service';
+import { Endpoint } from '../endpoint.interface';
+import { EndpointMockService } from './endpoint.mock.service';
+import { Event } from '../events.interface';
 import { EventsMockService } from './events.mock.service';
+import { SecretMockService } from './secret.mock.service';
+import { Task } from '../task.interface';
+import { TimeseriesMockService } from './timeseries.mock.service';
+import { TaskMockService } from './task.mock.service';
+import { UserMockService } from './user.mock.service';
 
-export class MockAPI implements APIInterface {
-  assetManager: AssetInterface;
-  contentManager: ContentInterface;
-  endpointManager: EndpointInterface;
-  secretsManager: SecretInterface;
-  timeSeriesManager: TimeseriesInterface;
-  sidriveManager = null;
-  taskManager: TaskInterface;
-  eventsManager: EventsInterface;
-  userManager: UserInterface;
+export class MockAPI implements API {
+  public httpClient = null;
+
+  public assets: AssetMockService;
+  public assetTypes: AssetTypesMockService;
+  public contents: ContentMockService;
+  public endpoints: EndpointMockService;
+  public events: EventsMockService;
+  public proxy = null;
+  public secrets: SecretMockService;
+  public tasks: TaskMockService;
+  public timeSeries: TimeseriesMockService;
+  public users: UserMockService;
+
+  public assetManager: AssetMockService;
+  public contentManager: ContentMockService;
+  public endpointManager: EndpointMockService;
+  public eventsManager: EventsMockService;
+  public secretsManager: SecretMockService;
+  public siDrive = null;
+  public taskManager: TaskMockService;
+  public timeSeriesManager: TimeseriesMockService;
+  public userManager: UserMockService;
 
   constructor(initData: {
     assets?: AssetInit[];
@@ -132,14 +144,23 @@ export class MockAPI implements APIInterface {
 
     const timeseriesValues: TimeSeriesValue[][] = timeSeries.map((v) => v.values);
 
-    this.assetManager = new AssetMockService(this, assets1);
-    this.contentManager = new ContentMockService(contents1, contentData);
-    this.endpointManager = new EndpointMockService(endpoint1);
-    this.secretsManager = new SecretMockService(secrets1);
-    this.timeSeriesManager = new TimeseriesMockService(timeSeries1, timeseriesValues);
-    this.taskManager = new TaskMockService(this, tasks1);
-    this.eventsManager = new EventsMockService(events1);
-    this.userManager = new UserMockService(users);
+    this.assets = new AssetMockService(this, assets1);
+    this.contents = new ContentMockService(contents1, contentData);
+    this.endpoints = new EndpointMockService(endpoint1);
+    this.secrets = new SecretMockService(secrets1);
+    this.timeSeries = new TimeseriesMockService(timeSeries1, timeseriesValues);
+    this.tasks = new TaskMockService(tasks1);
+    this.events = new EventsMockService(events1);
+    this.users = new UserMockService(users);
+
+    this.assetManager = this.assets;
+    this.contentManager = this.contents;
+    this.endpointManager = this.endpoints;
+    this.secretsManager = this.secrets;
+    this.timeSeriesManager = this.timeSeries;
+    this.taskManager = this.tasks;
+    this.eventsManager = this.events;
+    this.userManager = this.users;
   }
 }
 

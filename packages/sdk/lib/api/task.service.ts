@@ -1,8 +1,8 @@
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
-import { Task, TaskInterface } from './task.interface';
+import { Task } from './task.interface';
 
-export class TaskService extends DataService<Task> implements TaskInterface {
+export class TaskService extends DataService<Task> {
   constructor(httpClient: HttpClient) {
     super(httpClient, process.env.DEBUG_TSK_URL || 'api/tasks');
   }

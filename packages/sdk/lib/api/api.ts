@@ -1,33 +1,73 @@
-import { EventsInterface } from './events.interface';
-import { EventsService } from './events.service';
-import { APIInterface } from './api.interface';
-import { AssetInterface } from './asset.interface';
 import { AssetService } from './asset.service';
 import { ContentInterface } from './content.interface';
 import { ContentService } from './content.service';
-import { EndpointInterface } from './endpoint.interface';
 import { EndpointService } from './endpoint.service';
+import { EventsService } from './events.service';
 import { HttpClient } from './http.service';
 import { SecretInterface } from './secret.interface';
 import { SecretService } from './secret.service';
 import { SiDriveIqService } from './sidriveiq.service';
-import { TimeseriesInterface } from './timeseries.interface';
-import { TimeSeriesService } from './timeseries.service';
-import { TaskInterface } from './task.interface';
 import { TaskService } from './task.service';
+import { TimeSeriesService } from './timeseries.service';
 import { UserService } from './user.service';
 
 // tslint:disable:no-console
-export class API implements APIInterface {
+export class API {
   public httpClient: HttpClient;
-  public assetManager: AssetInterface;
-  public contentManager: ContentInterface;
+
+  public assets: AssetService;
   public endpointManager: EndpointInterface;
-  public secretsManager: SecretInterface;
+  public contents: ContentService;
+  public endpoints: EndpointService;
+  public events: EventsService;
+  public secrets: SecretService;
+  public tasks: TaskService;
+  public timeSeries: TimeSeriesService;
+  public users: UserService;
+
+  /**
+   * @deprecated use "assets" instead
+   */
+  public assetManager: AssetService;
+
+  /**
+   * @deprecated use "contents" instead
+   */
+  public contentManager: ContentService;
+
+  /**
+   * @deprecated use "endpoints" instead
+   */
+  public endpointManager: EndpointService;
+
+  /**
+   * @deprecated use "events" instead
+   */
+  public eventsManager: EventsService;
+
+  /**
+   * @deprecated use "secrets" instead
+   */
+  public secretsManager: SecretService;
+
+  /**
+   * @deprecated use proxy service instead
+   */
   public siDrive: SiDriveIqService;
-  public timeSeriesManager: TimeseriesInterface;
-  public taskManager: TaskInterface;
-  public eventsManager: EventsInterface;
+
+  /**
+   * @deprecated use "tasks" instead
+   */
+  public taskManager: TaskService;
+
+  /**
+   * @deprecated use "timeSeries" instead
+   */
+  public timeSeriesManager: TimeSeriesService;
+
+  /**
+   * @deprecated use "users" instead
+   */
   public userManager: UserService;
 
   constructor() {
@@ -46,14 +86,25 @@ export class API implements APIInterface {
     }
 
     this.httpClient = new HttpClient(apiBaseUrl, authBaseUrl, realm, client, secret);
-    this.assetManager = new AssetService(this.httpClient);
-    this.contentManager = new ContentService(this.httpClient);
+
+    this.assets = new AssetService(this.httpClient);
     this.endpointManager = new EndpointService(this.httpClient);
-    this.secretsManager = new SecretService(this.httpClient);
+    this.contents = new ContentService(this.httpClient);
+    this.endpoints = new EndpointService(this.httpClient);
+    this.events = new EventsService(this.httpClient);
+    this.secrets = new SecretService(this.httpClient);
+    this.tasks = new TaskService(this.httpClient);
+    this.timeSeries = new TimeSeriesService(this.httpClient);
+    this.users = new UserService(this.httpClient);
+
+    this.assetManager = this.assets;
+    this.contentManager = this.contents;
+    this.endpointManager = this.endpoints;
+    this.eventsManager = this.events;
+    this.secretsManager = this.secrets;
     this.siDrive = new SiDriveIqService(this.httpClient);
-    this.timeSeriesManager = new TimeSeriesService(this.httpClient);
-    this.taskManager = new TaskService(this.httpClient);
-    this.eventsManager = new EventsService(this.httpClient);
-    this.userManager = new UserService(this.httpClient);
+    this.taskManager = this.tasks;
+    this.timeSeriesManager = this.timeSeries;
+    this.userManager = this.users;
   }
 }

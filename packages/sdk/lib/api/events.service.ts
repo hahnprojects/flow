@@ -1,8 +1,8 @@
 import { DataService } from './data.service';
-import { Event, EventsInterface } from './events.interface';
+import { Event } from './events.interface';
 import { HttpClient } from './http.service';
 
-export class EventsService extends DataService<Event> implements EventsInterface {
+export class EventsService extends DataService<Event> {
   constructor(httpClient: HttpClient) {
     super(httpClient, process.env.DEBUG_EVENTS_URL || 'api/events');
   }

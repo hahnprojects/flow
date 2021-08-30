@@ -1,7 +1,3 @@
-import FormData from 'form-data';
-import { DataInterface } from './data.interface';
-import { Readable } from 'stream';
-
 type FileType = 'original' | 'preview-sm' | 'preview-md' | 'preview-lg';
 
 type StorageProvider = 's3' | 'mongo';
@@ -30,17 +26,6 @@ export interface Content {
   files?: Storage[];
   createdAt?: string;
   updatedAt?: string;
-}
-
-export interface ContentInterface extends DataInterface<Content> {
-  upload(form: FormData): Promise<Content>;
-  download(id: string, raw?: boolean): Promise<Blob | ArrayBuffer>;
-  download(id: string, returnType: ReturnType.TEXT): Promise<string>;
-  download(id: string, returnType: ReturnType.JSON): Promise<Record<string, unknown>>;
-  download(id: string, returnType: ReturnType.NODEBUFFER): Promise<Buffer>;
-  download(id: string, returnType: ReturnType.BLOB): Promise<Blob>;
-  download(id: string, returnType: ReturnType.ARRAYBUFFER): Promise<ArrayBuffer>;
-  download(id: string, returnType: ReturnType.NODESTREAM): Promise<Readable>;
 }
 
 export enum ReturnType {

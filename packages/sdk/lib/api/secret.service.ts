@@ -1,8 +1,8 @@
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
-import { Secret, SecretInterface } from './secret.interface';
+import { Secret } from './secret.interface';
 
-export class SecretService extends DataService<Secret> implements SecretInterface {
+export class SecretService extends DataService<Secret> {
   constructor(httpClient: HttpClient) {
     super(httpClient, process.env.DEBUG_SECRET_URL || '/api/secrets');
   }

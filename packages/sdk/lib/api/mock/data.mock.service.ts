@@ -1,7 +1,12 @@
-import { DataInterface, Filter, Paginated, RequestParameter } from '../data.interface';
+import { Filter, Paginated, RequestParameter } from '../data.interface';
+import { DataService } from '../data.service';
 
-export class DataMockService<T> implements DataInterface<T> {
+export class DataMockService<T> extends DataService<T> {
   protected data: T[] = [];
+
+  constructor() {
+    super(null, null);
+  }
 
   async addMany(dto: any[]): Promise<T[]> {
     const map = dto.map((v) => this.addOne(v));
