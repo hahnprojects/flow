@@ -1,10 +1,10 @@
 import { AssetService } from './asset.service';
-import { ContentInterface } from './content.interface';
+import { AssetTypesService } from './assettypes.service';
 import { ContentService } from './content.service';
 import { EndpointService } from './endpoint.service';
 import { EventsService } from './events.service';
 import { HttpClient } from './http.service';
-import { SecretInterface } from './secret.interface';
+import { ProxyService } from './proxy.service';
 import { SecretService } from './secret.service';
 import { SiDriveIqService } from './sidriveiq.service';
 import { TaskService } from './task.service';
@@ -16,10 +16,11 @@ export class API {
   public httpClient: HttpClient;
 
   public assets: AssetService;
-  public endpointManager: EndpointInterface;
+  public assetTypes: AssetTypesService;
   public contents: ContentService;
   public endpoints: EndpointService;
   public events: EventsService;
+  public proxy: ProxyService;
   public secrets: SecretService;
   public tasks: TaskService;
   public timeSeries: TimeSeriesService;
@@ -88,10 +89,11 @@ export class API {
     this.httpClient = new HttpClient(apiBaseUrl, authBaseUrl, realm, client, secret);
 
     this.assets = new AssetService(this.httpClient);
-    this.endpointManager = new EndpointService(this.httpClient);
+    this.assetTypes = new AssetTypesService(this.httpClient);
     this.contents = new ContentService(this.httpClient);
     this.endpoints = new EndpointService(this.httpClient);
     this.events = new EventsService(this.httpClient);
+    this.proxy = new ProxyService(this.httpClient);
     this.secrets = new SecretService(this.httpClient);
     this.tasks = new TaskService(this.httpClient);
     this.timeSeries = new TimeSeriesService(this.httpClient);

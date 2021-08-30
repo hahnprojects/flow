@@ -1,5 +1,6 @@
 export * from './api.mock';
 export * from './asset.mock.service';
+export * from './assetTypes.mock.service';
 export * from './content.mock.service';
 export * from './data.mock.service';
 export * from './secret.mock.service';
