@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.14.3
+
+### Patch Changes
+
+- 11bbe26: fix post and put methods for api proxy service
+
 ## 4.14.2
 
 ### Minor Changes
