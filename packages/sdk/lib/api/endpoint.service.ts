@@ -7,8 +7,8 @@ export class EndpointService extends DataService<Endpoint> implements EndpointIn
     super(httpClient, process.env.DEBUG_ENDPOINT_URL || 'api/notification/endpoints');
   }
 
-  sendNotification(endpointId: string, subject: string, message: string, group: string): Promise<void> {
-    const body = { subject, message, group };
+  sendNotification(endpointId: string, subject: string, message: string, group: string, eventLink?: string): Promise<void> {
+    const body = { subject, message, group, ...(eventLink && { eventLink }) };
     return this.httpClient.post<void>(`${this.basePath}/${endpointId}`, body);
   }
 

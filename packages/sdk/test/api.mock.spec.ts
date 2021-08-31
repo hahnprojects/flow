@@ -96,6 +96,13 @@ describe('Mock-API test', () => {
     expect(test.message).toBe('Test');
     expect(test.group).toBe('test');
 
+    const test2 = await api.endpointManager.sendNotification('endpoint1', 'test', 'Test', 'test', 'readme').catch((err) => logError(err));
+    expect(test2).toBeDefined();
+    expect(test2.subject).toBe('test');
+    expect(test2.message).toBe('Test');
+    expect(test2.group).toBe('test');
+    expect(test2.eventLink).toBe('readme');
+
     const log = await api.endpointManager.readLastLogByGroup('endpoint1', 'test');
     expect(log).toBeDefined();
   }, 60000);
