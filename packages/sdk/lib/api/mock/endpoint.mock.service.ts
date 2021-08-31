@@ -1,7 +1,8 @@
-import { Endpoint, EndpointInterface } from '../endpoint.interface';
+import { Endpoint } from '../endpoint.interface';
+import { EndpointService } from '../endpoint.service';
 import { DataMockService } from './data.mock.service';
 
-export class EndpointMockService extends DataMockService<Endpoint> implements EndpointInterface {
+export class EndpointMockService extends DataMockService<Endpoint> implements EndpointService {
   constructor(endpoints: Endpoint[]) {
     super();
     this.data = endpoints;
@@ -12,6 +13,13 @@ export class EndpointMockService extends DataMockService<Endpoint> implements En
   }
 
   readLastLogByGroup(endpointId: string, group: string) {
-    return Promise.resolve({ id: 'endpointlog1', group: 'test', data: 'OK', createdAt: new Date(), updatedAt: new Date() });
+    return Promise.resolve({
+      id: 'endpointlog1',
+      endpoint: '',
+      group: 'test',
+      data: 'OK',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
   }
 }

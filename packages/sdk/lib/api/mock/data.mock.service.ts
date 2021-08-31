@@ -1,7 +1,12 @@
-import { DataInterface, Filter, Paginated, RequestParameter } from '../data.interface';
+import { Filter, Paginated, RequestParameter } from '../data.interface';
+import { DataService } from '../data.service';
 
-export class DataMockService<T> implements DataInterface<T> {
+export class DataMockService<T> extends DataService<T> {
   protected data: T[] = [];
+
+  constructor() {
+    super(null, null);
+  }
 
   async addMany(dto: any[]): Promise<T[]> {
     const map = dto.map((v) => this.addOne(v));
@@ -19,11 +24,8 @@ export class DataMockService<T> implements DataInterface<T> {
     return Promise.resolve(undefined);
   }
 
-  getMany(params?: RequestParameter, parentId?: string): Promise<Paginated<T[]>> {
+  getMany(params?: RequestParameter): Promise<Paginated<T[]>> {
     let data = this.data;
-    if (parentId) {
-      data = this.data.filter((v: any) => v.parent.id === v.id);
-    }
     const page: Paginated<T[]> = {
       docs: data,
       limit: params && params.limit ? params.limit : Number.MAX_SAFE_INTEGER,
@@ -32,10 +34,10 @@ export class DataMockService<T> implements DataInterface<T> {
     return Promise.resolve(page);
   }
 
-  async getManyFiltered(filter: Filter, params: RequestParameter = {}, parentId?: string): Promise<Paginated<T[]>> {
-    const paginated = await this.getMany(params, parentId);
+  async getManyFiltered(filter: Filter, params: RequestParameter = {}): Promise<Paginated<T[]>> {
+    const paginated = await this.getMany(params);
     const newData = paginated.docs.filter(
-      (v: any) => filter.parent === v.parent || filter.tags.some((tag) => v.tags.contains(tag)) || filter.type === v.tag,
+      (v: any) => filter.parent === v.parent || filter.tags?.some((tag) => v.tags?.contains(tag)) || filter.type === v.tag,
     );
     const page: Paginated<T[]> = {
       docs: newData,
@@ -45,7 +47,7 @@ export class DataMockService<T> implements DataInterface<T> {
     return Promise.resolve(page);
   }
 
-  getOne(id: string, options: any): Promise<T> {
+  getOne(id: string, options?: any): Promise<T> {
     const t = this.data.find((v: any) => v.id === id);
     return Promise.resolve(t);
   }

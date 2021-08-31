@@ -1,11 +1,11 @@
 import FormData from 'form-data';
 
-import { Content, ContentInterface, ReturnType } from './content.interface';
+import { Content, ReturnType } from './content.interface';
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
 import { Readable } from 'stream';
 
-export class ContentService extends DataService<Content> implements ContentInterface {
+export class ContentService extends DataService<Content> {
   constructor(httpClient: HttpClient) {
     super(httpClient, process.env.DEBUG_CONTENT_URL || 'api/contents');
   }

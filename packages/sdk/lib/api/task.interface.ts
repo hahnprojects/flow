@@ -1,5 +1,3 @@
-import { DataInterface } from './data.interface';
-
 export interface Task {
   id: string;
   name: string;
@@ -21,8 +19,4 @@ export interface Task {
   weight?: number;
   createdAt?: string;
   updatedAt?: string;
-}
-
-export interface TaskInterface extends DataInterface<Task> {
-  createTaskAttachedToAsset(dto: any);
 }

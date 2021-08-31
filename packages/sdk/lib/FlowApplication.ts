@@ -7,7 +7,7 @@ import { catchError, mergeMap } from 'rxjs/operators';
 import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
 
-import { AmqpConnection, Nack } from './amqp';
+import { Nack } from './amqp';
 import { API } from './api';
 import type { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, StreamOptions } from './flow.interface';
 import type { FlowElement } from './FlowElement';
@@ -33,7 +33,7 @@ export class FlowApplication {
 
   constructor(modules: Array<ClassType<any>>, flow: Flow, logger?: Logger, private amqpConnection?: any, skipApi = false) {
     process.on('SIGTERM', () => {
-      this.logger.log('Flow Application is terminating.');
+      this.logger.log('Flow Deployment is terminating');
       this.destroy().finally(() => process.exit(0));
     });
 
@@ -122,6 +122,8 @@ export class FlowApplication {
           this.logger.error('could not assert Exchange!\nError:\n' + error.toString());
         });
     }
+
+    this.logger.log('Flow Deployment is running');
   }
 
   public subscribe = (streamId: string, observer: PartialObserver<FlowEvent>) => this.getOutputStream(streamId).subscribe(observer);

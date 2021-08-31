@@ -1,13 +1,10 @@
-import { MockAPI } from './api.mock';
+import { Task } from '../task.interface';
+import { TaskService } from '../task.service';
 import { DataMockService } from './data.mock.service';
-import { Task, TaskInterface } from '../task.interface';
 
-export class TaskMockService extends DataMockService<Task> implements TaskInterface {
-  private api: MockAPI;
-
-  constructor(api: MockAPI, tasks: Task[]) {
+export class TaskMockService extends DataMockService<Task> implements TaskService {
+  constructor(tasks: Task[]) {
     super();
-    this.api = api;
     this.data = tasks;
   }
 
