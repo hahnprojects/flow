@@ -90,18 +90,14 @@ describe('Mock-API test', () => {
   }, 60000);
 
   test('FLOW.API.MOCK.3 endpoint', async () => {
-    const test = await api.endpointManager.sendNotification('endpoint1', 'test', 'Test', 'test').catch((err) => logError(err));
-    expect(test).toBeDefined();
-    expect(test.subject).toBe('test');
-    expect(test.message).toBe('Test');
-    expect(test.group).toBe('test');
+    const sendNotifMock = jest.spyOn(api.endpointManager, 'sendNotification');
+    await api.endpointManager.sendNotification('endpoint1', 'test', 'Test', 'test').catch((err) => logError(err));
+    expect(sendNotifMock).toBeCalledTimes(1);
+    expect(sendNotifMock).toBeCalledWith('endpoint1', 'test', 'Test', 'test');
 
-    const test2 = await api.endpointManager.sendNotification('endpoint1', 'test', 'Test', 'test', 'readme').catch((err) => logError(err));
-    expect(test2).toBeDefined();
-    expect(test2.subject).toBe('test');
-    expect(test2.message).toBe('Test');
-    expect(test2.group).toBe('test');
-    expect(test2.eventLink).toBe('readme');
+    await api.endpointManager.sendNotification('endpoint1', 'test', 'Test', 'test', 'readme').catch((err) => logError(err));
+    expect(sendNotifMock).toBeCalledTimes(2);
+    expect(sendNotifMock).toBeCalledWith('endpoint1', 'test', 'Test', 'test', 'readme');
 
     const log = await api.endpointManager.readLastLogByGroup('endpoint1', 'test');
     expect(log).toBeDefined();
