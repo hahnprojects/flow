@@ -11,10 +11,10 @@ export class ProxyService {
   public get = <T>(proxyId: string, path: string, config?: AxiosRequestConfig) => this.httpClient.get<T>(this.url(proxyId, path), config);
 
   public post = <T>(proxyId: string, path: string, data: any, config?: AxiosRequestConfig) =>
-    this.httpClient.post<T>(this.url(proxyId, path), config, data);
+    this.httpClient.post<T>(this.url(proxyId, path), data, config);
 
   public put = <T>(proxyId: string, path: string, data: any, config?: AxiosRequestConfig) =>
-    this.httpClient.put<T>(this.url(proxyId, path), config, data);
+    this.httpClient.put<T>(this.url(proxyId, path), data, config);
 
   private url(proxyId: string, path: string = '/'): string {
     path = path.startsWith('/') ? path : `/${path}`;
