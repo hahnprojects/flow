@@ -25,6 +25,6 @@ export interface EndpointLog {
 }
 
 export interface EndpointInterface extends DataInterface<Endpoint> {
-  sendNotification(endpointId: string, subject: string, message: string, group: string);
+  sendNotification(endpointId: string, subject: string, message: string, group: string, eventLink?: string);
   readLastLogByGroup(endpointId: string, group: string);
 }
