@@ -65,7 +65,9 @@ async def on_message(exchange: Exchange, message: IncomingMessage):
         asyncio.ensure_future(sendReply(exchange, reply1, message), loop=loop)
 
     with message.process():
-        request = json.loads(message.body.decode())
+        body = json.loads(message.body.decode("utf-8"))
+
+        request = json.loads(''.join(chr(i) for i in body["data"]))
 
         # call function
         if remoteProcedures.keys().__contains__(request["functionName"]):

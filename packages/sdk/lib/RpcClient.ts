@@ -1,29 +1,25 @@
-import { AmqpConnectionManager, ChannelWrapper } from 'amqp-connection-manager';
-import { Channel, ConsumeMessage } from 'amqplib';
+import { ConsumeMessage } from 'amqplib';
 import { v4 as uuid } from 'uuid';
+import { AsyncConnection } from './AsyncConnection';
 
 export class RpcClient {
-  private channel: ChannelWrapper;
   private openRequests: Map<string, { resolve; reject; trace: string }> = new Map<string, { resolve; reject; trace: string }>();
+  private channelId = uuid();
 
-  constructor(connection: AmqpConnectionManager) {
+  constructor(private connection: AsyncConnection) {
     if (!connection) {
       throw new Error('currently no amqp connection available');
     }
-    this.channel = connection.createChannel({
-      json: true,
-      setup: (channel: Channel) =>
-        Promise.all([
-          channel.assertExchange('rpc_direct_exchange', 'direct', { durable: false }),
-          channel.consume('amq.rabbitmq.reply-to', this.onMessage, { noAck: true }),
-        ]),
-    });
+  }
+
+  public async init() {
+    await this.connection.startRpcChannel('rpc_direct_exchange', this.onMessage, this.channelId);
   }
 
   private onMessage = (msg: ConsumeMessage) => {
     if (this.openRequests.has(msg.properties.correlationId)) {
       const { resolve, reject, trace } = this.openRequests.get(msg.properties.correlationId);
-      const response = JSON.parse(msg.content.toString());
+      const response = JSON.parse(new TextDecoder().decode(msg.content));
       switch (response.type) {
         case 'reply':
           resolve(response.value);
@@ -59,8 +55,8 @@ export class RpcClient {
       const call = { functionName, arguments: args };
       const correlationId = uuid();
       this.openRequests.set(correlationId, { resolve, reject, trace: RpcClient.formatTrace(stack) });
-      this.channel
-        .publish('rpc_direct_exchange', routingKey, call, { correlationId, replyTo: 'amq.rabbitmq.reply-to' })
+      this.connection
+        .publish('rpc_direct_exchange', routingKey, call, { correlationId, replyTo: 'amq.rabbitmq.reply-to', channelId: this.channelId })
         .catch((err) => reject(err));
     });
   };
@@ -68,10 +64,6 @@ export class RpcClient {
   public declareFunction = (routingKey: string, name: string) => {
     return (...args) => this.callFunction(routingKey, name, ...args);
   };
-
-  public close() {
-    return this.channel.close();
-  }
 
   public static formatTrace(stack = '') {
     return stack.split('\n').splice(1).join('\n');

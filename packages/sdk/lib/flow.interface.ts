@@ -45,3 +45,17 @@ export interface StreamOptions {
 }
 
 export type ClassType<T> = new (...args: any[]) => T;
+
+export interface AMQPConnectionOptions {
+  hostname: string;
+  port: number | string;
+  username: string;
+  password: string;
+}
+
+export const defaultAMQPConnectionOptions: AMQPConnectionOptions = {
+  hostname: 'localhost',
+  port: '5672',
+  username: 'guest',
+  password: 'guest',
+};
