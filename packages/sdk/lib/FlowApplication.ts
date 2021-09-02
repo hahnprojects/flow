@@ -9,11 +9,20 @@ import { v4 as uuid } from 'uuid';
 
 import { Nack } from './amqp';
 import { API } from './api';
-import type { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, StreamOptions } from './flow.interface';
+import type {
+  AMQPConnectionOptions,
+  ClassType,
+  DeploymentMessage,
+  Flow,
+  FlowContext,
+  FlowElementContext,
+  StreamOptions,
+} from './flow.interface';
 import type { FlowElement } from './FlowElement';
 import type { FlowEvent } from './FlowEvent';
 import { defaultLogger, Logger } from './FlowLogger';
 import { RpcClient } from './RpcClient';
+import { AsyncConnection } from './AsyncConnection';
 
 const MAX_EVENT_SIZE_BYTES = 512 * 1024; // 512kb
 
@@ -24,6 +33,8 @@ export class FlowApplication {
   private declarations: { [id: string]: ClassType<FlowElement> } = {};
   private elements: { [id: string]: FlowElement } = {};
   private logger: Logger;
+  public readonly asyncConnection: AsyncConnection;
+  private initializing = false;
   private properties: Record<string, any>;
   private _rpcClient: RpcClient;
 
@@ -31,7 +42,7 @@ export class FlowApplication {
     [streamId: string]: Subject<FlowEvent>;
   } = {};
 
-  constructor(modules: Array<ClassType<any>>, flow: Flow, logger?: Logger, private amqpConnection?: any, skipApi = false) {
+  constructor(modules: Array<ClassType<any>>, flow: Flow, logger?: Logger, amqpConnectionOptions?: AMQPConnectionOptions, skipApi = false) {
     process.on('SIGTERM', () => {
       this.logger.log('Flow Deployment is terminating');
       this.destroy().finally(() => process.exit(0));
@@ -107,20 +118,29 @@ export class FlowApplication {
         .subscribe();
     }
 
-    if (this.amqpConnection) {
-      this.amqpConnection.channel
-        .assertExchange('deployment', 'direct', { durable: true })
-        ?.then((r) => this.amqpConnection.channel.assertExchange('flowlogs', 'fanout', { durable: true }))
-        ?.then((r) =>
-          this.amqpConnection.createSubscriber((msg: any) => this.onMessage(msg), {
-            exchange: 'deployment',
-            routingKey: this.context.deploymentId,
-            queueOptions: { durable: false, exclusive: true },
-          }),
-        )
-        .catch((error) => {
-          this.logger.error('could not assert Exchange!\nError:\n' + error.toString());
-        });
+    if (amqpConnectionOptions) {
+      this.initializing = true;
+      this.asyncConnection = new AsyncConnection();
+      this.asyncConnection.init(amqpConnectionOptions).then(() => {
+        this.asyncConnection
+          .assertExchange('deployment', 'direct', { durable: true })
+          ?.then((r) => this.asyncConnection.assertExchange('flowlogs', 'fanout', { durable: true }))
+          ?.then((r) =>
+            this.asyncConnection.subscribe((msg: any) => this.onMessage(msg), {
+              exchange: 'deployment',
+              routingKey: this.context.deploymentId,
+              queueOptions: { durable: false, exclusive: true },
+            }),
+          )
+          .then(() => {
+            this._rpcClient = new RpcClient(this.asyncConnection);
+            return this._rpcClient.init();
+          })
+          .then(() => (this.initializing = false))
+          .catch((error) => {
+            this.logger.error('could not assert Exchange!\nError:\n' + error.toString());
+          });
+      });
     }
 
     this.logger.log('Flow Deployment is running');
@@ -193,7 +213,7 @@ export class FlowApplication {
           contentType: 'application/json',
           data: { deploymentId: this.context.deploymentId, status: 'updated' },
         };
-        this.amqpConnection?.publish('deployment', 'health', statusEvent).catch((err) => this.logger.error(err));
+        this.asyncConnection?.publish('deployment', 'health', statusEvent).catch((err) => this.logger.error(err));
       } catch (err) {
         this.logger.error(err);
 
@@ -204,7 +224,7 @@ export class FlowApplication {
           contentType: 'application/json',
           data: { deploymentId: this.context.deploymentId, status: 'updating failed' },
         };
-        this.amqpConnection?.publish('deployment', 'health', statusEvent).catch((err) => this.logger.error(err));
+        this.asyncConnection?.publish('deployment', 'health', statusEvent).catch((err) => this.logger.error(err));
       }
     } else if (event.type === 'com.flowstudio.deployment.message') {
       const data = event.data as DeploymentMessage;
@@ -224,27 +244,28 @@ export class FlowApplication {
     return undefined;
   };
 
-  public publishEvent = (event: FlowEvent): Promise<void> => {
-    if (!this.amqpConnection) {
+  public publishEvent = async (event: FlowEvent): Promise<void> => {
+    if (!this.asyncConnection) {
       return;
+    }
+    while (this.initializing) {
+      // connection is still initialising
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
     try {
       const message = event.format();
       if (sizeof(message) > MAX_EVENT_SIZE_BYTES) {
         message.data = this.truncate(message.data);
       }
-      return this.amqpConnection.publish('flowlogs', '', message);
+      return this.asyncConnection.publish('flowlogs', '', message);
     } catch (err) {
       this.logger.error(err);
     }
   };
 
   get rpcClient() {
-    if (!this.amqpConnection?.managedConnection) {
+    if (!this.asyncConnection) {
       throw new Error('No AMQP connection available');
-    }
-    if (!this._rpcClient) {
-      this._rpcClient = new RpcClient(this.amqpConnection.managedConnection);
     }
     return this._rpcClient;
   }
@@ -253,7 +274,7 @@ export class FlowApplication {
     for (const element of Object.values(this.elements)) {
       element?.onDestroy?.();
     }
-    await this._rpcClient?.close();
+    await this.asyncConnection?.destroy();
   }
 
   private getOutputStream(id: string) {
