@@ -48,7 +48,7 @@ describe('InputStreamDecorator', () => {
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
+    const flowApp = new FlowApplication([TestModule], flow);
     flowApp.subscribe('testResource.default', {
       next: (event: FlowEvent) => {
         const data = event.getData();
@@ -70,7 +70,7 @@ describe('InputStreamDecorator', () => {
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, defaultAMQPConnectionOptions, true);
+    const flowApp = new FlowApplication([TestModule], flow, { amqpConnectionOptions: defaultAMQPConnectionOptions });
     const spyInstance = jest
       .spyOn(flowApp.asyncConnection, 'publish')
       .mockImplementation((exchange: string, routingKey: string, message: any) => {
@@ -109,7 +109,7 @@ describe('InputStreamDecorator', () => {
         { id: 'c3', source: 'testTask2', target: 'testRessource' },
       ],
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
+    const flowApp = new FlowApplication([TestModule], flow);
     flowApp.subscribe('testTask1.default', {
       next: (event: FlowEvent) => {
         expect(event.getData()).toEqual({ input: 'data', task1: 'test' });
@@ -169,7 +169,7 @@ describe('InputStreamDecorator', () => {
         { id: 'c2', source: 'testTrigger', target: 'testTask1', targetStream: 'other' },
       ],
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
+    const flowApp = new FlowApplication([TestModule], flow);
 
     let bothDone = false;
     flowApp.subscribe('testTask1.default', {
@@ -218,7 +218,7 @@ describe('InputStreamDecorator', () => {
       ],
       connections: [{ id: 'c1', source: 'testTrigger', target: 'stateful' }],
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
+    const flowApp = new FlowApplication([TestModule], flow);
 
     let count = 0;
     flowApp.subscribe('stateful.default', {

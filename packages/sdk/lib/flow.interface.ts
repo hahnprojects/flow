@@ -1,3 +1,11 @@
+import { Logger } from './FlowLogger';
+
+export interface FlowOptions {
+  logger?: Logger;
+  amqpConnectionOptions?: AMQPConnectionOptions;
+  skipApi?: boolean;
+}
+
 export interface FlowContext {
   deploymentId?: string;
   diagramId?: string;

@@ -18,7 +18,7 @@ describe('Flow Application', () => {
       },
       properties: { test: '123abcd' },
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
+    const flowApp = new FlowApplication([TestModule], flow);
 
     let iteration = 0;
     flowApp.subscribe('testResource.default', {
@@ -99,7 +99,7 @@ describe('Flow Application', () => {
       context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
       properties: { test: '123abcd' },
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
+    const flowApp = new FlowApplication([TestModule], flow);
 
     let count = 0;
     flowApp.subscribe('testResource.default', {

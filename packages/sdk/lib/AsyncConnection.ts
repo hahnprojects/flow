@@ -174,17 +174,6 @@ export class AsyncConnection {
   }
 }
 
-export interface WorkerAssertExchangeMessage {
-  exchange: string;
-  type: 'direct' | 'topic' | 'headers' | 'fanout' | 'match' | string;
-  options?: Options.AssertExchange;
-}
-
-export interface WorkerRpcMessage {
-  exchange: string;
-  channelId?: string;
-}
-
 export interface WorkerMessage {
   type: 'publish' | 'subscribe' | 'assertExchange' | 'subscribeResponse' | 'startRpc';
   id: string;
@@ -198,9 +187,20 @@ export interface WorkerPublishMessage {
   options: amqplib.Options.Publish & { channelId?: string };
 }
 
+export interface WorkerAssertExchangeMessage {
+  exchange: string;
+  type: 'direct' | 'topic' | 'headers' | 'fanout' | 'match' | string;
+  options?: Options.AssertExchange;
+}
+
 export interface WorkerSubscribeResponse {
   nack: boolean;
   requeue: boolean;
+}
+
+export interface WorkerRpcMessage {
+  exchange: string;
+  channelId?: string;
 }
 
 export interface WorkerReturnMessage {
