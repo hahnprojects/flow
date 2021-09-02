@@ -1,7 +1,15 @@
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { join } from 'path';
 
-import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
+import {
+  defaultAMQPConnectionOptions,
+  FlowApplication,
+  FlowEvent,
+  FlowFunction,
+  FlowModule,
+  FlowResource,
+  InputStream,
+} from '../lib';
+import { PythonShell } from 'python-shell';
 
 // tslint:disable:no-console
 describe('Flow RPC', () => {
@@ -22,11 +30,9 @@ describe('Flow RPC', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const amqpConnection = new AmqpConnection({ uri: 'amqp://localhost' });
-    await amqpConnection.init();
-    flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-  });
+    flowApp = new FlowApplication([TestModule], flow, null, defaultAMQPConnectionOptions, true);
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+  }, 15000);
 
   test('FLOW.RPC.1 publish message', (done) => {
     flowApp.subscribe('testResource.a', {
@@ -37,7 +43,7 @@ describe('Flow RPC', () => {
     });
 
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}, 'a'));
-  }, 60000);
+  }, 600000);
 
   test('FLOW.RPC.2 return sent value', (done) => {
     flowApp.subscribe('testResource.b', {
@@ -90,9 +96,10 @@ describe('Flow RPC', () => {
 
 @FlowFunction('test.resource.TestResource')
 class TestResource extends FlowResource {
+  private shell: PythonShell;
   constructor(context) {
     super(context);
-    this.runPyRpcScript(join(__dirname, 'rpc.test.py'), 10);
+    this.shell = this.runPyRpcScript(join(__dirname, 'rpc.test.py'), 10);
   }
 
   @InputStream('a')
@@ -132,6 +139,10 @@ class TestResource extends FlowResource {
         this.emitOutput({ err }, 'e');
       });
   }
+
+  public onDestroy = () => {
+    this.shell.kill();
+  };
 }
 
 @FlowModule({
