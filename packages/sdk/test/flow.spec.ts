@@ -21,7 +21,7 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
+    const flowApp = new FlowApplication([TestModule], flow);
 
     flowApp.subscribe('testResource.default', {
       next: (event: FlowEvent) => {

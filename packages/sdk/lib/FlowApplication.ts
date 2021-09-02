@@ -10,12 +10,12 @@ import { v4 as uuid } from 'uuid';
 import { Nack } from './amqp';
 import { API } from './api';
 import type {
-  AMQPConnectionOptions,
   ClassType,
   DeploymentMessage,
   Flow,
   FlowContext,
   FlowElementContext,
+  FlowOptions,
   StreamOptions,
 } from './flow.interface';
 import type { FlowElement } from './FlowElement';
@@ -42,7 +42,9 @@ export class FlowApplication {
     [streamId: string]: Subject<FlowEvent>;
   } = {};
 
-  constructor(modules: Array<ClassType<any>>, flow: Flow, logger?: Logger, amqpConnectionOptions?: AMQPConnectionOptions, skipApi = false) {
+  constructor(modules: Array<ClassType<any>>, flow: Flow, options?: FlowOptions) {
+    const { logger = defaultLogger, amqpConnectionOptions, skipApi = true } = options ?? {};
+
     process.on('SIGTERM', () => {
       this.logger.log('Flow Deployment is terminating');
       this.destroy().finally(() => process.exit(0));
@@ -50,7 +52,7 @@ export class FlowApplication {
 
     this.context = { ...flow.context };
     this.properties = flow.properties || {};
-    this.logger = logger || defaultLogger;
+    this.logger = logger;
 
     try {
       if (!skipApi) {

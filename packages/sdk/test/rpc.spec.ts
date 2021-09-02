@@ -30,7 +30,7 @@ describe('Flow RPC', () => {
         deploymentId: 'testDeployment',
       },
     };
-    flowApp = new FlowApplication([TestModule], flow, null, defaultAMQPConnectionOptions, true);
+    flowApp = new FlowApplication([TestModule], flow, { amqpConnectionOptions: defaultAMQPConnectionOptions });
     await new Promise((resolve) => setTimeout(resolve, 5000));
   }, 15000);
 
