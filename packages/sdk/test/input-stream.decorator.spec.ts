@@ -1,4 +1,13 @@
-import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
+import {
+  defaultAMQPConnectionOptions,
+  FlowApplication,
+  FlowEvent,
+  FlowFunction,
+  FlowModule,
+  FlowResource,
+  FlowTask,
+  InputStream,
+} from '../lib';
 
 describe('InputStreamDecorator', () => {
   test('FLOW.ISD.1 should return input event data', async () => {
@@ -61,15 +70,16 @@ describe('InputStreamDecorator', () => {
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
     };
-    const amqpConnection: any = { createSubscriber: jest.fn(), publish: jest.fn(), channel: { assertExchange: jest.fn() } };
-    const flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, true);
-    const spyInstance = jest.spyOn(amqpConnection, 'publish').mockImplementation((exchange: string, routingKey: string, message: any) => {
-      return Promise.resolve();
-    });
+    const flowApp = new FlowApplication([TestModule], flow, null, defaultAMQPConnectionOptions, true);
+    const spyInstance = jest
+      .spyOn(flowApp.asyncConnection, 'publish')
+      .mockImplementation((exchange: string, routingKey: string, message: any) => {
+        return Promise.resolve();
+      });
 
     flowApp.subscribe('testResource.default', {
       next: async (event: FlowEvent) => {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 5000));
         expect(spyInstance).toHaveBeenLastCalledWith(
           'flowlogs',
           '',
@@ -79,10 +89,11 @@ describe('InputStreamDecorator', () => {
         );
         expect(spyInstance).toHaveBeenCalledTimes(2);
         done();
+        flowApp.destroy();
       },
     });
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { test1: 'data' }));
-  });
+  }, 15000);
 
   test('FLOW.ISD.6 stopPropagation should work in a mixed flow', (done) => {
     const flow = {
