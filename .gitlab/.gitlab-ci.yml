@@ -28,8 +28,11 @@ test-cli:
         - package.json
 
 test-sdk:
-  extends: .pnpm
+  image: registry.gitlab.com/hahnpro/hpc/flow-executor-base:14
   stage: test
+  before_script:
+    - npm install -g pnpm
+    - pnpm install
   services:
     - rabbitmq:3
   script:
