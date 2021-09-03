@@ -36,7 +36,7 @@ test-sdk:
   services:
     - rabbitmq:3
   script:
-    - pnpm test packages/sdk -- --testPathIgnorePatterns api.spec.ts http.service.spec.ts sidrive.spec.ts
+    - pnpm test packages/sdk -- --testPathIgnorePatterns api.spec.ts http.service.spec.ts sidrive.spec.ts -- --runInBand
   rules:
     - if: $CI_MERGE_REQUEST_ID
       changes:
