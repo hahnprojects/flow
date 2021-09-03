@@ -39,3 +39,5 @@ test-sdk:
       changes:
         - packages/sdk/**/*
         - package.json
+  tags:
+    - multi-core
