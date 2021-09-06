@@ -27,7 +27,7 @@
   "scripts": {},
   "dependencies": {
     "archiver": "^5.3.0",
-    "axios": "^0.21.1",
+    "axios": "^0.21.3",
     "chalk": "^4.1.2",
     "class-transformer": "0.3.1",
     "class-validator": "~0.12.2",
@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@types/jest": "^27.0.1",
-    "@types/node": "^14.17.12",
+    "@types/node": "^14.17.14",
     "jest": "^27.1.0",
     "prettier": "^2.3.2",
     "ts-jest": "^27.0.5",
