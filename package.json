@@ -6,7 +6,9 @@
     "changeset": "changeset",
     "format": "prettier --write . '!**/dist'",
     "lint": "eslint '*/**/*.{js,ts}' --fix",
-    "test": "jest"
+    "test": "jest",
+    "test-sdk": "jest ./packages/sdk --runInBand --testPathIgnorePatterns api.spec.ts http.service.spec.ts sidrive.spec.ts",
+    "test-cli": "jest ./packages/cli"
   },
   "devDependencies": {
     "@changesets/cli": "^2.16.0",
