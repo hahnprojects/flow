@@ -7,7 +7,7 @@
     "format": "prettier --write . '!**/dist'",
     "lint": "eslint '*/**/*.{js,ts}' --fix",
     "test": "jest",
-    "test-sdk": "jest ./packages/sdk --runInBand --testPathIgnorePatterns api.spec.ts http.service.spec.ts sidrive.spec.ts",
+    "test-sdk": "jest ./packages/sdk --runInBand --forceExit --testPathIgnorePatterns api.spec.ts http.service.spec.ts sidrive.spec.ts",
     "test-cli": "jest ./packages/cli"
   },
   "devDependencies": {
