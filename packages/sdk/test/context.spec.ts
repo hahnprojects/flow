@@ -5,11 +5,21 @@ import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, Inp
 
 // tslint:disable:no-console
 describe('Flow Application', () => {
-  test('FLOW.CON.1 Simple Flow Application with Long Running Task', (done) => {
+  test('FLOW.CON.1 Simple Flow Application with Long Running Task', async () => {
     const flow = {
       elements: [
-        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource', properties: { assetId: '' } },
-        { id: 'testResource', module: 'test.module', functionFqn: 'test.resource.TestResource', properties: { assetId: 'abc' } },
+        {
+          id: 'testTrigger',
+          module: 'test.module',
+          functionFqn: 'test.resource.TestResource',
+          properties: { assetId: '' },
+        },
+        {
+          id: 'testResource',
+          module: 'test.module',
+          functionFqn: 'test.resource.TestResource',
+          properties: { assetId: 'abc' },
+        },
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
       context: {
@@ -20,30 +30,31 @@ describe('Flow Application', () => {
     };
     const flowApp = new FlowApplication([TestModule], flow);
 
-    let iteration = 0;
-    flowApp.subscribe('testResource.default', {
-      next: (event: FlowEvent) => {
-        const data = event.getData();
-
-        iteration++;
-        if (iteration === 1) {
-          expect(data.assetId).toEqual('abc');
-          expect(data.event).toEqual({});
-          expect(data.elementProps).toEqual({ assetId: 'abc' });
-          expect(data.flowProps).toEqual({ test: '123abcd' });
-        } else if (iteration === 2) {
-          expect(data.assetId).toEqual('xyz');
-          expect(data.event).toEqual({});
-          expect(data.elementProps).toEqual({ assetId: 'xyz' });
-          expect(data.flowProps).toEqual({ test: '123abcd' });
-        } else if (iteration === 3) {
-          expect(data.assetId).toEqual('123');
-          expect(data.event).toEqual({});
-          expect(data.elementProps).toEqual({ assetId: '123' });
-          expect(data.flowProps).toEqual({ test: 42 });
-          done();
-        }
-      },
+    const promise = new Promise<void>((resolve) => {
+      let iteration = 0;
+      flowApp.subscribe('testResource.default', {
+        next: (event: FlowEvent) => {
+          const data = event.getData();
+          iteration++;
+          if (iteration === 1) {
+            expect(data.assetId).toEqual('abc');
+            expect(data.event).toEqual({});
+            expect(data.elementProps).toEqual({ assetId: 'abc' });
+            expect(data.flowProps).toEqual({ test: '123abcd' });
+          } else if (iteration === 2) {
+            expect(data.assetId).toEqual('xyz');
+            expect(data.event).toEqual({});
+            expect(data.elementProps).toEqual({ assetId: 'xyz' });
+            expect(data.flowProps).toEqual({ test: '123abcd' });
+          } else if (iteration === 3) {
+            expect(data.assetId).toEqual('123');
+            expect(data.event).toEqual({});
+            expect(data.elementProps).toEqual({ assetId: '123' });
+            expect(data.flowProps).toEqual({ test: 42 });
+            resolve();
+          }
+        },
+      });
     });
 
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
@@ -54,25 +65,26 @@ describe('Flow Application', () => {
       data: { elements: [{ id: 'testResource', properties: { assetId: 'xyz' } }] },
     });
 
-    flowApp
-      .onMessage(event)
-      .then(() => {
-        return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
-      })
-      .then(() => {
-        event = new CloudEvent({
-          source: 'flowstudio/deployments',
-          type: 'com.flowstudio.deployment.update',
-          data: {
-            elements: [{ id: 'testResource', properties: { assetId: '123' } }],
-            properties: { test: 42 },
-          },
-        });
-        return flowApp.onMessage(event);
-      })
-      .then(() => {
-        return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
-      });
+    await flowApp.onMessage(event);
+
+    await new Promise((resolve) => setTimeout(resolve, 100)); // add a bit of delay to make test more consistent
+
+    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+    event = new CloudEvent({
+      source: 'flowstudio/deployments',
+      type: 'com.flowstudio.deployment.update',
+      data: {
+        elements: [{ id: 'testResource', properties: { assetId: '123' } }],
+        properties: { test: 42 },
+      },
+    });
+    await flowApp.onMessage(event);
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+
+    return promise;
   }, 60000);
 
   test('FLOW.CON.2 string interpolation with event data', async () => {
@@ -131,7 +143,7 @@ class TestResource extends FlowResource {
     const assetId = this.interpolate(this.properties.assetId, event.getData(), this.flowProperties);
     const data = { assetId, event: {}, elementProps: this.properties, flowProps: this.flowProperties };
 
-    return this.emitOutput(data);
+    return await this.emitEvent(data, event);
   }
 }
 
