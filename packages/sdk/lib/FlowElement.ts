@@ -67,11 +67,13 @@ export abstract class FlowElement<T = any> {
   /**
    * @deprecated since version 4.8.0, will be removed in 5.0.0, use emitEvent(...) instead
    */
-  protected emitOutput(data: any = {}, outputId = 'default', time = new Date()): FlowEvent {
+  protected async emitOutput(data: any = {}, outputId = 'default', time = new Date()): Promise<FlowEvent> {
     return this.emitEvent(data, null, outputId, time);
   }
 
-  protected emitEvent(data: any, inputEvent: FlowEvent, outputId = 'default', time = new Date()): FlowEvent {
+  protected async emitEvent(data: any, inputEvent: FlowEvent, outputId = 'default', time = new Date()): Promise<FlowEvent> {
+    await new Promise((res) => setImmediate(res));
+
     const partialEvent = new FlowEvent(this.metadata, data, outputId, time);
     const completeEvent = new FlowEvent(this.metadata, { ...(inputEvent?.getData() || {}), ...data }, outputId, time);
 
