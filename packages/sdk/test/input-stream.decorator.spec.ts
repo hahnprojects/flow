@@ -241,9 +241,9 @@ describe('InputStreamDecorator', () => {
     }, 100);
   });
 
-  test('FLOW.ISD.13 deprecated should still work as expected', () => {
+  test('FLOW.ISD.13 deprecated should still work as expected', async () => {
     const deprecated = new Deprecated({ id: 'dep' });
-    const event1 = deprecated.onDefault(new FlowEvent({ id: 'test' }, { test: 42 }));
+    const event1 = await deprecated.onDefault(new FlowEvent({ id: 'test' }, { test: 42 }));
 
     expect(event1.getData()).toEqual({ hello: 'world' });
   });
