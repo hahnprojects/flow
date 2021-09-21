@@ -145,7 +145,7 @@ export class FlowApplication {
       });
     }
 
-    this.logger.log('Flow Deployment is running');
+    this.logger.debug('Flow Deployment is running');
   }
 
   public subscribe = (streamId: string, observer: PartialObserver<FlowEvent>) => this.getOutputStream(streamId).subscribe(observer);
