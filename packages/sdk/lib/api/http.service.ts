@@ -1,6 +1,8 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, Method } from 'axios';
 
 import { Queue } from './Queue';
+
+const EXPIRATION_BUFFER = 30 * 1000;
 
 export class HttpClient {
   private readonly axiosInstance: AxiosInstance;
@@ -11,8 +13,8 @@ export class HttpClient {
   private accessTokenExpiration = 0;
 
   constructor(
-    private readonly apiBaseUrl: string,
-    private readonly authBaseUrl: string,
+    apiBaseUrl: string,
+    authBaseUrl: string,
     private readonly realm: string,
     private readonly client: string,
     private readonly secret: string,
@@ -21,74 +23,46 @@ export class HttpClient {
     this.axiosInstance = axios.create({ baseURL: apiBaseUrl, timeout: 60000 });
     this.authAxiosInstance = axios.create({ baseURL: authBaseUrl, timeout: 10000 });
     this.requestQueue = new Queue({ concurrent: 1 });
-
-    // wait for access token before processing requests
-    this.requestQueue.pause();
-    this.getAccessToken()
-      .then(() => this.requestQueue.start())
-      .catch((err) => console.error(err));
-
-    this.axiosInstance.interceptors.request.use(
-      async (config: AxiosRequestConfig = {}) => {
-        try {
-          config.headers = config.headers || {};
-          config.headers.Authorization = `Bearer ${await this.getAccessToken()}`;
-          return config;
-        } catch (err) {
-          Promise.reject(err);
-        }
-      },
-      (error) => Promise.reject(error),
-    );
   }
 
-  public clone = (newApiBaseUrl: string = this.apiBaseUrl) =>
-    new HttpClient(newApiBaseUrl, this.authBaseUrl, this.realm, this.client, this.secret);
-
-  public getQueueStats = () => this.requestQueue && this.requestQueue.getStats();
+  public getQueueStats = () => this.requestQueue?.getStats();
 
   public delete = <T>(url: string, config?: AxiosRequestConfig) => this.request<T>('DELETE', url, config);
   public get = <T>(url: string, config?: AxiosRequestConfig) => this.request<T>('GET', url, config);
   public post = <T>(url: string, data: any, config?: AxiosRequestConfig) => this.request<T>('POST', url, config, data);
   public put = <T>(url: string, data: any, config?: AxiosRequestConfig) => this.request<T>('PUT', url, config, data);
 
-  private request = <T>(method, url, config, data?): Promise<T> => {
+  private request = <T>(method: Method, url: string, config: AxiosRequestConfig = {}, data?): Promise<T> => {
     return this.requestQueue.add(
       () =>
         new Promise((resolve, reject) => {
-          this.axiosInstance
-            .request<T>({ ...config, method, url, data })
+          this.getAccessToken()
+            .then((token) => {
+              const headers = { Authorization: `Bearer ${token}`, ...config.headers };
+              return this.axiosInstance.request<T>({ ...config, headers, method, url, data });
+            })
             .then((response) => resolve(response.data))
-            .catch((err) => reject(err));
+            .catch(reject);
         }),
     );
   };
 
-  public getAccessToken = () => {
-    return new Promise<string>((resolve, reject) => {
-      if (this.isTokenValid()) {
-        resolve(this.accessToken);
-      } else {
-        this.requestQueue.pause();
-        this.getToken()
-          .then((t) => {
-            this.requestQueue.start();
-            resolve(t);
-          })
-          .catch((e) => reject(e));
-      }
-    });
+  public getAccessToken = (): Promise<string> => {
+    if (this.isTokenValid()) {
+      return Promise.resolve(this.accessToken);
+    } else {
+      return this.getToken();
+    }
   };
 
   private isTokenValid = (): boolean => {
     if (this.accessToken && this.accessTokenExpiration) {
-      const buffer = 5000; // 5 seconds
-      return Date.now() + buffer < this.accessTokenExpiration;
+      return Date.now() + EXPIRATION_BUFFER < this.accessTokenExpiration;
     }
     return false;
   };
 
-  private getToken = async () => {
+  private getToken = (): Promise<string> => {
     return new Promise<string>((resolve, reject) => {
       const params = new URLSearchParams([
         ['client_id', this.client],
@@ -96,18 +70,19 @@ export class HttpClient {
         ['grant_type', 'client_credentials'],
       ]);
       const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+
       this.authAxiosInstance
         .post(`/auth/realms/${this.realm}/protocol/openid-connect/token`, params.toString(), { headers })
         .then((res) => {
-          if (res && res.data && res.data.access_token && res.data.expires_in) {
+          if (res?.data?.access_token && res.data.expires_in) {
             this.accessToken = res.data.access_token;
             this.accessTokenExpiration = Date.now() + res.data.expires_in * 1000;
-            resolve(res.data.access_token);
+            return resolve(res.data.access_token);
           } else {
-            reject(new Error('Invalid format for access token received'));
+            throw new Error('Invalid access token received');
           }
         })
-        .catch((err) => reject(err));
+        .catch(reject);
     });
   };
 }

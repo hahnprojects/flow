@@ -6,9 +6,11 @@ export class Queue extends PQueue {
 
   constructor(options: QueueOptions = { concurrent: 1 }) {
     super({ concurrency: options.concurrent || 1 });
+    this.on('add', () => {
+      this.peak = Math.max(this.peak, this.size);
+    });
     this.on('active', () => {
       this.total++;
-      this.peak = Math.max(this.peak, this.size);
     });
   }
 

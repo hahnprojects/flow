@@ -31,7 +31,7 @@ test-sdk:
   extends: .pnpm
   stage: test
   script:
-    - pnpm test packages/sdk -- --testPathIgnorePatterns api.spec.ts http.service.spec.ts rpc.spec.ts sidrive.spec.ts
+    - pnpm test packages/sdk -- --testPathIgnorePatterns api.spec.ts rpc.spec.ts sidrive.spec.ts
   rules:
     - if: $CI_MERGE_REQUEST_ID
       changes:
