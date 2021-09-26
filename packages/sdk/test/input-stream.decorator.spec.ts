@@ -61,7 +61,7 @@ describe('InputStreamDecorator', () => {
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
     };
-    const amqpConnection: any = { createSubscriber: jest.fn(), publish: jest.fn(), channel: { assertExchange: jest.fn() } };
+    const amqpConnection: any = { createSubscriber: jest.fn(), publish: jest.fn(), managedChannel: { assertExchange: jest.fn() } };
     const flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, true);
     const spyInstance = jest.spyOn(amqpConnection, 'publish').mockImplementation((exchange: string, routingKey: string, message: any) => {
       return Promise.resolve();
@@ -69,16 +69,16 @@ describe('InputStreamDecorator', () => {
 
     flowApp.subscribe('testResource.default', {
       next: async (event: FlowEvent) => {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        expect(spyInstance).toHaveBeenLastCalledWith(
-          'flowlogs',
-          '',
-          expect.objectContaining({
-            data: { hello: 'world' },
-          }),
-        );
-        expect(spyInstance).toHaveBeenCalledTimes(2);
-        done();
+        try {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          expect(spyInstance).toHaveBeenLastCalledWith('flowlogs', '', expect.objectContaining({ data: { hello: 'world' } }));
+          expect(spyInstance).toHaveBeenCalledWith('flowlogs', '', expect.objectContaining({ data: { test1: 'data' } }));
+          expect(spyInstance).toHaveBeenCalledWith('flowlogs', '', expect.objectContaining({ data: 'Flow Deployment is running' }));
+          expect(spyInstance).toHaveBeenCalledTimes(3);
+          done();
+        } catch (error) {
+          done(error);
+        }
       },
     });
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { test1: 'data' }));

@@ -7,7 +7,7 @@ export interface AmqpConnection {
   managedChannel: ChannelWrapper;
   managedConnection: AmqpConnectionManager;
   createSubscriber<T>(
-    handler: (msg: T | undefined, rawMessage?: ConsumeMessage) => Promise<Nack | undefined>,
+    handler: (msg: T | undefined, rawMessage?: ConsumeMessage) => Promise<any | undefined>,
     msgOptions: MessageHandlerOptions,
   ): Promise<void>;
   publish(exchange: string, routingKey: string, message: any, options?: Options.Publish): Promise<void>;
