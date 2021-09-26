@@ -1,6 +1,7 @@
 # @hahnpro/flow-cli
 
 ## 2.10.0
+
 ### Minor Changes
 
 - 3e53fdb: Migrate from tslint to eslint

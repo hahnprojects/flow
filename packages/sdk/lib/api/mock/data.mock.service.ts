@@ -25,7 +25,7 @@ export class DataMockService<T> extends DataService<T> {
   }
 
   getMany(params?: RequestParameter): Promise<Paginated<T[]>> {
-    let data = this.data;
+    const data = this.data;
     const page: Paginated<T[]> = {
       docs: data,
       limit: params && params.limit ? params.limit : Number.MAX_SAFE_INTEGER,

@@ -16,7 +16,7 @@ export class ProxyService {
   public put = <T>(proxyId: string, path: string, data: any, config?: AxiosRequestConfig) =>
     this.httpClient.put<T>(this.url(proxyId, path), data, config);
 
-  private url(proxyId: string, path: string = '/'): string {
+  private url(proxyId: string, path = '/'): string {
     path = path.startsWith('/') ? path : `/${path}`;
     return `api/${proxyId}${path}`;
   }
