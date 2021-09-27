@@ -1,5 +1,16 @@
 # @hahnpro/flow-sdk
 
+## 4.15.0
+
+### Minor Changes
+
+- 0c96066: Measure event loop utilization and active runtime of flow element input stream handlers. A warning will be logged if values exceed a certain threshold.
+
+### Patch Changes
+
+- da53431: fix error handling for http service
+- 0c96066: Improve logging of erros and exceptions. Uncaught exceptions and unhandeld promise rejections will now also be logged. Note: uncaught exceptions will still result in termination of the deployment.
+
 ## 4.14.3
 
 ### Patch Changes
