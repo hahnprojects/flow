@@ -6,7 +6,7 @@ importers:
     specifiers:
       '@changesets/cli': ^2.17.0
       '@types/jest': ^27.0.2
-      '@types/node': ^14.17.19
+      '@types/node': ^14.17.20
       '@typescript-eslint/eslint-plugin': ^4.32.0
       '@typescript-eslint/parser': ^4.32.0
       copyfiles: ^2.4.1
@@ -23,7 +23,7 @@ importers:
     devDependencies:
       '@changesets/cli': 2.17.0
       '@types/jest': 27.0.2
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
       '@typescript-eslint/eslint-plugin': 4.32.0_1eacf2495a01e8a68ffa99482308e8ec
       '@typescript-eslint/parser': 4.32.0_eslint@7.32.0+typescript@4.4.3
       copyfiles: 2.4.1
@@ -34,7 +34,7 @@ importers:
       jest: 27.2.4_ts-node@10.2.1
       prettier: 2.4.1
       ts-jest: 27.0.5_52a571d76319e63aeaa66dc9db9e90cc
-      ts-node: 10.2.1_939a8946a34f58c4fd62eef48ed7c2d9
+      ts-node: 10.2.1_ddf0beaba3e4c42b0be7fbba82e51a9d
       tslib: 2.3.1
       typescript: 4.4.3
 
@@ -88,9 +88,9 @@ importers:
   packages/cli:
     specifiers:
       '@types/jest': ^27.0.2
-      '@types/node': ^14.17.19
+      '@types/node': ^14.17.20
       archiver: ^5.3.0
-      axios: ^0.21.4
+      axios: ^0.22.0
       chalk: ^4.1.2
       class-transformer: 0.3.1
       class-validator: ~0.12.2
@@ -111,7 +111,7 @@ importers:
       typescript: ^4.4.3
     dependencies:
       archiver: 5.3.0
-      axios: 0.21.4
+      axios: 0.22.0
       chalk: 4.1.2
       class-transformer: 0.3.1
       class-validator: 0.12.2
@@ -125,10 +125,10 @@ importers:
       https-proxy-agent: 5.0.0
       ora: 5.4.1
       reflect-metadata: 0.1.13
-      ts-node: 10.2.1_939a8946a34f58c4fd62eef48ed7c2d9
+      ts-node: 10.2.1_ddf0beaba3e4c42b0be7fbba82e51a9d
     devDependencies:
       '@types/jest': 27.0.2
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
       jest: 27.2.4_ts-node@10.2.1
       prettier: 2.4.1
       ts-jest: 27.0.5_52a571d76319e63aeaa66dc9db9e90cc
@@ -140,11 +140,11 @@ importers:
       '@types/amqp-connection-manager': ^2.0.12
       '@types/amqplib': ^0.8.2
       '@types/jest': ^27.0.2
-      '@types/lodash': ^4.14.174
-      '@types/node': ^14.17.19
+      '@types/lodash': ^4.14.175
+      '@types/node': ^14.17.20
       amqp-connection-manager: ^3.7.0
       amqplib: ^0.8.0
-      axios: ^0.21.4
+      axios: ^0.22.0
       axios-mock-adapter: ^1.20.0
       class-transformer: 0.3.1
       class-validator: ~0.12.2
@@ -158,14 +158,14 @@ importers:
       p-queue: ^6.6.2
       python-shell: ^3.0.0
       reflect-metadata: ^0.1.13
-      rxjs: ^7.3.0
+      rxjs: ^7.3.1
       string-interp: ^0.3.6
       typescript: ^4.4.3
       uuid: ^8.3.2
     dependencies:
       amqp-connection-manager: 3.7.0_amqplib@0.8.0
       amqplib: 0.8.0
-      axios: 0.21.4
+      axios: 0.22.0
       class-transformer: 0.3.1
       class-validator: 0.12.2
       class-validator-jsonschema: 2.2.0_4ae0cf6eab4c30830de5e5acc43ca1c7
@@ -177,7 +177,7 @@ importers:
       p-queue: 6.6.2
       python-shell: 3.0.0
       reflect-metadata: 0.1.13
-      rxjs: 7.3.0
+      rxjs: 7.3.1
       string-interp: 0.3.6
       uuid: 8.3.2
     devDependencies:
@@ -185,9 +185,9 @@ importers:
       '@types/amqp-connection-manager': 2.0.12
       '@types/amqplib': 0.8.2
       '@types/jest': 27.0.2
-      '@types/lodash': 4.14.174
-      '@types/node': 14.17.19
-      axios-mock-adapter: 1.20.0_axios@0.21.4
+      '@types/lodash': 4.14.175
+      '@types/node': 14.17.20
+      axios-mock-adapter: 1.20.0_axios@0.22.0
       jest: 27.2.4_ts-node@10.2.1
       typescript: 4.4.3
 
@@ -1409,8 +1409,8 @@ packages:
     resolution: {integrity: sha512-qcUXuemtEu+E5wZSJHNxUXeCZhAfXKQ41D+duX+VYPde7xyEVZci+/oXKJL13tnRs9lR2pr4fod59GT6/X1/yQ==}
     dev: true
 
-  /@types/lodash/4.14.174:
-    resolution: {integrity: sha512-KMBLT6+g9qrGXpDt7ohjWPUD34WA/jasrtjTEHStF0NPdEwJ1N9SZ+4GaMVDeuk/y0+X5j9xFm6mNiXS7UoaLQ==}
+  /@types/lodash/4.14.175:
+    resolution: {integrity: sha512-XmdEOrKQ8a1Y/yxQFOMbC47G/V2VDO1GvMRnl4O75M4GW/abC5tnfzadQYkqEveqRM1dEJGFFegfPNA2vvx2iw==}
     dev: true
 
   /@types/minimist/1.2.2:
@@ -1423,6 +1423,10 @@ packages:
 
   /@types/node/14.17.19:
     resolution: {integrity: sha512-jjYI6NkyfXykucU6ELEoT64QyKOdvaA6enOqKtP4xUsGY0X0ZUZz29fUmrTRo+7v7c6TgDu82q3GHHaCEkqZwA==}
+    dev: true
+
+  /@types/node/14.17.20:
+    resolution: {integrity: sha512-gI5Sl30tmhXsqkNvopFydP7ASc4c2cLfGNQrVKN3X90ADFWFsPEsotm/8JHSUJQKTHbwowAHtcJPeyVhtKv0TQ==}
     dev: true
 
   /@types/normalize-package-data/2.4.1:
@@ -1902,12 +1906,12 @@ packages:
   /asynckit/0.4.0:
     resolution: {integrity: sha1-x57Zf380y48robyXkLzDZkdLS3k=}
 
-  /axios-mock-adapter/1.20.0_axios@0.21.4:
+  /axios-mock-adapter/1.20.0_axios@0.22.0:
     resolution: {integrity: sha512-shZRhTjLP0WWdcvHKf3rH3iW9deb3UdKbdnKUoHmmsnBhVXN3sjPJM6ZvQ2r/ywgvBVQrMnjrSyQab60G1sr2w==}
     peerDependencies:
       axios: '>= 0.9.0'
     dependencies:
-      axios: 0.21.4
+      axios: 0.22.0
       fast-deep-equal: 3.1.3
       is-blob: 2.1.0
       is-buffer: 2.0.5
@@ -1919,6 +1923,15 @@ packages:
       follow-redirects: 1.14.4
     transitivePeerDependencies:
       - debug
+    dev: true
+
+  /axios/0.22.0:
+    resolution: {integrity: sha512-Z0U3uhqQeg1oNcihswf4ZD57O3NrR1+ZXhxaROaWpDmsDTx7T2HNBV2ulBtie2hwJptu8UvgnJoK+BIqdzh/1w==}
+    dependencies:
+      follow-redirects: 1.14.4
+    transitivePeerDependencies:
+      - debug
+    dev: false
 
   /babel-jest/27.2.2_@babel+core@7.15.5:
     resolution: {integrity: sha512-XNFNNfGKnZXzhej7TleVP4s9ktH5JjRW8Rmcbb223JJwKB/gmTyeWN0JfiPtSgnjIjDXtKNoixiy0QUHtv3vFA==}
@@ -3727,7 +3740,7 @@ packages:
       jest-validate: 27.2.2
       micromatch: 4.0.4
       pretty-format: 27.2.2
-      ts-node: 10.2.1_939a8946a34f58c4fd62eef48ed7c2d9
+      ts-node: 10.2.1_ddf0beaba3e4c42b0be7fbba82e51a9d
     transitivePeerDependencies:
       - bufferutil
       - canvas
@@ -3765,7 +3778,7 @@ packages:
       jest-validate: 27.2.4
       micromatch: 4.0.4
       pretty-format: 27.2.4
-      ts-node: 10.2.1_939a8946a34f58c4fd62eef48ed7c2d9
+      ts-node: 10.2.1_ddf0beaba3e4c42b0be7fbba82e51a9d
     transitivePeerDependencies:
       - bufferutil
       - canvas
@@ -5526,6 +5539,13 @@ packages:
     resolution: {integrity: sha512-p2yuGIg9S1epc3vrjKf6iVb3RCaAYjYskkO+jHIaV0IjOPlJop4UnodOoFb2xeNwlguqLYvGw1b1McillYb5Gw==}
     dependencies:
       tslib: 2.1.0
+    dev: true
+
+  /rxjs/7.3.1:
+    resolution: {integrity: sha512-vNenx7gqjPyeKpRnM6S5Ksm/oFTRijWWzYlRON04KaehZ3YjDwEmVjGUGo0TKWVjeNXOujVRlh0K1drUbcdPkw==}
+    dependencies:
+      tslib: 2.1.0
+    dev: false
 
   /safe-buffer/5.1.2:
     resolution: {integrity: sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==}
@@ -6035,7 +6055,7 @@ packages:
       yargs-parser: 20.2.9
     dev: true
 
-  /ts-node/10.2.1_939a8946a34f58c4fd62eef48ed7c2d9:
+  /ts-node/10.2.1_ddf0beaba3e4c42b0be7fbba82e51a9d:
     resolution: {integrity: sha512-hCnyOyuGmD5wHleOQX6NIjJtYVIO8bPP8F2acWkB4W06wdlkgyvJtubO/I9NkI88hCFECbsEgoLc0VNkYmcSfw==}
     engines: {node: '>=12.0.0'}
     hasBin: true
@@ -6055,7 +6075,7 @@ packages:
       '@tsconfig/node12': 1.0.9
       '@tsconfig/node14': 1.0.1
       '@tsconfig/node16': 1.0.2
-      '@types/node': 14.17.19
+      '@types/node': 14.17.20
       acorn: 8.5.0
       acorn-walk: 8.2.0
       arg: 4.1.3

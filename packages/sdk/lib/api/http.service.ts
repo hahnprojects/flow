@@ -72,7 +72,7 @@ export class HttpClient {
       const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
 
       this.authAxiosInstance
-        .post(`/auth/realms/${this.realm}/protocol/openid-connect/token`, params.toString(), { headers })
+        .post<any>(`/auth/realms/${this.realm}/protocol/openid-connect/token`, params.toString(), { headers })
         .then((res) => {
           if (res?.data?.access_token && res.data.expires_in) {
             this.accessToken = res.data.access_token;
