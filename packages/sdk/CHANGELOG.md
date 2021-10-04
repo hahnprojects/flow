@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.16.0
+
+### Minor Changes
+
+- e7a1d37: Collect metrics for event stream queues. Warnings will be logged if queue size rises above threshold
+
 ## 4.15.0
 
 ### Minor Changes
