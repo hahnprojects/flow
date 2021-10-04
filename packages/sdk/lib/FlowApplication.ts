@@ -17,7 +17,16 @@ import type { FlowEvent } from './FlowEvent';
 import { FlowLogger, Logger } from './FlowLogger';
 import { RpcClient } from './RpcClient';
 
-const MAX_EVENT_SIZE_BYTES = 512 * 1024; // 512kb
+const MAX_EVENT_SIZE_BYTES = +process.env.MAX_EVENT_SIZE_BYTES || 512 * 1024; // 512kb
+const WARN_EVENT_PROCESSING_SEC = +process.env.WARN_EVENT_PROCESSING_SEC || 60;
+const WARN_EVENT_QUEUE_SIZE = +process.env.WARN_EVENT_QUEUE_SIZE || 100;
+
+interface QueueMetrics {
+  size: number;
+  lastAdd: number;
+  lastRemove: number;
+  warnings: number;
+}
 
 export class FlowApplication {
   public api: API;
@@ -26,6 +35,7 @@ export class FlowApplication {
   private elements: Record<string, FlowElement> = {};
   private logger: Logger;
   private outputStreamMap = new Map<string, Subject<FlowEvent>>();
+  private outputQueueMetrics = new Map<string, QueueMetrics>();
   private performanceMap = new Map<string, EventLoopUtilization>();
   private properties: Record<string, any>;
   private _rpcClient: RpcClient;
@@ -90,7 +100,8 @@ export class FlowApplication {
           continue;
         }
 
-        const streamId = `${source}.${sourceStream}`;
+        const sourceStreamId = `${source}.${sourceStream}`;
+        const targetStreamId = `${target}.${targetStream}`;
         const element = this.elements[target];
 
         if (!element || !element.constructor) {
@@ -104,9 +115,10 @@ export class FlowApplication {
         const streamOptions: StreamOptions = Reflect.getMetadata(`stream:options:${targetStream}`, element.constructor) || {};
         const concurrent = streamOptions.concurrent || 1;
 
-        const outputStream = this.getOutputStream(streamId);
+        const outputStream = this.getOutputStream(sourceStreamId);
         outputStream
           .pipe(
+            tap(() => this.setQueueMetrics(targetStreamId)),
             mergeMap(async (event: FlowEvent) => {
               this.performanceMap.set(event.getId(), performance.eventLoopUtilization());
               try {
@@ -121,13 +133,14 @@ export class FlowApplication {
               return event;
             }, concurrent),
             tap((event: FlowEvent) => {
+              this.updateMetrics(targetStreamId);
               let elu = this.performanceMap.get(event.getId());
               if (elu) {
                 this.performanceMap.delete(event.getId());
                 elu = performance.eventLoopUtilization(elu);
                 if (elu.utilization > 0.7 && elu.active > 1000) {
                   this.logger.warn(
-                    `High event loop utilization detected for ${target}.${targetStream} with event ${event.getId()}! Handler has been active for ${Number(
+                    `High event loop utilization detected for ${targetStreamId} with event ${event.getId()}! Handler has been active for ${Number(
                       elu.active,
                     ).toFixed(2)}ms with a utilization of ${Number(elu.utilization * 100).toFixed(
                       2,
@@ -160,6 +173,33 @@ export class FlowApplication {
       this.destroy(1);
     }
   }
+
+  private setQueueMetrics = (id: string) => {
+    const metrics = this.outputQueueMetrics.get(id) || { size: 0, lastAdd: 0, lastRemove: Date.now(), warnings: 0 };
+    const secsProcessing = Math.round((metrics.lastAdd - metrics.lastRemove) / 1000);
+    metrics.size++;
+    metrics.lastAdd = Date.now();
+
+    if (secsProcessing >= WARN_EVENT_PROCESSING_SEC * (metrics.warnings + 1)) {
+      this.logger.warn(
+        `Input stream "${id}" has ${metrics.size} queued events and the last event has been processing for ${secsProcessing}s`,
+      );
+      metrics.warnings++;
+    } else if (metrics.size % WARN_EVENT_QUEUE_SIZE === 0) {
+      this.logger.warn(`Input stream "${id}" has ${metrics.size} queued events`);
+    }
+    this.outputQueueMetrics.set(id, metrics);
+  };
+
+  private updateMetrics = (id: string) => {
+    const metrics = this.outputQueueMetrics.get(id);
+    if (metrics) {
+      metrics.size = metrics.size > 0 ? metrics.size - 1 : 0;
+      metrics.lastRemove = Date.now();
+      metrics.warnings = 0;
+      this.outputQueueMetrics.set(id, metrics);
+    }
+  };
 
   public subscribe = (streamId: string, observer: PartialObserver<FlowEvent>) => this.getOutputStream(streamId).subscribe(observer);
 

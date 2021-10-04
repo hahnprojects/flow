@@ -213,6 +213,53 @@ describe('Flow Application', () => {
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
     expect(loggerMock.log).toHaveBeenCalledWith('Flow Deployment is running', expect.objectContaining(flow.context));
   }, 60000);
+
+  it('FLOW.FA.8 should warn if event queue size is above threshold', (done) => {
+    const flow = {
+      elements: [
+        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
+        { id: 'longRunningTask', module: 'test.module', functionFqn: 'test.task.LongRunningTask', properties: { delay: 300 } },
+      ],
+      connections: [{ id: 'testConnection', source: 'testTrigger', target: 'longRunningTask' }],
+      context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
+    };
+    const flowApp = new FlowApplication([TestModule], flow, loggerMock, null, true);
+
+    let count = 0;
+    flowApp.subscribe('longRunningTask.default', {
+      next: (event: FlowEvent) => {
+        try {
+          expect(event.getData()).toEqual({ foo: 'bar' });
+          if (++count === 10) {
+            expect(mockExit).not.toHaveBeenCalled();
+            expect(loggerMock.warn).toHaveBeenCalledTimes(2);
+            expect(loggerMock.warn).toHaveBeenCalledWith('Input stream "longRunningTask.default" has 100 queued events', {
+              deploymentId: 'testDeployment',
+              flowId: 'testFlow',
+              functionFqn: 'FlowApplication',
+              id: 'none',
+            });
+            expect(loggerMock.warn).toHaveBeenLastCalledWith(
+              'Input stream "longRunningTask.default" has 200 queued events',
+              expect.anything(),
+            );
+
+            flowApp.destroy();
+            done();
+          }
+        } catch (err) {
+          flowApp.destroy();
+          done(err);
+        }
+      },
+    });
+
+    for (let i = 0; i < 210; i++) {
+      flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+    }
+
+    expect(loggerMock.log).toHaveBeenCalledWith('Flow Deployment is running', expect.objectContaining(flow.context));
+  }, 60000);
 });
 
 @FlowFunction('test.resource.TestResource')
