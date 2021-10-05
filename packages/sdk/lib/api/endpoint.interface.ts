@@ -9,6 +9,9 @@ export interface Endpoint {
     authToken: string;
     recipients?: string[];
   };
+  notificationCheck: number;
+  notificationCount: number;
+  notificationPause: number;
   readPermissions: string[];
   readWritePermissions: string[];
 }

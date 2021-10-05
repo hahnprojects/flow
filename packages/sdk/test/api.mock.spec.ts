@@ -95,9 +95,9 @@ describe('Mock-API test', () => {
     expect(sendNotifMock).toBeCalledTimes(1);
     expect(sendNotifMock).toBeCalledWith('endpoint1', 'test', 'Test', 'test');
 
-    await api.endpointManager.sendNotification('endpoint1', 'test', 'Test', 'test', 'readme').catch((err) => logError(err));
+    await api.endpointManager.sendNotification('endpoint1', 'test', 'Test', 'test', 'readme', 'asset').catch((err) => logError(err));
     expect(sendNotifMock).toBeCalledTimes(2);
-    expect(sendNotifMock).toBeCalledWith('endpoint1', 'test', 'Test', 'test', 'readme');
+    expect(sendNotifMock).toBeCalledWith('endpoint1', 'test', 'Test', 'test', 'readme', 'asset');
 
     const log = await api.endpointManager.readLastLogByGroup('endpoint1', 'test');
     expect(log).toBeDefined();

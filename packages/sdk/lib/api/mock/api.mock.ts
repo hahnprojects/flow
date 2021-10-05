@@ -108,6 +108,9 @@ export class MockAPI implements API {
       description: value.description,
       status: value.status,
       config: value.config,
+      notificationCheck: value.notificationCheck,
+      notificationCount: value.notificationCount,
+      notificationPause: value.notificationPause,
       readPermissions: [],
       readWritePermissions: [],
     }));
@@ -225,6 +228,9 @@ export interface EndpointInit {
     authToken: string;
     recipients?: string[];
   };
+  notificationCheck?: number;
+  notificationCount?: number;
+  notificationPause?: number;
   readPermissions?: string[];
   readWritePermissions?: string[];
 }
