@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.17.0
+
+### Minor Changes
+
+- 17a69c9: Add asset link to sendNotification method of endpoint api
+
 ## 4.16.0
 
 ### Minor Changes
