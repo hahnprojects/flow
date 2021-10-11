@@ -149,7 +149,7 @@ importers:
       class-transformer: 0.3.1
       class-validator: ~0.12.2
       class-validator-jsonschema: ^2.2.0
-      cloudevents: ^4.0.3
+      cloudevents: ^5.0.0
       form-data: ^4.0.0
       jest: ^27.2.5
       jwt-decode: ^3.1.2
@@ -169,7 +169,7 @@ importers:
       class-transformer: 0.3.1
       class-validator: 0.12.2
       class-validator-jsonschema: 2.2.0_4ae0cf6eab4c30830de5e5acc43ca1c7
-      cloudevents: 4.0.3
+      cloudevents: 5.0.0
       form-data: 4.0.0
       jwt-decode: 3.1.2
       lodash: 4.17.21
@@ -2239,8 +2239,8 @@ packages:
     resolution: {integrity: sha1-2jCcwmPfFZlMaIypAheco8fNfH4=}
     engines: {node: '>=0.8'}
 
-  /cloudevents/4.0.3:
-    resolution: {integrity: sha512-FpwsQ0JZzGH1PcJmZTXRQkQSt5YFjwlppUrEUfTU0Ey175IIdYYDCIMeqMIX+qvDUhj8bFDrgU23xWA1JQbR1Q==}
+  /cloudevents/5.0.0:
+    resolution: {integrity: sha512-ximOtbqCaOfSAqkkP0AwG5nIunNuCzNEADXVNW9FSmmOCDxab234NOpJsZovMx6j/COo2p3hwGDcbSS8LN/l1w==}
     dependencies:
       ajv: 6.12.6
       uuid: 8.3.2
