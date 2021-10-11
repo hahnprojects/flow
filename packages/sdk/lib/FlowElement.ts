@@ -1,8 +1,8 @@
 import { plainToClass } from 'class-transformer';
 import { validateSync } from 'class-validator';
 import { Options, PythonShell } from 'python-shell';
+import { API } from '@hahnpro/hpc-api';
 
-import { API } from './api';
 import { ClassType, DeploymentMessage, FlowContext, FlowElementContext } from './flow.interface';
 import { Context, FlowApplication } from './FlowApplication';
 import { FlowEvent } from './FlowEvent';

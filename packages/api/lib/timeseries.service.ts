@@ -1,7 +1,7 @@
 import { Paginated } from './data.interface';
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
-import { TS_GROUPS, TimeSeries, TimeSeriesValue } from './timeseries.interface';
+import { TimeSeries, TimeSeriesValue, TS_GROUPS } from './timeseries.interface';
 
 export class TimeSeriesService extends DataService<TimeSeries> {
   constructor(httpClient: HttpClient) {

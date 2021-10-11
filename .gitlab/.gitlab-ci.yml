@@ -15,6 +15,7 @@ commit-messages:
   before_script:
     - npm install -g pnpm
     - pnpm install
+    - pnpm -r prepublishOnly
 
 test-cli:
   extends: .pnpm
@@ -31,9 +32,20 @@ test-sdk:
   extends: .pnpm
   stage: test
   script:
-    - pnpm test packages/sdk -- --testPathIgnorePatterns api.spec.ts rpc.spec.ts sidrive.spec.ts
+    - pnpm test packages/sdk -- --testPathIgnorePatterns rpc.spec.ts sidrive.spec.ts
   rules:
     - if: $CI_MERGE_REQUEST_ID
       changes:
         - packages/sdk/**/*
+        - package.json
+
+test-api:
+  extends: .pnpm
+  stage: test
+  script:
+    - pnpm test packages/api -- --testPathIgnorePatterns api.spec.ts
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+      changes:
+        - packages/api/**/*
         - package.json

@@ -1,0 +1,44 @@
+{
+  "name": "@hahnpro/hpc-api",
+  "version": "0.0.1",
+  "description": "Module for easy access to the HahnPRO API",
+  "license": "MIT",
+  "author": {
+    "name": "Hahn Projects GmbH",
+    "url": "https://hahnpro.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.com:hahnpro/flow.git"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "../../node_modules/.bin/tsc -p tsconfig.lib.json",
+    "build:nocomments": "../../node_modules/.bin/tsc -p tsconfig.nocomments.json",
+    "prepublishOnly": "pnpm build && pnpm build:nocomments"
+  },
+  "dependencies": {
+    "form-data": "^4.0.0",
+    "axios": "^0.22.0",
+    "p-queue": "^6.6.2",
+    "jwt-decode": "^3.1.2",
+    "axios-mock-adapter": "^1.20.0"
+  },
+  "devDependencies": {
+
+  },
+  "engines": {
+    "node": ">=v14.13"
+  }
+}

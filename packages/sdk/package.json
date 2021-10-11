@@ -30,6 +30,7 @@
     "prepublishOnly": "pnpm build && pnpm build:nocomments && pnpm postbuild"
   },
   "dependencies": {
+    "@hahnpro/hpc-api": "workspace:*",
     "amqp-connection-manager": "^3.7.0",
     "amqplib": "^0.8.0",
     "axios": "^0.22.0",
@@ -37,8 +38,6 @@
     "class-validator": "~0.12.2",
     "class-validator-jsonschema": "^2.2.0",
     "cloudevents": "^5.0.0",
-    "form-data": "^4.0.0",
-    "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",
     "object-sizeof": "^1.6.1",
     "p-queue": "^6.6.2",

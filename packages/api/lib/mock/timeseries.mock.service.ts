@@ -1,5 +1,5 @@
 import { Paginated } from '../data.interface';
-import { TS_GROUPS, TimeSeries, TimeSeriesValue } from '../timeseries.interface';
+import { TimeSeries, TimeSeriesValue, TS_GROUPS } from '../timeseries.interface';
 import { TimeSeriesService } from '../timeseries.service';
 import { DataMockService } from './data.mock.service';
 

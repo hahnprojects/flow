@@ -7,11 +7,18 @@ import { PartialObserver, Subject } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
 import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
+import { API } from '@hahnpro/hpc-api';
 
 import { AmqpConnection, Nack } from './amqp';
-import { API } from './api';
 import { delay } from './utils';
-import type { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, StreamOptions } from './flow.interface';
+import type {
+  ClassType,
+  DeploymentMessage,
+  Flow,
+  FlowContext,
+  FlowElementContext,
+  StreamOptions,
+} from './flow.interface';
 import type { FlowElement } from './FlowElement';
 import type { FlowEvent } from './FlowEvent';
 import { FlowLogger, Logger } from './FlowLogger';
@@ -331,7 +338,7 @@ export class FlowApplication {
   }
 
   /**
-   * Calls onDestroy lifecycle mehtod on all flow elements,
+   * Calls onDestroy lifecycle method on all flow elements,
    * closes amqp connection after allowing logs to be processed and published
    * then exits process
    */
