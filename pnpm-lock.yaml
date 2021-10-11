@@ -156,7 +156,7 @@ importers:
       lodash: ^4.17.21
       object-sizeof: ^1.6.1
       p-queue: ^6.6.2
-      python-shell: ^3.0.0
+      python-shell: ^3.0.1
       reflect-metadata: ^0.1.13
       rxjs: ^7.4.0
       string-interp: ^0.3.6
@@ -175,7 +175,7 @@ importers:
       lodash: 4.17.21
       object-sizeof: 1.6.1
       p-queue: 6.6.2
-      python-shell: 3.0.0
+      python-shell: 3.0.1
       reflect-metadata: 0.1.13
       rxjs: 7.4.0
       string-interp: 0.3.6
@@ -5214,6 +5214,11 @@ packages:
 
   /python-shell/3.0.0:
     resolution: {integrity: sha512-vlIkpJBwkhtG8d2rBbPEweg+3UXdkoduRZ0jLbIX3efYutBjTdmdmMrEQCQy9tkabH36yUjOhwTPFkH3BvoYZQ==}
+    engines: {node: '>=0.10'}
+    dev: false
+
+  /python-shell/3.0.1:
+    resolution: {integrity: sha512-TWeotuxe1auhXa5bGRScxnc2J+0r41NBntSa6RYZtMBLtAEsvCboKrEbW6DvASosWQepVkhZZlT3B5Ei766G+Q==}
     engines: {node: '>=0.10'}
     dev: false
 
