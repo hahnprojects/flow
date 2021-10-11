@@ -6,20 +6,39 @@ commit-messages:
   image: outillage/commitsar:0.15.0
   script:
     - commitsar
-  allow_failure: true
   rules:
     - if: $CI_MERGE_REQUEST_ID
+      allow_failure: true
 
 .pnpm:
   image: node:lts
+  stage: test
   before_script:
     - npm install -g pnpm
     - pnpm install
     - pnpm -r prepublishOnly
 
+audit:
+  extends: .pnpm
+  script:
+    - pnpm audit --prod
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+      changes:
+        - package.json
+        - pnpm-lock.yaml
+        - packages/sdk/**/package.json
+      allow_failure: true
+
+lint:
+  extends: .pnpm
+  script:
+    - pnpm lint
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+
 test-cli:
   extends: .pnpm
-  stage: test
   script:
     - pnpm test packages/cli
   rules:
@@ -30,7 +49,6 @@ test-cli:
 
 test-sdk:
   extends: .pnpm
-  stage: test
   script:
     - pnpm test packages/sdk -- --testPathIgnorePatterns rpc.spec.ts sidrive.spec.ts
   rules:

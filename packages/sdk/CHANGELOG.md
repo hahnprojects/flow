@@ -1,5 +1,16 @@
 # @hahnpro/flow-sdk
 
+## 4.18.0
+
+### Minor Changes
+
+- 205b556: Split API from main SDK package to its own package.
+
+### Patch Changes
+
+- Updated dependencies [205b556]
+  - @hahnpro/hpc-api@1.0.0
+
 ## 4.17.0
 
 ### Minor Changes
