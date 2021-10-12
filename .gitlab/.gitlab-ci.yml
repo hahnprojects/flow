@@ -16,7 +16,7 @@ commit-messages:
   before_script:
     - npm install -g pnpm
     - pnpm install
-    - pnpm -r prepublishOnly
+    # - pnpm -r prepublishOnly
 
 audit:
   extends: .pnpm

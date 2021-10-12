@@ -1,3 +1,5 @@
+export * from '@hahnpro/hpc-api';
+
 export * from './flow.interface';
 export * from './utils';
 export * from './FlowApplication';

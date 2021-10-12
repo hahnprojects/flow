@@ -41,7 +41,7 @@
     "https-proxy-agent": "^5.0.0",
     "ora": "^5.4.1",
     "reflect-metadata": "^0.1.13",
-    "ts-node": "^10.2.1"
+    "ts-node": "^10.3.0"
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",

@@ -4,8 +4,8 @@ export class Queue extends PQueue {
   private peak = 0;
   private total = 0;
 
-  constructor(options: QueueOptions = { concurrent: 1 }) {
-    super({ concurrency: options.concurrent || 1 });
+  constructor(options: QueueOptions) {
+    super(options);
     this.on('add', () => {
       this.peak = Math.max(this.peak, this.size);
     });
@@ -25,5 +25,7 @@ export class Queue extends PQueue {
 }
 
 export interface QueueOptions {
-  concurrent?: number;
+  concurrency?: number;
+  timeout?: number;
+  throwOnTimeout?: boolean;
 }

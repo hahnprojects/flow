@@ -22,7 +22,7 @@ export class HttpClient {
     authBaseUrl = authBaseUrl || apiBaseUrl;
     this.axiosInstance = axios.create({ baseURL: apiBaseUrl, timeout: 60000 });
     this.authAxiosInstance = axios.create({ baseURL: authBaseUrl, timeout: 10000 });
-    this.requestQueue = new Queue({ concurrent: 1 });
+    this.requestQueue = new Queue({ concurrency: 1, timeout: 70000, throwOnTimeout: true });
   }
 
   public getQueueStats = () => this.requestQueue?.getStats();
