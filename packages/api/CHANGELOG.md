@@ -1,6 +1,14 @@
 # @hahnpro/hpc-api
 
+## 1.0.1
+
+### Patch Changes
+
+- 507dd6e: Added tags to Assettype interface
+- ab04943: Add timeout for http request queue operations
+
 ## 1.0.0
+
 ### Major Changes
 
 - 205b556: Split API from main SDK package to its own package.

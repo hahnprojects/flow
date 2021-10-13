@@ -1,5 +1,23 @@
 # @hahnpro/flow-sdk
 
+## 4.19.1
+
+### Patch Changes
+
+- Handle nested validation errors
+
+## 4.19.0
+
+### Minor Changes
+
+- Update class-validator and class-transformer packages to newest version
+
+### Patch Changes
+
+- Updated dependencies [507dd6e]
+- Updated dependencies [ab04943]
+  - @hahnpro/hpc-api@1.0.1
+
 ## 4.18.0
 
 ### Minor Changes

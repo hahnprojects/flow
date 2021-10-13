@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.11.0
+
+### Minor Changes
+
+- Update dependencies
+
 ## 2.10.0
 
 ### Minor Changes

@@ -4,7 +4,9 @@ describe('prepare ts-file for schema extraction', () => {
   test('CLI.PTF.1 should add import and console-log', () => {
     const result = prepareTsFile('');
     expect(result).toContain("import { validationMetadatasToSchemas as v } from 'class-validator-jsonschema';");
-    expect(result).toContain("import { defaultMetadataStorage } from 'class-transformer/storage'");
+    expect(result).toContain(
+      "import { defaultMetadataStorage as classTransformerDefaultMetadataStorage } from 'class-transformer/cjs/storage'",
+    );
     expect(result).toContain(`const s = v({\n
       additionalConverters: {\n
         UnitArgsValidator: (meta) => {\n
@@ -15,7 +17,7 @@ describe('prepare ts-file for schema extraction', () => {
           };\n
         },\n
       },\n
-      classTransformerMetadataStorage: defaultMetadataStorage\n
+      classTransformerMetadataStorage\n
     });\n`);
     expect(result).toContain('console.log(JSON.stringify(s));');
   });

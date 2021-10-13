@@ -463,7 +463,7 @@ function prepareTsFile(file) {
   }
   return (
     `import { validationMetadatasToSchemas as v } from 'class-validator-jsonschema';\n` +
-    `import { defaultMetadataStorage } from 'class-transformer/storage'\n` +
+    `import { defaultMetadataStorage as classTransformerDefaultMetadataStorage } from 'class-transformer/cjs/storage';\n` +
     `${file}\n` +
     `const s = v({\n
       additionalConverters: {\n
@@ -475,7 +475,7 @@ function prepareTsFile(file) {
           };\n
         },\n
       },\n
-      classTransformerMetadataStorage: defaultMetadataStorage\n
+      classTransformerMetadataStorage\n
     });\n` +
     `console.log(JSON.stringify(s));`
   );

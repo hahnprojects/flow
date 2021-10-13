@@ -87,14 +87,26 @@ export abstract class FlowElement<T = any> {
 
   protected validateProperties<P>(classType: ClassType<P>, properties: any = {}, whitelist = false): P {
     const props: P = plainToClass<P, any>(classType, properties);
-    const errors = validateSync(props, { whitelist });
-    if (errors && Array.isArray(errors) && errors.length > 0) {
+    const errors = validateSync(props as any, { whitelist });
+    if (Array.isArray(errors) && errors.length > 0) {
       for (const e of errors) {
-        this.logger.error(`Validation for property "${e.property}" failed:\n${JSON.stringify(e.constraints || {})}\nvalue: ${e.value}`);
+        this.logValidationErrors(e);
       }
       throw new Error('Properties Validation failed');
     } else {
       return props;
+    }
+  }
+
+  protected logValidationErrors(error: any, parent?: string) {
+    const { children, constraints, property, value } = error;
+    const name = parent ? parent + '.' + property : property;
+    if (constraints) {
+      this.logger.error(`Validation for property "${name}" failed:\n${JSON.stringify(constraints || {})}\nvalue: ${value}`);
+    } else if (Array.isArray(children)) {
+      for (const child of children) {
+        this.logValidationErrors(child, name);
+      }
     }
   }
 
