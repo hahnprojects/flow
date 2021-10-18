@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base", ":prHourlyLimitNone", "helpers:disableTypesNodeMajor", "group:allNonMajor", "group:linters", "group:test"],
+  "extends": ["config:base", ":prHourlyLimitNone", "helpers:disableTypesNodeMajor", "group:allNonMajor"],
   "rangeStrategy": "bump",
   "semanticCommits": "enabled",
   "semanticCommitType": "build",
