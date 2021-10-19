@@ -18,6 +18,6 @@ export class ProxyService {
 
   private url(proxyId: string, path = '/'): string {
     path = path.startsWith('/') ? path : `/${path}`;
-    return `api/${proxyId}${path}`;
+    return `/proxy/${proxyId}${path}`;
   }
 }

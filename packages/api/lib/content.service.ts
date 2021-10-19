@@ -7,7 +7,7 @@ import { Readable } from 'stream';
 
 export class ContentService extends DataService<Content> {
   constructor(httpClient: HttpClient) {
-    super(httpClient, process.env.DEBUG_CONTENT_URL || 'api/contents');
+    super(httpClient, '/contents');
   }
 
   upload = (form: FormData): Promise<Content> => {

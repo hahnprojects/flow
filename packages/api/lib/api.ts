@@ -72,13 +72,17 @@ export class API {
   public userManager: UserService;
 
   constructor() {
+    // remove leading and trailing slashes
+    const normalizePath = (value = '', defaultValue = '') => value.replace(/^\/+|\/+$/g, '') || defaultValue;
+
     let apiBaseUrl = process.env.API_BASE_URL || 'https://testing.hahnpro.com';
     if (!apiBaseUrl.startsWith('https') && !apiBaseUrl.startsWith('http')) {
       console.info('no protocol specified - using HTTPS');
       apiBaseUrl = `https://${apiBaseUrl}`;
     }
-
+    const apiUrl = apiBaseUrl + '/' + normalizePath(process.env.API_BASE_PATH, 'api');
     const authBaseUrl = process.env.AUTH_BASE_URL || apiBaseUrl;
+    const authUrl = authBaseUrl + '/' + normalizePath(process.env.AUTH_BASE_PATH, 'auth');
     const realm = process.env.AUTH_REALM || 'hpc';
     const client = process.env.API_USER || 'flow-executor-service';
     const secret = process.env.AUTH_SECRET;
@@ -86,7 +90,7 @@ export class API {
       throw new Error('"API_BASE_URL", "API_USER", "AUTH_REALM" and "AUTH_SECRET" environment variables must be set');
     }
 
-    this.httpClient = new HttpClient(apiBaseUrl, authBaseUrl, realm, client, secret);
+    this.httpClient = new HttpClient(apiUrl, authUrl, realm, client, secret);
 
     this.assets = new AssetService(this.httpClient);
     this.assetTypes = new AssetTypesService(this.httpClient);

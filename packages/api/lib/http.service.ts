@@ -13,15 +13,14 @@ export class HttpClient {
   private accessTokenExpiration = 0;
 
   constructor(
-    apiBaseUrl: string,
-    authBaseUrl: string,
+    baseURL: string,
+    authbaseURL: string,
     private readonly realm: string,
     private readonly client: string,
     private readonly secret: string,
   ) {
-    authBaseUrl = authBaseUrl || apiBaseUrl;
-    this.axiosInstance = axios.create({ baseURL: apiBaseUrl, timeout: 60000 });
-    this.authAxiosInstance = axios.create({ baseURL: authBaseUrl, timeout: 10000 });
+    this.axiosInstance = axios.create({ baseURL, timeout: 60000 });
+    this.authAxiosInstance = axios.create({ baseURL: authbaseURL || baseURL, timeout: 10000 });
     this.requestQueue = new Queue({ concurrency: 1, timeout: 70000, throwOnTimeout: true });
   }
 
@@ -72,7 +71,7 @@ export class HttpClient {
       const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
 
       this.authAxiosInstance
-        .post<any>(`/auth/realms/${this.realm}/protocol/openid-connect/token`, params.toString(), { headers })
+        .post<any>(`/realms/${this.realm}/protocol/openid-connect/token`, params.toString(), { headers })
         .then((res) => {
           if (res?.data?.access_token && res.data.expires_in) {
             this.accessToken = res.data.access_token;

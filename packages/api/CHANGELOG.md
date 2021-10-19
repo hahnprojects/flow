@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 1.0.2
+
+### Patch Changes
+
+- Improve handling of API_BASE_URL and API_BASE_PATH environment variables
+
 ## 1.0.1
 
 ### Patch Changes

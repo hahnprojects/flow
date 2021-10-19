@@ -24,7 +24,7 @@ export class SiDriveIqService {
   private basePath: string;
 
   constructor(private readonly httpClient: HttpClient) {
-    this.basePath = 'api/sidrive/api/v0';
+    this.basePath = '/proxy/sidrive/api/v0';
   }
 
   /**

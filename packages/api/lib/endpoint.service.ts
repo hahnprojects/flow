@@ -4,7 +4,7 @@ import { Endpoint, EndpointLog } from './endpoint.interface';
 
 export class EndpointService extends DataService<Endpoint> {
   constructor(httpClient: HttpClient) {
-    super(httpClient, process.env.DEBUG_ENDPOINT_URL || 'api/notification/endpoints');
+    super(httpClient, '/notification/endpoints');
   }
 
   sendNotification(

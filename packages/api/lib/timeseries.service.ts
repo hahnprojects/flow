@@ -5,7 +5,7 @@ import { TimeSeries, TimeSeriesValue, TS_GROUPS } from './timeseries.interface';
 
 export class TimeSeriesService extends DataService<TimeSeries> {
   constructor(httpClient: HttpClient) {
-    super(httpClient, process.env.DEBUG_TSM_URL || 'api/tsm');
+    super(httpClient, '/tsm');
   }
 
   public addValue(id: string, value: { [values: string]: any }) {

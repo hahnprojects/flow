@@ -4,7 +4,7 @@ import { Task } from './task.interface';
 
 export class TaskService extends DataService<Task> {
   constructor(httpClient: HttpClient) {
-    super(httpClient, process.env.DEBUG_TSK_URL || 'api/tasks');
+    super(httpClient, '/tasks');
   }
 
   // we may not need this method (already have the addOne method from DataService)

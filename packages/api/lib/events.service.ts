@@ -4,7 +4,7 @@ import { HttpClient } from './http.service';
 
 export class EventsService extends DataService<Event> {
   constructor(httpClient: HttpClient) {
-    super(httpClient, process.env.DEBUG_EVENTS_URL || 'api/events');
+    super(httpClient, '/events');
   }
 
   getLastEventByAssetAndGroup(assetId: string, group: string): Promise<Event> {
