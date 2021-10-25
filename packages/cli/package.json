@@ -27,7 +27,7 @@
   "scripts": {},
   "dependencies": {
     "archiver": "^5.3.0",
-    "axios": "^0.23.0",
+    "axios": "^0.24.0",
     "chalk": "^4.1.2",
     "class-transformer": "0.4.0",
     "class-validator": "~0.13.1",
