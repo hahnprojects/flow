@@ -20,12 +20,12 @@
     "python-shell": "^3.0.1"
   },
   "devDependencies": {
-    "@golevelup/nestjs-rabbitmq": "^1.18.0",
+    "@golevelup/nestjs-rabbitmq": "^1.18.1",
     "@hahnpro/flow-cli": "workspace:*",
     "@nestjs/common": "^8.1.2",
     "@nestjs/core": "^8.1.2",
     "@types/jest": "^27.0.2",
-    "@types/node": "^14.17.31",
+    "@types/node": "^16.11.6",
     "@typescript-eslint/eslint-plugin": "^5.2.0",
     "@typescript-eslint/parser": "^5.2.0",
     "eslint": "^8.1.0",
