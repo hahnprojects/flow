@@ -3,7 +3,7 @@ import { join } from 'path';
 
 import { API } from '../api';
 import { Asset, AssetType } from '../asset.interface';
-import { Content, Storage } from '../content.interface';
+import { Content } from '../content.interface';
 import { Secret } from '../secret.interface';
 import { TimeSeries, TimeSeriesValue } from '../timeseries.interface';
 import { AssetMockService } from './asset.mock.service';
@@ -121,7 +121,6 @@ export class MockAPI implements API {
       readPermissions: [],
       readWritePermissions: [],
       assetRef: v.assetRef,
-      assetRef$name: v.assetRef$name,
       subTasks: [],
       assignedTo: v.assignedTo,
       status: v.status,
@@ -136,9 +135,7 @@ export class MockAPI implements API {
       assetRef: v.assetRef,
       assetRef$name: v.assetRef$name,
       alertRef: v.alertRef,
-      alertRef$name: v.alertRef$name,
       tsRef: v.tsRef,
-      tsRef$name: v.tsRef$name,
       tags: v.tags,
       cause: v.cause,
       level: v.level,
@@ -167,126 +164,20 @@ export class MockAPI implements API {
   }
 }
 
-export interface AssetInit {
-  id: string;
-  name: string;
-  type: AssetTypeInit | string;
-  type$name?: string;
-  readPermissions?: string[];
-  readWritePermissions?: string[];
-  notificationEndpoints?: string[];
-  tags?: string[];
-  parent?: any | Asset;
-  parent$name?: string;
-  data?: any;
-  actions?: string[];
-  image?: string;
-  attachments?: string[];
-  createdAt?: string;
-  updatedAt?: string;
-}
+export type Identity<T> = { [P in keyof T]: T[P] };
+export type AtLeast<T, K extends keyof T> = Identity<Partial<T> & Pick<T, K>>;
+export type Replace<T, K extends keyof T, TReplace> = Identity<Pick<T, Exclude<keyof T, K>> & {
+  [P in K]: TReplace;
+}>;
 
-export interface AssetTypeInit {
-  id: string;
-  name: string;
-  allowedParent?: string;
-  allowedParent$name?: string;
-  readPermissions?: string[];
-  readWritePermissions?: string[];
-  typeSchema?: any;
-  uiSchema?: any;
-  supertype?: string;
-  supertype$name?: string;
-  actions?: string[];
-}
-
-export interface ContentInit {
-  id: string;
-  fileId?: string;
-  filename: string;
-  filePath?: string;
-  mimetype?: string;
-  size?: number;
-  readPermissions?: string[];
-  readWritePermissions?: string[];
-  tags?: string[];
-  assets?: string[];
-  files?: Storage[];
-  createdAt?: string;
-  updatedAt?: string;
-  data?: any;
-}
-
-export interface EndpointInit {
-  id?: string;
-  name: string;
-  description?: string;
-  status?: string;
-  config?: {
-    type: string;
-    url?: string;
-    authToken: string;
-    recipients?: string[];
-  };
-  notificationCheck?: number;
-  notificationCount?: number;
-  notificationPause?: number;
-  readPermissions?: string[];
-  readWritePermissions?: string[];
-}
-
-export interface SecretInit {
-  id?: string;
-  name: string;
-  key: string;
-  readPermissions?: string[];
-  readWritePermissions?: string[];
-}
-
-export interface TimeSeriesInit {
-  id: string;
-  name: string;
-  assetRef?: string;
-  assetRef$name?: string;
-  assetTsId?: string;
-  minDate?: Date;
-  tsRef?: [string];
-  metrics?: string[];
-  values: TimeSeriesValue[];
-  readPermissions?: string[];
-  readWritePermissions?: string[];
-}
-
-export interface TaskInit {
-  id?: string;
-  name: string;
-  readPermissions?: string[];
-  readWritePermissions?: string[];
-  assetRef?: string;
-  assetRef$name?: string;
-  subTasks?: string[];
-  assignedTo: string[];
-  status?: string;
-  acceptedBy?: string;
-}
-
-export interface EventInit {
-  id?: string;
-  name: string;
-  tags?: string[];
-  readPermissions?: string[];
-  readWritePermissions?: string[];
-  assetRef?: string;
-  assetRef$name?: string;
-  alertRef?: string;
-  alertRef$name?: string;
-  tsRef?: string;
-  tsRef$name?: string;
-  eventRef?: string;
-  cause?: string;
-  level?: string;
-  group?: string;
-}
+export type AssetInit = Replace<AtLeast<Asset, 'id' | 'name' | 'type'>, 'type', AssetTypeInit | string>;
+export type AssetTypeInit = AtLeast<AssetType, 'id' | 'name'>;
+export type ContentInit = Identity<AtLeast<Content, 'id' | 'filename'> & { filePath?: string, data?: any }>;
+export type EndpointInit = AtLeast<Endpoint, 'name'>;
+export type SecretInit = AtLeast<Secret, 'name' | 'key'>;
+export type TimeSeriesInit = Identity<AtLeast<TimeSeries, 'id' | 'name'> & { values: TimeSeriesValue[] }>;
+export type TaskInit = AtLeast<Task, 'name' | 'assignedTo'>;
+export type EventInit = AtLeast<Event, 'name'>;
 
 export interface UserInit {
   roles: string[];
