@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 1.0.3
+
+### Patch Changes
+
+- dac742f: changed Mock-API init types to be dependent on real types
+
 ## 1.0.2
 
 ### Patch Changes
