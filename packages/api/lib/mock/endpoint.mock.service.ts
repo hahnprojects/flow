@@ -1,4 +1,4 @@
-import { Endpoint } from '../endpoint.interface';
+import { Endpoint, NotificationPayload } from '../endpoint.interface';
 import { EndpointService } from '../endpoint.service';
 import { DataMockService } from './data.mock.service';
 
@@ -8,7 +8,7 @@ export class EndpointMockService extends DataMockService<Endpoint> implements En
     this.data = endpoints;
   }
 
-  sendNotification(endpointId: string, subject: string, message: string, group: string, eventLink?: string, assetLink?: string) {
+  sendNotification(endpointId: string, payload: NotificationPayload) {
     return Promise.resolve();
   }
 

@@ -9,9 +9,9 @@ export interface Endpoint {
     authToken: string;
     recipients?: string[];
   };
-  notificationCheck: number;
-  notificationCount: number;
-  notificationPause: number;
+  notificationCheckInterval: number;
+  notificationPauseInterval: number;
+  nbOfNotificationsBetweenPauseInterval: number;
   readPermissions: string[];
   readWritePermissions: string[];
 }
@@ -23,4 +23,15 @@ export interface EndpointLog {
   data?: string;
   group?: string;
   updatedAt?: string;
+}
+
+export interface NotificationPayload {
+  subject: string;
+  message: string;
+  group?: string;
+  level?: string;
+  eventLink?: string;
+  assetId?: string;
+  assetName?: string;
+  assetLink?: string;
 }

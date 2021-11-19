@@ -1,22 +1,14 @@
 import { HttpClient } from './http.service';
 import { DataService } from './data.service';
-import { Endpoint, EndpointLog } from './endpoint.interface';
+import { Endpoint, NotificationPayload, EndpointLog } from './endpoint.interface';
 
 export class EndpointService extends DataService<Endpoint> {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/notification/endpoints');
   }
 
-  sendNotification(
-    endpointId: string,
-    subject: string,
-    message: string,
-    group: string,
-    eventLink?: string,
-    assetLink?: string,
-  ): Promise<void> {
-    const body = { subject, message, group, ...(eventLink && { eventLink }), ...(assetLink && { assetLink }) };
-    return this.httpClient.post<void>(`${this.basePath}/${endpointId}`, body);
+  sendNotification(endpointId: string, payload: NotificationPayload): Promise<void> {
+    return this.httpClient.post<void>(`${this.basePath}/${endpointId}`, payload);
   }
 
   readLastLogByGroup(endpointId: string, group: string): Promise<EndpointLog> {

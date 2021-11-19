@@ -108,9 +108,9 @@ export class MockAPI implements API {
       description: value.description,
       status: value.status,
       config: value.config,
-      notificationCheck: value.notificationCheck,
-      notificationCount: value.notificationCount,
-      notificationPause: value.notificationPause,
+      notificationCheckInterval: value.notificationCheckInterval,
+      notificationPauseInterval: value.notificationPauseInterval,
+      nbOfNotificationsBetweenPauseInterval: value.nbOfNotificationsBetweenPauseInterval,
       readPermissions: [],
       readWritePermissions: [],
     }));
