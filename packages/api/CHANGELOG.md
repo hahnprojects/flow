@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 1.1.0
+
+### Minor Changes
+
+- 85cc9d7: add assetId and assetName to endpoint api and combine parameters to a single object
+
 ## 1.0.3
 
 ### Patch Changes

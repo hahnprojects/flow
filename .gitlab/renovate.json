@@ -4,5 +4,5 @@
   "rangeStrategy": "bump",
   "semanticCommits": "enabled",
   "semanticCommitType": "build",
-  "ignoreDeps": ["node", "outillage/commitsar"]
+  "ignoreDeps": ["outillage/commitsar"]
 }
