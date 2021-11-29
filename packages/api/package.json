@@ -32,7 +32,7 @@
     "axios": "^0.24.0",
     "form-data": "^4.0.0",
     "jwt-decode": "^3.1.2",
-    "p-queue": "^6.6.2"
+    "p-queue": "^7.1.0"
   },
   "devDependencies": {
     "axios-mock-adapter": "^1.20.0"
