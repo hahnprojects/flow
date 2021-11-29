@@ -1,0 +1,37 @@
+name: Validate
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate-commits:
+    name: Validate Commits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 100
+      - name: Validate Commits
+        uses: wagoid/commitlint-github-action@v4
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prepare PNPM
+        uses: ./.github/actions/prepare-pnpm
+      - name: Lint
+        run: pnpm lint -r
+  audit:
+    name: Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prepare PNPM
+        uses: ./.github/actions/prepare-pnpm
+      - name: Audit
+        run: pnpm audit --prod
