@@ -1,3 +1,5 @@
+[![CodeFactor](https://www.codefactor.io/repository/github/hahnprojects/flow/badge)](https://www.codefactor.io/repository/github/hahnprojects/flow)
+
 # Flow SDK & CLI
 
 For release notes, see the [CHANGELOG](https://gitlab.com/hahnpro/flow/blob/master/CHANGELOG.md)
