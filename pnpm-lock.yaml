@@ -107,7 +107,7 @@ importers:
       archiver: ^5.3.0
       axios: ^0.24.0
       chalk: ^4.1.2
-      class-transformer: 0.4.0
+      class-transformer: 0.5.1
       class-validator: ~0.13.2
       class-validator-jsonschema: ^3.1.0
       commander: ^8.3.0
@@ -128,9 +128,9 @@ importers:
       archiver: 5.3.0
       axios: 0.24.0
       chalk: 4.1.2
-      class-transformer: 0.4.0
+      class-transformer: 0.5.1
       class-validator: 0.13.2
-      class-validator-jsonschema: 3.1.0_6235e4b020312c74de38af4210d0f1ad
+      class-validator-jsonschema: 3.1.0_279461c9b8c03a205cdbc4878bc60cf8
       commander: 8.3.0
       copyfiles: 2.4.1
       dotenv: 10.0.0
@@ -160,7 +160,7 @@ importers:
       '@types/node': ^16.11.10
       amqp-connection-manager: ^3.7.0
       amqplib: ^0.8.0
-      class-transformer: 0.4.0
+      class-transformer: 0.5.1
       class-validator: ~0.13.2
       class-validator-jsonschema: ^3.1.0
       cloudevents: ^5.0.0
@@ -177,9 +177,9 @@ importers:
       '@hahnpro/hpc-api': link:../api
       amqp-connection-manager: 3.7.0_amqplib@0.8.0
       amqplib: 0.8.0
-      class-transformer: 0.4.0
+      class-transformer: 0.5.1
       class-validator: 0.13.2
-      class-validator-jsonschema: 3.1.0_6235e4b020312c74de38af4210d0f1ad
+      class-validator-jsonschema: 3.1.0_279461c9b8c03a205cdbc4878bc60cf8
       cloudevents: 5.0.0
       lodash: 4.17.21
       object-sizeof: 1.6.1
@@ -1945,17 +1945,17 @@ packages:
     resolution: {integrity: sha512-cOU9usZw8/dXIXKtwa8pM0OTJQuJkxMN6w30csNRUerHfeQ5R6U3kkU/FtJeIf3M202OHfY2U8ccInBG7/xogA==}
     dev: true
 
-  /class-transformer/0.4.0:
-    resolution: {integrity: sha512-ETWD/H2TbWbKEi7m9N4Km5+cw1hNcqJSxlSYhsLsNjQzWWiZIYA1zafxpK9PwVfaZ6AqR5rrjPVUBGESm5tQUA==}
+  /class-transformer/0.5.1:
+    resolution: {integrity: sha512-SQa1Ws6hUbfC98vKGxZH3KFY0Y1lm5Zm0SY8XX9zbK7FJCyVEac3ATW0RIpwzW+oOfmHE5PMPufDG9hCfoEOMw==}
     dev: false
 
-  /class-validator-jsonschema/3.1.0_6235e4b020312c74de38af4210d0f1ad:
+  /class-validator-jsonschema/3.1.0_279461c9b8c03a205cdbc4878bc60cf8:
     resolution: {integrity: sha512-1If+ZK3ZKhJfA7QWi064RJ2oTadBqmBtVPRb4DyxIlWS2m2hc9kWHwoEfycOroVfTuANMZ4XOtp3JD27U5V95w==}
     peerDependencies:
       class-transformer: ^0.4.0
       class-validator: ^0.13.1
     dependencies:
-      class-transformer: 0.4.0
+      class-transformer: 0.5.1
       class-validator: 0.13.2
       lodash.groupby: 4.6.0
       lodash.merge: 4.6.2

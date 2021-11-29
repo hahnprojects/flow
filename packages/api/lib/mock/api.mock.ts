@@ -166,13 +166,15 @@ export class MockAPI implements API {
 
 export type Identity<T> = { [P in keyof T]: T[P] };
 export type AtLeast<T, K extends keyof T> = Identity<Partial<T> & Pick<T, K>>;
-export type Replace<T, K extends keyof T, TReplace> = Identity<Pick<T, Exclude<keyof T, K>> & {
-  [P in K]: TReplace;
-}>;
+export type Replace<T, K extends keyof T, TReplace> = Identity<
+  Pick<T, Exclude<keyof T, K>> & {
+    [P in K]: TReplace;
+  }
+>;
 
 export type AssetInit = Replace<AtLeast<Asset, 'id' | 'name' | 'type'>, 'type', AssetTypeInit | string>;
 export type AssetTypeInit = AtLeast<AssetType, 'id' | 'name'>;
-export type ContentInit = Identity<AtLeast<Content, 'id' | 'filename'> & { filePath?: string, data?: any }>;
+export type ContentInit = Identity<AtLeast<Content, 'id' | 'filename'> & { filePath?: string; data?: any }>;
 export type EndpointInit = AtLeast<Endpoint, 'name'>;
 export type SecretInit = AtLeast<Secret, 'name' | 'key'>;
 export type TimeSeriesInit = Identity<AtLeast<TimeSeries, 'id' | 'name'> & { values: TimeSeriesValue[] }>;

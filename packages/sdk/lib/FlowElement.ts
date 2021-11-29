@@ -1,4 +1,4 @@
-import { plainToClass } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
 import { Options, PythonShell } from 'python-shell';
 import { API } from '@hahnpro/hpc-api';
@@ -86,7 +86,7 @@ export abstract class FlowElement<T = any> {
   }
 
   protected validateProperties<P>(classType: ClassType<P>, properties: any = {}, whitelist = false): P {
-    const props: P = plainToClass<P, any>(classType, properties);
+    const props: P = plainToInstance<P, any>(classType, properties);
     const errors = validateSync(props as any, { whitelist });
     if (Array.isArray(errors) && errors.length > 0) {
       for (const e of errors) {
