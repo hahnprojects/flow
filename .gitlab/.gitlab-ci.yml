@@ -3,7 +3,7 @@ stages:
 
 commit-messages:
   stage: test
-  image: outillage/commitsar:0.15.0
+  image: outillage/commitsar:0.16.0
   script:
     - commitsar
   rules:
