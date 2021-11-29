@@ -91,13 +91,33 @@ describe('Mock-API test', () => {
 
   test('FLOW.API.MOCK.3 endpoint', async () => {
     const sendNotifMock = jest.spyOn(api.endpointManager, 'sendNotification');
-    await api.endpointManager.sendNotification('endpoint1', { subject: 'test', message: 'Test'}).catch((err) => logError(err));
+    await api.endpointManager.sendNotification('endpoint1', { subject: 'test', message: 'Test' }).catch((err) => logError(err));
     expect(sendNotifMock).toBeCalledTimes(1);
     expect(sendNotifMock).toBeCalledWith('endpoint1', { subject: 'test', message: 'Test' });
 
-    await api.endpointManager.sendNotification('endpoint1', { subject: 'test', message: 'Test', group: 'test', level: 'INFO', eventLink: 'readme', assetId: 'asset1', assetName: 'asset', assetLink: 'readme' }).catch((err) => logError(err));
+    await api.endpointManager
+      .sendNotification('endpoint1', {
+        subject: 'test',
+        message: 'Test',
+        group: 'test',
+        level: 'INFO',
+        eventLink: 'readme',
+        assetId: 'asset1',
+        assetName: 'asset',
+        assetLink: 'readme',
+      })
+      .catch((err) => logError(err));
     expect(sendNotifMock).toBeCalledTimes(2);
-    expect(sendNotifMock).toBeCalledWith('endpoint1', { subject: 'test', message: 'Test', group: 'test', level: 'INFO', eventLink: 'readme', assetId: 'asset1', assetName: 'asset', assetLink: 'readme' });
+    expect(sendNotifMock).toBeCalledWith('endpoint1', {
+      subject: 'test',
+      message: 'Test',
+      group: 'test',
+      level: 'INFO',
+      eventLink: 'readme',
+      assetId: 'asset1',
+      assetName: 'asset',
+      assetLink: 'readme',
+    });
 
     const log = await api.endpointManager.readLastLogByGroup('endpoint1', 'test');
     expect(log).toBeDefined();

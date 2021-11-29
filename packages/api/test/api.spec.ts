@@ -51,8 +51,28 @@ describe('API test', () => {
 
   test('FLOW.API.3 endpoint', async () => {
     const mockedSendFn = jest.spyOn(api.endpoints, 'sendNotification');
-    await api.endpoints.sendNotification('endpoint1', { subject: 'test', message: 'Test', group: 'test', level: 'INFO', eventLink: 'readme', assetId: 'asset1', assetName: 'asset', assetLink: 'readme' }).catch((err) => logError(err));
-    expect(mockedSendFn).toHaveBeenCalledWith('endpoint1', { subject: 'test', message: 'Test', group: 'test', level: 'INFO', eventLink: 'readme', assetId: 'asset1', assetName: 'asset', assetLink: 'readme' });
+    await api.endpoints
+      .sendNotification('endpoint1', {
+        subject: 'test',
+        message: 'Test',
+        group: 'test',
+        level: 'INFO',
+        eventLink: 'readme',
+        assetId: 'asset1',
+        assetName: 'asset',
+        assetLink: 'readme',
+      })
+      .catch((err) => logError(err));
+    expect(mockedSendFn).toHaveBeenCalledWith('endpoint1', {
+      subject: 'test',
+      message: 'Test',
+      group: 'test',
+      level: 'INFO',
+      eventLink: 'readme',
+      assetId: 'asset1',
+      assetName: 'asset',
+      assetLink: 'readme',
+    });
   }, 60000);
 
   test('FLOW.API.4 secrets', async () => {
