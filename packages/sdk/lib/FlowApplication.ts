@@ -349,6 +349,7 @@ export class FlowApplication {
       await delay(250);
       await this.amqpConnection?.managedConnection?.close();
     } catch (err) {
+      /* eslint-disable-next-line no-console */
       console.error(err);
     } finally {
       process.exit(exitCode);

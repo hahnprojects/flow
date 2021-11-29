@@ -16,6 +16,7 @@ const path = require('path');
 
 require('dotenv').config();
 
+/* eslint-disable-next-line no-console */
 const log = console.log;
 const ok = chalk.bold.green;
 const error = chalk.bold.red;
@@ -432,6 +433,7 @@ function checkTypes(definedTypes, propsSchema, jsonPath) {
   const props = propsSchema.properties || {};
   for (const prop of Object.keys(props)) {
     if (props[prop].type && !knownTypes.includes(props[prop].type)) {
+      /* eslint-disable-next-line no-console */
       console.log(
         error(`ERROR: unknown type ${props[prop].type}.
        Please add a schema for this type in ${jsonPath}

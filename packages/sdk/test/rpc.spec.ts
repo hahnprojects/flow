@@ -3,7 +3,7 @@ import { join } from 'path';
 
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 
-// tslint:disable:no-console
+/* eslint-disable no-console */
 describe('Flow RPC', () => {
   let flowApp: FlowApplication;
 

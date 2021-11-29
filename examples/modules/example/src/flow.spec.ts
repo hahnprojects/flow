@@ -2,7 +2,7 @@ import { Flow, FlowApplication, FlowEvent, TestModule } from '@hahnpro/flow-sdk'
 
 import ExampleModule from '../';
 
-/* tslint:disable:no-console */
+/* eslint-disable no-console */
 describe('Example Test', () => {
   test('flow', (done) => {
     const flow: Flow = {

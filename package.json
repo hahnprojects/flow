@@ -5,7 +5,7 @@
     "preinstall": "npx only-allow pnpm",
     "changeset": "changeset",
     "format": "prettier --write . '!**/dist'",
-    "lint": "eslint '*/**/*.{js,ts}' --fix",
+    "lint": "eslint '*/**/*.{js,ts}'",
     "test": "jest"
   },
   "devDependencies": {

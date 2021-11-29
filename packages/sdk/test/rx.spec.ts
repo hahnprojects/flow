@@ -3,7 +3,7 @@ import { take } from 'rxjs/operators';
 
 import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
 
-/* tslint:disable:no-console */
+/* eslint-disable no-console */
 describe('rx', () => {
   test('FLOW.RX.1 rx', (done) => {
     const size = 3;

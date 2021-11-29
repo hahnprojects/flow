@@ -4,7 +4,7 @@ import { API } from '../lib';
 
 dotenv.config();
 
-/* tslint:disable:no-console */
+/* eslint-disable no-console */
 describe('API test', () => {
   const api = new API();
 

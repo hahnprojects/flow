@@ -3,7 +3,7 @@ import { FlowApplication, FlowEvent } from '@hahnpro/flow-sdk';
 
 import PythonModule from '../';
 
-// tslint:disable:no-console
+/* eslint-disable no-console */
 describe('Python', () => {
   let flowApp: FlowApplication;
 

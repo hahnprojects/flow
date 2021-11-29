@@ -9,7 +9,7 @@ export interface Logger {
   verbose(message, metadata?): void;
 }
 
-/* tslint:disable:no-console */
+/* eslint-disable no-console */
 export const defaultLogger: Logger = {
   debug: (msg, metadata?) => console.debug(msg),
   error: (msg, metadata?) => console.error(msg),
@@ -17,7 +17,7 @@ export const defaultLogger: Logger = {
   warn: (msg, metadata?) => console.warn(msg),
   verbose: (msg, metadata?) => console.log(msg, metadata),
 };
-/* tslint:enable:no-console */
+/* eslint-enable no-console */
 
 export class FlowLogger implements Logger {
   private static getStackTrace() {

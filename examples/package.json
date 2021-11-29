@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "build": "flow build",
-    "lint": "flow lint",
+    "lint": "eslint '*/**/*.{js,ts}' --fix",
     "format": "flow format",
     "test": "flow test",
     "prepackage": "flow lint",

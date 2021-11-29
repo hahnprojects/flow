@@ -12,6 +12,7 @@ jest.mock('chalk', () => ({
   },
 }));
 
+/* eslint-disable no-console */
 describe('check types', () => {
   beforeAll(() => {
     jest.spyOn(console, 'log').mockImplementation(() => {});

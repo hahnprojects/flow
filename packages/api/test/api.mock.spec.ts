@@ -5,7 +5,7 @@ import { Readable } from 'stream';
 
 dotenv.config();
 
-/* tslint:disable:no-console */
+/* eslint-disable no-console */
 describe('Mock-API test', () => {
   const api = new MockAPI({
     assets: [{ id: 'asset1', name: 'testAsset', type: { id: 'testId', name: 'testType' } }],
