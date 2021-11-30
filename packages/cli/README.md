@@ -1,6 +1,6 @@
 # `@hahnpro/flow-cli`
 
-https://gitlab.com/hahnpro/flow
+https://github.com/hahnprojects/flow
 
 # Commands
 

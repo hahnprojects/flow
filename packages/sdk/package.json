@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.com:hahnpro/flow.git"
+    "url": "git@github.com:hahnprojects/flow.git"
   },
   "directories": {
     "lib": "lib",
@@ -56,6 +56,6 @@
     "typescript": "^4.5.2"
   },
   "engines": {
-    "node": ">=v14.13"
+    "node": "^14.13.1 || >=16.0.0"
   }
 }
