@@ -2,7 +2,7 @@
 
 # Flow SDK & CLI
 
-For release notes, see the [CHANGELOG](https://gitlab.com/hahnpro/flow/blob/master/CHANGELOG.md)
+For release notes, see the [CHANGELOG](https://github.com/hahnprojects/flow/blob/main/CHANGELOG.md)
 
 ## Installing
 
@@ -12,7 +12,7 @@ The preferred way to install the Flow-SDK is to use the [npm package manager](ht
 npm install @hahnpro/flow-sdk
 ```
 
-For building, testing, linting, packaging and publishing your flow-modules, please also install the [Flow-CLI](https://gitlab.com/hahnpro/flow-cli):
+For building, testing, linting, packaging and publishing your flow-modules, please also install @hahnpro/flow-cli:
 
 ```bash
 npm install --save-dev @hahnpro/flow-cli
@@ -20,7 +20,7 @@ npm install --save-dev @hahnpro/flow-cli
 
 ## Usage and Getting Started
 
-You can find a project with a few example Flow-Modules here: [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples)
+You can find a project with a few example Flow-Modules here: [flow-module-examples](https://github.com/hahnprojects/flow/-/tree/main/examples)
 
 A short walkthrough of creating a new Flow-Module can be found [below](#creating-a-new-flow-module)
 
@@ -28,13 +28,13 @@ A short walkthrough of creating a new Flow-Module can be found [below](#creating
 
 Flow-Modules should be developed in TypeScript. All required dependencies, including a current version of TypeScript, come bundled with the SDK.
 
-Examples for TypeScript configurations (`tsconfig.json` files) can be found in the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples) repository.
+Examples for TypeScript configurations (`tsconfig.json` files) can be found in the [flow-module-examples](https://github.com/hahnprojects/flow/-/tree/main/examples) repository.
 
 ## Creating a New Flow-Module
 
 ### Project Setup and Folder Structure
 
-You can use the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples) project as a template for creating new Flow-Modules.
+You can use the [flow-module-examples](https://github.com/hahnprojects/flow/-/tree/main/examples) project as a template for creating new Flow-Modules.
 
 A minimal project setup should look something like this:
 
@@ -147,7 +147,7 @@ The suggested way to do this is using the [`class-validator`](https://github.com
 
 For convenience the `validateProperties` and `validateEventData` methods are provided.
 
-For more information on how to validate properties see the example below and in the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples) repository.
+For more information on how to validate properties see the example below and in the [flow-module-examples](https://github.com/hahnprojects/flow/-/tree/main/examples) repository.
 
 #### Example
 
@@ -286,7 +286,7 @@ There are two possibilities to run python scripts in your Flow-Functions.
 - script stays running between messages
 - useful for complex scripts that have to keep running to save data in memory
 
-See the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples) repository for examples of how to run python scripts in your Flow-Function implementation.
+See the [flow-module-examples](https://github.com/hahnprojects/flow/-/tree/main/examples) repository for examples of how to run python scripts in your Flow-Function implementation.
 
 #### Python integration examples
 
@@ -306,7 +306,7 @@ new MockAPI({
 })
 ```
 
-For more information on how to test your Flow-Function implementations see the [flow-module-examples](https://gitlab.com/hahnpro/flow/-/tree/master/examples) repository.
+For more information on how to test your Flow-Function implementations see the [flow-module-examples](https://github.com/hahnprojects/flow/-/tree/main/examples) repository.
 For information on running Flow-Module tests in CI see [this](/doc/flow-testing-pipeline.md)
 
 ### Testing examples
@@ -319,7 +319,7 @@ For information on running Flow-Module tests in CI see [this](/doc/flow-testing-
 
 ## Publishing
 
-For building, packaging and publishing a module the [Flow-CLI](https://gitlab.com/hahnpro/flow-cli) provides useful scripts. Add the following to your projects root `package.json` file:
+For building, packaging and publishing a module the [Flow-CLI](https://github.com/hahnprojects/flow-cli) provides useful scripts. Add the following to your projects root `package.json` file:
 
 ```json
 "scripts": {
@@ -367,7 +367,7 @@ npm install @hahnpro/flow-sdk@latest @hahnpro/flow-cli@latest
 
 ### Review Changes
 
-[CHANGELOG](https://gitlab.com/hahnpro/flow/blob/master/CHANGELOG.md)
+[CHANGELOG](https://github.com/hahnprojects/flow/blob/main/CHANGELOG.md)
 
 ### Migration to version 4.8.0+
 
