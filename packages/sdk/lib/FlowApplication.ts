@@ -242,7 +242,7 @@ export class FlowApplication {
     return this.properties;
   }
 
-  public onMessage = async (event: CloudEvent<any>): Promise<Nack | undefined> => {
+  public onMessage = async (event: CloudEvent): Promise<Nack | undefined> => {
     if (event.type === 'com.flowstudio.deployment.update') {
       try {
         const flow = event.data as Flow;
