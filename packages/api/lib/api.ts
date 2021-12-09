@@ -11,7 +11,6 @@ import { TaskService } from './task.service';
 import { TimeSeriesService } from './timeseries.service';
 import { UserService } from './user.service';
 
-// tslint:disable:no-console
 export class API {
   public httpClient: HttpClient;
 
@@ -77,6 +76,7 @@ export class API {
 
     let apiBaseUrl = process.env.API_BASE_URL || 'https://testing.hahnpro.com';
     if (!apiBaseUrl.startsWith('https') && !apiBaseUrl.startsWith('http')) {
+      /* eslint-disable-next-line no-console */
       console.info('no protocol specified - using HTTPS');
       apiBaseUrl = `https://${apiBaseUrl}`;
     }

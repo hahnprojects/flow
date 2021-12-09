@@ -10,7 +10,9 @@ import { dimensionToUnitMap, units } from './units';
 
 export function makeUnitDecorator(unit: string, metric: string, validationOptions?: ValidationOptions) {
   const conversionFactor = verifyUnit(unit, metric);
-  if (conversionFactor < 0) throw `${unit} is not a valid ${metric}.`;
+  if (conversionFactor < 0) {
+    throw new Error(`${unit} is not a valid ${metric}.`);
+  }
   return (object: any, propertyName: string) => {
     Reflect.defineMetadata(`conversionFactor:${propertyName}`, conversionFactor, object.constructor);
     registerDecorator({
@@ -132,7 +134,7 @@ function computeIndices(unit: string, dimensions: string[]) {
 
 export function computeUnitOptions(dimension: string): { prefUnit: string; convfactor: number; offset: number }[] {
   const definition = units[dimensionToUnitMap[dimension.substring(0, 1)]];
-  const exponent = dimension.length === 1 ? 1 : Number.parseInt(dimension.substring(dimension.length - 1));
+  const exponent = dimension.length === 1 ? 1 : Number.parseInt(dimension.substring(dimension.length - 1), 10);
   const withPrefixes = definition.units
     .filter((unit) => unit.SIPrefixes)
     .map((unit) =>

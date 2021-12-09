@@ -4,7 +4,7 @@ import { CloudEvent } from 'cloudevents';
 import { loggerMock } from './logger.mock';
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 
-// tslint:disable:no-console
+/* eslint-disable no-console */
 describe('Flow Application', () => {
   test('FLOW.CON.1 Simple Flow Application with Long Running Task', (done) => {
     const flow = {

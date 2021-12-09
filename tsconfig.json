@@ -21,6 +21,9 @@
   "exclude": ["**/dist", "**/node_modules"],
   "references": [
     {
+      "path": "./packages/api/tsconfig.json"
+    },
+    {
       "path": "./packages/sdk/tsconfig.json"
     }
   ]

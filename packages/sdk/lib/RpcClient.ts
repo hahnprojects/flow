@@ -45,7 +45,7 @@ export class RpcClient {
       }
     } else {
       const message = `received unexpected response correlationID: ${msg.properties.correlationId}`;
-      /* tslint:disable-next-line */
+      /* eslint-disable-next-line no-console */
       console.warn(message);
     }
   };

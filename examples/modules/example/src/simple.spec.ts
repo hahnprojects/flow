@@ -2,7 +2,7 @@ import { FlowEvent } from '@hahnpro/flow-sdk';
 
 import { DoNothing } from './DoNothing';
 
-/* tslint:disable:no-console */
+/* eslint-disable no-console */
 describe('Simple', () => {
   test('simple test', async () => {
     const nothingHappens = new DoNothing({ id: 'nothing' }, { logData: false });

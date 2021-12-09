@@ -1,35 +1,46 @@
 #!/usr/bin/env node
-require('reflect-metadata');
+import 'reflect-metadata';
+import 'dotenv/config';
 
-const archiver = require('archiver');
-let axios = require('axios').default;
-const chalk = require('chalk');
-const { Command } = require('commander');
-const copyfiles = require('copyfiles');
-const execa = require('execa');
-const FormData = require('form-data');
-const fs = require('fs');
-const glob = require('glob');
-const HttpsProxyAgent = require('https-proxy-agent');
-const ora = require('ora');
-const path = require('path');
+import archiver from 'archiver';
+import Axios from 'axios';
+import chalk from 'chalk';
+import { Command } from 'commander';
+import copyfiles from 'copyfiles';
+import { execa } from 'execa';
+import FormData from 'form-data';
+import glob from 'glob';
+import HttpsProxyAgent from 'https-proxy-agent';
+import fs from 'node:fs';
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import ora from 'ora';
 
-require('dotenv').config();
+import { handleConvertedOutput, prepareTsFile } from './utils.mjs';
 
-const log = console.log;
-const ok = chalk.bold.green;
-const error = chalk.bold.red;
+const require = createRequire(import.meta.url);
+
+const logger = {
+  /* eslint-disable no-console */
+  log: console.log,
+  error: (message) => console.log(chalk.bold.red(message)),
+  ok: (message) => console.log(chalk.bold.green(message)),
+  /* eslint-enable no-console */
+};
 
 const apiUser = process.env.API_USER;
 const apiKey = process.env.API_KEY;
 const baseUrl = process.env.PLATFORM_URL;
-const buildDir = process.env.BUILD_DIR || 'dist';
+const buildDirectory = process.env.BUILD_DIR || 'dist';
 const realm = process.env.REALM;
 const authUrl = process.env.AUTH_URL || `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/token`;
 
+let axios;
 if (process.env.https_proxy || process.env.http_proxy) {
   const httpsAgent = new HttpsProxyAgent(process.env.https_proxy || process.env.http_proxy);
-  axios = axios.create({ httpsAgent, proxy: false });
+  axios = Axios.create({ httpsAgent, proxy: false });
+} else {
+  axios = Axios;
 }
 
 let apiToken;
@@ -41,7 +52,6 @@ const CMD = {
   FORMAT: 'format',
   INSTALL: 'install',
   LINT: 'lint',
-  PUBLISH: 'publish',
   RUN: 'run',
   TEST: 'test',
   WATCH: 'watch',
@@ -50,7 +60,7 @@ const CMD = {
 const program = new Command();
 
 program
-  .version('2.10.0', '-v, --version')
+  .version('2.12.0', '-v, --version')
   .usage('[command] [options]')
   .description('Flow Module Management Tool')
   .on('--help', () => {});
@@ -65,8 +75,8 @@ program
       await exec(CMD.INSTALL, project);
       await exec(CMD.BUILD, project);
       await copyProjectFiles(project);
-    } catch (err) {
-      if (err) log(err);
+    } catch (error) {
+      if (error) logger.log(error);
       process.exit(1);
     }
   });
@@ -85,8 +95,8 @@ program
         const project = await findProject(projectName);
         await exec(CMD.INSTALL, project);
       }
-    } catch (err) {
-      if (err) log(err);
+    } catch (error) {
+      if (error) logger.log(error);
       process.exit(1);
     }
   });
@@ -105,8 +115,8 @@ program
         const project = await findProject(projectName);
         await exec(CMD.AUDIT, project);
       }
-    } catch (err) {
-      if (err) log(err);
+    } catch (error) {
+      if (error) logger.log(error);
       process.exit(1);
     }
   });
@@ -122,8 +132,8 @@ program
       }
       project = await findProject(projectName);
       await exec(CMD.LINT, project);
-    } catch (err) {
-      if (err) log(err);
+    } catch (error) {
+      if (error) logger.log(error);
       process.exit(1);
     }
   });
@@ -134,8 +144,8 @@ program
   .action(async () => {
     try {
       await exec(CMD.FORMAT, { name: 'all' });
-    } catch (err) {
-      if (err) log(err);
+    } catch (error) {
+      if (error) logger.log(error);
       process.exit(1);
     }
   });
@@ -147,14 +157,14 @@ program
     try {
       if (checkIfAll(projectName)) process.exit(1);
       const project = await findProject(projectName);
-      await clean(buildDir);
+      await clean(buildDirectory);
       await exec(CMD.INSTALL, project);
       await exec(CMD.BUILD, project);
       await copyProjectFiles(project);
       await validateModule(project);
       await packageModule(project);
-    } catch (err) {
-      if (err) log(err);
+    } catch (error) {
+      if (error) logger.log(error);
       process.exit(1);
     }
   });
@@ -167,7 +177,7 @@ program
   .description('Publishes specified Module to Cloud Platform')
   .action(async (projectName, options) => {
     try {
-      if (checkEnvModules()) process.exit(1);
+      if (checkEnvironmentModules()) process.exit(1);
       const projects = [];
       if (projectName === 'all') {
         for (const project of await findProjects()) {
@@ -179,25 +189,25 @@ program
 
       await getAccessToken();
       for (const project of projects) {
-        await clean(buildDir);
+        await clean(buildDirectory);
         await exec(CMD.INSTALL, project);
         await exec(CMD.BUILD, project);
         await copyProjectFiles(project);
         await validateModule(project);
         try {
           await publishModule(project);
-        } catch (e) {
+        } catch (error) {
           if (
             options.skip &&
-            e &&
-            e.response &&
-            e.response.data &&
-            e.response.data.message === 'New module version must greater than latest version'
+            error &&
+            error.response &&
+            error.response.data &&
+            error.response.data.message === 'New module version must greater than latest version'
           ) {
-            log(ok(`Module "${project.name}" is up to date. Skipping.`));
+            logger.ok(`Module "${project.name}" is up to date. Skipping.`);
           } else {
-            log(error(`Publishing Module "${project.name}" failed.`));
-            handleApiError(e);
+            logger.error(`Publishing Module "${project.name}" failed.`);
+            handleApiError(error);
             process.exit(1);
           }
         }
@@ -205,8 +215,8 @@ program
           await publishFunctions(project, options.update);
         }
       }
-    } catch (err) {
-      if (err) log(err);
+    } catch (error) {
+      if (error) logger.log(error);
       process.exit(1);
     }
   });
@@ -217,7 +227,7 @@ program
   .description('Publishes all Flow Functions inside specified Module to Cloud Platform')
   .action(async (projectName, options) => {
     try {
-      if (checkEnvModules()) process.exit(1);
+      if (checkEnvironmentModules()) process.exit(1);
       const projects = [];
       if (projectName === 'all') {
         for (const project of await findProjects()) {
@@ -231,8 +241,8 @@ program
       for (const project of projects) {
         await publishFunctions(project, options.update);
       }
-    } catch (err) {
-      if (err) log(err);
+    } catch (error) {
+      if (error) logger.log(error);
       process.exit(1);
     }
   });
@@ -248,8 +258,8 @@ program
       await exec(CMD.BUILD, project);
       await copyProjectFiles(project);
       await exec(CMD.WATCH, project);
-    } catch (err) {
-      if (err) log(err);
+    } catch (error) {
+      if (error) logger.log(error);
       process.exit(1);
     }
   });
@@ -262,8 +272,8 @@ program
       if (checkIfAll(projectName)) process.exit(1);
       const project = await findProject(projectName);
       await exec(CMD.RUN, project);
-    } catch (err) {
-      if (err) log(err);
+    } catch (error) {
+      if (error) logger.log(error);
       process.exit(1);
     }
   });
@@ -284,8 +294,8 @@ program
         const project = await findProject(projectName);
         await exec(CMD.TEST, project);
       }
-    } catch (err) {
-      if (err) log(err);
+    } catch (error) {
+      if (error) logger.log(error);
       process.exit(1);
     }
   });
@@ -302,27 +312,27 @@ program
         cwd: project.location,
         ignore: ['node_modules/**/*', '**/package*.json', '**/tsconfig*.json'],
       };
-      glob('**/*.*', globOptions, async (err, files) => {
+      glob('**/*.*', globOptions, async (error, files) => {
         const filtered = files.filter((file) => !file.endsWith('.spec.ts'));
-        const tsJsonMap = filtered.reduce((acc, cur, i, arr) => {
-          if (cur.endsWith('.ts')) {
+        const tsJsonMap = filtered.reduce((accumulator, current, index, array) => {
+          if (current.endsWith('.ts')) {
             // get json file for current function
-            const json = arr.find((v) => v === `${cur.split('.')[0]}.json`);
+            const json = array.find((v) => v === `${current.split('.')[0]}.json`);
             if (json) {
-              acc.push({
-                ts: path.join(globOptions.cwd, cur),
+              accumulator.push({
+                ts: path.join(globOptions.cwd, current),
                 json: path.join(globOptions.cwd, json),
               });
             }
           }
-          return acc;
+          return accumulator;
         }, []);
-        tsJsonMap.forEach((entry) => {
-          generateSchemasForFile(entry.ts, entry.json);
-        });
+        for (let entry of tsJsonMap) {
+          await generateSchemasForFile(entry.ts, entry.json);
+        }
       });
-    } catch (err) {
-      if (err) log(err);
+    } catch (error) {
+      if (error) logger.log(error);
       process.exit(1);
     }
   });
@@ -331,216 +341,31 @@ if (process.env.NODE_ENV !== 'test') {
   program.parse(process.argv);
 }
 
-function generateSchemasForFile(tsPath, jsonPath) {
+async function generateSchemasForFile(tsPath, jsonPath) {
   // get schema
-  let json = require(path.join(process.cwd(), jsonPath));
+  let json = JSON.parse(await fs.promises.readFile(path.join(process.cwd(), jsonPath)));
 
   const filePath = path.join(process.cwd(), tsPath);
-  const tsFile = String(fs.readFileSync(filePath));
-  const dir = path.dirname(filePath);
+  const tsFile = String(await fs.promises.readFile(filePath));
+  const directory = path.dirname(filePath);
 
-  execa('ts-node', ['-T', '--dir', dir], { input: prepareTsFile(tsFile), preferLocal: true }).then((result) => {
-    json = handleConvertedOutput(result.stdout, jsonPath, json);
-
-    fs.writeFileSync(path.join(process.cwd(), jsonPath), JSON.stringify(json, null, 2) + '\n');
-  });
-}
-
-function handleConvertedOutput(result, jsonPath, json) {
-  let schema;
-  try {
-    schema = JSON.parse(result);
-  } catch (e) {
-    log(error(result));
-    return json;
-  }
-  [
-    ['propertiesSchema', 'Properties'],
-    ['inputStreams', 'InputProperties'],
-    ['outputStreams', 'OutputProperties'],
-  ].forEach((value) => {
-    const propsSchema = schema[value[1]] || {};
-    (propsSchema.required || []).forEach((reqProp) => {
-      propsSchema.properties[reqProp] = { ...propsSchema.properties[reqProp], required: true };
-    });
-    // remove required field
-    delete propsSchema.required;
-
-    checkTypes(getTypes(jsonPath), propsSchema, jsonPath);
-
-    const completeSchema = {
-      schema: {
-        type: 'object',
-        properties: {
-          ...propsSchema.properties,
-        },
-      },
-    };
-
-    if (value[0] === 'propertiesSchema') {
-      if (!json['propertiesSchema']) {
-        json['propertiesSchema'] = completeSchema;
-      }
-    } else {
-      // check if config for default input/output stream exists
-      if (!json[value[0]].find((v) => v.name === 'default')) {
-        if (propsSchema) {
-          json[value[0]].push({
-            name: 'default',
-            ...completeSchema,
-          });
-        }
-      }
-    }
-  });
-
-  // add definitions
-  if (Object.keys(schema).some((key) => !['Properties', 'InputProperties', 'OutputProperties'].includes(key))) {
-    const typeDefinitions = Object.keys(schema).filter((key) => !['Properties', 'InputProperties', 'OutputProperties'].includes(key));
-    json.definitions = typeDefinitions.reduce((previousValue, currentValue) => {
-      const additionalSchema = schema[currentValue];
-      (additionalSchema.required || []).forEach((reqProp) => {
-        additionalSchema.properties[reqProp] = { ...additionalSchema.properties[reqProp], required: true };
-      });
-      delete additionalSchema.required;
-      previousValue[currentValue] = additionalSchema;
-      return previousValue;
-    }, {});
-  }
-  return json;
-}
-
-function checkTypes(definedTypes, propsSchema, jsonPath) {
-  const knownTypes = [
-    ...definedTypes,
-    'string',
-    'undefined',
-    'number',
-    'boolean',
-    'any',
-    'object',
-    'array',
-    'integer',
-    'Asset',
-    'AssetType',
-    'Flow',
-    'Secret',
-    'TimeSeries',
-  ];
-
-  // check if all types are known
-  const props = propsSchema.properties || {};
-  for (const prop of Object.keys(props)) {
-    if (props[prop].type && !knownTypes.includes(props[prop].type)) {
-      console.log(
-        error(`ERROR: unknown type ${props[prop].type}.
-       Please add a schema for this type in ${jsonPath}
-       for more info check the documentation`),
-      );
-      return false;
-    }
-  }
-  return true;
-}
-
-function prepareTsFile(file) {
-  // if a class extends another and does not have its own fields no metadata is generated and so no schema can be generated
-  // in this case replace empty block with the block it inherits from
-  let codeBlocks = getCodeBlocks(file);
-  const emptyExtendsBlock = codeBlocks.find((block) => classNameIncludes(block, 'extends') && isBlockEmpty(block));
-  if (emptyExtendsBlock) {
-    // replace block and remove extends
-    let replBlock = `${emptyExtendsBlock}`;
-    if (replBlock.replace(/\s\s+/g, ' ').trim().startsWith('class OutputProperties')) {
-      // remove extends
-      replBlock = replBlock.replace('extends InputProperties', '');
-      // replace block with InputProperties block
-      const inputPropsBlock = codeBlocks.find((v) => classNameIncludes(v, 'InputProperties') && !classNameIncludes(v, 'OutputProperties'));
-      replBlock = replBlock.replace(getBlockContent(replBlock), getBlockContent(inputPropsBlock));
-
-      file = file.replace(emptyExtendsBlock, replBlock);
-    }
-  }
-  return (
-    `import { validationMetadatasToSchemas as v } from 'class-validator-jsonschema';\n` +
-    `import { defaultMetadataStorage as classTransformerDefaultMetadataStorage } from 'class-transformer/cjs/storage';\n` +
-    `${file}\n` +
-    `const s = v({\n
-      additionalConverters: {\n
-        UnitArgsValidator: (meta) => {\n
-          return {\n
-            measure: meta.constraints[0],\n
-            unit: meta.constraints[1],\n
-            type: 'number',\n
-          };\n
-        },\n
-      },\n
-      classTransformerMetadataStorage\n
-    });\n` +
-    `console.log(JSON.stringify(s));`
-  );
-}
-
-function getCodeBlocks(str) {
-  const blocks = [];
-  let counter = 0;
-  let start = 0;
-  let lastNewline = 0;
-  [...str].forEach((char, index) => {
-    if (char === '\n') {
-      lastNewline = index;
-    }
-    if (char === '{') {
-      if (counter === 0) {
-        // first bracket of block
-        start = lastNewline;
-      }
-      counter++;
-    } else if (char === '}') {
-      counter--;
-      if (counter === 0) {
-        // last bracket of block
-        blocks.push(str.substring(start, index + 1));
-      }
-    }
-  });
-  return blocks;
-}
-
-function classNameIncludes(str, className) {
-  return str.trim().split('\n', 1)[0].includes(className);
-}
-
-function getBlockContent(block) {
-  return block.substring(block.indexOf('{'), block.lastIndexOf('}') + 1);
-}
-
-function isBlockEmpty(block) {
-  const blockContent = block.substring(block.indexOf('{') + 1, block.lastIndexOf('}'));
-  return !blockContent.trim();
-}
-
-function getTypes(filePath) {
-  try {
-    const json = require(path.join(process.cwd(), filePath));
-    return json.definitions ? Object.keys(json.definitions) : [];
-  } catch (e) {
-    return [];
-  }
+  const result = await execa('ts-node', ['-T', '--dir', directory], { input: prepareTsFile(tsFile), preferLocal: true });
+  json = await handleConvertedOutput(result.stdout, jsonPath, json);
+  await fs.promises.writeFile(path.join(process.cwd(), jsonPath), JSON.stringify(json, null, 2) + '\n');
 }
 
 async function clean(buildFolder) {
   return new Promise((resolve, reject) => {
     const spinner = getSpinner('Cleaning').start();
-    fs.rmdir(buildFolder, { recursive: true }, (err) => {
-      if (err) {
+    fs.rmdir(buildFolder, { recursive: true }, (error) => {
+      if (error) {
         spinner.stop();
-        log(error('Cleaning failed'));
-        log(error(err));
-        return reject(err);
+        logger.error('Cleaning failed');
+        logger.error(error);
+        return reject(error);
       } else {
         spinner.stop();
-        log(ok('Cleaning successful'));
+        logger.ok('Cleaning successful');
         return resolve();
       }
     });
@@ -550,13 +375,12 @@ async function clean(buildFolder) {
 function exec(cmd, project) {
   return new Promise((resolve, reject) => {
     if (!project) {
-      log(`${chalk.red('Wrong command options.')} Type "hpc ${cmd} --help" to see how to use this command`);
       return reject();
     }
 
     const options = { ...getProcessOptions(cmd, project), env: process.env };
     if (cmd === CMD.RUN || cmd === CMD.WATCH) {
-      log(ok(`\n${getLabel(cmd)} ${project.name}:\n`));
+      logger.ok(`\n${getLabel(cmd)} ${project.name}:\n`);
       execa(getProcess(cmd), getProcessArguments(cmd, project), options).stdout.pipe(process.stdout);
     } else {
       const spinner = getSpinner(`${getLabel(cmd)} ${project.name}`);
@@ -564,76 +388,66 @@ function exec(cmd, project) {
       execa(getProcess(cmd), getProcessArguments(cmd, project), options)
         .then((result) => {
           spinner.stop();
-          log(result.stdout);
-          log(ok(`${getLabel(cmd)} Succeeded`));
+          logger.log(result.stdout);
+          logger.ok(`${getLabel(cmd)} Succeeded`);
           return resolve();
         })
-        .catch((err) => {
+        .catch((error) => {
           spinner.stop();
-          if (err.stderr) log(error(err.stderr));
-          else log(error(err));
-          if (err.stdout) log(err.stdout);
-          log(error(`${getLabel(cmd)} Failed`));
+          if (error.stderr) logger.error(error.stderr);
+          else logger.error(error);
+          if (error.stdout) logger.log(error.stdout);
+          logger.error(`${getLabel(cmd)} Failed`);
           return reject();
         });
     }
   });
 }
 
-function isDir(p) {
-  return new Promise((res, rej) => {
-    fs.lstat(p, (err, stats) => {
-      if (!err && stats) {
-        res(stats.isDirectory());
+function isDirectory(p) {
+  return new Promise((resolve) => {
+    fs.lstat(p, (error, stats) => {
+      if (!error && stats) {
+        resolve(stats.isDirectory());
       } else {
-        res(false);
+        resolve(false);
       }
     });
   });
 }
 
 async function findProjects() {
-  const readDir = (dir) =>
-    new Promise((res, rej) => {
-      fs.readdir(dir, (err, files) => {
-        if (!err && files) {
-          res(files);
+  const isProject = (directory) =>
+    new Promise((resolve) => {
+      fs.access(path.join(directory, 'package.json'), (error) => {
+        if (!error) {
+          resolve(true);
         } else {
-          res([]);
-        }
-      });
-    });
-  const isProject = (dir) =>
-    new Promise((res, rej) => {
-      fs.access(path.join(dir, 'package.json'), (err) => {
-        if (!err) {
-          res(true);
-        } else {
-          res(false);
+          resolve(false);
         }
       });
     });
 
-  const rootPkg = await readJson(path.join(process.cwd(), 'package.json'));
+  const rootPackage = await readJson(path.join(process.cwd(), 'package.json'));
 
   const projects = [];
-  const files = await readDir(projectsRoot);
+  const files = await fs.promises.readdir(projectsRoot);
   if (files) {
     for (const file of files) {
-      if (file && (await isDir(path.join(projectsRoot, file)))) {
+      if (file && (await isDirectory(path.join(projectsRoot, file)))) {
         const projectPath = path.join(projectsRoot, file, 'package.json');
         if (await isProject(path.join(projectsRoot, file))) {
           try {
-            const pkg = await readJson(path.join(path.dirname(projectPath), 'package.json'));
-            pkg.location = path.posix.join(projectsRoot, file);
-            pkg.dist = path.posix.join(process.cwd(), buildDir, file);
-            if (rootPkg) {
-              pkg.dependencies = { ...pkg.dependencies, ...rootPkg.dependencies };
-              pkg.repository = rootPkg.repository;
+            const package_ = await readJson(path.join(path.dirname(projectPath), 'package.json'));
+            package_.location = path.posix.join(projectsRoot, file);
+            package_.dist = path.posix.join(process.cwd(), buildDirectory, file);
+            if (rootPackage) {
+              package_.dependencies = { ...package_.dependencies, ...rootPackage.dependencies };
+              package_.repository = rootPackage.repository;
             }
-            projects.push(pkg);
-          } catch (err) {
-            if (err) log(err);
+            projects.push(package_);
+          } catch (error) {
+            if (error) logger.log(error);
           }
         }
       }
@@ -646,7 +460,7 @@ async function findProjects() {
 function findProject(projectName) {
   return new Promise(async (resolve, reject) => {
     if (!projectName) {
-      log(error('No project specified'));
+      logger.error('No project specified');
       return reject();
     }
     if (projectName === 'all') {
@@ -661,13 +475,13 @@ function findProject(projectName) {
     const projects = await findProjects();
     for (const project of projects) {
       const location = path.parse(project.location);
-      const dirName = location.name + location.ext;
-      if (project.name === projectName || dirName === projectName) {
+      const directoryName = location.name + location.ext;
+      if (project.name === projectName || directoryName === projectName) {
         return resolve(project);
       }
     }
 
-    log(error(`Cloud not find ${projectName} Module.`));
+    logger.error(`Cloud not find ${projectName} Module.`);
     reject();
   });
 }
@@ -675,32 +489,32 @@ function findProject(projectName) {
 async function getAccessToken() {
   return new Promise(async (resolve, reject) => {
     try {
-      const params = new URLSearchParams([
+      const parameters = new URLSearchParams([
         ['client_id', apiUser],
         ['client_secret', apiKey],
         ['grant_type', 'client_credentials'],
       ]);
       const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
-      const response = (await axios.post(authUrl, params.toString(), { headers })).data;
+      const response = await axios.post(authUrl, parameters.toString(), { headers });
+      const data = response.data;
 
-      if (!response || !response.access_token) {
-        throw new Error();
+      if (!data || !data.access_token) {
+        throw new Error('Could not get AccessToken');
       }
-      apiToken = response.access_token;
-      log(ok('AccessToken acquired'));
+      apiToken = data.access_token;
+      logger.ok('AccessToken acquired');
       return resolve();
-    } catch (err) {
-      log(error('Could not get AccessToken'));
-      handleApiError(err);
+    } catch (error) {
+      handleApiError(error);
       return reject();
     }
   });
 }
 
 async function packageModule(project) {
-  const { location, dist, ...package } = project;
+  const { dist, ...package_ } = project;
   const file = path.posix.join(dist, '..', `${project.name}.zip`);
-  await writeJson(path.join(dist, 'package.json'), package);
+  await writeJson(path.join(dist, 'package.json'), package_);
   await zipDirectory(dist, file);
   return file;
 }
@@ -723,10 +537,10 @@ async function publishModule(project) {
         },
       });
 
-      log(ok(`Module "${project.name}" published!`));
+      logger.ok(`Module "${project.name}" published!`);
       return resolve();
-    } catch (err) {
-      return reject(err);
+    } catch (error) {
+      return reject(error);
     } finally {
       deleteFile(file);
     }
@@ -738,18 +552,18 @@ async function validateModule(project) {
   const moduleName = Reflect.getMetadata('module:name', module.default);
   const moduleDeclarations = Reflect.getMetadata('module:declarations', module.default);
 
-  const funcFqns = [];
+  const functionFqns = [];
   for (const declaration of moduleDeclarations) {
     const fqn = Reflect.getMetadata('element:functionFqn', declaration);
     if (!fqn) {
       throw new Error(`FlowFunction (${declaration.name}) metadata is missing or invalid.`);
     }
-    funcFqns.push(fqn);
+    functionFqns.push(fqn);
   }
 
   if (moduleName) {
     project.name = moduleName;
-    project.functions = funcFqns;
+    project.functions = functionFqns;
   } else {
     throw new Error('Could not validate module name');
   }
@@ -761,9 +575,9 @@ async function publishFunctions(project, update) {
       cwd: project.location,
       ignore: ['node_modules/**/*', '**/package*.json', '**/tsconfig*.json'],
     };
-    glob('**/*.json', globOptions, async (err, files) => {
-      if (err) {
-        return reject(err);
+    glob('**/*.json', globOptions, async (error, files) => {
+      if (error) {
+        return reject(error);
       }
       const headers = { Authorization: `Bearer ${apiToken}` };
 
@@ -775,23 +589,23 @@ async function publishFunctions(project, update) {
             if (update) {
               try {
                 await axios.put(`${baseUrl}/api/flow/functions/${json.fqn}`, json, { headers });
-                log(ok(`Flow Function "${json.fqn}" has been updated`));
-              } catch (err) {
-                log(error(`Flow Function "${json.fqn}" could not be updated`));
-                handleApiError(err);
+                logger.ok(`Flow Function "${json.fqn}" has been updated`);
+              } catch (error) {
+                logger.error(`Flow Function "${json.fqn}" could not be updated`);
+                handleApiError(error);
               }
             } else {
               try {
                 await axios.post(`${baseUrl}/api/flow/functions`, json, { headers });
-                log(ok(`Flow Function "${json.fqn}" has been created`));
-              } catch (err) {
-                log(error(`Flow Function "${json.fqn}" could not be created`));
-                handleApiError(err);
+                logger.ok(`Flow Function "${json.fqn}" has been created`);
+              } catch (error) {
+                logger.error(`Flow Function "${json.fqn}" could not be created`);
+                handleApiError(error);
               }
             }
           }
-        } catch (err) {
-          log(error(err));
+        } catch (error) {
+          logger.error(error);
         }
       }
       return resolve();
@@ -799,14 +613,14 @@ async function publishFunctions(project, update) {
   });
 }
 
-function handleApiError(err) {
-  if (err.isAxiosError && err.response) {
-    log(error(`${err.response.status} ${err.response.statusText}`));
-    if (err.response.data) {
-      log(error(JSON.stringify(err.response.data)));
+function handleApiError(error) {
+  if (error.isAxiosError && error.response) {
+    logger.error(`${error.response.status} ${error.response.statusText}`);
+    if (error.response.data) {
+      logger.error(JSON.stringify(error.response.data));
     }
   } else {
-    log(error(err));
+    logger.error(error);
   }
 }
 
@@ -817,7 +631,7 @@ function zipDirectory(source, out) {
   return new Promise((resolve, reject) => {
     archive
       .directory(source, false)
-      .on('error', (err) => reject(err))
+      .on('error', (error) => reject(error))
       .pipe(stream);
 
     stream.on('close', () => resolve());
@@ -827,8 +641,8 @@ function zipDirectory(source, out) {
 
 function deleteFile(path) {
   return new Promise((resolve, reject) => {
-    fs.unlink(path, (err) => {
-      if (err) return reject(err);
+    fs.unlink(path, (error) => {
+      if (error) return reject(error);
       return resolve();
     });
   });
@@ -859,14 +673,14 @@ function getProcess(cmd) {
 function copyProjectFiles(project) {
   return new Promise((resolve, reject) => {
     copyfiles(
-      [`${project.location}/**`, `${buildDir}/`],
+      [`${project.location}/**`, `${buildDirectory}/`],
       {
         exclude: [`${project.location}/*.json`, `${project.location}/**/*.ts`, `${project.location}/**/test/**`],
         up: 1,
       },
-      (err) => {
-        if (err) {
-          return reject(err);
+      (error) => {
+        if (error) {
+          return reject(error);
         }
         return resolve();
       },
@@ -928,32 +742,32 @@ function getSpinner(message) {
 
 function checkIfAll(projectName) {
   if (projectName === 'all') {
-    log(error(`Please specify a project. Command can't be run for all.`));
+    logger.error(`Please specify a project. Command can't be run for all.`);
     return true;
   }
   return false;
 }
 
-function checkEnvModules() {
+function checkEnvironmentModules() {
   let missing = false;
   if (!apiUser) {
-    log(error('"API_USER" env var is not set'));
+    logger.error('"API_USER" env var is not set');
     missing = true;
   }
   if (!apiKey) {
-    log(error('"API_KEY" env var is not set'));
+    logger.error('"API_KEY" env var is not set');
     missing = true;
   }
   if (!baseUrl) {
-    log(error('"PLATFORM_URL" env var is not set'));
+    logger.error('"PLATFORM_URL" env var is not set');
     missing = true;
   }
   if (!realm) {
-    log(error('"REALM" env var is not set'));
+    logger.error('"REALM" env var is not set');
     missing = true;
   }
-  if (!buildDir) {
-    log(error('"BUILD_DIR" env var is not set'));
+  if (!buildDirectory) {
+    logger.error('"BUILD_DIR" env var is not set');
     missing = true;
   }
   return missing;
@@ -961,12 +775,12 @@ function checkEnvModules() {
 
 function readJson(path) {
   return new Promise((resolve, reject) => {
-    fs.readFile(path, { encoding: 'utf8' }, (err, data) => {
-      if (err) return reject(err);
+    fs.readFile(path, { encoding: 'utf8' }, (error, data) => {
+      if (error) return reject(error);
       try {
         return resolve(JSON.parse(data));
-      } catch (e) {
-        return reject(e);
+      } catch (error) {
+        return reject(error);
       }
     });
   });
@@ -977,18 +791,12 @@ function writeJson(path, data) {
     let dataString;
     try {
       dataString = JSON.stringify(data, null, 2) + '\n';
-    } catch (err) {
-      return reject(err);
+    } catch (error) {
+      return reject(error);
     }
-    fs.writeFile(path, dataString, (err) => {
-      if (err) return reject(err);
+    fs.writeFile(path, dataString, (error) => {
+      if (error) return reject(error);
       return resolve();
     });
   });
 }
-
-exports.prepareTsFile = prepareTsFile;
-exports.getCodeBlocks = getCodeBlocks;
-exports.checkTypes = checkTypes;
-exports.getTypes = getTypes;
-exports.handleConvertedOutput = handleConvertedOutput;

@@ -23,7 +23,6 @@ describe('Flow RPC long running task', () => {
   test('FLOW.LRPC.1 rpc long running task', (done) => {
     flowApp.subscribe('testResource.a', {
       next: (event: FlowEvent) => {
-        console.log(event.getData());
         expect(event.getData()).toBeDefined();
         done();
       },

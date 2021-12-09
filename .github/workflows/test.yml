@@ -1,0 +1,83 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  release:
+    types: [created]
+
+jobs:
+  test-cli:
+    name: Test CLI
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 17.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prepare PNPM
+        uses: ./.github/actions/prepare-pnpm
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Test CLI
+        run: pnpm test --filter @hahnpro/flow-cli
+        env:
+          NODE_OPTIONS: '--experimental-vm-modules'
+  test-sdk:
+    name: Test SDK
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 17.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prepare PNPM
+        uses: ./.github/actions/prepare-pnpm
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Test SDK
+        run: pnpm test packages/sdk -- --testPathIgnorePatterns rpc.spec.ts sidrive.spec.ts
+  test-api:
+    name: Test API
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 17.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prepare PNPM
+        uses: ./.github/actions/prepare-pnpm
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Test API
+        run: pnpm test packages/api -- --testPathIgnorePatterns api.spec.ts
+  test-examples:
+    name: Test Examples
+    runs-on: ubuntu-latest
+    services:
+      rabbitmq:
+        image: rabbitmq:3.9
+        ports:
+          - 5672:5672
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8.x'
+      - name: Install Python dependencies
+        run: pip install aio_pika
+      - name: Prepare PNPM
+        uses: ./.github/actions/prepare-pnpm
+      - name: Activate post build hooks
+        run: pnpm config set enable-pre-post-scripts true
+      - name: Build API & SDK
+        run: pnpm build --filter @hahnpro/hpc-api --filter @hahnpro/flow-sdk
+      - name: Test Examples
+        run: pnpm test all --filter flow-module-examples

@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.com:hahnpro/flow.git"
+    "url": "git@github.com:hahnprojects/flow.git"
   },
   "directories": {
     "lib": "lib",

@@ -2,7 +2,7 @@ import { CloudEvent } from 'cloudevents';
 
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 
-// tslint:disable:no-console
+/* eslint-disable no-console */
 describe('Flow SDK', () => {
   test('FLOW.SDK.1 publish message', (done) => {
     const flow = {
