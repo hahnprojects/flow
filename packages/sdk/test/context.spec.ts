@@ -1,6 +1,7 @@
 import { IsString } from 'class-validator';
 import { CloudEvent } from 'cloudevents';
 
+import { loggerMock } from './logger.mock';
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 
 /* eslint-disable no-console */
@@ -18,7 +19,7 @@ describe('Flow Application', () => {
       },
       properties: { test: '123abcd' },
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
+    const flowApp = new FlowApplication([TestModule], flow, loggerMock, null, true);
 
     let iteration = 0;
     flowApp.subscribe('testResource.default', {
@@ -76,13 +77,13 @@ describe('Flow Application', () => {
   }, 60000);
 
   test('FLOW.CON.2 string interpolation with event data', async () => {
-    let tr = new TestResource({ id: 'testResource' }, { assetId: '${test}' });
+    let tr = new TestResource({ id: 'testResource', logger: loggerMock }, { assetId: '${test}' });
     let event = await tr.onDefault(new FlowEvent({ id: 'tr' }, { test: 'xyz' }));
     let data = event.getData();
     expect(data).toBeDefined();
     expect(data.assetId).toBe('xyz');
 
-    tr = new TestResource({ id: 'testResource' }, { assetId: '${test}' });
+    tr = new TestResource({ id: 'testResource', logger: loggerMock }, { assetId: '${test}' });
     event = await tr.onDefault(new FlowEvent({ id: 'tr' }, { nottest: 'xyz' }));
     data = event.getData();
     expect(data).toBeDefined();
@@ -99,7 +100,7 @@ describe('Flow Application', () => {
       context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
       properties: { test: '123abcd' },
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
+    const flowApp = new FlowApplication([TestModule], flow, loggerMock, null, true);
 
     let count = 0;
     flowApp.subscribe('testResource.default', {
@@ -118,6 +119,14 @@ describe('Flow Application', () => {
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { x: 'y' }));
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { test: '987zyx' }));
   });
+
+  test('FLOW.CON.4 untruncated logging', async () => {
+    loggerMock.verbose.mockReset();
+    const tr = new TestResource({ id: 'testResource', logger: loggerMock }, { assetId: '1234' });
+    await tr.onDefault(new FlowEvent({ id: 'tr' }, { test: 'tyz' }));
+    expect(loggerMock.verbose).toHaveBeenCalledTimes(1);
+    expect(loggerMock.verbose).toHaveBeenCalledWith('test', expect.objectContaining({ truncate: false }));
+  });
 });
 
 @FlowFunction('test.resource.TestResource')
@@ -131,6 +140,7 @@ class TestResource extends FlowResource {
     const assetId = this.interpolate(this.properties.assetId, event.getData(), this.flowProperties);
     const data = { assetId, event: {}, elementProps: this.properties, flowProps: this.flowProperties };
 
+    this.logger.verbose('test', { truncate: false });
     return this.emitOutput(data);
   }
 }
