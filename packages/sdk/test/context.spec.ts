@@ -125,7 +125,7 @@ describe('Flow Application', () => {
     const tr = new TestResource({ id: 'testResource', logger: loggerMock }, { assetId: '1234' });
     await tr.onDefault(new FlowEvent({ id: 'tr' }, { test: 'tyz' }));
     expect(loggerMock.verbose).toHaveBeenCalledTimes(1);
-    expect(loggerMock.verbose).toHaveBeenCalledWith('test', expect.objectContaining({ truncate: false}));
+    expect(loggerMock.verbose).toHaveBeenCalledWith('test', expect.objectContaining({ truncate: false }));
   });
 });
 
@@ -140,7 +140,7 @@ class TestResource extends FlowResource {
     const assetId = this.interpolate(this.properties.assetId, event.getData(), this.flowProperties);
     const data = { assetId, event: {}, elementProps: this.properties, flowProps: this.flowProperties };
 
-    this.logger.verbose('test', { truncate: false })
+    this.logger.verbose('test', { truncate: false });
     return this.emitOutput(data);
   }
 }
