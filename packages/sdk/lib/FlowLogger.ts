@@ -19,6 +19,10 @@ export const defaultLogger: Logger = {
 };
 /* tslint:enable:no-console */
 
+export interface LoggerOptions {
+  truncate: boolean;
+}
+
 export class FlowLogger implements Logger {
   private static getStackTrace() {
     // get stacktrace without extra dependencies
@@ -44,13 +48,13 @@ export class FlowLogger implements Logger {
     private readonly publishEvent?: (event: FlowEvent) => Promise<void>,
   ) {}
 
-  public debug = (message) => this.publish(message, 'debug');
-  public error = (message) => this.publish(message, 'error');
-  public log = (message) => this.publish(message, 'info');
-  public warn = (message) => this.publish(message, 'warn');
-  public verbose = (message) => this.publish(message, 'verbose');
+  public debug = (message, options?: LoggerOptions) => this.publish(message, 'debug', options);
+  public error = (message, options?: LoggerOptions) => this.publish(message, 'error', options);
+  public log = (message, options?: LoggerOptions) => this.publish(message, 'info', options);
+  public warn = (message, options?: LoggerOptions) => this.publish(message, 'warn', options);
+  public verbose = (message, options?: LoggerOptions) => this.publish(message, 'verbose', options);
 
-  private publish(message, level: string) {
+  private publish(message, level: string, options: LoggerOptions) {
     if (this.publishEvent) {
       const event = new FlowEvent(this.metadata, message, `flow.log.${level}`);
       this.publishEvent(event)?.catch((err) => this.logger.error(err, this.metadata));
@@ -61,15 +65,15 @@ export class FlowLogger implements Logger {
     // const stackTrace = JSON.stringify(message) + '\n' + FlowLogger.getStackTrace();
     switch (level) {
       case 'debug':
-        return this.logger.debug(message, this.metadata);
+        return this.logger.debug(message, { ...this.metadata, ...options });
       case 'error':
-        return this.logger.error(message, this.metadata);
+        return this.logger.error(message, { ...this.metadata, ...options });
       case 'warn':
-        return this.logger.warn(message, this.metadata);
+        return this.logger.warn(message, { ...this.metadata, ...options });
       case 'verbose':
-        return this.logger.verbose(message, this.metadata);
+        return this.logger.verbose(message, { ...this.metadata, ...options });
       default:
-        this.logger.log(message, this.metadata);
+        this.logger.log(message, { ...this.metadata, ...options });
     }
   }
 }

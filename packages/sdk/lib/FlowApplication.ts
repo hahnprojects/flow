@@ -7,11 +7,19 @@ import { PartialObserver, Subject } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
 import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
+// @ts-ignore
 import { API } from '@hahnpro/hpc-api';
 
 import { AmqpConnection, Nack } from './amqp';
 import { delay } from './utils';
-import type { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, StreamOptions } from './flow.interface';
+import type {
+  ClassType,
+  DeploymentMessage,
+  Flow,
+  FlowContext,
+  FlowElementContext,
+  StreamOptions,
+} from './flow.interface';
 import type { FlowElement } from './FlowElement';
 import type { FlowEvent } from './FlowEvent';
 import { FlowLogger, Logger } from './FlowLogger';
@@ -234,7 +242,7 @@ export class FlowApplication {
     return this.properties;
   }
 
-  public onMessage = async (event: CloudEvent): Promise<Nack | undefined> => {
+  public onMessage = async (event: CloudEvent<any>): Promise<Nack | undefined> => {
     if (event.type === 'com.flowstudio.deployment.update') {
       try {
         const flow = event.data as Flow;
