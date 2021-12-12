@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.12.0
+
+### Minor Changes
+
+- ef72d1f: Flow CLI has been converted to a ECMAScript module
+
 ## 2.11.0
 
 ### Minor Changes

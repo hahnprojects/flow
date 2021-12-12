@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.20.0
+
+### Minor Changes
+
+- 2b24afd: Added parameter to logging functions that allows untruncated logs
+
 ## 4.19.4
 
 ### Patch Changes
