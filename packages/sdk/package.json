@@ -36,7 +36,7 @@
     "class-transformer": "0.5.1",
     "class-validator": "~0.13.2",
     "class-validator-jsonschema": "^3.1.0",
-    "cloudevents": "^5.0.0",
+    "cloudevents": "^5.2.0",
     "lodash": "^4.17.21",
     "object-sizeof": "^1.6.1",
     "python-shell": "^3.0.1",
@@ -50,10 +50,10 @@
     "@types/amqp-connection-manager": "^2.0.12",
     "@types/amqplib": "^0.8.2",
     "@types/jest": "^27.0.3",
-    "@types/lodash": "^4.14.177",
-    "@types/node": "^16.11.11",
-    "jest": "^27.4.2",
-    "typescript": "^4.5.2"
+    "@types/lodash": "^4.14.178",
+    "@types/node": "^16.11.12",
+    "jest": "^27.4.4",
+    "typescript": "^4.5.3"
   },
   "engines": {
     "node": "^14.13.1 || >=16.0.0"
