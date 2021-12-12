@@ -75,7 +75,7 @@ jobs:
         run: pip install aio_pika
       - name: Prepare PNPM
         uses: ./.github/actions/prepare-pnpm
-      - name: Activate post build hooks
+      - name: Activate Post Build Hooks
         run: pnpm config set enable-pre-post-scripts true
       - name: Build API & SDK
         run: pnpm build --filter @hahnpro/hpc-api --filter @hahnpro/flow-sdk
