@@ -12,7 +12,7 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0
+          fetch-depth: 100
       - name: Prepare PNPM
         uses: ./.github/actions/prepare-pnpm
       - name: Activate Post Build Hooks
@@ -23,6 +23,8 @@ jobs:
         uses: changesets/action@v1
         with:
           publish: pnpm -r publish
+          commit: 'chore: version packages'
+          title: 'chore: version packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

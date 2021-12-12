@@ -4,6 +4,7 @@
   "ignoreDeps": ["node"],
   "ignorePaths": ["**/node_modules/**", "**/test/**"],
   "rangeStrategy": "bump",
+  "schedule": ["after 9am every weekday", "before 6pm every weekday"],
   "semanticCommits": "enabled",
   "semanticCommitType": "build"
 }
