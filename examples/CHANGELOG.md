@@ -1,5 +1,12 @@
 # flow-module-examples
 
+## 1.3.13
+
+### Patch Changes
+
+- Updated dependencies [76bd228]
+  - @hahnpro/flow-sdk@4.20.1
+
 ## 1.3.12
 
 ### Patch Changes
