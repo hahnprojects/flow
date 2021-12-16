@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.20.1
+
+### Patch Changes
+
+- 76bd228: remove class-validator-jsonschema from dependencies
+
 ## 4.20.0
 
 ### Minor Changes
