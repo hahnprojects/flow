@@ -66,7 +66,7 @@ describe('Flow Application', () => {
     }
 
     expect(loggerMock.log).toHaveBeenCalledWith('Flow Deployment is running', expect.objectContaining(flow.context));
-  });
+  }, 60000);
 
   it('FLOW.FA.2 should handle invalid stream handlers', async () => {
     const flow = {
@@ -360,7 +360,7 @@ class LongRunningTask extends FlowTask<Properties> {
   @InputStream()
   public async loveMeLongTime(event) {
     await delay(this.properties.delay);
-    return this.emitEvent({ foo: 'bar' }, null, 'output');
+    return this.emitEvent({ foo: 'bar' }, null);
   }
 }
 
