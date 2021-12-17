@@ -1,7 +1,8 @@
-import { IsNumber } from 'class-validator';
+import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
 
 import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
 import { loggerMock } from './logger.mock';
+import { Type } from 'class-transformer';
 
 describe('Flow Application', () => {
   let mockExit;
@@ -65,7 +66,7 @@ describe('Flow Application', () => {
     }
 
     expect(loggerMock.log).toHaveBeenCalledWith('Flow Deployment is running', expect.objectContaining(flow.context));
-  });
+  }, 60000);
 
   it('FLOW.FA.2 should handle invalid stream handlers', async () => {
     const flow = {
@@ -260,6 +261,53 @@ describe('Flow Application', () => {
 
     expect(loggerMock.log).toHaveBeenCalledWith('Flow Deployment is running', expect.objectContaining(flow.context));
   }, 60000);
+
+  it('FLOW.FA.9 test complex properties', (done) => {
+    const flow = {
+      elements: [
+        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
+        {
+          id: 'complex',
+          module: 'test.module',
+          functionFqn: 'test.resource.ComplexProperties',
+          properties: {
+            variables: [
+              {
+                name: 'testVar1',
+                function: 'rndSin',
+                min: 0,
+                max: 20,
+              },
+              {
+                name: 'testVar2',
+                function: 'rndCos',
+                min: 10,
+                max: 100,
+              },
+              {
+                name: 'testVar3',
+                function: 'rndInt',
+                min: 20,
+                max: 20,
+              },
+            ],
+          },
+        },
+      ],
+      connections: [{ id: 'testConnection', source: 'testTrigger', target: 'complex' }],
+      context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
+    };
+    const flowApp = new FlowApplication([TestModule], flow, loggerMock, null, true);
+
+    flowApp.subscribe('complex.default', {
+      next: (event: FlowEvent) => {
+        const data = event.getData();
+        expect(data.variables.every((v) => v instanceof Options)).toBe(true);
+        done();
+      },
+    });
+    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+  }, 60000);
 });
 
 @FlowFunction('test.resource.TestResource')
@@ -267,6 +315,39 @@ class TestResource extends FlowResource {
   @InputStream('default', { concurrent: 5 })
   public async onDefault(event) {
     return this.emitEvent({ hello: 'world' }, null);
+  }
+}
+
+class Options {
+  @IsString()
+  name: string;
+
+  @IsString()
+  function: string;
+
+  @IsNumber()
+  min: number;
+
+  @IsNumber()
+  max: number;
+}
+
+class ComplexProperties {
+  @IsArray()
+  @Type(() => Options)
+  @ValidateNested({ each: true })
+  variables: Options[];
+}
+
+@FlowFunction('test.resource.ComplexProperties')
+class TestComplexProperties extends FlowResource {
+  constructor(context, properties) {
+    super(context, properties, ComplexProperties, true);
+  }
+
+  @InputStream()
+  public async onDefault(event) {
+    return this.emitEvent(this.properties, event);
   }
 }
 
@@ -312,7 +393,7 @@ class HighEluProperties {
 
 @FlowModule({
   name: 'test.module',
-  declarations: [HighEluTask, LongRunningTask, TestResource],
+  declarations: [HighEluTask, LongRunningTask, TestResource, TestComplexProperties],
 })
 class TestModule {}
 
