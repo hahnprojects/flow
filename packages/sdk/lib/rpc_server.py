@@ -29,6 +29,12 @@ try:
 except:
     port = "5672"
 
+vhost = ""
+try:
+    vhost = os.environ["RABBIT_VHOST"]
+except:
+    vhost = ""
+
 routingKey = ""
 try:
     routingKey = os.environ["RPC_ROUTING_KEY"]
@@ -92,7 +98,7 @@ async def sendReply(exchange: Exchange, reply, originalMessage: Message):
 
 
 async def main(loop, routing_key):
-    url = "amqp://%s:%s@%s:%s/" % (user, password, host, port)
+    url = "amqp://%s:%s@%s:%s/%s" % (user, password, host, port, vhost)
     connection = await connect_robust(
         url, loop=loop
     )
