@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.20.2
+
+### Patch Changes
+
+- 719ac32: Add support for RabbitMQ vhost connections
+
 ## 4.20.1
 
 ### Patch Changes
