@@ -50,10 +50,10 @@
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",
-    "@types/node": "^16.11.18",
+    "@types/node": "^16.11.19",
     "eslint": "^8.6.0",
     "eslint-plugin-unicorn": "^40.0.0",
-    "jest": "^27.4.5",
+    "jest": "^27.4.7",
     "prettier": "^2.5.1",
     "typescript": "^4.5.4"
   },
