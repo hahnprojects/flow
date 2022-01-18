@@ -1,3 +1,20 @@
+export interface AssetType {
+  id?: string;
+  name: string;
+  tags?: string[];
+  allowedParents?: string[];
+  allowedParent$name?: string;
+  readPermissions: string[];
+  readWritePermissions: string[];
+  supertype?: string;
+  supertype$name?: string;
+  typeSchema: any;
+  uiSchema: any;
+  actions?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface Asset {
   id?: string;
   name: string;
@@ -5,30 +22,17 @@ export interface Asset {
   type$name?: string;
   readPermissions: string[];
   readWritePermissions: string[];
-  tags?: string[];
   parent?: any | Asset;
   parent$name?: string;
-  data?: any;
-  attachments?: string[];
-  image?: string;
-  actions?: string[];
-  notificationEndpoints?: string[];
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface AssetType {
-  id?: string;
-  name: string;
+  ancestors?: string[];
   tags?: string[];
-  allowedParent?: string;
-  allowedParent$name?: string;
-  readPermissions: string[];
-  readWritePermissions: string[];
-  typeSchema: any;
-  supertype?: string;
-  supertype$name?: string;
-  uiSchema: any;
+  relations?: any[];
+  data?: any;
+  image?: string;
+  author?: string;
+  revision?: number;
+  attachments?: string[];
+  notificationEndpoints?: string[];
   actions?: string[];
   createdAt?: string;
   updatedAt?: string;
