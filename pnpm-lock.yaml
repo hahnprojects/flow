@@ -161,7 +161,7 @@ importers:
       '@types/jest': ^27.4.0
       '@types/lodash': ^4.14.178
       '@types/node': ^16.11.20
-      amqp-connection-manager: ^3.9.0
+      amqp-connection-manager: ^4.0.0
       amqplib: ^0.8.0
       class-transformer: 0.5.1
       class-validator: ~0.13.2
@@ -178,7 +178,7 @@ importers:
       uuid: ^8.3.2
     dependencies:
       '@hahnpro/hpc-api': link:../api
-      amqp-connection-manager: 3.9.0_amqplib@0.8.0
+      amqp-connection-manager: 4.0.0_amqplib@0.8.0
       amqplib: 0.8.0
       class-transformer: 0.5.1
       class-validator: 0.13.2
@@ -1513,6 +1513,17 @@ packages:
     dependencies:
       amqplib: 0.8.0
       promise-breaker: 5.0.0
+    dev: true
+
+  /amqp-connection-manager/4.0.0_amqplib@0.8.0:
+    resolution: {integrity: sha512-qG/ooVZ40RUvUzZYDAZrEJO1T1+YvOMWq5SK1DHrJXjM7qSrGEKhrGtAiijhJomyvBBlPku2wLsc4lNobIVdSw==}
+    engines: {node: '>=10.0.0', npm: '>5.0.0'}
+    peerDependencies:
+      amqplib: '*'
+    dependencies:
+      amqplib: 0.8.0
+      promise-breaker: 5.0.0
+    dev: false
 
   /amqplib/0.8.0:
     resolution: {integrity: sha512-icU+a4kkq4Y1PS4NNi+YPDMwdlbFcZ1EZTQT2nigW3fvOb6AOgUQ9+Mk4ue0Zu5cBg/XpDzB40oH10ysrk2dmA==}
