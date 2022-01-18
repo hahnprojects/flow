@@ -1,3 +1,20 @@
+export interface AssetType {
+  id?: string;
+  name: string;
+  tags?: string[];
+  allowedParents?: string[];
+  allowedParent$name?: string;
+  readPermissions: string[];
+  readWritePermissions: string[];
+  supertype?: string;
+  supertype$name?: string;
+  typeSchema: any;
+  uiSchema: any;
+  actions?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface Asset {
   id?: string;
   name: string;
@@ -13,23 +30,6 @@ export interface Asset {
   image?: string;
   actions?: string[];
   notificationEndpoints?: string[];
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface AssetType {
-  id?: string;
-  name: string;
-  tags?: string[];
-  allowedParents?: string[];
-  allowedParent$name?: string;
-  readPermissions: string[];
-  readWritePermissions: string[];
-  typeSchema: any;
-  supertype?: string;
-  supertype$name?: string;
-  uiSchema: any;
-  actions?: string[];
   createdAt?: string;
   updatedAt?: string;
 }
