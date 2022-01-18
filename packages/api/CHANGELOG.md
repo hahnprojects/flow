@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 2.0.0
+
+### Major Changes
+
+- d16e8fc: Updated the interface types.
+
 ## 1.1.0
 
 ### Minor Changes
