@@ -22,14 +22,18 @@ export interface Asset {
   type$name?: string;
   readPermissions: string[];
   readWritePermissions: string[];
-  tags?: string[];
   parent?: any | Asset;
   parent$name?: string;
+  ancestors?: string[];
+  tags?: string[];
+  relations: any[];
   data?: any;
-  attachments?: string[];
   image?: string;
-  actions?: string[];
+  author?: string;
+  revision?: number;
+  attachments?: string[];
   notificationEndpoints?: string[];
+  actions?: string[];
   createdAt?: string;
   updatedAt?: string;
 }
