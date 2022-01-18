@@ -4,7 +4,7 @@
 
 ### Major Changes
 
-- d16e8fc: Updated the interface types.
+- d16e8fc: Updated the interface types to reflect changes to the Assettypes in the HPC-API.
 
 ## 1.1.0
 
