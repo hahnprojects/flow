@@ -26,7 +26,7 @@ export interface Asset {
   parent$name?: string;
   ancestors?: string[];
   tags?: string[];
-  relations: any[];
+  relations?: any[];
   data?: any;
   image?: string;
   author?: string;
