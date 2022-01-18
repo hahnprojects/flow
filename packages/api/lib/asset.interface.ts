@@ -21,7 +21,7 @@ export interface AssetType {
   id?: string;
   name: string;
   tags?: string[];
-  allowedParent?: string;
+  allowedParents?: string[];
   allowedParent$name?: string;
   readPermissions: string[];
   readWritePermissions: string[];
