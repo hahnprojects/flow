@@ -60,3 +60,7 @@ export interface Action {
   readPermissions: string[];
   readWritePermissions: string[];
 }
+
+export interface History {
+  docs: Asset[];
+}
