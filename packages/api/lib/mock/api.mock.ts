@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 import { API } from '../api';
-import { Asset, AssetType } from '../asset.interface';
+import { Asset, AssetRevision, AssetType } from '../asset.interface';
 import { Content } from '../content.interface';
 import { Secret } from '../secret.interface';
 import { TimeSeries, TimeSeriesValue } from '../timeseries.interface';
@@ -45,6 +45,7 @@ export class MockAPI implements API {
 
   constructor(initData: {
     assets?: AssetInit[];
+    revisions: AssetRevisionInit[];
     contents?: ContentInit[];
     endpoints?: EndpointInit[];
     secrets?: SecretInit[];
@@ -53,7 +54,7 @@ export class MockAPI implements API {
     events?: EventInit[];
     users?: UserInit;
   }) {
-    const { assets = [], contents = [], endpoints = [], secrets = [], timeSeries = [], tasks = [], events = [], users } = initData;
+    const { assets = [], revisions = [], contents = [], endpoints = [], secrets = [], timeSeries = [], tasks = [], events = [], users } = initData;
     // convert init data to normal data that the services usually use
     const assetTypes: Array<AssetType | string> = assets
       .map((v) => v.type)
@@ -70,6 +71,12 @@ export class MockAPI implements API {
             };
       });
     const assets1: Asset[] = assets.map((v, index) => ({
+      ...v,
+      readPermissions: [],
+      readWritePermissions: [],
+      type: assetTypes[index],
+    }));
+    const revisions1: AssetRevision[] = revisions.map((v, index) => ({
       ...v,
       readPermissions: [],
       readWritePermissions: [],
@@ -144,7 +151,7 @@ export class MockAPI implements API {
 
     const timeseriesValues: TimeSeriesValue[][] = timeSeries.map((v) => v.values);
 
-    this.assets = new AssetMockService(this, assets1);
+    this.assets = new AssetMockService(this, assets1, revisions1);
     this.contents = new ContentMockService(contents1, contentData);
     this.endpoints = new EndpointMockService(endpoint1);
     this.secrets = new SecretMockService(secrets1);
@@ -173,6 +180,7 @@ export type Replace<T, K extends keyof T, TReplace> = Identity<
 >;
 
 export type AssetInit = Replace<AtLeast<Asset, 'id' | 'name' | 'type'>, 'type', AssetTypeInit | string>;
+export type AssetRevisionInit = Replace<AtLeast<AssetRevision, 'id' | 'name' | 'type'>, 'type', AssetTypeInit | string>;
 export type AssetTypeInit = AtLeast<AssetType, 'id' | 'name'>;
 export type ContentInit = Identity<AtLeast<Content, 'id' | 'filename'> & { filePath?: string; data?: any }>;
 export type EndpointInit = AtLeast<Endpoint, 'name'>;
