@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 
-import { MockAPI, ReturnType } from '../lib';
+import { MockAPI, Paginated, ReturnType } from '../lib';
 import { Readable } from 'stream';
 
 dotenv.config();
@@ -194,10 +194,10 @@ describe('Mock-API test', () => {
   });
 
   test('FLOW.API.9 asset revisions', async () => {
-    let assets = await api.assets.getMany().catch((err) => logError(err));
+    let assets = await api.assets.getMany();
     expect(assets).toBeDefined();
 
-    let revisions = await api.assets.findRevisions(assets[0].id).catch((err) => logError(err));
+    let revisions = await api.assets.findRevisions(assets.docs[0].id).catch((err) => logError(err));
     expect(revisions).toBeDefined();
 
     if (revisions) {
