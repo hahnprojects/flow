@@ -1,6 +1,6 @@
 import FormData from 'form-data';
 
-import { Asset } from './asset.interface';
+import { Asset, AssetRevision } from './asset.interface';
 import { Paginated, RequestParameter } from './data.interface';
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
@@ -23,7 +23,7 @@ export class AssetService extends DataService<Asset> {
     return this.getManyFiltered({ parent: assetId }, params);
   }
 
-  public findRevisions(assetId: string): Promise<Paginated<Asset[]>> {
-    return this.httpClient.get<Paginated<Asset[]>>(`${this.basePath}/${assetId}/revisions`);
+  public findRevisions(assetId: string): Promise<Paginated<AssetRevision[]>> {
+    return this.httpClient.get<Paginated<AssetRevision[]>>(`${this.basePath}/${assetId}/revisions`);
   }
 }
