@@ -9,6 +9,7 @@ dotenv.config();
 describe('Mock-API test', () => {
   const api = new MockAPI({
     assets: [{ id: 'asset1', name: 'testAsset', type: { id: 'testId', name: 'testType' } }],
+    revisions: [{ id: 'revision1', originalId: 'asset1', name: 'testRevision', type: { id: 'testId', name: 'testType' } }],
     contents: [
       { id: 'content1', filename: 'testContent.txt', filePath: __dirname, mimetype: 'text/plain' },
       { id: 'content2', data: '{"test": "data"}', filename: 'something.json' },
@@ -191,6 +192,24 @@ describe('Mock-API test', () => {
       expect(roles).toEqual(['test1', 'test2']);
     }
   });
+
+  test('FLOW.API.9 asset revisions', async () => {
+    let assets = await api.assets.getMany().catch((err) => logError(err));
+    expect(assets).toBeDefined();
+
+    let revisions = await api.assets.findRevisions(assets[0].id).catch((err) => logError(err));
+    expect(revisions).toBeDefined();
+
+    if (revisions) {
+      expect(Array.isArray(revisions.docs)).toBe(true);
+      expect(revisions.docs.length).toBeGreaterThan(0);
+      const revision = revisions.docs[0];
+      expect(revision).toBeDefined();
+      if (revision) {
+        expect(revision.type).toHaveProperty('id');
+      }
+    }
+  }, 60000);
 });
 
 function logError(err: any) {
