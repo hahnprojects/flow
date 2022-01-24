@@ -20,7 +20,7 @@
     "python-shell": "^3.0.1"
   },
   "devDependencies": {
-    "@golevelup/nestjs-rabbitmq": "^1.22.0",
+    "@golevelup/nestjs-rabbitmq": "^2.0.0",
     "@hahnpro/flow-cli": "workspace:*",
     "@nestjs/common": "^8.2.6",
     "@nestjs/core": "^8.2.6",
