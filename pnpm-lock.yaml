@@ -40,7 +40,7 @@ importers:
 
   examples:
     specifiers:
-      '@golevelup/nestjs-rabbitmq': ^1.20.1
+      '@golevelup/nestjs-rabbitmq': ^1.22.0
       '@hahnpro/flow-cli': workspace:*
       '@hahnpro/flow-sdk': workspace:*
       '@nestjs/common': ^8.2.6
@@ -66,7 +66,7 @@ importers:
       class-validator: 0.13.2
       python-shell: 3.0.1
     devDependencies:
-      '@golevelup/nestjs-rabbitmq': 1.20.1_@nestjs+common@8.2.6+rxjs@7.5.2
+      '@golevelup/nestjs-rabbitmq': 1.22.0_@nestjs+common@8.2.6+rxjs@7.5.2
       '@hahnpro/flow-cli': link:../packages/cli
       '@nestjs/common': 8.2.6_6eb9b0a43bc9613028dbcacbeb5ee49b
       '@nestjs/core': 8.2.6_0f75cad7c3bc55c714d492fe95499bdf
@@ -153,7 +153,7 @@ importers:
 
   packages/sdk:
     specifiers:
-      '@golevelup/nestjs-rabbitmq': ^1.20.1
+      '@golevelup/nestjs-rabbitmq': ^1.22.0
       '@hahnpro/hpc-api': workspace:*
       '@nestjs/common': ^7.6.18
       '@types/amqp-connection-manager': ^2.0.12
@@ -191,7 +191,7 @@ importers:
       string-interp: 0.3.6
       uuid: 8.3.2
     devDependencies:
-      '@golevelup/nestjs-rabbitmq': 1.20.1_@nestjs+common@7.6.18+rxjs@7.5.2
+      '@golevelup/nestjs-rabbitmq': 1.22.0_@nestjs+common@7.6.18+rxjs@7.5.2
       '@nestjs/common': 7.6.18_e2dd7264172553abc41c1a07952dd8ca
       '@types/amqp-connection-manager': 2.0.12
       '@types/amqplib': 0.8.2
@@ -766,8 +766,8 @@ packages:
       rxjs: 7.5.2
     dev: true
 
-  /@golevelup/nestjs-rabbitmq/1.20.1_@nestjs+common@7.6.18+rxjs@7.5.2:
-    resolution: {integrity: sha512-L9uJiQ/liG7OVmMor7aw1KVSkZvBTJov7NIpdQwAO3Z86kgklWowdDOHYcsNUJjcPFmEZ6p3Tazm0nVKPsxfSw==}
+  /@golevelup/nestjs-rabbitmq/1.22.0_@nestjs+common@7.6.18+rxjs@7.5.2:
+    resolution: {integrity: sha512-EIDL3cu7jucr1P5TFNMu9BAxK7BazoUTNHEVAF6cCvQSNA0GKyy+12P+RnAYJHPDi0F/HHTUoqZ72Qb4TeJcog==}
     dependencies:
       '@golevelup/nestjs-common': 1.4.2
       '@golevelup/nestjs-discovery': 2.3.2
@@ -780,8 +780,8 @@ packages:
       - rxjs
     dev: true
 
-  /@golevelup/nestjs-rabbitmq/1.20.1_@nestjs+common@8.2.6+rxjs@7.5.2:
-    resolution: {integrity: sha512-L9uJiQ/liG7OVmMor7aw1KVSkZvBTJov7NIpdQwAO3Z86kgklWowdDOHYcsNUJjcPFmEZ6p3Tazm0nVKPsxfSw==}
+  /@golevelup/nestjs-rabbitmq/1.22.0_@nestjs+common@8.2.6+rxjs@7.5.2:
+    resolution: {integrity: sha512-EIDL3cu7jucr1P5TFNMu9BAxK7BazoUTNHEVAF6cCvQSNA0GKyy+12P+RnAYJHPDi0F/HHTUoqZ72Qb4TeJcog==}
     dependencies:
       '@golevelup/nestjs-common': 1.4.2
       '@golevelup/nestjs-discovery': 2.3.2
