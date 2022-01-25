@@ -54,7 +54,17 @@ export class MockAPI implements API {
     events?: EventInit[];
     users?: UserInit;
   }) {
-    const { assets = [], revisions = [], contents = [], endpoints = [], secrets = [], timeSeries = [], tasks = [], events = [], users } = initData;
+    const {
+      assets = [],
+      revisions = [],
+      contents = [],
+      endpoints = [],
+      secrets = [],
+      timeSeries = [],
+      tasks = [],
+      events = [],
+      users,
+    } = initData;
     // convert init data to normal data that the services usually use
     const assetTypes: Array<AssetType | string> = assets
       .map((v) => v.type)

@@ -7,7 +7,7 @@ import { MockAPI } from './api.mock';
 import { DataMockService } from './data.mock.service';
 
 export class AssetMockService extends DataMockService<Asset> implements AssetService {
-  private revisions: AssetRevision[] = []
+  private revisions: AssetRevision[] = [];
 
   constructor(private api: MockAPI, assets: Asset[], revisions: AssetRevision[]) {
     super();
@@ -27,11 +27,11 @@ export class AssetMockService extends DataMockService<Asset> implements AssetSer
   }
 
   public findRevisions(assetId: string): Promise<Paginated<AssetRevision[]>> {
-    const newData = this.revisions.filter(revision => revision.originalId === assetId);
+    const newData = this.revisions.filter((revision) => revision.originalId === assetId);
     const page: Paginated<AssetRevision[]> = {
       docs: newData,
       limit: Number.MAX_SAFE_INTEGER,
-      total: newData.length
+      total: newData.length,
     };
     return Promise.resolve(page);
   }

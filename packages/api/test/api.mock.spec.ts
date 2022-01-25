@@ -194,10 +194,10 @@ describe('Mock-API test', () => {
   });
 
   test('FLOW.API.9 asset revisions', async () => {
-    let assets = await api.assets.getMany();
+    const assets = await api.assets.getMany();
     expect(assets).toBeDefined();
 
-    let revisions = await api.assets.findRevisions(assets.docs[0].id).catch((err) => logError(err));
+    const revisions = await api.assets.findRevisions(assets.docs[0].id).catch((err) => logError(err));
     expect(revisions).toBeDefined();
 
     if (revisions) {
