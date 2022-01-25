@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 2.1.0
+
+### Minor Changes
+
+- 5c2c1c6: feat: added findRevisions to the asset service
+
 ## 2.0.0
 
 ### Major Changes
