@@ -15,15 +15,13 @@ export interface AssetType {
   updatedAt?: string;
 }
 
-export interface Asset {
+export interface AssetParent {
   id?: string;
   name: string;
   type: string | AssetType;
-  type$name?: string;
   readPermissions: string[];
   readWritePermissions: string[];
   parent?: any | Asset;
-  parent$name?: string;
   ancestors?: string[];
   tags?: string[];
   relations?: any[];
@@ -31,9 +29,18 @@ export interface Asset {
   image?: string;
   author?: string;
   revision?: number;
+}
+
+export interface Asset extends AssetParent {
+  type$name?: string;
+  parent$name?: string;
   attachments?: string[];
   notificationEndpoints?: string[];
   actions?: string[];
+}
+
+export interface AssetRevision extends AssetParent {
+  originalId?: string;
   createdAt?: string;
   updatedAt?: string;
 }

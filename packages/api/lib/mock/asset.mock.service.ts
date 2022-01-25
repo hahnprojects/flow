@@ -1,15 +1,18 @@
 import FormData from 'form-data';
 
-import { Asset } from '../asset.interface';
+import { Asset, AssetRevision } from '../asset.interface';
 import { AssetService } from '../asset.service';
 import { Paginated, RequestParameter } from '../data.interface';
 import { MockAPI } from './api.mock';
 import { DataMockService } from './data.mock.service';
 
 export class AssetMockService extends DataMockService<Asset> implements AssetService {
-  constructor(private api: MockAPI, assets: Asset[]) {
+  private revisions: AssetRevision[] = [];
+
+  constructor(private api: MockAPI, assets: Asset[], revisions: AssetRevision[]) {
     super();
     this.data = assets;
+    this.revisions = revisions;
   }
 
   async addAttachment(id: string, form: FormData): Promise<Asset> {
@@ -21,5 +24,15 @@ export class AssetMockService extends DataMockService<Asset> implements AssetSer
 
   public getChildren(assetId: string, params: RequestParameter = {}): Promise<Paginated<Asset[]>> {
     return this.getManyFiltered({ parent: assetId }, params);
+  }
+
+  public findRevisions(assetId: string): Promise<Paginated<AssetRevision[]>> {
+    const newData = this.revisions.filter((revision) => revision.originalId === assetId);
+    const page: Paginated<AssetRevision[]> = {
+      docs: newData,
+      limit: Number.MAX_SAFE_INTEGER,
+      total: newData.length,
+    };
+    return Promise.resolve(page);
   }
 }

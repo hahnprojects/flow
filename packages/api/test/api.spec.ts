@@ -138,6 +138,24 @@ describe('API test', () => {
       expect(roles.length).toBeGreaterThan(0);
     }
   }, 60000);
+
+  test('FLOW.API.9 asset revisions', async () => {
+    const assets = await api.assets.getMany();
+    expect(assets).toBeDefined();
+
+    const revisions = await api.assets.findRevisions(assets.docs[0].id).catch((err) => logError(err));
+    expect(revisions).toBeDefined();
+
+    if (revisions) {
+      expect(Array.isArray(revisions.docs)).toBe(true);
+      expect(revisions.docs.length).toBeGreaterThan(0);
+      const revision = revisions.docs[0];
+      expect(revision).toBeDefined();
+      if (revision) {
+        expect(revision.type).toHaveProperty('id');
+      }
+    }
+  }, 60000);
 });
 
 function logError(err: any) {
