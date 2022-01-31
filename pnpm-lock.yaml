@@ -110,7 +110,7 @@ importers:
       class-transformer: 0.5.1
       class-validator: ~0.13.2
       class-validator-jsonschema: ^3.1.0
-      commander: ^8.3.0
+      commander: ^9.0.0
       copyfiles: ^2.4.1
       dotenv: ^14.3.2
       eslint: ^8.8.0
@@ -132,7 +132,7 @@ importers:
       class-transformer: 0.5.1
       class-validator: 0.13.2
       class-validator-jsonschema: 3.1.0_279461c9b8c03a205cdbc4878bc60cf8
-      commander: 8.3.0
+      commander: 9.0.0
       copyfiles: 2.4.1
       dotenv: 14.3.2
       execa: 6.0.0
@@ -2074,9 +2074,9 @@ packages:
     dependencies:
       delayed-stream: 1.0.0
 
-  /commander/8.3.0:
-    resolution: {integrity: sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==}
-    engines: {node: '>= 12'}
+  /commander/9.0.0:
+    resolution: {integrity: sha512-JJfP2saEKbQqvW+FI93OYUB4ByV5cizMpFMiiJI8xDbBvQvSkIk0VvQdn1CZ8mqAO8Loq2h0gYTYtDFUZUeERw==}
+    engines: {node: ^12.20.0 || >=14}
     dev: false
 
   /compress-commons/4.1.1:
