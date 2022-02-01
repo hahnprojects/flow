@@ -40,7 +40,7 @@ importers:
 
   examples:
     specifiers:
-      '@golevelup/nestjs-rabbitmq': ^2.0.0
+      '@golevelup/nestjs-rabbitmq': ^2.1.0
       '@hahnpro/flow-cli': workspace:*
       '@hahnpro/flow-sdk': workspace:*
       '@nestjs/common': ^8.2.6
@@ -66,7 +66,7 @@ importers:
       class-validator: 0.13.2
       python-shell: 3.0.1
     devDependencies:
-      '@golevelup/nestjs-rabbitmq': 2.0.0_@nestjs+common@8.2.6+rxjs@7.5.2
+      '@golevelup/nestjs-rabbitmq': 2.1.0_@nestjs+common@8.2.6+rxjs@7.5.2
       '@hahnpro/flow-cli': link:../packages/cli
       '@nestjs/common': 8.2.6_6eb9b0a43bc9613028dbcacbeb5ee49b
       '@nestjs/core': 8.2.6_0f75cad7c3bc55c714d492fe95499bdf
@@ -153,7 +153,7 @@ importers:
 
   packages/sdk:
     specifiers:
-      '@golevelup/nestjs-rabbitmq': ^2.0.0
+      '@golevelup/nestjs-rabbitmq': ^2.1.0
       '@hahnpro/hpc-api': workspace:*
       '@nestjs/common': ^8.2.6
       '@types/amqp-connection-manager': ^2.0.12
@@ -191,7 +191,7 @@ importers:
       string-interp: 0.3.6
       uuid: 8.3.2
     devDependencies:
-      '@golevelup/nestjs-rabbitmq': 2.0.0_@nestjs+common@8.2.6+rxjs@7.5.2
+      '@golevelup/nestjs-rabbitmq': 2.1.0_@nestjs+common@8.2.6+rxjs@7.5.2
       '@nestjs/common': 8.2.6_e2dd7264172553abc41c1a07952dd8ca
       '@types/amqp-connection-manager': 2.0.12
       '@types/amqplib': 0.8.2
@@ -731,10 +731,10 @@ packages:
       - supports-color
     dev: true
 
-  /@golevelup/nestjs-common/1.4.2:
-    resolution: {integrity: sha512-mdXppMelEYO+HTilg4W8h8Bt4u1s9qvOip2dygRMxY3O1/JK6GPpPgJ99CiuAT+xxFG9igeN8lfpAnO0+mJXxA==}
+  /@golevelup/nestjs-common/1.4.3:
+    resolution: {integrity: sha512-ArEC1esJZWZZhEqV6KgzPflZgnVOsdswJTykwgLpX+QgIhSFmGx5W+veetf2Aky3hM5p6liTNYlBR6rvVJ/zsA==}
     dependencies:
-      shortid: 2.2.16
+      nanoid: 3.2.0
     dev: true
 
   /@golevelup/nestjs-discovery/3.0.0:
@@ -754,10 +754,10 @@ packages:
       rxjs: 7.5.2
     dev: true
 
-  /@golevelup/nestjs-rabbitmq/2.0.0_@nestjs+common@8.2.6+rxjs@7.5.2:
-    resolution: {integrity: sha512-BeLTzXc3GRbIUC9p3N9HfN4Ga+EEoewLIlrK7Vem5XjZ9NoTHRl5DGrLFDmgCIjeEDIEO0a3fsQs7JVgKHMzTw==}
+  /@golevelup/nestjs-rabbitmq/2.1.0_@nestjs+common@8.2.6+rxjs@7.5.2:
+    resolution: {integrity: sha512-zUUCfG1jZLwQEM2R51MsV9bWlV9/Ec/xJ5tHKGm61EBKKcpV+bDv1lpebf0mpMiAP0kQZdTk4fSbHItwKw0uMQ==}
     dependencies:
-      '@golevelup/nestjs-common': 1.4.2
+      '@golevelup/nestjs-common': 1.4.3
       '@golevelup/nestjs-discovery': 3.0.0
       '@golevelup/nestjs-modules': 0.5.0_@nestjs+common@8.2.6+rxjs@7.5.2
       amqp-connection-manager: 3.9.0_amqplib@0.8.0
@@ -4128,8 +4128,10 @@ packages:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
     dev: true
 
-  /nanoid/2.1.11:
-    resolution: {integrity: sha512-s/snB+WGm6uwi0WjsZdaVcuf3KJXlfGl2LcxgwkEwJF0D/BWzVWAZW/XY4bFaiR7s0Jk3FPvlnepg1H1b1UwlA==}
+  /nanoid/3.2.0:
+    resolution: {integrity: sha512-fmsZYa9lpn69Ad5eDn7FMcnnSR+8R34W9qJEijxYhTbfOWzr22n1QxCMzXLK+ODyW2973V3Fux959iQoUxzUIA==}
+    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
     dev: true
 
   /natural-compare/1.4.0:
@@ -4871,12 +4873,6 @@ packages:
   /shebang-regex/3.0.0:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
-
-  /shortid/2.2.16:
-    resolution: {integrity: sha512-Ugt+GIZqvGXCIItnsL+lvFJOiN7RYqlGy7QE41O3YC1xbNSeDGIRO7xg2JJXIAj1cAGnOeC1r7/T9pgrtQbv4g==}
-    dependencies:
-      nanoid: 2.1.11
-    dev: true
 
   /signal-exit/3.0.6:
     resolution: {integrity: sha512-sDl4qMFpijcGw22U5w63KmD3cZJfBuFlVNbVMKje2keoKML7X2UzWbc4XrmEbDwg0NXJc3yv4/ox7b+JWb57kQ==}

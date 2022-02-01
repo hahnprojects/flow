@@ -45,7 +45,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@golevelup/nestjs-rabbitmq": "^2.0.0",
+    "@golevelup/nestjs-rabbitmq": "^2.1.0",
     "@nestjs/common": "^8.2.6",
     "@types/amqp-connection-manager": "^2.0.12",
     "@types/amqplib": "^0.8.2",
