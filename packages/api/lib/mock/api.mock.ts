@@ -45,7 +45,7 @@ export class MockAPI implements API {
 
   constructor(initData: {
     assets?: AssetInit[];
-    revisions: AssetRevisionInit[];
+    revisions?: AssetRevisionInit[];
     contents?: ContentInit[];
     endpoints?: EndpointInit[];
     secrets?: SecretInit[];
