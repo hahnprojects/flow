@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 2.1.1
+
+### Patch Changes
+
+- 8edcf1c: fixed breaking change in mock-api
+
 ## 2.1.0
 
 ### Minor Changes
