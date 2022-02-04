@@ -12,9 +12,9 @@ be about common errors that may occur when starting to develop a Flow-Module.
 
 To run Javascript/Typescript code you need the NodeJS runtime. Available to download [here](https://nodejs.org/en/).
 
-You will need at least version 12 to use the dependencies needed. We however recommend to use version 14
+You will need at least version 14 to use the dependencies needed. We however recommend to use version 16
 instead. This will help prevent problems with Node-version or OS-version specific dependencies, as the
-Flow-Executor of the HahnPRO Cloud uses Node-version 14 on linux. Most packages on [npm](https://www.npmjs.com/)
+Flow-Executor of the HahnPRO Cloud uses Node-version 16 on linux. Most packages on [npm](https://www.npmjs.com/)
 are cross-platform, but there are also the ones which require the Node-version of the development/build environment
 to be same as the version in the execution environment.
 
