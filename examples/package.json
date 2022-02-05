@@ -20,7 +20,7 @@
     "python-shell": "^3.0.1"
   },
   "devDependencies": {
-    "@golevelup/nestjs-rabbitmq": "^2.1.0",
+    "@golevelup/nestjs-rabbitmq": "^2.1.1",
     "@hahnpro/flow-cli": "workspace:*",
     "@nestjs/common": "^8.2.6",
     "@nestjs/core": "^8.2.6",
@@ -31,7 +31,7 @@
     "eslint": "^8.8.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "jest": "^27.4.7",
+    "jest": "^27.5.0",
     "nodemon": "^2.0.15",
     "prettier": "^2.5.1",
     "reflect-metadata": "^0.1.13",
