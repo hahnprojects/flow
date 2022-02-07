@@ -357,7 +357,7 @@ async function generateSchemasForFile(tsPath, jsonPath) {
 async function clean(buildFolder) {
   return new Promise((resolve, reject) => {
     const spinner = getSpinner('Cleaning').start();
-    fs.rmdir(buildFolder, { recursive: true }, (error) => {
+    fs.rm(buildFolder, { recursive: true, force: true }, (error) => {
       if (error) {
         spinner.stop();
         logger.error('Cleaning failed');
