@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.12.1
+
+### Patch Changes
+
+- 118fd33: Fix cleaning of build directories for Node.js v16 and later
+
 ## 2.12.0
 
 ### Minor Changes
