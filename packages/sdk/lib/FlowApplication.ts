@@ -5,12 +5,11 @@ import sizeof from 'object-sizeof';
 import { EventLoopUtilization, performance } from 'perf_hooks';
 import { PartialObserver, Subject } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
-import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
 import { API } from '@hahnpro/hpc-api';
 
 import { AmqpConnection, Nack } from './amqp';
-import { delay } from './utils';
+import { delay, truncate } from './utils';
 import type { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, StreamOptions } from './flow.interface';
 import type { FlowElement } from './FlowElement';
 import type { FlowEvent } from './FlowEvent';
@@ -40,7 +39,7 @@ export class FlowApplication {
   private properties: Record<string, any>;
   private _rpcClient: RpcClient;
 
-  constructor(modules: ClassType<any>[], flow: Flow, logger?: Logger, private amqpConnection?: AmqpConnection, skipApi?: boolean) {
+  constructor(modules: ClassType<any>[], flow: Flow, logger?: Logger, private amqpConnection?: AmqpConnection, skipApi = false) {
     this.logger = new FlowLogger({ id: 'none', functionFqn: 'FlowApplication', ...flow?.context }, logger || undefined, this.publishEvent);
 
     process.once('uncaughtException', (err) => {
@@ -57,121 +56,130 @@ export class FlowApplication {
       this.destroy(0);
     });
 
+    this.init(flow, modules, logger, skipApi);
+  }
+
+  private async init(flow: Flow, modules: ClassType<any>[], logger: Logger, skipApi: boolean) {
     try {
-      if (skipApi !== true) {
+      if (!skipApi) {
         this.api = new API();
       }
     } catch (err) {
       this.logger.error(err?.message || err);
     }
 
-    try {
-      this.context = { ...flow.context };
-      this.properties = flow.properties || {};
-
-      for (const module of modules) {
-        const moduleName = Reflect.getMetadata('module:name', module);
-        const moduleDeclarations = Reflect.getMetadata('module:declarations', module);
-        if (!moduleName || !moduleDeclarations || !Array.isArray(moduleDeclarations)) {
-          throw new Error(`FlowModule (${module.name}) metadata is missing or invalid`);
-        }
-        for (const declaration of moduleDeclarations) {
-          const functionFqn = Reflect.getMetadata('element:functionFqn', declaration);
-          if (!functionFqn) {
-            throw new Error(`FlowFunction (${declaration.name}) metadata is missing or invalid`);
-          }
-          this.declarations[`${moduleName}.${functionFqn}`] = declaration;
-        }
-      }
-
-      for (const element of flow.elements) {
-        const { id, name, properties, module, functionFqn } = element;
-        try {
-          const context: Context = { ...this.context, id, name, logger, app: this };
-          this.elements[id] = new this.declarations[`${module}.${functionFqn}`](context, properties);
-        } catch (err) {
-          throw new Error(`Could not create FlowElement for ${module}.${functionFqn}`);
-        }
-      }
-
-      for (const connection of flow.connections) {
-        const { source, target, sourceStream = 'default', targetStream = 'default' } = connection;
-        if (!source || !target) {
-          continue;
-        }
-
-        const sourceStreamId = `${source}.${sourceStream}`;
-        const targetStreamId = `${target}.${targetStream}`;
-        const element = this.elements[target];
-
-        if (!element || !element.constructor) {
-          throw new Error(target + ' has not been initialized');
-        }
-        const streamHandler = Reflect.getMetadata(`stream:${targetStream}`, element.constructor);
-        if (!streamHandler || !element[streamHandler]) {
-          throw new Error(`${target} does not implement a handler for ${targetStream}`);
-        }
-
-        const streamOptions: StreamOptions = Reflect.getMetadata(`stream:options:${targetStream}`, element.constructor) || {};
-        const concurrent = streamOptions.concurrent || 1;
-
-        const outputStream = this.getOutputStream(sourceStreamId);
-        outputStream
-          .pipe(
-            tap(() => this.setQueueMetrics(targetStreamId)),
-            mergeMap(async (event: FlowEvent) => {
-              this.performanceMap.set(event.getId(), performance.eventLoopUtilization());
-              try {
-                await element[streamHandler](event);
-              } catch (err) {
-                try {
-                  element.handleApiError(err);
-                } catch (e) {
-                  this.logger.error(err);
-                }
-              }
-              return event;
-            }, concurrent),
-            tap((event: FlowEvent) => {
-              this.updateMetrics(targetStreamId);
-              let elu = this.performanceMap.get(event.getId());
-              if (elu) {
-                this.performanceMap.delete(event.getId());
-                elu = performance.eventLoopUtilization(elu);
-                if (elu.utilization > 0.7 && elu.active > 1000) {
-                  this.logger.warn(
-                    `High event loop utilization detected for ${targetStreamId} with event ${event.getId()}! Handler has been active for ${Number(
-                      elu.active,
-                    ).toFixed(2)}ms with a utilization of ${Number(elu.utilization * 100).toFixed(
-                      2,
-                    )}%. Consider refactoring or move tasks to a worker thread.`,
-                  );
-                }
-              }
-            }),
-          )
-          .subscribe();
-      }
-
-      this.amqpConnection?.managedChannel
-        .assertExchange('deployment', 'direct', { durable: true })
-        ?.then(() => this.amqpConnection.managedChannel.assertExchange('flowlogs', 'fanout', { durable: true }))
-        ?.then(() =>
-          this.amqpConnection.createSubscriber((msg: any) => this.onMessage(msg), {
-            exchange: 'deployment',
-            routingKey: this.context.deploymentId,
-            queueOptions: { durable: false, exclusive: true },
-          }),
-        )
-        .catch((error) => {
-          this.logger.error('could not assert Exchange!\nError:\n' + error.toString());
-        });
-
-      this.logger.log('Flow Deployment is running');
-    } catch (err) {
+    const logErrorAndExit = (err: string) => {
       this.logger.error(err);
       this.destroy(1);
+    };
+
+    if (this.amqpConnection) {
+      try {
+        await this.amqpConnection.managedChannel.assertExchange('deployment', 'direct', { durable: true });
+        await this.amqpConnection.managedChannel.assertExchange('flowlogs', 'fanout', { durable: true });
+      } catch (e) {
+        logErrorAndExit(`Could not assert exchanges: ${e}`);
+      }
+
+      await this.amqpConnection
+        .createSubscriber((msg: any) => this.onMessage(msg), {
+          exchange: 'deployment',
+          routingKey: this.context.deploymentId,
+          queueOptions: { durable: false, exclusive: true },
+        })
+        .catch((err) => {
+          logErrorAndExit(`Could not subscribe to deployment exchange: ${err}`);
+        });
     }
+
+    this.context = { ...flow.context };
+    this.properties = flow.properties || {};
+
+    for (const module of modules) {
+      const moduleName = Reflect.getMetadata('module:name', module);
+      const moduleDeclarations = Reflect.getMetadata('module:declarations', module);
+      if (!moduleName || !moduleDeclarations || !Array.isArray(moduleDeclarations)) {
+        logErrorAndExit(`FlowModule (${module.name}) metadata is missing or invalid`);
+      }
+      for (const declaration of moduleDeclarations) {
+        const functionFqn = Reflect.getMetadata('element:functionFqn', declaration);
+        if (!functionFqn) {
+          logErrorAndExit(`FlowFunction (${declaration.name}) metadata is missing or invalid`);
+        }
+        this.declarations[`${moduleName}.${functionFqn}`] = declaration;
+      }
+    }
+
+    for (const element of flow.elements) {
+      const { id, name, properties, module, functionFqn } = element;
+      try {
+        const context: Context = { ...this.context, id, name, logger, app: this };
+        this.elements[id] = new this.declarations[`${module}.${functionFqn}`](context, properties);
+      } catch (err) {
+        logErrorAndExit(`Could not create FlowElement for ${module}.${functionFqn}`);
+      }
+    }
+
+    for (const connection of flow.connections) {
+      const { source, target, sourceStream = 'default', targetStream = 'default' } = connection;
+      if (!source || !target) {
+        continue;
+      }
+
+      const sourceStreamId = `${source}.${sourceStream}`;
+      const targetStreamId = `${target}.${targetStream}`;
+      const element = this.elements[target];
+
+      if (!element || !element.constructor) {
+        logErrorAndExit(`${target} has not been initialized`);
+      }
+      const streamHandler = Reflect.getMetadata(`stream:${targetStream}`, element.constructor);
+      if (!streamHandler || !element[streamHandler]) {
+        logErrorAndExit(`${target} does not implement a handler for ${targetStream}`);
+      }
+
+      const streamOptions: StreamOptions = Reflect.getMetadata(`stream:options:${targetStream}`, element.constructor) || {};
+      const concurrent = streamOptions.concurrent || 1;
+
+      const outputStream = this.getOutputStream(sourceStreamId);
+      outputStream
+        .pipe(
+          tap(() => this.setQueueMetrics(targetStreamId)),
+          mergeMap(async (event: FlowEvent) => {
+            this.performanceMap.set(event.getId(), performance.eventLoopUtilization());
+            try {
+              await element[streamHandler](event);
+            } catch (err) {
+              try {
+                element.handleApiError(err);
+              } catch (e) {
+                this.logger.error(err);
+              }
+            }
+            return event;
+          }, concurrent),
+          tap((event: FlowEvent) => {
+            this.updateMetrics(targetStreamId);
+            let elu = this.performanceMap.get(event.getId());
+            if (elu) {
+              this.performanceMap.delete(event.getId());
+              elu = performance.eventLoopUtilization(elu);
+              if (elu.utilization > 0.7 && elu.active > 1000) {
+                this.logger.warn(
+                  `High event loop utilization detected for ${targetStreamId} with event ${event.getId()}! Handler has been active for ${Number(
+                    elu.active,
+                  ).toFixed(2)}ms with a utilization of ${Number(elu.utilization * 100).toFixed(
+                    2,
+                  )}%. Consider refactoring or move tasks to a worker thread.`,
+                );
+              }
+            }
+          }),
+        )
+        .subscribe();
+    }
+
+    this.logger.log('Flow Deployment is running');
   }
 
   private setQueueMetrics = (id: string) => {
@@ -303,7 +311,7 @@ export class FlowApplication {
 
   /**
    * Publish a flow event to the amqp flowlogs exchange.
-   * If the the event size exceeds the limit it will be truncated
+   * If the event size exceeds the limit it will be truncated
    */
   public publishEvent = (event: FlowEvent): Promise<void> => {
     if (!this.amqpConnection) {
@@ -312,7 +320,7 @@ export class FlowApplication {
     try {
       const message = event.format();
       if (sizeof(message) > MAX_EVENT_SIZE_BYTES) {
-        message.data = this.truncate(message.data);
+        message.data = truncate(message.data);
       }
       return this.amqpConnection.publish('flowlogs', '', message);
     } catch (err) {
@@ -352,7 +360,9 @@ export class FlowApplication {
       /* eslint-disable-next-line no-console */
       console.error(err);
     } finally {
-      process.exit(exitCode);
+      if (process.env.JEST_WORKER_ID === undefined || process.env.NODE_ENV !== 'test') {
+        process.exit(exitCode);
+      }
     }
   }
 
@@ -367,17 +377,6 @@ export class FlowApplication {
       return this.outputStreamMap.get(id);
     }
     return stream;
-  }
-
-  /**
-   * Truncates an object or string to the specified max length and depth
-   */
-  private truncate(msg: any, depth = 4, maxStringLength = 1000): string {
-    let truncated = inspect(msg, { depth, maxStringLength });
-    if (truncated.startsWith("'") && truncated.endsWith("'")) {
-      truncated = truncated.substring(1, truncated.length - 1);
-    }
-    return truncated;
   }
 }
 
