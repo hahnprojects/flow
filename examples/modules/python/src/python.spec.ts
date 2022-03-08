@@ -37,7 +37,7 @@ describe('Python', () => {
     });
 
     flowApp.emit(new FlowEvent({ id: 'testTriggerRpc' }, { x: 10 }));
-  });
+  }, 20000);
 
   test('shell', (done) => {
     flowApp.subscribe('pythonshell.default', {
