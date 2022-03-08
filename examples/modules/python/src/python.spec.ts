@@ -49,8 +49,4 @@ describe('Python', () => {
 
     flowApp.emit(new FlowEvent({ id: 'testTriggerShell' }, { x: 10 }));
   });
-
-  afterAll(async () => {
-    await flowApp.destroy();
-  });
 });
