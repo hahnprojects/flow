@@ -60,6 +60,9 @@ export class FlowApplication {
   }
 
   private async init(flow: Flow, modules: ClassType<any>[], logger: Logger, skipApi: boolean) {
+    this.context = { ...flow.context };
+    this.properties = flow.properties || {};
+
     try {
       if (!skipApi) {
         this.api = new API();
@@ -69,7 +72,7 @@ export class FlowApplication {
     }
 
     const logErrorAndExit = (err: string) => {
-      this.logger.error(err);
+      this.logger.error(new Error(err));
       this.destroy(1);
     };
 
@@ -79,32 +82,33 @@ export class FlowApplication {
         await this.amqpConnection.managedChannel.assertExchange('flowlogs', 'fanout', { durable: true });
       } catch (e) {
         logErrorAndExit(`Could not assert exchanges: ${e}`);
+        return;
       }
 
-      await this.amqpConnection
-        .createSubscriber((msg: any) => this.onMessage(msg), {
+      try {
+        await this.amqpConnection.createSubscriber((msg: any) => this.onMessage(msg), {
           exchange: 'deployment',
           routingKey: this.context.deploymentId,
           queueOptions: { durable: false, exclusive: true },
-        })
-        .catch((err) => {
-          logErrorAndExit(`Could not subscribe to deployment exchange: ${err}`);
         });
+      } catch (err) {
+        logErrorAndExit(`Could not subscribe to deployment exchange: ${err}`);
+        return;
+      }
     }
-
-    this.context = { ...flow.context };
-    this.properties = flow.properties || {};
 
     for (const module of modules) {
       const moduleName = Reflect.getMetadata('module:name', module);
       const moduleDeclarations = Reflect.getMetadata('module:declarations', module);
       if (!moduleName || !moduleDeclarations || !Array.isArray(moduleDeclarations)) {
         logErrorAndExit(`FlowModule (${module.name}) metadata is missing or invalid`);
+        return;
       }
       for (const declaration of moduleDeclarations) {
         const functionFqn = Reflect.getMetadata('element:functionFqn', declaration);
         if (!functionFqn) {
           logErrorAndExit(`FlowFunction (${declaration.name}) metadata is missing or invalid`);
+          return;
         }
         this.declarations[`${moduleName}.${functionFqn}`] = declaration;
       }
@@ -117,6 +121,7 @@ export class FlowApplication {
         this.elements[id] = new this.declarations[`${module}.${functionFqn}`](context, properties);
       } catch (err) {
         logErrorAndExit(`Could not create FlowElement for ${module}.${functionFqn}`);
+        return;
       }
     }
 
@@ -132,10 +137,12 @@ export class FlowApplication {
 
       if (!element || !element.constructor) {
         logErrorAndExit(`${target} has not been initialized`);
+        return;
       }
       const streamHandler = Reflect.getMetadata(`stream:${targetStream}`, element.constructor);
       if (!streamHandler || !element[streamHandler]) {
         logErrorAndExit(`${target} does not implement a handler for ${targetStream}`);
+        return;
       }
 
       const streamOptions: StreamOptions = Reflect.getMetadata(`stream:options:${targetStream}`, element.constructor) || {};
@@ -360,7 +367,7 @@ export class FlowApplication {
       /* eslint-disable-next-line no-console */
       console.error(err);
     } finally {
-      if (process.env.JEST_WORKER_ID === undefined || process.env.NODE_ENV !== 'test') {
+      if (process.env.JEST_WORKER_ID == undefined || process.env.NODE_ENV !== 'test') {
         process.exit(exitCode);
       }
     }

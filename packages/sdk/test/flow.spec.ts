@@ -8,6 +8,8 @@ describe('Flow Application', () => {
   let mockExit;
 
   beforeEach(() => {
+    // ensure process.exit gets called
+    delete process.env.JEST_WORKER_ID;
     mockExit = jest.spyOn(process, 'exit').mockImplementation();
   });
 
