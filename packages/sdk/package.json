@@ -40,7 +40,7 @@
     "object-sizeof": "^1.6.3",
     "python-shell": "^3.0.1",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.5.4",
+    "rxjs": "^7.5.5",
     "string-interp": "^0.3.6",
     "uuid": "^8.3.2"
   },
