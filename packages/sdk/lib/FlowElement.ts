@@ -118,7 +118,7 @@ export abstract class FlowElement<T = any> {
 
   protected async callRpcFunction(functionName: string, ...args: any[]) {
     try {
-      return this.app?.rpcClient?.callFunction(this.rpcRoutingKey, functionName, ...args);
+      return (await this.app?.rpcClient)?.callFunction(this.rpcRoutingKey, functionName, ...args);
     } catch (err) {
       this.logger.error(err);
     }

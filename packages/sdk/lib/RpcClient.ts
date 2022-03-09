@@ -6,11 +6,14 @@ export class RpcClient {
   private channel: ChannelWrapper;
   private openRequests: Map<string, { resolve; reject; trace: string }> = new Map<string, { resolve; reject; trace: string }>();
 
-  constructor(connection: AmqpConnectionManager) {
+  constructor(private connection: AmqpConnectionManager) {
     if (!connection) {
       throw new Error('currently no amqp connection available');
     }
-    this.channel = connection.createChannel({
+  }
+
+  public async init() {
+    this.channel = this.connection.createChannel({
       json: true,
       setup: (channel: Channel) =>
         Promise.all([
