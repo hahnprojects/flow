@@ -8,7 +8,7 @@ export class PythonRPC extends FlowTask<Properties> {
     super(context, properties, Properties, true);
     // attach to stdout
     const shell = this.runPyRpcScript(join(__dirname, 'algebra_rpc.py'), this.properties.count);
-    shell.addListener('stdout', (data) => console.log('py: ' + data));
+    shell.addListener('stdout', (data) => this.logger.log('py: ' + data));
     shell.addListener('stderr', (data) => this.logger.error('py: ' + data));
   }
 
