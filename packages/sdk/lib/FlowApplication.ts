@@ -335,17 +335,15 @@ export class FlowApplication {
     }
   };
 
-  get rpcClient() {
-    return (async () => {
-      if (!this.amqpConnection?.managedConnection) {
-        throw new Error('No AMQP connection available');
-      }
-      if (!this._rpcClient) {
-        this._rpcClient = new RpcClient(this.amqpConnection.managedConnection);
-        await this._rpcClient.init();
-      }
-      return this._rpcClient;
-    })();
+  public async rpcClient() {
+    if (!this.amqpConnection) {
+      throw new Error('No AMQP connection available');
+    }
+    if (!this._rpcClient) {
+      this._rpcClient = new RpcClient(this.amqpConnection);
+      await this._rpcClient.init();
+    }
+    return this._rpcClient;
   }
 
   /**
