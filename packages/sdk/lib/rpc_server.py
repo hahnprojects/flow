@@ -5,41 +5,12 @@ from functools import partial, wraps
 from aio_pika import IncomingMessage, Exchange, Message, connect_robust, ExchangeType
 import os
 
-user = ""
-try:
-    user = os.environ["RABBIT_USER"]
-except:
-    user = "guest"
-
-password = ""
-try:
-    password = os.environ["RABBIT_PASSWORD"]
-except:
-    password = "guest"
-
-host = ""
-try:
-    host = os.environ["RABBIT_HOST"]
-except:
-    host = "localhost"
-
-port = ""
-try:
-    port = os.environ["RABBIT_PORT"]
-except:
-    port = "5672"
-
-vhost = ""
-try:
-    vhost = os.environ["RABBIT_VHOST"]
-except:
-    vhost = ""
-
-routingKey = ""
-try:
-    routingKey = os.environ["RPC_ROUTING_KEY"]
-except:
-    routingKey = "rpc"
+user = os.getenv("RABBIT_USER", "guest")
+password = os.getenv("RABBIT_PASSWORD", "guest")
+host = os.getenv("RABBIT_HOST", "localhost")
+port = os.getenv("RABBIT_PORT", "5672")
+vhost = os.getenv("RABBIT_VHOST", "")
+routingKey = os.getenv("RPC_ROUTING_KEY", "rpc")
 
 remoteProcedures = {}
 

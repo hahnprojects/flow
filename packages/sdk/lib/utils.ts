@@ -3,6 +3,7 @@ import isPlainObject from 'lodash/isPlainObject';
 import { join } from 'path';
 import { PythonShell } from 'python-shell';
 import interp from 'string-interp';
+import { inspect } from 'util';
 
 import { FlowLogger } from './FlowLogger';
 
@@ -96,4 +97,15 @@ export function runPyScript(scriptPath: string, data: any) {
       return resolve(pyData);
     });
   });
+}
+
+/**
+ * Truncates an object or string to the specified max length and depth
+ */
+export function truncate(msg: any, depth = 4, maxStringLength = 1000): string {
+  let truncated = inspect(msg, { depth, maxStringLength });
+  if (truncated.startsWith("'") && truncated.endsWith("'")) {
+    truncated = truncated.substring(1, truncated.length - 1);
+  }
+  return truncated;
 }

@@ -1,23 +1,23 @@
-import { AmqpConnectionManager, ChannelWrapper } from 'amqp-connection-manager';
-import { Channel, ConsumeMessage } from 'amqplib';
+import { ChannelWrapper } from 'amqp-connection-manager';
+import { ConsumeMessage } from 'amqplib';
 import { v4 as uuid } from 'uuid';
+import { AmqpConnection } from './amqp';
 
 export class RpcClient {
   private channel: ChannelWrapper;
   private openRequests: Map<string, { resolve; reject; trace: string }> = new Map<string, { resolve; reject; trace: string }>();
 
-  constructor(connection: AmqpConnectionManager) {
-    if (!connection) {
+  constructor(private amqpConnection: AmqpConnection) {
+    if (!amqpConnection) {
       throw new Error('currently no amqp connection available');
     }
-    this.channel = connection.createChannel({
-      json: true,
-      setup: (channel: Channel) =>
-        Promise.all([
-          channel.assertExchange('rpc_direct_exchange', 'direct', { durable: false }),
-          channel.consume('amq.rabbitmq.reply-to', this.onMessage, { noAck: true }),
-        ]),
-    });
+  }
+
+  public async init() {
+    this.channel = this.amqpConnection.managedConnection.createChannel({ json: true });
+    await this.channel.waitForConnect();
+    await this.channel.assertExchange('rpc_direct_exchange', 'direct', { durable: false });
+    await this.channel.consume('amq.rabbitmq.reply-to', this.onMessage, { noAck: true });
   }
 
   private onMessage = (msg: ConsumeMessage) => {

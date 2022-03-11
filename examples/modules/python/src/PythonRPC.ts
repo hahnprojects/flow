@@ -6,7 +6,10 @@ import { join } from 'path';
 export class PythonRPC extends FlowTask<Properties> {
   constructor(context, properties: unknown) {
     super(context, properties, Properties, true);
-    this.runPyRpcScript(join(__dirname, 'algebra_rpc.py'), this.properties.count);
+    // attach to stdout
+    const shell = this.runPyRpcScript(join(__dirname, 'algebra_rpc.py'), this.properties.count);
+    shell.addListener('stdout', (data) => this.logger.log('py: ' + data));
+    shell.addListener('stderr', (data) => this.logger.error('py: ' + data));
   }
 
   @InputStream()

@@ -1,5 +1,5 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { FlowApplication, FlowEvent } from '@hahnpro/flow-sdk';
+import { FlowApplication, FlowEvent, TestModule } from '@hahnpro/flow-sdk';
 
 import PythonModule from '../';
 
@@ -10,6 +10,8 @@ describe('Python', () => {
   beforeAll(async () => {
     const flow = {
       elements: [
+        { id: 'testTriggerRpc', module: 'test', functionFqn: 'test.task.Trigger' },
+        { id: 'testTriggerShell', module: 'test', functionFqn: 'test.task.Trigger' },
         { id: 'pythonrpc', module: 'python', functionFqn: 'python.tasks.python-rpc', properties: { a: 4, b: 7, count: 10 } },
         { id: 'pythonshell', module: 'python', functionFqn: 'python.tasks.python-shell', properties: { a: 4, b: 7 } },
       ],
@@ -24,7 +26,7 @@ describe('Python', () => {
     };
     const amqpConnection = new AmqpConnection({ uri: 'amqp://localhost' });
     await amqpConnection.init();
-    flowApp = new FlowApplication([PythonModule], flow, null, amqpConnection, true);
+    flowApp = new FlowApplication([PythonModule, TestModule], flow, null, amqpConnection, true);
     await new Promise((resolve) => setTimeout(resolve, 2000));
   });
 
@@ -37,7 +39,7 @@ describe('Python', () => {
     });
 
     flowApp.emit(new FlowEvent({ id: 'testTriggerRpc' }, { x: 10 }));
-  });
+  }, 20000);
 
   test('shell', (done) => {
     flowApp.subscribe('pythonshell.default', {
@@ -48,9 +50,5 @@ describe('Python', () => {
     });
 
     flowApp.emit(new FlowEvent({ id: 'testTriggerShell' }, { x: 10 }));
-  });
-
-  afterAll(async () => {
-    await flowApp.destroy();
   });
 });

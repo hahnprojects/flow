@@ -72,7 +72,7 @@ jobs:
         with:
           python-version: '3.8.x'
       - name: Install Python dependencies
-        run: pip install aio_pika
+        run: pip install aio_pika==6.8.2
       - name: Prepare PNPM
         uses: ./.github/actions/prepare-pnpm
       - name: Activate Post Build Hooks
