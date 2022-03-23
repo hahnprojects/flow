@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@golevelup/nestjs-rabbitmq": "^2.2.0",
-    "@nestjs/common": "^8.4.1",
+    "@nestjs/common": "^8.4.2",
     "@types/amqp-connection-manager": "^2.0.12",
     "@types/amqplib": "^0.8.2",
     "@types/jest": "^27.4.1",
