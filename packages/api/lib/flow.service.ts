@@ -4,7 +4,6 @@ import { HttpClient } from './http.service';
 import { Paginated, RequestParameter } from './data.interface';
 
 export class FlowService extends DataService<FlowDto> {
-
   constructor(httpClient: HttpClient) {
     super(httpClient, '/flows');
   }

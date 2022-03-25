@@ -16,5 +16,4 @@ export * from './flow.interface';
 export * from './resource.interface';
 export * from './schema.interface';
 
-
 export * as SiDrive from './sidriveiq.interface';
