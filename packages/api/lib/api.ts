@@ -10,6 +10,10 @@ import { SiDriveIqService } from './sidriveiq.service';
 import { TaskService } from './task.service';
 import { TimeSeriesService } from './timeseries.service';
 import { UserService } from './user.service';
+import { FlowService } from './flow.service';
+import { FlowFunctionService } from './flow-function.service';
+import { FlowModuleService } from './flow-module.service';
+import { FlowDeploymentService } from './flow-deployment.service';
 
 export class API {
   public httpClient: HttpClient;
@@ -19,6 +23,10 @@ export class API {
   public contents: ContentService;
   public endpoints: EndpointService;
   public events: EventsService;
+  public flows: FlowService;
+  public flowDeployments: FlowDeploymentService;
+  public flowFunctions: FlowFunctionService;
+  public flowModules: FlowModuleService;
   public proxy: ProxyService;
   public secrets: SecretService;
   public tasks: TaskService;
@@ -97,6 +105,10 @@ export class API {
     this.contents = new ContentService(this.httpClient);
     this.endpoints = new EndpointService(this.httpClient);
     this.events = new EventsService(this.httpClient);
+    this.flows = new FlowService(this.httpClient);
+    this.flowDeployments = new FlowDeploymentService(this.httpClient);
+    this.flowFunctions = new FlowFunctionService(this.httpClient);
+    this.flowModules = new FlowModuleService(this.httpClient);
     this.proxy = new ProxyService(this.httpClient);
     this.secrets = new SecretService(this.httpClient);
     this.tasks = new TaskService(this.httpClient);
