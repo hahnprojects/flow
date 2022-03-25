@@ -22,11 +22,11 @@ import { FlowDeploymentService } from '../flow-deployment.service';
 import { FlowFunctionService } from '../flow-function.service';
 import { FlowModuleService } from '../flow-module.service';
 import { FlowService } from '../flow.service';
-import { Flow, FlowDiagram } from '../flow.interface';
+import { FlowDiagram, FlowDto } from '../flow.interface';
 import { FlowMockService } from './flow.mock.service';
 import { FlowDeployment } from '../flow-deployment.interface';
 import { FlowDeploymentMockService } from './flow-deployment.mock.service';
-import { FlowFunction } from '../flow-function.interface';
+import { FlowFunctionDto } from '../flow-function.interface';
 import { FlowFunctionsMockService } from './flow-functions.mock.service';
 import { FlowModule } from '../flow-module.interface';
 import { FlowModulesMockService } from './flow-modules.mock.service';
@@ -194,7 +194,7 @@ export class MockAPI implements API {
       json: '',
       author: 'nobody',
     }));
-    const flows1: Flow[] = flows.map((v) => ({
+    const flows1: FlowDto[] = flows.map((v) => ({
       ...v,
       readPermissions: [],
       readWritePermissions: [],
@@ -216,7 +216,7 @@ export class MockAPI implements API {
       name: `deployment-${v.id}`,
     }));
 
-    const functions1: Array<FlowFunction & { id: string }> = functions.map((v) => ({
+    const functions1: Array<FlowFunctionDto & { id: string }> = functions.map((v) => ({
       ...v,
       category: 'task',
       readPermissions: [],
@@ -226,7 +226,7 @@ export class MockAPI implements API {
       history: [v.id, ...((v?.history ?? []) as string[])],
     }));
 
-    const historyMap: Map<string, Array<FlowFunction & { id: string }>> = new Map<string, Array<FlowFunction & { id: string }>>();
+    const historyMap: Map<string, Array<FlowFunctionDto & { id: string }>> = new Map<string, Array<FlowFunctionDto & { id: string }>>();
     functions1.forEach((func) => {
       (func.history as string[]).forEach((hist) => {
         if (historyMap.has(func.fqn)) {
@@ -295,9 +295,9 @@ export type SecretInit = AtLeast<Secret, 'name' | 'key'>;
 export type TimeSeriesInit = Identity<AtLeast<TimeSeries, 'id' | 'name'> & { values: TimeSeriesValue[] }>;
 export type TaskInit = AtLeast<Task, 'name' | 'assignedTo'>;
 export type EventInit = AtLeast<Event, 'name'>;
-export type FlowInit = AtLeast<Flow, 'id'>;
+export type FlowInit = AtLeast<FlowDto, 'id'>;
 export type FlowDeploymentInit = AtLeast<FlowDeployment, 'id' | 'flow'>;
-export type FlowFunctionInit = AtLeast<Identity<FlowFunction & { id: string }>, 'fqn' | 'id'>;
+export type FlowFunctionInit = AtLeast<Identity<FlowFunctionDto & { id: string }>, 'fqn' | 'id'>;
 export type FlowModuleInit = Replace<AtLeast<FlowModule, 'name'>, 'artifacts', ArtifactInit[]>;
 export type ArtifactInit = AtLeast<Artifact & { path: string }, 'filename' | 'path'>;
 export type FlowDiagramInit = AtLeast<FlowDiagram, 'id' | 'flow'>;

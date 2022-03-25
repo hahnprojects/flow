@@ -1,9 +1,9 @@
 import { Resource } from './resource.interface';
-import { Flow, FlowDiagram } from './flow.interface';
+import { FlowDiagram, FlowDto } from './flow.interface';
 import { Storage } from './storage.interface';
 
 export interface FlowDeployment extends Resource {
-  flow: string | Flow;
+  flow: string | FlowDto;
   diagram: string | FlowDiagram;
   artifact: Storage;
   flowModel: FlowModel;
@@ -22,13 +22,13 @@ export interface FlowDeploymentStatistic {
 }
 
 export interface FlowModel {
-  elements: FlowElement[];
+  elements: FlowModelElement[];
   connections: FlowConnection[];
   modules?: string[];
   properties?: Record<string, any>;
 }
 
-export interface FlowElement {
+export interface FlowModelElement {
   id: string;
   name?: string;
   properties?: Record<string, any>;

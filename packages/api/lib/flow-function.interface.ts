@@ -1,4 +1,4 @@
-export interface FlowFunction {
+export interface FlowFunctionDto {
   fqn: string;
   category: string;
   readPermissions: string[];

@@ -2,7 +2,7 @@ import { Resource } from './resource.interface';
 import { JsonSchemaForm } from './schema.interface';
 import { FlowDeployment } from './flow-deployment.interface';
 
-export interface Flow extends Resource {
+export interface FlowDto extends Resource {
   diagram: string | FlowDiagram;
   deployments?: string[] | FlowDeployment[];
   dashboard?: DashboardItem[];
@@ -19,7 +19,7 @@ export interface DashboardItem {
 
 export interface FlowDiagram {
   id: string;
-  flow: string | Flow;
+  flow: string | FlowDto;
   json: string;
   author: string;
   createdAt?: Date | string;
