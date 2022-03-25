@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.20.7
+
+### Patch Changes
+
+- b110e7f: Fixed a bug which caused tests failures when required exchanges were missing
+
 ## 4.20.6
 
 ### Patch Changes
