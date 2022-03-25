@@ -30,6 +30,8 @@ import { FlowFunction } from '../flow-function.interface';
 import { FlowFunctionsMockService } from './flow-functions.mock.service';
 import { FlowModule } from '../flow-module.interface';
 import { FlowModulesMockService } from './flow-modules.mock.service';
+import { Artifact } from '../storage.interface';
+import { randomUUID } from 'crypto';
 
 export class MockAPI implements API {
   public httpClient = null;
@@ -235,9 +237,17 @@ export class MockAPI implements API {
       });
     });
 
-    const modules1: FlowModule[] = modules.map((v) => ({
+    const modules1: Replace<FlowModule, 'artifacts', Array<Artifact & { path: string }>>[] = modules.map((v, index) => ({
       ...v,
-      artifacts: [],
+      artifacts:
+        modules[index].artifacts.map((art) => ({
+          ...art,
+          version: '0.0.0',
+          id: randomUUID(),
+          mimetype: '',
+          size: 0,
+          createdAt: '' + Date.now(),
+        })) ?? [],
       author: 'nobody',
       functions: [],
       readPermissions: [],
@@ -288,7 +298,8 @@ export type EventInit = AtLeast<Event, 'name'>;
 export type FlowInit = AtLeast<Flow, 'id'>;
 export type FlowDeploymentInit = AtLeast<FlowDeployment, 'id' | 'flow'>;
 export type FlowFunctionInit = AtLeast<Identity<FlowFunction & { id: string }>, 'fqn' | 'id'>;
-export type FlowModuleInit = AtLeast<FlowModule, 'name'>;
+export type FlowModuleInit = Replace<AtLeast<FlowModule, 'name'>, 'artifacts', ArtifactInit[]>;
+export type ArtifactInit = AtLeast<Artifact & { path: string }, 'filename' | 'path'>;
 export type FlowDiagramInit = AtLeast<FlowDiagram, 'id' | 'flow'>;
 
 export interface UserInit {

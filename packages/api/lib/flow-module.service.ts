@@ -16,10 +16,8 @@ export class FlowModuleService extends DataService<FlowModule> {
 
   public async download(name: string, filePath: string, version = 'latest') {
     const writer = createWriteStream(filePath);
-    // todo: funzt nicht
-    //  wenn man hier eine neue axios instanz erstellt gehts
-    return this.httpClient.get(`${this.basePath}/${name}/${version}`, { responseType: 'stream' }).then(async (response: any) => {
-      response.data.pipe(writer);
+    return this.httpClient.get(`${this.basePath}/${name}/${version}`, { responseType: 'stream' }).then(async (response: ReadStream) => {
+      response.pipe(writer);
       return finished(writer);
     });
   }

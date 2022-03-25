@@ -2,6 +2,8 @@ import * as dotenv from 'dotenv';
 
 import { HistoryEntry, MockAPI, ReturnType } from '../lib';
 import { Readable } from 'stream';
+import { join } from 'path';
+import { existsSync, unlinkSync } from 'fs';
 
 dotenv.config();
 
@@ -27,6 +29,7 @@ describe('Mock-API test', () => {
       { fqn: 'test.history.function', history: ['123'], id: 'foo' },
     ],
     deployments: [{ flow: 'flow1', id: '623ae4cedeaf1681711ff3b0', diagram: 'diagram1', refs: [{ id: 'asset1', resourceType: 'asset' }] }],
+    modules: [{ name: 'testMod', artifacts: [{ filename: 'test.zip', path: join(__dirname, 'testFile.zip') }] }],
   });
 
   // tests copied from api.spec.ts
@@ -200,7 +203,7 @@ describe('Mock-API test', () => {
     }
   });
 
-  test('FLOW.API.9 asset revisions', async () => {
+  test('FLOW.API.MOCK.9 asset revisions', async () => {
     const assets = await api.assets.getMany();
     expect(assets).toBeDefined();
 
@@ -218,7 +221,7 @@ describe('Mock-API test', () => {
     }
   }, 60000);
 
-  test('FLOW-API.10 flows', async () => {
+  test('FLOW-API.MOCK.10 flows', async () => {
     let flows = await api.flows.getMany().catch((err) => logError(err));
     expect(flows).toBeDefined();
 
@@ -249,7 +252,7 @@ describe('Mock-API test', () => {
     }
   }, 60000);
 
-  test('FLOW-API.11 flow-functions', async () => {
+  test('FLOW-API.MOCK.11 flow-functions', async () => {
     let functions = await api.flowFunctions.getMany().catch((err) => logError(err));
     expect(functions).toBeDefined();
 
@@ -282,7 +285,7 @@ describe('Mock-API test', () => {
     expect(function2.current).toBe(historyId);
   }, 60000);
 
-  test('FLOW-API.12 flow-deployments', async () => {
+  test('FLOW-API.MOCK.12 flow-deployments', async () => {
     let deployments = await api.flowDeployments.getMany().catch((err) => logError(err));
     expect(deployments).toBeDefined();
 
@@ -339,6 +342,23 @@ describe('Mock-API test', () => {
     await api.flowDeployments.deleteOne(deployment1.id);
     flow = await api.flows.getOne(flow.id);
     expect(flow.deployments).not.toContain(deployment1.id);
+  }, 60000);
+
+  test('FLOW-API.MOCK.13 flow-modules', async () => {
+    const modules = await api.flowModules.getMany().catch((err) => logError(err));
+    expect(modules).toBeDefined();
+
+    if (modules) {
+      expect(Array.isArray(modules.docs)).toBe(true);
+      expect(modules.docs.length).toBeGreaterThan(0);
+      const moduleName = modules.docs[0].name;
+      const module = await api.flowModules.getOne(moduleName);
+      expect(module).toBeDefined();
+
+      await api.flowModules.download(moduleName, join(__dirname, module.artifacts[0].filename));
+      expect(existsSync(join(__dirname, module.artifacts[0].filename))).toBe(true);
+      unlinkSync(join(__dirname, module.artifacts[0].filename));
+    }
   }, 60000);
 });
 

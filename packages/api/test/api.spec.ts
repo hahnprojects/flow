@@ -2,8 +2,14 @@ import * as dotenv from 'dotenv';
 
 import { API, HistoryEntry } from '../lib';
 import { join } from 'path';
+import { existsSync, unlinkSync } from 'fs';
 
 dotenv.config();
+
+process.env.API_BASE_URL = 'https://testing.hahnpro.com';
+process.env.AUTH_REALM = 'testing';
+process.env.API_USER = 'timo-test-client';
+process.env.AUTH_SECRET = 'wVUUr3N4RgB80KQXJqPMHnPVb2yGVF1l';
 
 /* eslint-disable no-console */
 describe('API test', () => {
@@ -283,7 +289,7 @@ describe('API test', () => {
     expect(flow.deployments).not.toContain(deployment1.id);
   }, 60000);
 
-  test.skip('FLOW-API.13 flow-modules', async () => {
+  test('FLOW-API.13 flow-modules', async () => {
     const modules = await api.flowModules.getMany().catch((err) => logError(err));
     expect(modules).toBeDefined();
 
@@ -294,8 +300,9 @@ describe('API test', () => {
       const module = await api.flowModules.getOne(moduleName);
       expect(module).toBeDefined();
 
-      const newVar = await api.flowModules.download(moduleName, join(__dirname, module.artifacts[0].filename));
-      console.log(newVar);
+      await api.flowModules.download(moduleName, join(__dirname, module.artifacts[0].filename));
+      expect(existsSync(join(__dirname, module.artifacts[0].filename))).toBe(true);
+      unlinkSync(join(__dirname, module.artifacts[0].filename));
     }
   }, 60000);
 });
