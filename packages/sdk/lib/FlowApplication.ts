@@ -10,7 +10,14 @@ import { API } from '@hahnpro/hpc-api';
 
 import { AmqpConnection, Nack } from './amqp';
 import { delay, truncate } from './utils';
-import type { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, StreamOptions } from './flow.interface';
+import type {
+  ClassType,
+  DeploymentMessage,
+  Flow,
+  FlowContext,
+  FlowElementContext,
+  StreamOptions,
+} from './flow.interface';
 import type { FlowElement } from './FlowElement';
 import type { FlowEvent } from './FlowEvent';
 import { FlowLogger, Logger } from './FlowLogger';
@@ -334,6 +341,21 @@ export class FlowApplication {
       this.logger.error(err);
     }
   };
+
+  /**
+   * Send an event to the flow-executor to update the status of the deployment of this FlowApplication
+   * @param desiredStatus the desired status of this deployment, can be either stopped or deleted
+   */
+  public sendStatusUpdate(desiredStatus: 'stopped' | 'deleted') {
+    if (!this.amqpConnection) {
+      return;
+    }
+    try {
+      return this.amqpConnection.publish('deployment', 'status', { status: desiredStatus });
+    } catch (err) {
+      this.logger.error(err);
+    }
+  }
 
   public async rpcClient() {
     if (!this.amqpConnection) {

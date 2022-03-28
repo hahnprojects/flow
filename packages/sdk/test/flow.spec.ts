@@ -1,6 +1,15 @@
 import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
 
-import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
+import {
+  delay,
+  FlowApplication,
+  FlowEvent,
+  FlowFunction,
+  FlowModule,
+  FlowResource,
+  FlowTask,
+  InputStream,
+} from '../lib';
 import { loggerMock } from './logger.mock';
 import { Type } from 'class-transformer';
 
@@ -310,6 +319,27 @@ describe('Flow Application', () => {
     });
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
   }, 60000);
+
+  it('FLOW.FA.10 should send status updates', async () => {
+    const flow = {
+      elements: [
+        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testResource', module: 'test.module', functionFqn: 'test.resource.TestResource' },
+      ],
+      connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource', targetStream: 'status' }],
+      context: {
+        flowId: 'testFlow',
+        deploymentId: 'testDeployment',
+      },
+    };
+    const app = new FlowApplication([TestModule], flow, loggerMock, null, true);
+    await new Promise((res) => setTimeout(res, 300));
+    const spyOn = jest.spyOn(app, 'sendStatusUpdate');
+
+    app.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+    await new Promise((res) => setTimeout(res, 300));
+    expect(spyOn).toHaveBeenCalledWith('stopped');
+  }, 60000);
 });
 
 @FlowFunction('test.resource.TestResource')
@@ -317,6 +347,11 @@ class TestResource extends FlowResource {
   @InputStream('default', { concurrent: 5 })
   public async onDefault(event) {
     return this.emitEvent({ hello: 'world' }, null);
+  }
+
+  @InputStream('status')
+  public async sendStatus(event) {
+    return this.sendStatusEvent('stopped');
   }
 }
 

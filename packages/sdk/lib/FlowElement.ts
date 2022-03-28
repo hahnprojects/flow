@@ -85,6 +85,14 @@ export abstract class FlowElement<T = any> {
     }
   }
 
+  /**
+   * Send an event to the flow-executor to update the status of the deployment of this FlowApplication
+   * @param desiredStatus the desired status of this deployment, can be either stopped or deleted
+   */
+  protected sendStatusEvent(desiredStatus: 'stopped' | 'deleted') {
+    return this.app?.sendStatusUpdate(desiredStatus);
+  }
+
   protected validateProperties<P>(classType: ClassType<P>, properties: any = {}, whitelist = false): P {
     const props: P = plainToInstance<P, any>(classType, properties);
     const errors = validateSync(props as any, { whitelist });
