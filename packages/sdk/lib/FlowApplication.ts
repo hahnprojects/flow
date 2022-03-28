@@ -344,7 +344,7 @@ export class FlowApplication {
       return;
     }
     try {
-      return this.amqpConnection.publish('deployment', 'status', { status: desiredStatus });
+      return this.amqpConnection.publish('deployment', 'status', { status: desiredStatus, deploymentId: this.context.deploymentId });
     } catch (err) {
       this.logger.error(err);
     }
