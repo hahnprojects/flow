@@ -81,7 +81,7 @@ describe('InputStreamDecorator', () => {
         }
       },
     });
-    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { test1: 'data' }));
+    setTimeout(() => flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { test1: 'data' })), 500);
   });
 
   test('FLOW.ISD.6 stopPropagation should work in a mixed flow', (done) => {
