@@ -330,6 +330,7 @@ describe('Flow Application', () => {
     app.emit(new FlowEvent({ id: 'testTrigger' }, {}));
     await new Promise((res) => setTimeout(res, 300));
     expect(spyOn).toHaveBeenCalledWith('stopped');
+    spyOn.mockClear();
   }, 60000);
 });
 
