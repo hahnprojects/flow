@@ -10,14 +10,7 @@ import { API } from '@hahnpro/hpc-api';
 
 import { AmqpConnection, Nack } from './amqp';
 import { delay, truncate } from './utils';
-import type {
-  ClassType,
-  DeploymentMessage,
-  Flow,
-  FlowContext,
-  FlowElementContext,
-  StreamOptions,
-} from './flow.interface';
+import type { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, StreamOptions } from './flow.interface';
 import type { FlowElement } from './FlowElement';
 import type { FlowEvent } from './FlowEvent';
 import { FlowLogger, Logger } from './FlowLogger';

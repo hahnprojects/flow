@@ -1,15 +1,6 @@
 import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
 
-import {
-  delay,
-  FlowApplication,
-  FlowEvent,
-  FlowFunction,
-  FlowModule,
-  FlowResource,
-  FlowTask,
-  InputStream,
-} from '../lib';
+import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
 import { loggerMock } from './logger.mock';
 import { Type } from 'class-transformer';
 
