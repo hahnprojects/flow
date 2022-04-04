@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -182,6 +183,14 @@ export function getCodeBlocks(string_) {
   }
   return blocks;
 }
+
+export const logger = {
+  /* eslint-disable no-console */
+  log: console.log,
+  error: (message) => console.log(chalk.bold.red(message)),
+  ok: (message) => console.log(chalk.bold.green(message)),
+  /* eslint-enable no-console */
+};
 
 function blockDefinitionIncludes(block, value) {
   return block.trim().split('\n', 1)[0].includes(value);

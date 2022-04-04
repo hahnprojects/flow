@@ -34,6 +34,7 @@ describe('check types', () => {
           },
         },
         '',
+        logger,
       ),
     ).toBeTruthy();
   });
@@ -62,6 +63,7 @@ describe('check types', () => {
           },
         },
         '',
+        logger,
       ),
     ).toBeTruthy();
   });
@@ -78,6 +80,7 @@ describe('check types', () => {
           },
         },
         '',
+        logger,
       ),
     ).toBeTruthy();
   });
@@ -149,7 +152,7 @@ describe('handle converted output form ts-node', () => {
       outputStreams: [],
       tags: [],
     };
-    const result = await handleConvertedOutput(output, '', json);
+    const result = await handleConvertedOutput(output, '', json, logger);
     expect(result['inputStreams']).toEqual([
       {
         name: 'default',

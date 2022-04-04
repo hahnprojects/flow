@@ -1,10 +1,10 @@
 #!/usr/bin/env node
+// @ts-check
 import 'reflect-metadata';
 import 'dotenv/config';
 
 import archiver from 'archiver';
 import Axios from 'axios';
-import chalk from 'chalk';
 import { Command } from 'commander';
 import copyfiles from 'copyfiles';
 import { execa } from 'execa';
@@ -16,28 +16,16 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import ora from 'ora';
 
-import { handleConvertedOutput, prepareTsFile } from './utils.mjs';
+import { getAccessToken, login, logout } from './auth.mjs';
+import { handleConvertedOutput, logger, prepareTsFile } from './utils.mjs';
 
 const require = createRequire(import.meta.url);
-
-const logger = {
-  /* eslint-disable no-console */
-  log: console.log,
-  error: (message) => console.log(chalk.bold.red(message)),
-  ok: (message) => console.log(chalk.bold.green(message)),
-  /* eslint-enable no-console */
-};
-
-const apiUser = process.env.API_USER;
-const apiKey = process.env.API_KEY;
-const baseUrl = process.env.PLATFORM_URL;
-const buildDirectory = process.env.BUILD_DIR || 'dist';
-const realm = process.env.REALM;
-const authUrl = process.env.AUTH_URL || `${baseUrl}/auth/realms/${realm}/protocol/openid-connect/token`;
+const BASE_URL = process.env.BASE_URL || process.env.PLATFORM_URL;
+const BUILD_DIR = process.env.BUILD_DIR || 'dist';
 
 let axios;
 if (process.env.https_proxy || process.env.http_proxy) {
-  const httpsAgent = new HttpsProxyAgent(process.env.https_proxy || process.env.http_proxy);
+  const httpsAgent = HttpsProxyAgent(process.env.https_proxy || process.env.http_proxy);
   axios = Axios.create({ httpsAgent, proxy: false });
 } else {
   axios = Axios;
@@ -60,7 +48,7 @@ const CMD = {
 const program = new Command();
 
 program
-  .version('2.12.0', '-v, --version')
+  .version('2.13.0', '-v, --version')
   .usage('[command] [options]')
   .description('Flow Module Management Tool')
   .on('--help', () => {});
@@ -139,6 +127,35 @@ program
   });
 
 program
+  .command('login')
+  .option('--url <url>', 'URL of target platform')
+  .option('-r, --realm <realm>', 'Auth realm of target platform')
+  .description('Authenticate against platform')
+  .action(async (options) => {
+    try {
+      await login(options.url, options.realm);
+      process.exit(0);
+    } catch (error) {
+      if (error) logger.log(error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('logout')
+  .option('--url <url>', 'URL of target platform')
+  .description('Remove authentication data')
+  .action(async (options) => {
+    try {
+      await logout(options.url);
+      process.exit(0);
+    } catch (error) {
+      if (error) logger.log(error);
+      process.exit(1);
+    }
+  });
+
+program
   .command('format')
   .description('Formats all typescript files according to prettier configuration')
   .action(async () => {
@@ -157,7 +174,7 @@ program
     try {
       if (checkIfAll(projectName)) process.exit(1);
       const project = await findProject(projectName);
-      await clean(buildDirectory);
+      await clean(BUILD_DIR);
       await exec(CMD.INSTALL, project);
       await exec(CMD.BUILD, project);
       await copyProjectFiles(project);
@@ -171,13 +188,14 @@ program
 
 program
   .command('publish-module [projectName]')
+  .option('--url <url>', 'URL of target platform')
+  .option('-r, --realm <realm>', 'Auth realm of target platform')
   .option('-f, --functions', 'publish flow functions')
   .option('-u, --update', 'update existing flow functions')
   .option('-s, --skip', 'skip modules that already exists with the current version')
   .description('Publishes specified Module to Cloud Platform')
   .action(async (projectName, options) => {
     try {
-      if (checkEnvironmentModules()) process.exit(1);
       const projects = [];
       if (projectName === 'all') {
         for (const project of await findProjects()) {
@@ -187,15 +205,16 @@ program
         projects.push(await findProject(projectName));
       }
 
-      await getAccessToken();
+      apiToken = await getAccessToken(options.url, options.realm);
+      logger.ok('Got Access Token');
       for (const project of projects) {
-        await clean(buildDirectory);
+        await clean(BUILD_DIR);
         await exec(CMD.INSTALL, project);
         await exec(CMD.BUILD, project);
         await copyProjectFiles(project);
         await validateModule(project);
         try {
-          await publishModule(project);
+          await publishModule(project, options.url);
         } catch (error) {
           if (
             options.skip &&
@@ -212,7 +231,7 @@ program
           }
         }
         if (options.functions) {
-          await publishFunctions(project, options.update);
+          await publishFunctions(project, options.update, options.url);
         }
       }
     } catch (error) {
@@ -223,11 +242,12 @@ program
 
 program
   .command('publish-functions [projectName]')
+  .option('--url <url>', 'URL of target platform')
+  .option('-r, --realm <realm>', 'Auth realm of target platform')
   .option('-u, --update', 'update existing flow functions')
   .description('Publishes all Flow Functions inside specified Module to Cloud Platform')
   .action(async (projectName, options) => {
     try {
-      if (checkEnvironmentModules()) process.exit(1);
       const projects = [];
       if (projectName === 'all') {
         for (const project of await findProjects()) {
@@ -237,9 +257,10 @@ program
         projects.push(await findProject(projectName));
       }
 
-      await getAccessToken();
+      apiToken = await getAccessToken(options.url, options.realm);
+      logger.ok('Got Access Token');
       for (const project of projects) {
-        await publishFunctions(project, options.update);
+        await publishFunctions(project, options.update, options.url);
       }
     } catch (error) {
       if (error) logger.log(error);
@@ -343,13 +364,14 @@ if (process.env.NODE_ENV !== 'test') {
 
 async function generateSchemasForFile(tsPath, jsonPath) {
   // get schema
-  let json = JSON.parse(await fs.promises.readFile(path.join(process.cwd(), jsonPath)));
+  const fileContent = await fs.promises.readFile(path.join(process.cwd(), jsonPath));
+  let json = JSON.parse(fileContent.toString());
 
   const filePath = path.join(process.cwd(), tsPath);
-  const tsFile = String(await fs.promises.readFile(filePath));
+  const tsFile = await fs.promises.readFile(filePath);
   const directory = path.dirname(filePath);
 
-  const result = await execa('ts-node', ['-T', '--dir', directory], { input: prepareTsFile(tsFile), preferLocal: true });
+  const result = await execa('ts-node', ['-T', '--dir', directory], { input: prepareTsFile(tsFile.toString()), preferLocal: true });
   json = await handleConvertedOutput(result.stdout, jsonPath, json);
   await fs.promises.writeFile(path.join(process.cwd(), jsonPath), JSON.stringify(json, null, 2) + '\n');
 }
@@ -440,7 +462,7 @@ async function findProjects() {
           try {
             const package_ = await readJson(path.join(path.dirname(projectPath), 'package.json'));
             package_.location = path.posix.join(projectsRoot, file);
-            package_.dist = path.posix.join(process.cwd(), buildDirectory, file);
+            package_.dist = path.posix.join(process.cwd(), BUILD_DIR, file);
             if (rootPackage) {
               package_.dependencies = { ...package_.dependencies, ...rootPackage.dependencies };
               package_.repository = rootPackage.repository;
@@ -486,31 +508,6 @@ function findProject(projectName) {
   });
 }
 
-async function getAccessToken() {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const parameters = new URLSearchParams([
-        ['client_id', apiUser],
-        ['client_secret', apiKey],
-        ['grant_type', 'client_credentials'],
-      ]);
-      const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
-      const response = await axios.post(authUrl, parameters.toString(), { headers });
-      const data = response.data;
-
-      if (!data || !data.access_token) {
-        throw new Error('Could not get AccessToken');
-      }
-      apiToken = data.access_token;
-      logger.ok('AccessToken acquired');
-      return resolve();
-    } catch (error) {
-      handleApiError(error);
-      return reject();
-    }
-  });
-}
-
 async function packageModule(project) {
   const { dist, ...package_ } = project;
   const file = path.posix.join(dist, '..', `${project.name}.zip`);
@@ -519,7 +516,7 @@ async function packageModule(project) {
   return file;
 }
 
-async function publishModule(project) {
+async function publishModule(project, baseUrl = BASE_URL) {
   return new Promise(async (resolve, reject) => {
     const file = await packageModule(project);
 
@@ -569,7 +566,7 @@ async function validateModule(project) {
   }
 }
 
-async function publishFunctions(project, update) {
+async function publishFunctions(project, update, baseUrl = BASE_URL) {
   return new Promise(async (resolve, reject) => {
     const globOptions = {
       cwd: project.location,
@@ -584,7 +581,7 @@ async function publishFunctions(project, update) {
       for (const file of files) {
         try {
           const data = await fs.promises.readFile(path.join(globOptions.cwd, file));
-          const json = JSON.parse(data);
+          const json = JSON.parse(data.toString());
           if (json.fqn && json.category) {
             if (update) {
               try {
@@ -673,7 +670,7 @@ function getProcess(cmd) {
 function copyProjectFiles(project) {
   return new Promise((resolve, reject) => {
     copyfiles(
-      [`${project.location}/**`, `${buildDirectory}/`],
+      [`${project.location}/**`, `${BUILD_DIR}/`],
       {
         exclude: [`${project.location}/*.json`, `${project.location}/**/*.ts`, `${project.location}/**/test/**`],
         up: 1,
@@ -746,31 +743,6 @@ function checkIfAll(projectName) {
     return true;
   }
   return false;
-}
-
-function checkEnvironmentModules() {
-  let missing = false;
-  if (!apiUser) {
-    logger.error('"API_USER" env var is not set');
-    missing = true;
-  }
-  if (!apiKey) {
-    logger.error('"API_KEY" env var is not set');
-    missing = true;
-  }
-  if (!baseUrl) {
-    logger.error('"PLATFORM_URL" env var is not set');
-    missing = true;
-  }
-  if (!realm) {
-    logger.error('"REALM" env var is not set');
-    missing = true;
-  }
-  if (!buildDirectory) {
-    logger.error('"BUILD_DIR" env var is not set');
-    missing = true;
-  }
-  return missing;
 }
 
 function readJson(path) {

@@ -2,6 +2,11 @@
 
 https://github.com/hahnprojects/flow
 
+```shell
+flow-cli --help
+flow-cli [command] --help
+```
+
 # Commands
 
 ## `build [projectName]`
