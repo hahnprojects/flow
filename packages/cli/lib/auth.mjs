@@ -28,7 +28,7 @@ export async function getAccessToken(baseUrl = BASE_URL, realm = REALM) {
   ]);
 
   nconf.load();
-  let tokenSet = nconf.get(baseUrl.replaceAll(':', '')) || {};
+  let tokenSet = nconf.get(baseUrl.replace(/:/g, '')) || {};
   if (tokenSet.access_token && tokenSet.expires_at > Date.now() / 1000 + BUFFER) {
     return tokenSet.access_token;
   } else {
@@ -38,7 +38,7 @@ export async function getAccessToken(baseUrl = BASE_URL, realm = REALM) {
             const kcIssuer = await openidClient.Issuer.discover(`${baseUrl}/auth/realms/${realm}/`);
             const client = new kcIssuer.Client({ client_id: CLIENT_ID, client_secret: CLIENT_SECRET });
             const tokenSet = await client.grant({ grant_type: 'client_credentials' });
-            nconf.set(baseUrl.replaceAll(':', ''), tokenSet);
+            nconf.set(baseUrl.replace(/:/g, ''), tokenSet);
             server.close();
             nconf.save((error) => {
               if (error) {
@@ -92,7 +92,7 @@ export function login(baseUrl = BASE_URL, realm = REALM) {
 
       try {
         const tokenSet = await client.callback(redirectUri, parameters, { code_verifier });
-        nconf.set(baseUrl.replaceAll(':', ''), tokenSet);
+        nconf.set(baseUrl.replace(/:/g, ''), tokenSet);
         server.close();
         nconf.save((error) => {
           if (error) {
@@ -114,7 +114,7 @@ export function logout(baseUrl = BASE_URL) {
   return new Promise((resolve, reject) => {
     if (baseUrl) {
       // clears specified key
-      nconf.clear(baseUrl.replaceAll(':', ''));
+      nconf.clear(baseUrl.replace(/:/g, ''));
     } else {
       // clears all keys
       nconf.reset();

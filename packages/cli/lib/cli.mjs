@@ -144,7 +144,7 @@ program
 program
   .command('logout')
   .option('--url <url>', 'URL of target platform')
-  .description('Authenticate')
+  .description('Remove authentication data')
   .action(async (options) => {
     try {
       await logout(options.url);

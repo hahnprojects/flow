@@ -27,7 +27,7 @@
   },
   "scripts": {
     "format": "prettier --write .",
-    "lint": "eslint '*/**/*.{js,mjs}'",
+    "lint": "eslint '**/*.{js,mjs}'",
     "test": "jest"
   },
   "dependencies": {
@@ -78,6 +78,7 @@
     "rules": {
       "unicorn/no-array-reduce": "off",
       "unicorn/no-null": "off",
+      "unicorn/prefer-string-replace-all": "off",
       "unicorn/prefer-object-from-entries": "off",
       "no-async-promise-executor": "off",
       "no-console": "error"
