@@ -2,7 +2,7 @@
 
 # Flow SDK & CLI
 
-For release notes, see the [CHANGELOG](https://github.com/hahnprojects/flow/blob/main/CHANGELOG.md)
+For release notes, see the [CHANGELOG](CHANGELOG.md)
 
 ## Installing
 
@@ -20,21 +20,19 @@ npm install --save-dev @hahnpro/flow-cli
 
 ## Usage and Getting Started
 
-You can find a project with a few example Flow-Modules here: [flow-module-examples](https://github.com/hahnprojects/flow/-/tree/main/examples)
-
 A short walkthrough of creating a new Flow-Module can be found [below](#creating-a-new-flow-module)
 
 ## Usage with TypeScript
 
 Flow-Modules should be developed in TypeScript. All required dependencies, including a current version of TypeScript, come bundled with the SDK.
 
-Examples for TypeScript configurations (`tsconfig.json` files) can be found in the [flow-module-examples](https://github.com/hahnprojects/flow/-/tree/main/examples) repository.
+Examples for TypeScript configurations (`tsconfig.json` files) can be found in the [examples](examples) folder.
 
 ## Creating a New Flow-Module
 
 ### Project Setup and Folder Structure
 
-You can use the [flow-module-examples](https://github.com/hahnprojects/flow/-/tree/main/examples) project as a template for creating new Flow-Modules.
+You can use the [examples](examples) folder as a template for creating new Flow-Modules.
 
 A minimal project setup should look something like this:
 
@@ -128,7 +126,7 @@ The `@InputStream` annotation defines a method of a Flow-Function implementation
 One available option is to set the concurrency for the streams individually. The default concurrency is the to 1.
 
 ```typescript
-  @InputStream('example', { concurrent: Infinity })
+@InputStream('example', { concurrent: Infinity })
 ```
 
 By default, the data that is sent into a FlowFunction will be merged with the data produced by the
@@ -136,18 +134,18 @@ Function and sent to the next Function in the flow. This can be stopped with the
 option. If set, only the data produced by the function will be sent.
 
 ```typescript
-  @InputStream('example', { stopPropagation: true })
+@InputStream('example', { stopPropagation: true })
 ```
 
 #### Property Validation
 
 Flow-Function properties and properties on Input- and Output-Streams should be validated.
 
-The suggested way to do this is using the [`class-validator`](https://github.com/typestack/class-validator) and [`class-transformer`](https://github.com/typestack/class-transformer) npm packages (both come bundled with the SDK)
+The suggested way to do this is using the [`class-validator`](https://github.com/typestack/class-validator) and [`class-transformer`](https://github.com/typestack/class-transformer) npm packages.
 
 For convenience the `validateProperties` and `validateEventData` methods are provided.
 
-For more information on how to validate properties see the example below and in the [flow-module-examples](https://github.com/hahnprojects/flow/-/tree/main/examples) repository.
+For more information on how to validate properties see the example below and the [examples](examples) folder.
 
 #### Example
 
@@ -186,7 +184,7 @@ class Properties {
 - lists for the used input and output streams
 - schema field for the properties and input/output properties of the function
 
-The schema field follow the [JSON Schema](https://json-schema.org/) standard.
+The schema field follows the [JSON Schema](https://json-schema.org/) standard.
 The content of the fields is similar to `Properties`, `InputProperties` and `OutputProperties` classes of the function´s typescript file.
 The types that can be used here are standard typescript types (`string`, `number`, `boolean`, `array`, `object`) and
 commonly used types of the Hahn PRO Cloud (`Asset`, `Flow`, `Content`, `Secret`, `TimeSeries`, `AssetType`).
@@ -264,7 +262,7 @@ You can define extra type schemas in `types`.
 
 When running on the Flow-Executor, all emitted event data (up to a max of 64kb per event) gets logged by default.
 
-The developer can choose to log additional messages with the provided logger. Using`console.log` should be avoided outside of testing.
+The developer can choose to log additional messages with the provided logger. Using `console.log` should be avoided outside of testing.
 
 ### Running Python Scripts
 
@@ -286,7 +284,7 @@ There are two possibilities to run python scripts in your Flow-Functions.
 - script stays running between messages
 - useful for complex scripts that have to keep running to save data in memory
 
-See the [flow-module-examples](https://github.com/hahnprojects/flow/-/tree/main/examples) repository for examples of how to run python scripts in your Flow-Function implementation.
+See the [examples](examples) for how to run python scripts in your Flow-Function implementation.
 
 #### Python integration examples
 
@@ -306,7 +304,7 @@ new MockAPI({
 })
 ```
 
-For more information on how to test your Flow-Function implementations see the [flow-module-examples](https://github.com/hahnprojects/flow/-/tree/main/examples) repository.
+For more information on how to test your Flow-Function implementations see the [examples](examples).
 For information on running Flow-Module tests in CI see [this](/doc/flow-testing-pipeline.md)
 
 ### Testing examples
@@ -319,7 +317,7 @@ For information on running Flow-Module tests in CI see [this](/doc/flow-testing-
 
 ## Publishing
 
-For building, packaging and publishing a module the [Flow-CLI](https://github.com/hahnprojects/flow-cli) provides useful scripts. Add the following to your projects root `package.json` file:
+For building, packaging and publishing a module the [Flow-CLI](packages/cli/README.md) provides useful scripts. Add the following to your projects root `package.json` file:
 
 ```json
 "scripts": {
@@ -332,25 +330,62 @@ For building, packaging and publishing a module the [Flow-CLI](https://github.co
 }
 ```
 
+Alternatively you can install the Flow-CLI globally `npm i -g @hahnpro/flow-cli` and use it directly: `flow-cli build <modulename>`
+
 ### Flow-Module Upload
 
 The following command builds, lints, packages and uploads the specified module:
 
 ```bash
-npm run publish <yourmodulename>
+npm run publish <modulename> -- --url https://cloud.hahnpro.com --realm cloud
 ```
 
-For this to work a few environment variables have be set: `API_USER`, `API_KEY`, `PLATFORM_URL`, `REALM`
+Set the `--url` and `--realm` options to respective values of the platform you're targeting.
 
-This can also be done using `.env` files
+See [Flow CLI Authentication](#flow-cli-authentication) below for more information.
 
 It is also possible to manually upload the module to a cloud platform. To do this run:
 
 ```bash
-npm run package <yourmodulename>
+npm run package <modulename>
 ```
 
 A `.zip` file will be created in the `dist` folder. This file is ready to be uploaded to the cloud platform.
+
+## Flow CLI Authentication
+
+### Login via Web
+
+To authenticate against a target platform you can use either of the following commands:
+
+```bash
+flow-cli login --url https://cloud.hahnpro.com --realm cloud
+
+# or
+flow-cli publish-module <modulename> --url https://cloud.hahnpro.com --realm cloud
+```
+
+Instead of setting the `--url` and `--realm` options you can also set the respective environment variables (`BASE_URL` and `REALM`)
+
+A web browser will open and redirect you to the standard web login form. Once authenticated you'll be able to upload Flow-Modules and Flow-Functions for as long as the authentication token is valid (currently set to one hour)
+
+To manually remove the authentication token run one of the following commands
+
+```bash
+# Remove auth data for all platforms
+flow-cli logout
+
+# Remove auth data for specific platform
+flow-cli logout --url https://cloud.hahnpro.com
+```
+
+### Service Account
+
+Service accounts can also be used to authenticate but should only be used in a CI/CD environment.
+For this to work a few environment variables have be set: `API_USER`, `API_KEY`, `BASE_URL` and `REALM`.
+This can also be done using `.env` files
+
+For other use cases please use the web login functionality.
 
 ## Working with the Hahn-PRO API
 
@@ -367,7 +402,7 @@ npm install @hahnpro/flow-sdk@latest @hahnpro/flow-cli@latest
 
 ### Review Changes
 
-[CHANGELOG](https://github.com/hahnprojects/flow/blob/main/CHANGELOG.md)
+[CHANGELOG](CHANGELOG.md)
 
 ### Migration to version 4.8.0+
 
@@ -377,31 +412,27 @@ input event of the function.
 from:
 
 ```typescript
-  @InputStream()
-  public onDefault(event: FlowEvent) {
+@InputStream()
+public onDefault(event: FlowEvent) {
 
-    ...
+  ...
 
-    return this.emitOutput(data, 'notdefault');
-  }
+  return this.emitOutput(data, 'notdefault');
+}
 ```
 
 to:
 
 ```typescript
-  @InputStream()
-  public onDefault(event: FlowEvent) {
+@InputStream()
+public onDefault(event: FlowEvent) {
 
-    ...
+  ...
 
-    return this.emitEvent(data, event, 'notdefault');
-  }
+  return this.emitEvent(data, event, 'notdefault');
+}
 ```
 
 ## License
 
 This SDK is distributed under the [MIT License](https://opensource.org/licenses/mit-license.php), see LICENSE for more information.
-
-```
-
-```
