@@ -61,8 +61,9 @@ export class HttpClient {
       errorListener
         ? errorListener
         : (event) => {
-      console.log(event);
-    });
+            throw new Error(JSON.stringify(event, null, 2));
+          },
+    );
     this.eventSourcesMap.set(id, es);
     return id;
   }

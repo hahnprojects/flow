@@ -16,9 +16,9 @@ export class FlowMockService extends DataMockService<FlowDto> implements FlowSer
   async getMany(params?: RequestParameter): Promise<Paginated<FlowDto[]>> {
     const flows = await super.getMany(params);
     return {
-      docs: flows.docs.map((v) => ({ ...v, diagram: this.diagrams.find((v1) => v1.id === v.diagram)})),
+      docs: flows.docs.map((v) => ({ ...v, diagram: this.diagrams.find((v1) => v1.id === v.diagram) })),
       total: 0,
-      limit: 0
+      limit: 0,
     };
   }
 }
