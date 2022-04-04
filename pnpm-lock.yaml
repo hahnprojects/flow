@@ -87,17 +87,21 @@ importers:
 
   packages/api:
     specifiers:
+      '@types/eventsource': ^1.1.8
       axios: ^0.26.1
       axios-mock-adapter: ^1.20.0
+      eventsource: ^2.0.0
       form-data: ^4.0.0
       jwt-decode: ^3.1.2
       p-queue: ^6.6.2
     dependencies:
       axios: 0.26.1
+      eventsource: 2.0.0
       form-data: 4.0.0
       jwt-decode: 3.1.2
       p-queue: 6.6.2
     devDependencies:
+      '@types/eventsource': 1.1.8
       axios-mock-adapter: 1.20.0_axios@0.26.1
 
   packages/cli:
@@ -1245,6 +1249,10 @@ packages:
 
   /@types/bluebird/3.5.36:
     resolution: {integrity: sha512-HBNx4lhkxN7bx6P0++W8E289foSu8kO8GCk2unhuVggO+cE7rh9DhZUyPhUxNRG9m+5B5BTKxZQ5ZP92x/mx9Q==}
+    dev: true
+
+  /@types/eventsource/1.1.8:
+    resolution: {integrity: sha512-fJQNt9LijJCZwYvM6O30uLzdpAK9zs52Uc9iUW9M2Zsg0HQM6DLf6QysjC/wuFX+0798B8AppVMvgdO6IftPKQ==}
     dev: true
 
   /@types/graceful-fs/4.1.5:
@@ -2667,6 +2675,11 @@ packages:
 
   /eventemitter3/4.0.7:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
+    dev: false
+
+  /eventsource/2.0.0:
+    resolution: {integrity: sha512-U9TI2qLWwedwiDLCbSUoSAPHGK2P7nT6/f25wBzMy9tWOKgFoNY4n+GYCPCYg3sGKrIoCmpChJoO3KKymcLo8A==}
+    engines: {node: '>=12.0.0'}
     dev: false
 
   /execa/5.1.1:

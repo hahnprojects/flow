@@ -11,6 +11,23 @@ export class FlowDeploymentMockService extends DataMockService<FlowDeployment> i
     this.data = deployments;
   }
 
+  public subscribeToStatus(
+    id: string,
+    listener: (event: MessageEvent<any>) => void,
+    errorListener?: (event: MessageEvent<any>) => void,
+  ): Promise<string> {
+    listener(new MessageEvent('message', { data: 'running' }));
+    return Promise.resolve(randomUUID());
+  }
+  public subscribeToLogs(
+    id: string,
+    listener: (event: MessageEvent<any>) => void,
+    errorListener?: (event: MessageEvent) => void,
+  ): Promise<string> {
+    listener(new MessageEvent('message', { data: 'foo' }));
+    return Promise.resolve(randomUUID());
+  }
+
   public async waitForRunningStatus(id: string): Promise<void> {
     const flowDeployment = this.data.find((v) => v.id === id);
     flowDeployment.actualStatus = 'running';

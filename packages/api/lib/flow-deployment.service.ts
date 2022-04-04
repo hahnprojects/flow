@@ -45,21 +45,17 @@ export class FlowDeploymentService extends DataService<FlowDeployment> {
   }
 
   public async waitForRunningStatus(id: string) {
-    let depl = await this.getOne(id);
-    let counter = 0;
-    while (
-      !['running', 'deployment failed', 'deleted', 'generating failed', 'updating failed', 'upgrading failed'].includes(
-        depl.actualStatus,
-      ) &&
-      counter < 100
-    ) {
-      await new Promise<void>((resolve) => setTimeout(resolve, 1000));
-      depl = await this.getOne(id);
-      counter++;
-    }
-    if (depl.actualStatus !== 'running') {
-      throw new Error(counter < 100 ? 'deployment in failed status' : 'timed out waiting for running status');
-    }
+    return new Promise<void>(async (resolve, reject) => {
+      const esId = await this.subscribeToStatus(id, (event) => {
+        if (
+          event.type === 'message' &&
+          ['running', 'deployment failed', 'deleted', 'generating failed', 'updating failed', 'upgrading failed'].includes(event.data)
+        ) {
+          this.httpClient.destroyEventSource(esId);
+          event.data === 'running' ? resolve() : reject(`Deployment in failed status: ${event.data}`);
+        }
+      });
+    });
   }
 
   public addOne(dto: {
@@ -71,5 +67,13 @@ export class FlowDeploymentService extends DataService<FlowDeployment> {
     tags?: string[];
   }): Promise<FlowDeployment> {
     return super.addOne(dto);
+  }
+
+  public subscribeToStatus(id: string, listener: (event: MessageEvent<any>) => void, errorListener?: (event: MessageEvent) => void) {
+    return this.httpClient.addEventSource(`${this.basePath}/${id}/status`, listener, errorListener);
+  }
+
+  public subscribeToLogs(id: string, listener: (event: MessageEvent<any>) => void, errorListener?: (event: MessageEvent) => void) {
+    return this.httpClient.addEventSource(`${this.basePath}/${id}/logs/subscribe`, listener, errorListener);
   }
 }

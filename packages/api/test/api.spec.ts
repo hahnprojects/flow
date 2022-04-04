@@ -6,11 +6,6 @@ import { existsSync, unlinkSync } from 'fs';
 
 dotenv.config();
 
-process.env.API_BASE_URL = 'https://testing.hahnpro.com';
-process.env.AUTH_REALM = 'testing';
-process.env.API_USER = 'timo-test-client';
-process.env.AUTH_SECRET = 'wVUUr3N4RgB80KQXJqPMHnPVb2yGVF1l';
-
 /* eslint-disable no-console */
 describe('API test', () => {
   const api = new API();
@@ -259,8 +254,6 @@ describe('API test', () => {
     expect(logs[0].deploymentId).toEqual(deplId);
 
     const references = await api.flowDeployments.resolveReferences(deplId);
-    console.log(depl);
-    console.log(references);
     expect(Array.isArray(references)).toBe(true);
     expect(references[0].resourceType).toBe('asset');
 
