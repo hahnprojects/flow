@@ -10,5 +10,10 @@ export * from './timeseries.interface';
 export * from './task.interface';
 export * from './events.interface';
 export * from './mock';
+export * from './flow-deployment.interface';
+export * from './flow-function.interface';
+export * from './flow.interface';
+export * from './resource.interface';
+export * from './schema.interface';
 
 export * as SiDrive from './sidriveiq.interface';

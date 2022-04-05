@@ -1,7 +1,9 @@
 import * as dotenv from 'dotenv';
 
-import { MockAPI, Paginated, ReturnType } from '../lib';
+import { HistoryEntry, MockAPI, ReturnType } from '../lib';
 import { Readable } from 'stream';
+import { join } from 'path';
+import { existsSync, unlinkSync } from 'fs';
 
 dotenv.config();
 
@@ -20,6 +22,14 @@ describe('Mock-API test', () => {
     tasks: [{ id: 'tasks1', name: 'testTasks', assignedTo: ['alice'] }], // TODO: TEST Tasks API
     events: [{ id: 'events1', name: 'testEvents', level: 'OK', cause: 'test' }],
     users: { roles: ['test1', 'test2'] },
+    flows: [{ id: 'flow1' }],
+    diagrams: [{ id: 'diagram1', flow: 'flow1' }],
+    functions: [
+      { fqn: 'testFunc', id: '123' },
+      { fqn: 'test.history.function', history: ['123'], id: 'foo' },
+    ],
+    deployments: [{ flow: 'flow1', id: '623ae4cedeaf1681711ff3b0', diagram: 'diagram1', refs: [{ id: 'asset1', resourceType: 'asset' }] }],
+    modules: [{ name: 'testMod', artifacts: [{ filename: 'test.zip', path: join(__dirname, 'testFile.zip') }] }],
   });
 
   // tests copied from api.spec.ts
@@ -193,7 +203,7 @@ describe('Mock-API test', () => {
     }
   });
 
-  test('FLOW.API.9 asset revisions', async () => {
+  test('FLOW.API.MOCK.9 asset revisions', async () => {
     const assets = await api.assets.getMany();
     expect(assets).toBeDefined();
 
@@ -208,6 +218,146 @@ describe('Mock-API test', () => {
       if (revision) {
         expect(revision.type).toHaveProperty('id');
       }
+    }
+  }, 60000);
+
+  test('FLOW-API.MOCK.10 flows', async () => {
+    let flows = await api.flows.getMany().catch((err) => logError(err));
+    expect(flows).toBeDefined();
+
+    if (flows) {
+      expect(Array.isArray(flows.docs)).toBe(true);
+      expect(flows.docs.length).toBeGreaterThan(0);
+      const flowId = flows.docs[0].id;
+      const flow = await api.flows.getOne(flowId);
+      expect(flow).toBeDefined();
+      const flowWithDiagram = await api.flows.getFlowWithDiagram(flow.diagram as string);
+      expect(flow.id).toEqual(flowWithDiagram.id);
+    }
+
+    flows = await api.flows.getManyFiltered({ tags: ['test'] }).catch((err) => logError(err));
+    expect(flows).toBeDefined();
+
+    flows = await api.flows.getMany({ populate: 'diagram' }).catch((err) => logError(err));
+    expect(flows).toBeDefined();
+
+    if (flows) {
+      expect(Array.isArray(flows.docs)).toBe(true);
+      expect(flows.docs.length).toBeGreaterThan(0);
+      const flow = flows.docs[0];
+      expect(flow).toBeDefined();
+      if (flow) {
+        expect(flow.diagram).toHaveProperty('id');
+      }
+    }
+  }, 60000);
+
+  test('FLOW-API.MOCK.11 flow-functions', async () => {
+    let functions = await api.flowFunctions.getMany().catch((err) => logError(err));
+    expect(functions).toBeDefined();
+
+    if (functions) {
+      expect(Array.isArray(functions.docs)).toBe(true);
+      expect(functions.docs.length).toBeGreaterThan(0);
+      const functionFqn = functions.docs[0].fqn;
+      let function1 = await api.flowFunctions.getOne(functionFqn);
+      expect(function1).toBeDefined();
+      expect(typeof function1.history[0]).toBe('string');
+      function1 = await api.flowFunctions.getOneWithHistory(functionFqn);
+      expect(typeof function1.history[0]).toBe('object');
+      expect(function1.history[0]).toHaveProperty('author');
+    }
+
+    functions = await api.flowFunctions.getManyFiltered({ tags: ['test'] }).catch((err) => logError(err));
+    expect(functions).toBeDefined();
+
+    let function2 = await api.flowFunctions.getOne('test.history.function');
+
+    const historyId = ((await api.flowFunctions.getOneWithHistory('test.history.function')).history[1] as HistoryEntry).id;
+
+    expect(function2.category).toBe('task');
+    function2 = await api.flowFunctions.updateOne('test.history.function', { ...function2, category: 'resource' });
+    expect(function2.category).toBe('resource');
+
+    function2 = await api.flowFunctions.rollback('test.history.function', historyId);
+
+    expect(function2.category).toBe('task');
+    expect(function2.current).toBe(historyId);
+  }, 60000);
+
+  test('FLOW-API.MOCK.12 flow-deployments', async () => {
+    let deployments = await api.flowDeployments.getMany().catch((err) => logError(err));
+    expect(deployments).toBeDefined();
+
+    if (deployments) {
+      expect(Array.isArray(deployments.docs)).toBe(true);
+      expect(deployments.docs.length).toBeGreaterThan(0);
+      const deplId = deployments.docs[0].id;
+      const deployment = await api.flowDeployments.getOne(deplId).catch((err) => logError(err));
+      expect(deployment).toBeDefined();
+    }
+
+    deployments = await api.flowDeployments.getManyFiltered({ tags: ['test'] }).catch((err) => logError(err));
+    expect(deployments).toBeDefined();
+
+    const deplId = '623ae4cedeaf1681711ff3b0';
+    const depl = await api.flowDeployments.getOne(deplId);
+
+    const statistic = await api.flowDeployments.getDeploymentStatistics(deplId);
+    expect(statistic.metrics.deploymentId).toEqual(deplId);
+
+    const metrics = await api.flowDeployments.getDeploymentMetrics(deplId);
+    expect(Array.isArray(metrics.metrics)).toBe(true);
+    expect(metrics.stats).toHaveProperty('cpu');
+    expect(metrics.stats).toHaveProperty('memory');
+
+    const logs = await api.flowDeployments.getDeploymentLogs(deplId);
+    expect(Array.isArray(logs)).toBe(true);
+    expect(logs[0].deploymentId).toEqual(deplId);
+
+    const references = await api.flowDeployments.resolveReferences(deplId);
+    expect(Array.isArray(references)).toBe(true);
+    expect(references[0].resourceType).toBe('asset');
+
+    const assetId = (await api.assets.getMany()).docs[0].id;
+
+    let deployment1 = await api.flowDeployments.addOne({
+      diagramId: depl.diagram as string,
+      name: 'deployment from api',
+      properties: { assetId },
+    });
+    expect(deployment1.desiredStatus).toEqual('running');
+    expect(deployment1.actualStatus).toEqual('generating queued');
+    expect(deployment1.refs[0].id).toEqual(assetId);
+    expect(deployment1.flowModel.properties).toEqual({ assetId });
+
+    let flow = await api.flows.getFlowWithDiagram(deployment1.diagram as string);
+    expect(flow.deployments).toContain(deployment1.id);
+
+    await api.flowDeployments.waitForRunningStatus(deployment1.id);
+
+    deployment1 = await api.flowDeployments.updateStatus(deployment1.id, 'stopped');
+    expect(deployment1.desiredStatus).toEqual('stopped');
+
+    await api.flowDeployments.deleteOne(deployment1.id);
+    flow = await api.flows.getOne(flow.id);
+    expect(flow.deployments).not.toContain(deployment1.id);
+  }, 60000);
+
+  test('FLOW-API.MOCK.13 flow-modules', async () => {
+    const modules = await api.flowModules.getMany().catch((err) => logError(err));
+    expect(modules).toBeDefined();
+
+    if (modules) {
+      expect(Array.isArray(modules.docs)).toBe(true);
+      expect(modules.docs.length).toBeGreaterThan(0);
+      const moduleName = modules.docs[0].name;
+      const module = await api.flowModules.getOne(moduleName);
+      expect(module).toBeDefined();
+
+      await api.flowModules.download(moduleName, join(__dirname, module.artifacts[0].filename));
+      expect(existsSync(join(__dirname, module.artifacts[0].filename))).toBe(true);
+      unlinkSync(join(__dirname, module.artifacts[0].filename));
     }
   }, 60000);
 });

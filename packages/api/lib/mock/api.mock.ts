@@ -18,6 +18,20 @@ import { Task } from '../task.interface';
 import { TimeseriesMockService } from './timeseries.mock.service';
 import { TaskMockService } from './task.mock.service';
 import { UserMockService } from './user.mock.service';
+import { FlowDeploymentService } from '../flow-deployment.service';
+import { FlowFunctionService } from '../flow-function.service';
+import { FlowModuleService } from '../flow-module.service';
+import { FlowService } from '../flow.service';
+import { FlowDiagram, FlowDto } from '../flow.interface';
+import { FlowMockService } from './flow.mock.service';
+import { FlowDeployment } from '../flow-deployment.interface';
+import { FlowDeploymentMockService } from './flow-deployment.mock.service';
+import { FlowFunctionDto } from '../flow-function.interface';
+import { FlowFunctionsMockService } from './flow-functions.mock.service';
+import { FlowModule } from '../flow-module.interface';
+import { FlowModulesMockService } from './flow-modules.mock.service';
+import { Artifact } from '../storage.interface';
+import { randomUUID } from 'crypto';
 
 export class MockAPI implements API {
   public httpClient = null;
@@ -27,6 +41,10 @@ export class MockAPI implements API {
   public contents: ContentMockService;
   public endpoints: EndpointMockService;
   public events: EventsMockService;
+  public flows: FlowService;
+  public flowDeployments: FlowDeploymentService;
+  public flowFunctions: FlowFunctionService;
+  public flowModules: FlowModuleService;
   public proxy = null;
   public secrets: SecretMockService;
   public tasks: TaskMockService;
@@ -53,6 +71,11 @@ export class MockAPI implements API {
     tasks?: TaskInit[];
     events?: EventInit[];
     users?: UserInit;
+    flows?: FlowInit[];
+    deployments?: FlowDeploymentInit[];
+    functions?: FlowFunctionInit[];
+    modules?: FlowModuleInit[];
+    diagrams?: FlowDiagramInit[];
   }) {
     const {
       assets = [],
@@ -64,6 +87,11 @@ export class MockAPI implements API {
       tasks = [],
       events = [],
       users,
+      flows = [],
+      deployments = [],
+      functions = [],
+      modules = [],
+      diagrams = [],
     } = initData;
     // convert init data to normal data that the services usually use
     const assetTypes: Array<AssetType | string> = assets
@@ -161,6 +189,71 @@ export class MockAPI implements API {
 
     const timeseriesValues: TimeSeriesValue[][] = timeSeries.map((v) => v.values);
 
+    const diagrams1: FlowDiagram[] = diagrams.map((v) => ({
+      ...v,
+      json: '',
+      author: 'nobody',
+    }));
+    const flows1: FlowDto[] = flows.map((v) => ({
+      ...v,
+      readPermissions: [],
+      readWritePermissions: [],
+      diagram: diagrams.find((v1) => v1.flow === v.id).id,
+      name: `flow-${v.id}`,
+      deployments: [],
+    }));
+
+    const deployments1: FlowDeployment[] = deployments.map((v) => ({
+      ...v,
+      readPermissions: [],
+      readWritePermissions: [],
+      diagram: v.diagram ?? '',
+      artifact: null,
+      flowModel: { connections: [], elements: [] },
+      desiredStatus: 'running',
+      actualStatus: 'generating queued',
+      target: 'executor',
+      name: `deployment-${v.id}`,
+    }));
+
+    const functions1: Array<FlowFunctionDto & { id: string }> = functions.map((v) => ({
+      ...v,
+      category: 'task',
+      readPermissions: [],
+      readWritePermissions: [],
+      author: 'nobody',
+      current: v.id,
+      history: [v.id, ...((v?.history ?? []) as string[])],
+    }));
+
+    const historyMap: Map<string, Array<FlowFunctionDto & { id: string }>> = new Map<string, Array<FlowFunctionDto & { id: string }>>();
+    functions1.forEach((func) => {
+      (func.history as string[]).forEach((hist) => {
+        if (historyMap.has(func.fqn)) {
+          historyMap.get(func.fqn).push(functions1.find((v) => v.id === hist));
+        } else {
+          historyMap.set(func.fqn, [functions1.find((v) => v.id === hist)]);
+        }
+      });
+    });
+
+    const modules1: Replace<FlowModule, 'artifacts', Array<Artifact & { path: string }>>[] = modules.map((v, index) => ({
+      ...v,
+      artifacts:
+        modules[index].artifacts.map((art) => ({
+          ...art,
+          version: '0.0.0',
+          id: randomUUID(),
+          mimetype: '',
+          size: 0,
+          createdAt: '' + Date.now(),
+        })) ?? [],
+      author: 'nobody',
+      functions: [],
+      readPermissions: [],
+      readWritePermissions: [],
+    }));
+
     this.assets = new AssetMockService(this, assets1, revisions1);
     this.contents = new ContentMockService(contents1, contentData);
     this.endpoints = new EndpointMockService(endpoint1);
@@ -169,6 +262,10 @@ export class MockAPI implements API {
     this.tasks = new TaskMockService(tasks1);
     this.events = new EventsMockService(events1);
     this.users = new UserMockService(users);
+    this.flows = new FlowMockService(flows1, diagrams1);
+    this.flowDeployments = new FlowDeploymentMockService(deployments1, this);
+    this.flowFunctions = new FlowFunctionsMockService(functions1, historyMap);
+    this.flowModules = new FlowModulesMockService(modules1);
 
     this.assetManager = this.assets;
     this.contentManager = this.contents;
@@ -198,6 +295,12 @@ export type SecretInit = AtLeast<Secret, 'name' | 'key'>;
 export type TimeSeriesInit = Identity<AtLeast<TimeSeries, 'id' | 'name'> & { values: TimeSeriesValue[] }>;
 export type TaskInit = AtLeast<Task, 'name' | 'assignedTo'>;
 export type EventInit = AtLeast<Event, 'name'>;
+export type FlowInit = AtLeast<FlowDto, 'id'>;
+export type FlowDeploymentInit = AtLeast<FlowDeployment, 'id' | 'flow'>;
+export type FlowFunctionInit = AtLeast<Identity<FlowFunctionDto & { id: string }>, 'fqn' | 'id'>;
+export type FlowModuleInit = Replace<AtLeast<FlowModule, 'name'>, 'artifacts', ArtifactInit[]>;
+export type ArtifactInit = AtLeast<Artifact & { path: string }, 'filename' | 'path'>;
+export type FlowDiagramInit = AtLeast<FlowDiagram, 'id' | 'flow'>;
 
 export interface UserInit {
   roles: string[];

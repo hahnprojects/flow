@@ -1,17 +1,4 @@
-type FileType = 'original' | 'preview-sm' | 'preview-md' | 'preview-lg';
-
-type StorageProvider = 's3' | 'mongo';
-
-export interface Storage {
-  id: string;
-  filename: string;
-  mimetype: string;
-  size: number;
-  createdAt: string;
-  provider?: StorageProvider;
-  type?: FileType;
-  md5?: string;
-}
+import { Storage } from './storage.interface';
 
 export interface Content {
   id?: string;

@@ -1,6 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig, Method } from 'axios';
+import EventSource from 'eventsource';
 
 import { Queue } from './Queue';
+import { randomUUID } from 'crypto';
 
 const EXPIRATION_BUFFER = 30 * 1000;
 
@@ -12,8 +14,10 @@ export class HttpClient {
   private accessToken: string;
   private accessTokenExpiration = 0;
 
+  public eventSourcesMap: Map<string, EventSource> = new Map<string, EventSource>();
+
   constructor(
-    baseURL: string,
+    private baseURL: string,
     authbaseURL: string,
     private readonly realm: string,
     private readonly client: string,
@@ -45,6 +49,42 @@ export class HttpClient {
         }),
     );
   };
+
+  public async addEventSource(url: string, listener: (event: MessageEvent) => void, errorListener?: (event: MessageEvent) => void) {
+    const id = randomUUID();
+    const es = new EventSource(`${this.baseURL}${url}`, {
+      headers: { authorization: 'Bearer ' + (await this.getAccessToken()) },
+    });
+    es.addEventListener('message', listener);
+    es.addEventListener(
+      'error',
+      errorListener
+        ? errorListener
+        : (event) => {
+            throw new Error(JSON.stringify(event, null, 2));
+          },
+    );
+    this.eventSourcesMap.set(id, es);
+    return id;
+  }
+
+  public destroyEventSource(id: string) {
+    if (!this.eventSourcesMap.has(id)) {
+      return;
+    }
+    const es = this.eventSourcesMap.get(id);
+    // close and unbind listeners so that the process quits cleanly
+    es.close();
+    es.removeEventListener('message', () => {});
+    es.removeEventListener('error', () => {});
+    this.eventSourcesMap.delete(id);
+  }
+
+  public destroyAllEventSources() {
+    for (const key of this.eventSourcesMap.keys()) {
+      this.destroyEventSource(key);
+    }
+  }
 
   public getAccessToken = (): Promise<string> => {
     if (this.isTokenValid()) {
