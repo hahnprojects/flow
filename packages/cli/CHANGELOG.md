@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.14.0
+
+### Minor Changes
+
+- 66a6889: For uploading Flow-Modules it is now possible to authenticate via the standard web login. See [Flow CLI Authentication](README.md/#flow-cli-authentication) for more information.
+
 ## 2.12.2
 
 ### Patch Changes

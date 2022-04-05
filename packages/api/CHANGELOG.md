@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 2.2.0
+
+### Minor Changes
+
+- eac4dea: Added functions for flow-service
+
 ## 2.1.1
 
 ### Patch Changes
