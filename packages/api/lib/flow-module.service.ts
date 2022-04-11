@@ -3,7 +3,6 @@ import { FlowModule } from './flow-module.interface';
 import { HttpClient } from './http.service';
 import { createWriteStream, ReadStream } from 'fs';
 import FormData from 'form-data';
-import { finished } from 'stream/promises';
 
 export class FlowModuleService extends DataService<FlowModule> {
   constructor(httpClient: HttpClient) {
@@ -16,10 +15,13 @@ export class FlowModuleService extends DataService<FlowModule> {
 
   public async download(name: string, filePath: string, version = 'latest') {
     const writer = createWriteStream(filePath);
-    return this.httpClient.get(`${this.basePath}/${name}/${version}`, { responseType: 'stream' }).then(async (response: ReadStream) => {
-      response.pipe(writer);
-      return finished(writer);
-    });
+    return new Promise((resolve, reject) =>
+      this.httpClient.get(`${this.basePath}/${name}/${version}`, { responseType: 'stream' }).then(async (response: ReadStream) => {
+        response.pipe(writer);
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+      }),
+    );
   }
 
   public publish(file: ReadStream) {
