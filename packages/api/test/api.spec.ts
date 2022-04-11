@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 
-import { API, HistoryEntry } from '../lib';
+import { API, FlowDeployment, HistoryEntry } from '../lib';
 import { join } from 'path';
 import { existsSync, unlinkSync } from 'fs';
 
@@ -231,8 +231,9 @@ describe('API test', () => {
       expect(Array.isArray(deployments.docs)).toBe(true);
       expect(deployments.docs.length).toBeGreaterThan(0);
       const deplId = deployments.docs[0].id;
-      const deployment = await api.flowDeployments.getOne(deplId).catch((err) => logError(err));
+      const deployment = (await api.flowDeployments.getOne(deplId).catch((err) => logError(err))) as FlowDeployment;
       expect(deployment).toBeDefined();
+      expect(await api.flows.isDeploymentOnLatestDiagramVersion(deployment)).toBe(true);
     }
 
     deployments = await api.flowDeployments.getManyFiltered({ tags: ['test'] }).catch((err) => logError(err));
