@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 2.3.0
+
+### Minor Changes
+
+- 1edd4da: Added function to flow-service to get flow revisions and function to check if a deployment is on the latest version
+
 ## 2.2.0
 
 ### Minor Changes
