@@ -1,7 +1,6 @@
 import { DataService } from './data.service';
 import { FlowModule } from './flow-module.interface';
 import { HttpClient } from './http.service';
-import { createWriteStream, ReadStream } from 'fs';
 import FormData from 'form-data';
 
 export class FlowModuleService extends DataService<FlowModule> {
@@ -13,21 +12,7 @@ export class FlowModuleService extends DataService<FlowModule> {
     return this.httpClient.delete<FlowModule>(`${this.basePath}/${name}/${version}`);
   }
 
-  public async download(name: string, filePath: string, version = 'latest') {
-    const writer = createWriteStream(filePath);
-    return new Promise((resolve, reject) =>
-      this.httpClient.get(`${this.basePath}/${name}/${version}`, { responseType: 'stream' }).then(async (response: ReadStream) => {
-        response.pipe(writer);
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-      }),
-    );
-  }
-
-  public publish(file: ReadStream) {
-    const form = new FormData();
-    form.append('file', file);
-
+  public publish(form: FormData) {
     const config = {
       headers: { ...form.getHeaders() },
       maxBodyLength: Infinity,

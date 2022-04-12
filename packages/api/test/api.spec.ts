@@ -1,8 +1,6 @@
 import * as dotenv from 'dotenv';
 
 import { API, FlowDeployment, HistoryEntry } from '../lib';
-import { join } from 'path';
-import { existsSync, unlinkSync } from 'fs';
 
 dotenv.config();
 
@@ -293,10 +291,6 @@ describe('API test', () => {
       const moduleName = modules.docs[0].name;
       const module = await api.flowModules.getOne(moduleName);
       expect(module).toBeDefined();
-
-      await api.flowModules.download(moduleName, join(__dirname, module.artifacts[0].filename));
-      expect(existsSync(join(__dirname, module.artifacts[0].filename))).toBe(true);
-      unlinkSync(join(__dirname, module.artifacts[0].filename));
     }
   }, 60000);
 });
