@@ -1,8 +1,6 @@
 import * as dotenv from 'dotenv';
 
-import { API, HistoryEntry } from '../lib';
-import { join } from 'path';
-import { existsSync, unlinkSync } from 'fs';
+import { API, FlowDeployment, HistoryEntry } from '../lib';
 
 dotenv.config();
 
@@ -231,8 +229,9 @@ describe('API test', () => {
       expect(Array.isArray(deployments.docs)).toBe(true);
       expect(deployments.docs.length).toBeGreaterThan(0);
       const deplId = deployments.docs[0].id;
-      const deployment = await api.flowDeployments.getOne(deplId).catch((err) => logError(err));
+      const deployment = (await api.flowDeployments.getOne(deplId).catch((err) => logError(err))) as FlowDeployment;
       expect(deployment).toBeDefined();
+      expect(await api.flows.isDeploymentOnLatestDiagramVersion(deployment)).toBe(true);
     }
 
     deployments = await api.flowDeployments.getManyFiltered({ tags: ['test'] }).catch((err) => logError(err));
@@ -292,10 +291,6 @@ describe('API test', () => {
       const moduleName = modules.docs[0].name;
       const module = await api.flowModules.getOne(moduleName);
       expect(module).toBeDefined();
-
-      await api.flowModules.download(moduleName, join(__dirname, module.artifacts[0].filename));
-      expect(existsSync(join(__dirname, module.artifacts[0].filename))).toBe(true);
-      unlinkSync(join(__dirname, module.artifacts[0].filename));
     }
   }, 60000);
 });
