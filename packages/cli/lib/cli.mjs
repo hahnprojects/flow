@@ -17,18 +17,16 @@ import path from 'node:path';
 import ora from 'ora';
 
 import { getAccessToken, login, logout } from './auth.mjs';
-import { handleConvertedOutput, logger, prepareTsFile } from './utils.mjs';
+import { handleApiError, handleConvertedOutput, logger, prepareTsFile } from './utils.mjs';
 
 const require = createRequire(import.meta.url);
 const BASE_URL = process.env.BASE_URL || process.env.PLATFORM_URL;
 const BUILD_DIR = process.env.BUILD_DIR || 'dist';
 
-let axios;
+let axios = Axios;
 if (process.env.https_proxy || process.env.http_proxy) {
   const httpsAgent = HttpsProxyAgent(process.env.https_proxy || process.env.http_proxy);
   axios = Axios.create({ httpsAgent, proxy: false });
-} else {
-  axios = Axios;
 }
 
 let apiToken;
@@ -608,17 +606,6 @@ async function publishFunctions(project, update, baseUrl = BASE_URL) {
       return resolve();
     });
   });
-}
-
-function handleApiError(error) {
-  if (error.isAxiosError && error.response) {
-    logger.error(`${error.response.status} ${error.response.statusText}`);
-    if (error.response.data) {
-      logger.error(JSON.stringify(error.response.data));
-    }
-  } else {
-    logger.error(error);
-  }
 }
 
 function zipDirectory(source, out) {
