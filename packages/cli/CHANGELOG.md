@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.14.2
+
+### Patch Changes
+
+- dbfcab1: Fix proxy support
+
 ## 2.14.1
 
 ### Patch Changes
