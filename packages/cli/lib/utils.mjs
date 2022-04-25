@@ -192,6 +192,17 @@ export const logger = {
   /* eslint-enable no-console */
 };
 
+export function handleApiError(error) {
+  if (error.isAxiosError && error.response) {
+    logger.error(`${error.response.status} ${error.response.statusText}`);
+    if (error.response.data) {
+      logger.error(JSON.stringify(error.response.data));
+    }
+  } else {
+    logger.error(error);
+  }
+}
+
 function blockDefinitionIncludes(block, value) {
   return block.trim().split('\n', 1)[0].includes(value);
 }

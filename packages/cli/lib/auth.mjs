@@ -1,9 +1,10 @@
 // @ts-check
 import express from 'express';
 import getPort from 'get-port';
+import HttpsProxyAgent from 'https-proxy-agent';
 import nconf from 'nconf';
 import open from 'open';
-import openidClient from 'openid-client';
+import openidClient, { custom } from 'openid-client';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -20,6 +21,12 @@ const viewsPath = join(__dirname, 'views');
 
 let server = null;
 nconf.file({ file: join(__dirname, 'config') });
+
+if (process.env.https_proxy || process.env.http_proxy) {
+  custom.setHttpOptionsDefaults({
+    agent: HttpsProxyAgent(process.env.https_proxy || process.env.http_proxy),
+  });
+}
 
 export async function getAccessToken(baseUrl = BASE_URL, realm = REALM) {
   checkEnvironment([
@@ -38,8 +45,8 @@ export async function getAccessToken(baseUrl = BASE_URL, realm = REALM) {
             const kcIssuer = await openidClient.Issuer.discover(`${baseUrl}/auth/realms/${realm}/`);
             const client = new kcIssuer.Client({ client_id: CLIENT_ID, client_secret: CLIENT_SECRET });
             const tokenSet = await client.grant({ grant_type: 'client_credentials' });
+
             nconf.set(baseUrl.replace(/:/g, ''), tokenSet);
-            server.close();
             nconf.save((error) => {
               if (error) {
                 logger.error(error);
