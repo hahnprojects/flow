@@ -1,6 +1,6 @@
 {
   "name": "@hahnpro/flow-cli",
-  "version": "2.14.1",
+  "version": "2.14.2",
   "description": "CLI for managing Flow Modules",
   "license": "MIT",
   "type": "module",
