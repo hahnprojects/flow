@@ -29,15 +29,15 @@
     "prepublishOnly": "pnpm build && pnpm build:nocomments"
   },
   "dependencies": {
-    "axios": "^0.26.1",
-    "eventsource": "^2.0.0",
+    "axios": "~0.26.1",
+    "eventsource": "^2.0.1",
     "form-data": "^4.0.0",
     "jwt-decode": "^3.1.2",
     "p-queue": "^6.6.2"
   },
   "devDependencies": {
-    "axios-mock-adapter": "^1.20.0",
-    "@types/eventsource": "^1.1.8"
+    "@types/eventsource": "^1.1.8",
+    "axios-mock-adapter": "^1.20.0"
   },
   "engines": {
     "node": ">=v14.13"
