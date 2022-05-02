@@ -39,7 +39,7 @@ export class TimeseriesMockService extends DataMockService<TimeSeries & { data: 
 
   async addValue(id: string, value: { [p: string]: any }): Promise<void> {
     const ts = await this.getOne(id, {});
-    ts.data.push({ timestamp: new Date().getDate(), value });
+    ts.data.push({ timestamp: new Date().valueOf(), value });
     return;
   }
 
@@ -61,14 +61,14 @@ export class TimeseriesMockService extends DataMockService<TimeSeries & { data: 
   async getMostRecentValue(id: string, before: Date): Promise<TimeSeriesValue> {
     const ts = await this.getOne(id, {});
     for (const datum of ts.data) {
-      if (datum.timestamp < before.getDate()) {
+      if (datum.timestamp < before.valueOf()) {
         return datum;
       }
     }
   }
 
   async getValues(id: string, from: number, limit?: number, group?: TS_GROUPS): Promise<TimeSeriesValue[]> {
-    let timeSeriesValues: TimeSeriesValue[] = await this.getValuesOfPeriod(id, from, new Date().getDate(), group);
+    let timeSeriesValues: TimeSeriesValue[] = await this.getValuesOfPeriod(id, from, new Date().valueOf(), group);
     if (limit) {
       timeSeriesValues = timeSeriesValues.slice(0, limit);
     }
