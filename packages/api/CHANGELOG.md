@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 2.3.1
+
+### Patch Changes
+
+- 3e3ee84: fixed from wrong date access function to valueof
+
 ## 2.3.0
 
 ### Minor Changes
