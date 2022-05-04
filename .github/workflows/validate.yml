@@ -24,7 +24,7 @@ jobs:
       - name: Prepare PNPM
         uses: ./.github/actions/prepare-pnpm
       - name: Lint
-        run: pnpm lint -r
+        run: pnpm -r lint
   audit:
     name: Audit
     runs-on: ubuntu-latest
