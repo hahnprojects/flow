@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.20.11
+
+### Patch Changes
+
+- 2e6ebfc: Flow Module name validation has been updated. Names must be all lowercase and not contain any special characters except for hyphens. Can optionally start with a scope "@scopename/"
+
 ## 4.20.10
 
 ### Patch Changes
