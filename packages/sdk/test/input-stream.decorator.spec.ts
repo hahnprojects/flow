@@ -34,8 +34,8 @@ describe('InputStreamDecorator', () => {
   test('FLOW.ISD.4 should return input event data in a flow', (done) => {
     const flow = {
       elements: [
-        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
-        { id: 'testResource', module: 'test.module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource' },
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
     };
@@ -56,8 +56,8 @@ describe('InputStreamDecorator', () => {
   test('FLOW.ISD.5 should only log partial events', (done) => {
     const flow = {
       elements: [
-        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
-        { id: 'testResource', module: 'test.module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource' },
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
     };
@@ -87,10 +87,10 @@ describe('InputStreamDecorator', () => {
   test('FLOW.ISD.6 stopPropagation should work in a mixed flow', (done) => {
     const flow = {
       elements: [
-        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
-        { id: 'testTask1', module: 'test.module', functionFqn: 'test.task.task1' },
-        { id: 'testTask2', module: 'test.module', functionFqn: 'test.task.task2' },
-        { id: 'testRessource', module: 'test.module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testTask1', module: 'test-module', functionFqn: 'test.task.task1' },
+        { id: 'testTask2', module: 'test-module', functionFqn: 'test.task.task2' },
+        { id: 'testRessource', module: 'test-module', functionFqn: 'test.resource.TestResource' },
       ],
       connections: [
         { id: 'c1', source: 'testTrigger', target: 'testTask1' },
@@ -150,8 +150,8 @@ describe('InputStreamDecorator', () => {
   test('FLOW.ISD.10 test single function with multiple streams with different configs', (done) => {
     const flow = {
       elements: [
-        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
-        { id: 'testTask1', module: 'test.module', functionFqn: 'test.task.multi' },
+        { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testTask1', module: 'test-module', functionFqn: 'test.task.multi' },
       ],
       connections: [
         { id: 'c1', source: 'testTrigger', target: 'testTask1', targetStream: 'default' },
@@ -202,8 +202,8 @@ describe('InputStreamDecorator', () => {
   test('FLOW.ISD.12 stateful function should work in flow', (done) => {
     const flow = {
       elements: [
-        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
-        { id: 'stateful', module: 'test.module', functionFqn: 'test.task.stateful' },
+        { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
+        { id: 'stateful', module: 'test-module', functionFqn: 'test.task.stateful' },
       ],
       connections: [{ id: 'c1', source: 'testTrigger', target: 'stateful' }],
     };
@@ -333,7 +333,7 @@ class Deprecated extends FlowTask {
 }
 
 @FlowModule({
-  name: 'test.module',
+  name: 'test-module',
   declarations: [TestResource, TestResourceNoProp, TestTask1, TestTask2, MultiStream, Stateful],
 })
 class TestModule {}

@@ -25,9 +25,9 @@ describe('Flow Application', () => {
     const size = 8;
     const flow = {
       elements: [
-        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
-        { id: 'testResource', module: 'test.module', functionFqn: 'test.resource.TestResource' },
-        { id: 'longRunningTask', module: 'test.module', functionFqn: 'test.task.LongRunningTask', properties: { delay: 500 } },
+        { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource' },
+        { id: 'longRunningTask', module: 'test-module', functionFqn: 'test.task.LongRunningTask', properties: { delay: 500 } },
       ],
       connections: [
         { id: 'testConnection1', source: 'testTrigger', target: 'testResource' },
@@ -73,8 +73,8 @@ describe('Flow Application', () => {
   it('FLOW.FA.2 should handle invalid stream handlers', async () => {
     const flow = {
       elements: [
-        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
-        { id: 'testResource', module: 'test.module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource' },
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource', targetStream: 'does-not-exist' }],
       context: {
@@ -97,7 +97,7 @@ describe('Flow Application', () => {
 
   it('FLOW.FA.3 should handle invalid function FQNs', async () => {
     const flow = {
-      elements: [{ id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.Test123' }],
+      elements: [{ id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.Test123' }],
       connections: [],
       context: {
         flowId: 'testFlow',
@@ -110,7 +110,7 @@ describe('Flow Application', () => {
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
     expect(loggerMock.error).toHaveBeenCalledTimes(1);
     expect(loggerMock.error).toHaveBeenLastCalledWith(
-      new Error('Could not create FlowElement for test.module.test.resource.Test123'),
+      new Error('Could not create FlowElement for test-module.test.resource.Test123'),
       expect.objectContaining(flow.context),
     );
 
@@ -118,7 +118,7 @@ describe('Flow Application', () => {
   });
   it('FLOW.FA.4 should handle invalid connection targets', async () => {
     const flow = {
-      elements: [{ id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' }],
+      elements: [{ id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' }],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
       context: {
         flowId: 'testFlow',
@@ -141,7 +141,7 @@ describe('Flow Application', () => {
 
   it('FLOW.FA.5 should handle invalid flow modules', async () => {
     const flow = {
-      elements: [{ id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' }],
+      elements: [{ id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' }],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
       context: {
         flowId: 'testFlow',
@@ -164,7 +164,7 @@ describe('Flow Application', () => {
 
   it('FLOW.FA.6 should handle invalid flow functions', async () => {
     const flow = {
-      elements: [{ id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' }],
+      elements: [{ id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' }],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
       context: {
         flowId: 'testFlow',
@@ -188,8 +188,8 @@ describe('Flow Application', () => {
   it('FLOW.FA.7 should warn if high event loop utilization is detected', (done) => {
     const flow = {
       elements: [
-        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
-        { id: 'highEluTask', module: 'test.module', functionFqn: 'test.task.HighEluTask', properties: { n: 500_000_000 } },
+        { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
+        { id: 'highEluTask', module: 'test-module', functionFqn: 'test.task.HighEluTask', properties: { n: 500_000_000 } },
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'highEluTask' }],
       context: {
@@ -220,8 +220,8 @@ describe('Flow Application', () => {
   it('FLOW.FA.8 should warn if event queue size is above threshold', (done) => {
     const flow = {
       elements: [
-        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
-        { id: 'longRunningTask', module: 'test.module', functionFqn: 'test.task.LongRunningTask', properties: { delay: 300 } },
+        { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
+        { id: 'longRunningTask', module: 'test-module', functionFqn: 'test.task.LongRunningTask', properties: { delay: 300 } },
       ],
       connections: [{ id: 'testConnection', source: 'testTrigger', target: 'longRunningTask' }],
       context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
@@ -267,10 +267,10 @@ describe('Flow Application', () => {
   it('FLOW.FA.9 test complex properties', (done) => {
     const flow = {
       elements: [
-        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
         {
           id: 'complex',
-          module: 'test.module',
+          module: 'test-module',
           functionFqn: 'test.resource.ComplexProperties',
           properties: {
             variables: [
@@ -394,7 +394,7 @@ class HighEluProperties {
 }
 
 @FlowModule({
-  name: 'test.module',
+  name: 'test-module',
   declarations: [HighEluTask, LongRunningTask, TestResource, TestComplexProperties],
 })
 class TestModule {}
@@ -402,7 +402,7 @@ class TestModule {}
 class FakeTask {}
 
 @FlowModule({
-  name: 'test.module2',
+  name: 'test-module2',
   declarations: [FakeTask as any],
 })
 class TestModule2 {}

@@ -7,7 +7,7 @@ describe('Flow RPC long running task', () => {
 
   beforeAll(async () => {
     const flow = {
-      elements: [{ id: 'testResource', module: 'test.module', functionFqn: 'test.resource.TestResource' }],
+      elements: [{ id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource' }],
       connections: [{ id: 'testConnection1', source: 'testTrigger', sourceStream: 'a', target: 'testResource', targetStream: 'a' }],
       context: {
         flowId: 'testFlow',
@@ -48,7 +48,7 @@ class TestResource extends FlowResource {
 }
 
 @FlowModule({
-  name: 'test.module',
+  name: 'test-module',
   declarations: [TestResource],
 })
 class TestModule {}

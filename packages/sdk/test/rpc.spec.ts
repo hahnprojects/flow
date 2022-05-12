@@ -9,7 +9,7 @@ describe('Flow RPC', () => {
 
   beforeAll(async () => {
     const flow = {
-      elements: [{ id: 'testResource', module: 'test.module', functionFqn: 'test.resource.TestResource' }],
+      elements: [{ id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource' }],
       connections: [
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'a', target: 'testResource', targetStream: 'a' },
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'b', target: 'testResource', targetStream: 'b' },
@@ -135,7 +135,7 @@ class TestResource extends FlowResource {
 }
 
 @FlowModule({
-  name: 'test.module',
+  name: 'test-module',
   declarations: [TestResource],
 })
 class TestModule {}

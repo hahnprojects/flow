@@ -1,9 +1,11 @@
 import { FlowElement } from './FlowElement';
 
 export function FlowModule(metadata: { name: string; declarations: Array<ClassType<FlowElement>> }): ClassDecorator {
-  const fqnRegExp = new RegExp('^([a-zA-Z][a-zA-Z0-9]*[.-])*[a-zA-Z][a-zA-Z0-9]*$');
-  if (!fqnRegExp.test(metadata.name)) {
-    throw new Error(`Flow Module name (${metadata.name}) is not valid`);
+  const validateNameRegExp = new RegExp(/^(@[a-z][a-z0-9-]*\/)?[a-z][a-z0-9-]*$/);
+  if (!validateNameRegExp.test(metadata.name)) {
+    throw new Error(
+      `Flow Module name (${metadata.name}) is not valid. Name must be all lowercase and not contain any special characters except for hyphens. Can optionally start with a scope "@scopename/"`,
+    );
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-types

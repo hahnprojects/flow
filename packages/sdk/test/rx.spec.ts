@@ -9,10 +9,10 @@ describe('rx', () => {
     const size = 3;
     const flow = {
       elements: [
-        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource1' },
-        { id: 'testResource1', module: 'test.module', functionFqn: 'test.resource.TestResource1' },
-        { id: 'testResource2', module: 'test.module', functionFqn: 'test.resource.TestResource2' },
-        { id: 'tap', module: 'test.module', functionFqn: 'operators.tap' },
+        { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource1' },
+        { id: 'testResource1', module: 'test-module', functionFqn: 'test.resource.TestResource1' },
+        { id: 'testResource2', module: 'test-module', functionFqn: 'test.resource.TestResource2' },
+        { id: 'tap', module: 'test-module', functionFqn: 'operators.tap' },
       ],
       connections: [
         { id: 'testConnection1', source: 'testTrigger', target: 'testResource1' },
@@ -85,7 +85,7 @@ class TestResource2 extends FlowResource {
 }
 
 @FlowModule({
-  name: 'test.module',
+  name: 'test-module',
   declarations: [TestResource, TestResource2, Tap],
 })
 class TestModule {}
