@@ -9,8 +9,8 @@ describe('Flow Application', () => {
   test('FLOW.CON.1 Simple Flow Application with Long Running Task', (done) => {
     const flow = {
       elements: [
-        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource', properties: { assetId: '' } },
-        { id: 'testResource', module: 'test.module', functionFqn: 'test.resource.TestResource', properties: { assetId: 'abc' } },
+        { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource', properties: { assetId: '' } },
+        { id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource', properties: { assetId: 'abc' } },
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
       context: {
@@ -93,8 +93,8 @@ describe('Flow Application', () => {
   test('FLOW.CON.3 string interpolation with flow context properties', (done) => {
     const flow = {
       elements: [
-        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource', properties: { assetId: '' } },
-        { id: 'testResource', module: 'test.module', functionFqn: 'test.resource.TestResource', properties: { assetId: '${test}' } },
+        { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource', properties: { assetId: '' } },
+        { id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource', properties: { assetId: '${test}' } },
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
       context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
@@ -151,7 +151,7 @@ class Properties {
 }
 
 @FlowModule({
-  name: 'test.module',
+  name: 'test-module',
   declarations: [TestResource],
 })
 class TestModule {}

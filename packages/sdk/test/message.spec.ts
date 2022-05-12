@@ -7,8 +7,8 @@ describe('Flow SDK', () => {
   test('FLOW.SDK.1 publish message', (done) => {
     const flow = {
       elements: [
-        { id: 'testTrigger', module: 'test.module', functionFqn: 'test.resource.TestResource' },
-        { id: 'testResource', module: 'test.module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource' },
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
       context: {
@@ -47,7 +47,7 @@ class TestResource extends FlowResource {
 }
 
 @FlowModule({
-  name: 'test.module',
+  name: 'test-module',
   declarations: [TestResource],
 })
 class TestModule {}
