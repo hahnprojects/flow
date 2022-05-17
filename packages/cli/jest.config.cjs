@@ -4,8 +4,8 @@ module.exports = {
   testMatch: ['<rootDir>/test/*.spec.mjs'],
   transform: {},
   moduleNameMapper: {
-    chalk: 'chalk/source/index.js',
-    '#ansi-styles': 'chalk/source/vendor/ansi-styles/index.js',
-    '#supports-color': 'chalk/source/vendor/supports-color/index.js',
+    chalk: '<rootDir>/node_modules/chalk/source/index.js',
+    '#ansi-styles': '<rootDir>/node_modules/chalk/source/vendor/ansi-styles/index.js',
+    '#supports-color': '<rootDir>/node_modules/chalk/source/vendor/supports-color/index.js',
   },
 };
