@@ -27,7 +27,7 @@ export class ContentMockService extends DataMockService<Content> implements Cont
 
   download(id: string, second: any): Promise<string | Record<string, unknown> | Buffer | Blob | ArrayBuffer | Readable> {
     let returnType: ReturnType;
-    if (typeof second === 'boolean' || !second) {
+    if (typeof second === 'boolean' || second == null) {
       returnType = second ? ReturnType.ARRAYBUFFER : ReturnType.BLOB;
     } else {
       returnType = second;

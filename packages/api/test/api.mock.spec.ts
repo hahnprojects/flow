@@ -77,10 +77,6 @@ describe('Mock-API test', () => {
       const arrBuf = await api.contents.download(testDownloadId, true).catch((err) => logError(err));
       expect(arrBuf instanceof ArrayBuffer).toBeTruthy();
 
-      const str = await api.contents.download(testDownloadId).catch((err) => logError(err));
-      expect(typeof str).toBe('string');
-      expect(str).toBe('{"test": "data"}');
-
       const json = await api.contents.download(testDownloadId, ReturnType.TEXT).catch((err) => logError(err));
       expect(typeof json).toBe('string');
       expect(json).toBe('{"test": "data"}');
