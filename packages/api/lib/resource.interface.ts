@@ -16,4 +16,5 @@ export interface Resource {
   createdAt?: string | Date;
   updatedAt?: string | Date;
   deleteddAt?: string | Date;
+  revision?: string;
 }

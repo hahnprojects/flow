@@ -1,9 +1,9 @@
 import { Resource } from './resource.interface';
-import { FlowDiagram, FlowDto } from './flow.interface';
+import { FlowDiagram, Flow } from './flow.interface';
 import { Storage } from './storage.interface';
 
 export interface FlowDeployment extends Resource {
-  flow: string | FlowDto;
+  flow: string | Flow;
   diagram: string | FlowDiagram;
   artifact: Storage;
   flowModel: FlowModel;
