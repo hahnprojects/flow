@@ -22,11 +22,11 @@ import { FlowDeploymentService } from '../flow-deployment.service';
 import { FlowFunctionService } from '../flow-function.service';
 import { FlowModuleService } from '../flow-module.service';
 import { FlowService } from '../flow.service';
-import { FlowDiagram, Flow, FlowRevision } from '../flow.interface';
+import { FlowDiagram, FlowDto, FlowRevision } from '../flow.interface';
 import { FlowMockService } from './flow.mock.service';
 import { FlowDeployment } from '../flow-deployment.interface';
 import { FlowDeploymentMockService } from './flow-deployment.mock.service';
-import { FlowFunction, FlowFunctionRevision } from '../flow-function.interface';
+import { FlowFunctionDto, FlowFunctionRevision } from '../flow-function.interface';
 import { FlowFunctionsMockService } from './flow-functions.mock.service';
 import { FlowModule } from '../flow-module.interface';
 import { FlowModulesMockService } from './flow-modules.mock.service';
@@ -198,7 +198,7 @@ export class MockAPI implements API {
       json: '',
       author: 'nobody',
     }));
-    const flows1: Flow[] = flows.map((v) => ({
+    const flows1: FlowDto[] = flows.map((v) => ({
       ...v,
       readPermissions: [],
       readWritePermissions: [],
@@ -228,7 +228,7 @@ export class MockAPI implements API {
       name: `deployment-${v.id}`,
     }));
 
-    const functions1: Array<FlowFunction> = functions.map((v) => ({
+    const functions1: Array<FlowFunctionDto> = functions.map((v) => ({
       ...v,
       category: 'task',
       readPermissions: [],
@@ -301,10 +301,10 @@ export type SecretInit = AtLeast<Secret, 'name' | 'key'>;
 export type TimeSeriesInit = Identity<AtLeast<TimeSeries, 'id' | 'name'> & { values: TimeSeriesValue[] }>;
 export type TaskInit = AtLeast<Task, 'name' | 'assignedTo'>;
 export type EventInit = AtLeast<Event, 'name'>;
-export type FlowInit = AtLeast<Flow, 'id'>;
+export type FlowInit = AtLeast<FlowDto, 'id'>;
 export type FlowRevisionInit = AtLeast<FlowRevision, 'id' | 'originalId'>;
 export type FlowDeploymentInit = AtLeast<FlowDeployment, 'id' | 'flow'>;
-export type FlowFunctionInit = AtLeast<Identity<FlowFunction>, 'fqn'>;
+export type FlowFunctionInit = AtLeast<Identity<FlowFunctionDto>, 'fqn'>;
 export type FlowFunctionRevisionInit = AtLeast<Identity<FlowFunctionRevision>, 'fqn' | 'id' | 'originalId'>;
 export type FlowModuleInit = Replace<AtLeast<FlowModule, 'name'>, 'artifacts', ArtifactInit[]>;
 export type ArtifactInit = AtLeast<Artifact & { path: string }, 'filename' | 'path'>;

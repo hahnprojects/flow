@@ -1,4 +1,4 @@
-export interface FlowFunction {
+export interface FlowFunctionDto {
   fqn: string;
   category: string;
   readPermissions: string[];
@@ -18,7 +18,7 @@ export interface FlowFunction {
   revision?: string;
 }
 
-export type FlowFunctionRevision = FlowFunction & { id: string; originalId: string };
+export type FlowFunctionRevision = FlowFunctionDto & { id: string; originalId: string };
 
 interface Stream {
   name: string;

@@ -1,32 +1,32 @@
 import { DataService } from './data.service';
-import { FlowDiagram, Flow } from './flow.interface';
+import { FlowDiagram, FlowDto } from './flow.interface';
 import { HttpClient } from './http.service';
 import { Paginated, RequestParameter } from './data.interface';
 import { FlowDeployment } from './flow-deployment.interface';
 
-export class FlowService extends DataService<Flow> {
+export class FlowService extends DataService<FlowDto> {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/flows');
   }
 
   // workaround as flow-service does not have a POST /many endpoint
-  public addMany(dto: any[]): Promise<Flow[]> {
+  public addMany(dto: any[]): Promise<FlowDto[]> {
     const reqs = dto.map((v) => this.addOne(v));
     return Promise.all(reqs);
   }
 
-  public getMany(params: RequestParameter = {}): Promise<Paginated<Flow[]>> {
+  public getMany(params: RequestParameter = {}): Promise<Paginated<FlowDto[]>> {
     params.populate = params.populate ? params.populate : 'none';
     return super.getMany(params);
   }
 
-  public getOne(id: string, options: any = {}): Promise<Flow> {
+  public getOne(id: string, options: any = {}): Promise<FlowDto> {
     options.populate = options.populate ? options.populate : 'none';
     return super.getOne(id, options);
   }
 
-  public getFlowWithDiagram(diagramId: string): Promise<Flow> {
-    return this.httpClient.get<Flow>(`${this.basePath}/diagram/${diagramId}`);
+  public getFlowWithDiagram(diagramId: string): Promise<FlowDto> {
+    return this.httpClient.get<FlowDto>(`${this.basePath}/diagram/${diagramId}`);
   }
 
   public getDiagramRevisions(id: string): Promise<FlowDiagram[]> {
@@ -40,12 +40,12 @@ export class FlowService extends DataService<Flow> {
     return revisions.reverse()[0].id === diagramId;
   }
 
-  public getRevisions(id: string): Promise<Paginated<Flow[]>> {
-    return this.httpClient.get<Paginated<Flow[]>>(`${this.basePath}/${id}/revisions`);
+  public getRevisions(id: string): Promise<Paginated<FlowDto[]>> {
+    return this.httpClient.get<Paginated<FlowDto[]>>(`${this.basePath}/${id}/revisions`);
   }
 
-  public rollback(id: string, revisionId: string): Promise<Flow> {
-    return this.httpClient.put<Flow>(`${this.basePath}/${id}/rollback`, { revisionId });
+  public rollback(id: string, revisionId: string): Promise<FlowDto> {
+    return this.httpClient.put<FlowDto>(`${this.basePath}/${id}/rollback`, { revisionId });
   }
 
   public deleteRevision(id: string, revisionId: string): Promise<any> {

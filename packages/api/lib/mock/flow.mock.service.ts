@@ -1,17 +1,17 @@
 import { DataMockService } from './data.mock.service';
-import { FlowDiagram, Flow, FlowRevision } from '../flow.interface';
+import { FlowDiagram, FlowDto, FlowRevision } from '../flow.interface';
 import { FlowService } from '../flow.service';
 import { Paginated, RequestParameter } from '../data.interface';
 import { FlowDeployment } from '../flow-deployment.interface';
 import { randomUUID } from 'crypto';
 
-export class FlowMockService extends DataMockService<Flow> implements FlowService {
-  constructor(flows: Flow[], private diagrams: FlowDiagram[], private revisions: FlowRevision[]) {
+export class FlowMockService extends DataMockService<FlowDto> implements FlowService {
+  constructor(flows: FlowDto[], private diagrams: FlowDiagram[], private revisions: FlowRevision[]) {
     super();
     this.data = flows;
   }
 
-  addOne(dto: Flow): Promise<Flow> {
+  addOne(dto: FlowDto): Promise<FlowDto> {
     const id = randomUUID();
     this.revisions.push({ ...dto, id, originalId: dto.id });
     return super.addOne(dto);
@@ -27,7 +27,7 @@ export class FlowMockService extends DataMockService<Flow> implements FlowServic
     return super.deleteOne(id);
   }
 
-  async updateOne(id: string, dto: Flow): Promise<Flow> {
+  async updateOne(id: string, dto: FlowDto): Promise<FlowDto> {
     await super.deleteOne(id);
     const flow = await this.addOne(dto);
     return Promise.resolve(flow);
@@ -44,11 +44,11 @@ export class FlowMockService extends DataMockService<Flow> implements FlowServic
     return Promise.resolve(this.diagrams.filter((v) => v.flow === id));
   }
 
-  getFlowWithDiagram(diagramId: string): Promise<Flow> {
+  getFlowWithDiagram(diagramId: string): Promise<FlowDto> {
     return Promise.resolve(this.data.find((v1) => v1.id === this.diagrams.find((v) => v.id === diagramId).flow));
   }
 
-  async getMany(params?: RequestParameter): Promise<Paginated<Flow[]>> {
+  async getMany(params?: RequestParameter): Promise<Paginated<FlowDto[]>> {
     const flows = await super.getMany(params);
     return {
       docs: flows.docs.map((v) => ({ ...v, diagram: this.diagrams.find((v1) => v1.id === v.diagram) })),
@@ -67,7 +67,7 @@ export class FlowMockService extends DataMockService<Flow> implements FlowServic
     return Promise.resolve(page);
   }
 
-  public rollback(id: string, revisionId: string): Promise<Flow> {
+  public rollback(id: string, revisionId: string): Promise<FlowDto> {
     const flow = this.revisions.find((revision) => revision.id === revisionId);
     return Promise.resolve(flow);
   }

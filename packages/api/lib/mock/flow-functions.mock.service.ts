@@ -1,16 +1,16 @@
 import { DataMockService } from './data.mock.service';
-import { FlowFunction, FlowFunctionRevision } from '../flow-function.interface';
+import { FlowFunctionDto, FlowFunctionRevision } from '../flow-function.interface';
 import { FlowFunctionService } from '../flow-function.service';
 import { Paginated } from '../data.interface';
 import { randomUUID } from 'crypto';
 
-export class FlowFunctionsMockService extends DataMockService<FlowFunction> implements FlowFunctionService {
-  constructor(functions: FlowFunction[], private revisions: FlowFunctionRevision[]) {
+export class FlowFunctionsMockService extends DataMockService<FlowFunctionDto> implements FlowFunctionService {
+  constructor(functions: FlowFunctionDto[], private revisions: FlowFunctionRevision[]) {
     super();
     this.data = functions;
   }
 
-  addOne(dto: FlowFunction): Promise<FlowFunction> {
+  addOne(dto: FlowFunctionDto): Promise<FlowFunctionDto> {
     const id = randomUUID();
     this.revisions.push({ ...dto, id, originalId: dto.fqn });
     return super.addOne(dto);
@@ -28,14 +28,14 @@ export class FlowFunctionsMockService extends DataMockService<FlowFunction> impl
     return Promise.resolve(undefined);
   }
 
-  async updateOne(fqn: string, dto: FlowFunction): Promise<FlowFunction> {
+  async updateOne(fqn: string, dto: FlowFunctionDto): Promise<FlowFunctionDto> {
     const index = this.data.findIndex((v) => v.fqn === fqn);
     this.data.splice(index, 1);
     const flowFunction = await this.addOne(dto);
     return Promise.resolve(flowFunction);
   }
 
-  getOne(fqn: string, options?: any): Promise<FlowFunction> {
+  getOne(fqn: string, options?: any): Promise<FlowFunctionDto> {
     const t = this.data.find((v: any) => v.fqn === fqn);
     return Promise.resolve(t);
   }
@@ -54,7 +54,7 @@ export class FlowFunctionsMockService extends DataMockService<FlowFunction> impl
     return Promise.resolve(page);
   }
 
-  public rollback(fqn: string, revisionId: string): Promise<FlowFunction> {
+  public rollback(fqn: string, revisionId: string): Promise<FlowFunctionDto> {
     const assetType = this.revisions.find((revision) => revision.id === revisionId);
     return Promise.resolve(assetType);
   }
