@@ -8,7 +8,6 @@ import { DataMockService } from './data.mock.service';
 import { randomUUID } from 'crypto';
 
 export class AssetMockService extends DataMockService<Asset> implements AssetService {
-
   constructor(private api: MockAPI, assets: Asset[], private revisions: AssetRevision[]) {
     super();
     this.data = assets;

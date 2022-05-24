@@ -51,5 +51,4 @@ export class FlowService extends DataService<FlowDto> {
   public deleteRevision(id: string, revisionId: string): Promise<any> {
     return this.httpClient.delete(`${this.basePath}/${id}/revisions/${revisionId}`);
   }
-
 }

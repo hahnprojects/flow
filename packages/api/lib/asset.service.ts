@@ -34,5 +34,4 @@ export class AssetService extends DataService<Asset> {
   public deleteRevision(assetId: string, revisionId: string): Promise<any> {
     return this.httpClient.delete(`${this.basePath}/${assetId}/revisions/${revisionId}`);
   }
-
 }
