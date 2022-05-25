@@ -533,6 +533,8 @@ async function publishModule(project, baseUrl = BASE_URL) {
           ...form.getHeaders(),
           Authorization: `Bearer ${apiToken}`,
         },
+        maxBodyLength: Infinity,
+        maxContentLength: Infinity,
       });
 
       logger.ok(`Module "${project.name}" published!`);
