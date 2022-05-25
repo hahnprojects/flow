@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 
-import { API, FlowDeployment, HistoryEntry } from '../lib';
+import { API, FlowDeployment } from '../lib';
 
 dotenv.config();
 
@@ -32,6 +32,25 @@ describe('API test', () => {
       expect(asset).toBeDefined();
       if (asset) {
         expect(asset.type).toHaveProperty('id');
+      }
+    }
+
+    assets = await api.assets.getMany().catch((err) => logError(err));
+    expect(assets).toBeDefined();
+
+    if (assets) {
+      const assetId = assets.docs[0].id;
+      const revisions = await api.assets.getRevisions(assetId).catch((err) => logError(err));
+      expect(revisions).toBeDefined();
+
+      if (revisions) {
+        expect(Array.isArray(revisions.docs)).toBe(true);
+        expect(revisions.docs.length).toBeGreaterThan(0);
+        const revision = revisions.docs[0];
+        expect(revision).toBeDefined();
+        if (revision) {
+          expect(revision.type).toHaveProperty('id');
+        }
       }
     }
   }, 60000);
@@ -139,25 +158,7 @@ describe('API test', () => {
     }
   }, 60000);
 
-  test('FLOW.API.9 asset revisions', async () => {
-    const assets = await api.assets.getMany();
-    expect(assets).toBeDefined();
-
-    const revisions = await api.assets.findRevisions(assets.docs[0].id).catch((err) => logError(err));
-    expect(revisions).toBeDefined();
-
-    if (revisions) {
-      expect(Array.isArray(revisions.docs)).toBe(true);
-      expect(revisions.docs.length).toBeGreaterThan(0);
-      const revision = revisions.docs[0];
-      expect(revision).toBeDefined();
-      if (revision) {
-        expect(revision.type).toHaveProperty('id');
-      }
-    }
-  }, 60000);
-
-  test('FLOW-API.10 flows', async () => {
+  test('FLOW-API.9 flows', async () => {
     let flows = await api.flows.getMany().catch((err) => logError(err));
     expect(flows).toBeDefined();
 
@@ -186,9 +187,28 @@ describe('API test', () => {
         expect(flow.diagram).toHaveProperty('id');
       }
     }
+
+    flows = await api.flows.getMany().catch((err) => logError(err));
+    expect(flows).toBeDefined();
+
+    if (flows) {
+      const flowId = flows.docs[0].id;
+      const revisions = await api.flows.getRevisions(flowId).catch((err) => logError(err));
+      expect(revisions).toBeDefined();
+
+      if (revisions) {
+        expect(Array.isArray(revisions.docs)).toBe(true);
+        expect(revisions.docs.length).toBeGreaterThan(0);
+        const revision = revisions.docs[0];
+        expect(revision).toBeDefined();
+        if (revision) {
+          expect(revision.diagram).toBe('diagram1');
+        }
+      }
+    }
   }, 60000);
 
-  test('FLOW-API.11 flow-functions', async () => {
+  test('FLOW-API.10 flow-functions', async () => {
     let functions = await api.flowFunctions.getMany().catch((err) => logError(err));
     expect(functions).toBeDefined();
 
@@ -196,32 +216,31 @@ describe('API test', () => {
       expect(Array.isArray(functions.docs)).toBe(true);
       expect(functions.docs.length).toBeGreaterThan(0);
       const functionFqn = functions.docs[0].fqn;
-      let function1 = await api.flowFunctions.getOne(functionFqn);
+      const function1 = await api.flowFunctions.getOne(functionFqn);
       expect(function1).toBeDefined();
-      expect(typeof function1.history[0]).toBe('string');
-      function1 = await api.flowFunctions.getOneWithHistory(functionFqn);
-      expect(typeof function1.history[0]).toBe('object');
-      expect(function1.history[0]).toHaveProperty('author');
     }
 
     functions = await api.flowFunctions.getManyFiltered({ tags: ['test'] }).catch((err) => logError(err));
     expect(functions).toBeDefined();
 
-    let function2 = await api.flowFunctions.getOne('test.history.function');
+    functions = await api.flowFunctions.getMany().catch((err) => logError(err));
+    expect(functions).toBeDefined();
 
-    const historyId = ((await api.flowFunctions.getOneWithHistory('test.history.function')).history[1] as HistoryEntry).id;
+    if (functions) {
+      const functionFqn = functions.docs[0].fqn;
+      const revisions = await api.flowFunctions.getRevisions(functionFqn).catch((err) => logError(err));
+      expect(revisions).toBeDefined();
 
-    expect(function2.category).toBe('task');
-    function2 = await api.flowFunctions.updateOne('test.history.function', { ...function2, category: 'resource' });
-    expect(function2.category).toBe('resource');
-
-    function2 = await api.flowFunctions.rollback('test.history.function', historyId);
-
-    expect(function2.category).toBe('task');
-    expect(function2.current).toBe(historyId);
+      if (revisions) {
+        expect(Array.isArray(revisions.docs)).toBe(true);
+        expect(revisions.docs.length).toBeGreaterThan(0);
+        const revision = revisions.docs[0];
+        expect(revision).toBeDefined();
+      }
+    }
   }, 60000);
 
-  test('FLOW-API.12 flow-deployments', async () => {
+  test('FLOW-API.11 flow-deployments', async () => {
     let deployments = await api.flowDeployments.getMany().catch((err) => logError(err));
     expect(deployments).toBeDefined();
 
@@ -281,7 +300,7 @@ describe('API test', () => {
     expect(flow.deployments).not.toContain(deployment1.id);
   }, 60000);
 
-  test('FLOW-API.13 flow-modules', async () => {
+  test('FLOW-API.12 flow-modules', async () => {
     const modules = await api.flowModules.getMany().catch((err) => logError(err));
     expect(modules).toBeDefined();
 

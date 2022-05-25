@@ -4,8 +4,6 @@ export interface FlowFunctionDto {
   readPermissions: string[];
   readWritePermissions: string[];
   author: string;
-  current: string;
-  history: string[] | HistoryEntry[];
   name?: string;
   description?: string;
   icon?: string;
@@ -17,13 +15,10 @@ export interface FlowFunctionDto {
   tags?: string[];
   createdAt?: string;
   updatedAt?: string;
+  revision?: string;
 }
 
-export interface HistoryEntry {
-  author: string;
-  createdAt: string;
-  id: string;
-}
+export type FlowFunctionRevision = FlowFunctionDto & { id: string; originalId: string };
 
 interface Stream {
   name: string;

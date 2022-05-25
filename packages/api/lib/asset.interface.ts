@@ -13,37 +13,34 @@ export interface AssetType {
   actions?: string[];
   createdAt?: string;
   updatedAt?: string;
+  author?: string;
+  revision?: number;
 }
 
-export interface AssetParent {
+export type AssetTypeRevision = AssetType & { originalId: string };
+
+export interface Asset {
   id?: string;
   name: string;
   type: string | AssetType;
+  type$name?: string;
   readPermissions: string[];
   readWritePermissions: string[];
   parent?: any | Asset;
+  parent$name?: string;
   ancestors?: string[];
   tags?: string[];
   relations?: any[];
   data?: any;
   image?: string;
+  attachments?: string[];
+  notificationEndpoints?: string[];
+  actions?: string[];
   author?: string;
   revision?: number;
 }
 
-export interface Asset extends AssetParent {
-  type$name?: string;
-  parent$name?: string;
-  attachments?: string[];
-  notificationEndpoints?: string[];
-  actions?: string[];
-}
-
-export interface AssetRevision extends AssetParent {
-  originalId?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+export type AssetRevision = Asset & { originalId: string };
 
 export interface Attachment {
   id?: string;
@@ -66,4 +63,8 @@ export interface Action {
   responseType?: string;
   readPermissions: string[];
   readWritePermissions: string[];
+  author?: string;
+  revision?: number;
 }
+
+export type ActionRevision = Action & { originalId: string };

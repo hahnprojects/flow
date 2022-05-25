@@ -9,6 +9,8 @@ export interface FlowDto extends Resource {
   propertiesSchema?: JsonSchemaForm;
 }
 
+export type FlowRevision = FlowDto & { originalId: string };
+
 export interface DashboardItem {
   id: string;
   cols: number;

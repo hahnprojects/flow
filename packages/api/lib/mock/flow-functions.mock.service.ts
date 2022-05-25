@@ -1,33 +1,38 @@
 import { DataMockService } from './data.mock.service';
-import { FlowFunctionDto } from '../flow-function.interface';
+import { FlowFunctionDto, FlowFunctionRevision } from '../flow-function.interface';
 import { FlowFunctionService } from '../flow-function.service';
+import { Paginated } from '../data.interface';
 import { randomUUID } from 'crypto';
 
 export class FlowFunctionsMockService extends DataMockService<FlowFunctionDto> implements FlowFunctionService {
-  constructor(functions: FlowFunctionDto[], private history: Map<string, Array<FlowFunctionDto & { id: string }>>) {
+  constructor(functions: FlowFunctionDto[], private revisions: FlowFunctionRevision[]) {
     super();
     this.data = functions;
   }
 
-  async getOneWithHistory(fqn: string): Promise<FlowFunctionDto> {
-    const func = await this.getOne(fqn);
-    return Promise.resolve({
-      ...func,
-      history: await Promise.all(
-        func.history.map(async (v) => {
-          const func1 = (await this.getOneById(v)) as FlowFunctionDto & { id: string };
-          return { author: func1.author, createdAt: '', id: func1.id };
-        }),
-      ),
-    });
+  addOne(dto: FlowFunctionDto): Promise<FlowFunctionDto> {
+    const id = randomUUID();
+    this.revisions.push({ ...dto, id, originalId: dto.fqn });
+    return super.addOne(dto);
   }
 
-  rollback(fqn: string, historyId: string): Promise<FlowFunctionDto> {
-    const hist = this.history.get(fqn).find((v: FlowFunctionDto & { id: string }) => v.id === historyId);
+  deleteOne(fqn: string): Promise<any> {
     const index = this.data.findIndex((v) => v.fqn === fqn);
-    hist.current = hist.id;
-    this.data[index] = hist;
-    return Promise.resolve(hist);
+    this.data.splice(index, 1);
+    this.revisions
+      .filter((revision) => revision.originalId === fqn)
+      .forEach((revision) => {
+        const index = this.revisions.indexOf(revision);
+        this.revisions.splice(index, 1);
+      });
+    return Promise.resolve(undefined);
+  }
+
+  async updateOne(fqn: string, dto: FlowFunctionDto): Promise<FlowFunctionDto> {
+    const index = this.data.findIndex((v) => v.fqn === fqn);
+    this.data.splice(index, 1);
+    const flowFunction = await this.addOne(dto);
+    return Promise.resolve(flowFunction);
   }
 
   getOne(fqn: string, options?: any): Promise<FlowFunctionDto> {
@@ -39,12 +44,24 @@ export class FlowFunctionsMockService extends DataMockService<FlowFunctionDto> i
     return this.data.find((v: any) => v.id === id);
   }
 
-  async updateOne(fqn: string, dto: FlowFunctionDto): Promise<FlowFunctionDto> {
-    const id = randomUUID();
-    const exDto = { ...dto, id, current: id };
-    (exDto.history as string[]).push(id);
-    this.history.get(fqn).push(exDto);
+  public getRevisions(fqn: string): Promise<Paginated<FlowFunctionRevision[]>> {
+    const revisions = this.revisions.filter((revision) => revision.originalId === fqn);
+    const page: Paginated<FlowFunctionRevision[]> = {
+      docs: revisions,
+      limit: Number.MAX_SAFE_INTEGER,
+      total: revisions.length,
+    };
+    return Promise.resolve(page);
+  }
 
-    return exDto;
+  public rollback(fqn: string, revisionId: string): Promise<FlowFunctionDto> {
+    const assetType = this.revisions.find((revision) => revision.id === revisionId);
+    return Promise.resolve(assetType);
+  }
+
+  public deleteRevision(fqn: string, revisionId: string): Promise<any> {
+    const index = this.revisions.findIndex((revision) => revision.id === revisionId);
+    this.revisions.splice(index, 1);
+    return Promise.resolve(revisionId);
   }
 }

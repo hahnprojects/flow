@@ -5,14 +5,34 @@ import { AssetService } from '../asset.service';
 import { Paginated, RequestParameter } from '../data.interface';
 import { MockAPI } from './api.mock';
 import { DataMockService } from './data.mock.service';
+import { randomUUID } from 'crypto';
 
 export class AssetMockService extends DataMockService<Asset> implements AssetService {
-  private revisions: AssetRevision[] = [];
-
-  constructor(private api: MockAPI, assets: Asset[], revisions: AssetRevision[]) {
+  constructor(private api: MockAPI, assets: Asset[], private revisions: AssetRevision[]) {
     super();
     this.data = assets;
-    this.revisions = revisions;
+  }
+
+  addOne(dto: Asset): Promise<Asset> {
+    const id = randomUUID();
+    this.revisions.push({ ...dto, originalId: dto.id });
+    return super.addOne(dto);
+  }
+
+  deleteOne(assetId: string): Promise<any> {
+    this.revisions
+      .filter((revision) => revision.originalId === assetId)
+      .forEach((revision) => {
+        const index = this.revisions.indexOf(revision);
+        this.revisions.splice(index, 1);
+      });
+    return super.deleteOne(assetId);
+  }
+
+  async updateOne(assetId: string, dto: Asset): Promise<Asset> {
+    await super.deleteOne(assetId);
+    const asset = await this.addOne(dto);
+    return Promise.resolve(asset);
   }
 
   async addAttachment(id: string, form: FormData): Promise<Asset> {
@@ -26,13 +46,24 @@ export class AssetMockService extends DataMockService<Asset> implements AssetSer
     return this.getManyFiltered({ parent: assetId }, params);
   }
 
-  public findRevisions(assetId: string): Promise<Paginated<AssetRevision[]>> {
-    const newData = this.revisions.filter((revision) => revision.originalId === assetId);
+  public getRevisions(assetId: string): Promise<Paginated<AssetRevision[]>> {
+    const revisions = this.revisions.filter((revision) => revision.originalId === assetId);
     const page: Paginated<AssetRevision[]> = {
-      docs: newData,
+      docs: revisions,
       limit: Number.MAX_SAFE_INTEGER,
-      total: newData.length,
+      total: revisions.length,
     };
     return Promise.resolve(page);
+  }
+
+  public rollback(assetId: string, revisionId: string): Promise<Asset> {
+    const asset = this.revisions.find((revision) => revision.id === revisionId);
+    return Promise.resolve(asset);
+  }
+
+  public deleteRevision(assetId: string, revisionId: string): Promise<any> {
+    const index = this.revisions.findIndex((revision) => revision.id === revisionId);
+    this.revisions.splice(index, 1);
+    return Promise.resolve(revisionId);
   }
 }

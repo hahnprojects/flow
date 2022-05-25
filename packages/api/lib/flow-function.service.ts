@@ -1,6 +1,7 @@
 import { DataService } from './data.service';
 import { FlowFunctionDto } from './flow-function.interface';
 import { HttpClient } from './http.service';
+import { Paginated } from './data.interface';
 
 export class FlowFunctionService extends DataService<FlowFunctionDto> {
   constructor(httpClient: HttpClient) {
@@ -13,11 +14,15 @@ export class FlowFunctionService extends DataService<FlowFunctionDto> {
     return Promise.all(reqs);
   }
 
-  public getOneWithHistory(fqn: string) {
-    return this.httpClient.get<FlowFunctionDto>(`${this.basePath}/${fqn}/history`);
+  public getRevisions(fqn: string): Promise<Paginated<FlowFunctionDto[]>> {
+    return this.httpClient.get<Paginated<FlowFunctionDto[]>>(`${this.basePath}/${fqn}/revisions`);
   }
 
-  public rollback(fqn: string, historyId: string) {
-    return this.httpClient.put<FlowFunctionDto>(`${this.basePath}/${fqn}/rollback/${historyId}`, {});
+  public rollback(fqn: string, revisionId: string): Promise<FlowFunctionDto> {
+    return this.httpClient.put<FlowFunctionDto>(`${this.basePath}/${fqn}/rollback`, { revisionId });
+  }
+
+  public deleteRevision(fqn: string, revisionId: string): Promise<any> {
+    return this.httpClient.delete(`${this.basePath}/${fqn}/revisions/${revisionId}`);
   }
 }

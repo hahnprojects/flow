@@ -23,7 +23,15 @@ export class AssetService extends DataService<Asset> {
     return this.getManyFiltered({ parent: assetId }, params);
   }
 
-  public findRevisions(assetId: string): Promise<Paginated<AssetRevision[]>> {
+  public getRevisions(assetId: string): Promise<Paginated<AssetRevision[]>> {
     return this.httpClient.get<Paginated<AssetRevision[]>>(`${this.basePath}/${assetId}/revisions`);
+  }
+
+  public rollback(assetId: string, revisionId: string): Promise<Asset> {
+    return this.httpClient.put<Asset>(`${this.basePath}/${assetId}/rollback`, { revisionId });
+  }
+
+  public deleteRevision(assetId: string, revisionId: string): Promise<any> {
+    return this.httpClient.delete(`${this.basePath}/${assetId}/revisions/${revisionId}`);
   }
 }

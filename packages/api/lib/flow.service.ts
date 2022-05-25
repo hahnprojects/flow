@@ -29,14 +29,26 @@ export class FlowService extends DataService<FlowDto> {
     return this.httpClient.get<FlowDto>(`${this.basePath}/diagram/${diagramId}`);
   }
 
-  public getRevisions(id: string): Promise<FlowDiagram[]> {
+  public getDiagramRevisions(id: string): Promise<FlowDiagram[]> {
     return this.httpClient.get<FlowDiagram[]>(`${this.basePath}/${id}/revisions`);
   }
 
   public async isDeploymentOnLatestDiagramVersion(depl: FlowDeployment): Promise<boolean> {
     const flowId = typeof depl.flow === 'string' ? depl.flow : depl.flow.id;
     const diagramId = typeof depl.diagram === 'string' ? depl.diagram : depl.diagram.id;
-    const revisions = await this.getRevisions(flowId);
+    const revisions = await this.getDiagramRevisions(flowId);
     return revisions.reverse()[0].id === diagramId;
+  }
+
+  public getRevisions(id: string): Promise<Paginated<FlowDto[]>> {
+    return this.httpClient.get<Paginated<FlowDto[]>>(`${this.basePath}/${id}/revisions`);
+  }
+
+  public rollback(id: string, revisionId: string): Promise<FlowDto> {
+    return this.httpClient.put<FlowDto>(`${this.basePath}/${id}/rollback`, { revisionId });
+  }
+
+  public deleteRevision(id: string, revisionId: string): Promise<any> {
+    return this.httpClient.delete(`${this.basePath}/${id}/revisions/${revisionId}`);
   }
 }
