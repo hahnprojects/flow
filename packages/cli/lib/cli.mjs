@@ -15,7 +15,7 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import ora from 'ora';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 
 import { getAccessToken, login, logout } from './auth.mjs';
 import { handleApiError, handleConvertedOutput, logger, prepareTsFile } from './utils.mjs';
@@ -36,7 +36,7 @@ if (process.env.https_proxy || process.env.http_proxy) {
 let apiToken;
 let projectsRoot = 'modules';
 
-const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json')));
 
 const CMD = {
   AUDIT: 'audit',
@@ -533,8 +533,8 @@ async function publishModule(project, baseUrl = BASE_URL) {
           ...form.getHeaders(),
           Authorization: `Bearer ${apiToken}`,
         },
-        maxBodyLength: Infinity,
-        maxContentLength: Infinity,
+        maxBodyLength: Number.POSITIVE_INFINITY,
+        maxContentLength: Number.POSITIVE_INFINITY,
       });
 
       logger.ok(`Module "${project.name}" published!`);
