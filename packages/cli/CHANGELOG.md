@@ -1,5 +1,13 @@
 # @hahnpro/flow-cli
 
+## 2.14.3
+
+### Patch Changes
+
+- a457345: - changed error behavior when commands are missing required options
+  - bound cli version to package.json version
+  - fixed bug where updating modules failed if the zip file was to big
+
 ## 2.14.2
 
 ### Patch Changes
