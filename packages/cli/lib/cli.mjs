@@ -15,6 +15,7 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import ora from 'ora';
+import { fileURLToPath } from 'node:url';
 
 import { getAccessToken, login, logout } from './auth.mjs';
 import { handleApiError, handleConvertedOutput, logger, prepareTsFile } from './utils.mjs';
@@ -22,6 +23,9 @@ import { handleApiError, handleConvertedOutput, logger, prepareTsFile } from './
 const require = createRequire(import.meta.url);
 const BASE_URL = process.env.BASE_URL || process.env.PLATFORM_URL;
 const BUILD_DIR = process.env.BUILD_DIR || 'dist';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let axios = Axios;
 if (process.env.https_proxy || process.env.http_proxy) {
@@ -31,6 +35,8 @@ if (process.env.https_proxy || process.env.http_proxy) {
 
 let apiToken;
 let projectsRoot = 'modules';
+
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json')));
 
 const CMD = {
   AUDIT: 'audit',
@@ -46,7 +52,7 @@ const CMD = {
 const program = new Command();
 
 program
-  .version('2.13.0', '-v, --version')
+  .version(packageJson.version, '-v, --version')
   .usage('[command] [options]')
   .description('Flow Module Management Tool')
   .on('--help', () => {});
@@ -112,11 +118,7 @@ program
   .description('Lint project files')
   .action(async (projectName) => {
     try {
-      let project;
-      if (projectName === 'all') {
-        project = { location: '.' };
-      }
-      project = await findProject(projectName);
+      const project = await findProject(projectName);
       await exec(CMD.LINT, project);
     } catch (error) {
       if (error) logger.log(error);
@@ -124,10 +126,11 @@ program
     }
   });
 
+// if BASE_URL is not given and --url is not specified this correctly throws an error
 program
   .command('login')
-  .option('--url <url>', 'URL of target platform')
-  .option('-r, --realm <realm>', 'Auth realm of target platform')
+  .requiredOption('--url <url>', 'URL of target platform', process.env.BASE_URL)
+  .requiredOption('-r, --realm <realm>', 'Auth realm of target platform', process.env.REALM)
   .description('Authenticate against platform')
   .action(async (options) => {
     try {
@@ -141,7 +144,7 @@ program
 
 program
   .command('logout')
-  .option('--url <url>', 'URL of target platform')
+  .requiredOption('--url <url>', 'URL of target platform', process.env.BASE_URL)
   .description('Remove authentication data')
   .action(async (options) => {
     try {
@@ -186,8 +189,8 @@ program
 
 program
   .command('publish-module [projectName]')
-  .option('--url <url>', 'URL of target platform')
-  .option('-r, --realm <realm>', 'Auth realm of target platform')
+  .requiredOption('--url <url>', 'URL of target platform', process.env.BASE_URL)
+  .requiredOption('-r, --realm <realm>', 'Auth realm of target platform', process.env.REALM)
   .option('-f, --functions', 'publish flow functions')
   .option('-u, --update', 'update existing flow functions')
   .option('-s, --skip', 'skip modules that already exists with the current version')
@@ -240,8 +243,8 @@ program
 
 program
   .command('publish-functions [projectName]')
-  .option('--url <url>', 'URL of target platform')
-  .option('-r, --realm <realm>', 'Auth realm of target platform')
+  .requiredOption('--url <url>', 'URL of target platform', process.env.BASE_URL)
+  .requiredOption('-r, --realm <realm>', 'Auth realm of target platform', process.env.REALM)
   .option('-u, --update', 'update existing flow functions')
   .description('Publishes all Flow Functions inside specified Module to Cloud Platform')
   .action(async (projectName, options) => {
@@ -530,6 +533,8 @@ async function publishModule(project, baseUrl = BASE_URL) {
           ...form.getHeaders(),
           Authorization: `Bearer ${apiToken}`,
         },
+        maxBodyLength: Number.POSITIVE_INFINITY,
+        maxContentLength: Number.POSITIVE_INFINITY,
       });
 
       logger.ok(`Module "${project.name}" published!`);
