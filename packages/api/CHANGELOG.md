@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 3.0.0
+
+### Major Changes
+
+- 2c6d6f9: added revision functionality for AM and FS
+
 ## 2.3.1
 
 ### Patch Changes
