@@ -142,6 +142,6 @@ function checkEnvironment(values) {
     }
   }
   if (missing) {
-    throw new Error('Missing environment varialbes');
+    throw new Error('Missing environment variables');
   }
 }
