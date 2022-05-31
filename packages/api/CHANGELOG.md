@@ -5,10 +5,10 @@
 ### Major Changes
 
 - 2c6d6f9: added revision functionality for AM and FS
-  - added *getRevisions*, *rollback* and *deleteRevision* methods to the services of assets, assettypes, flow-functions and flows. (renamed *findRevisions* of asset service to *getRevisions*)
-  - renamed old *getRevisions* method of flow service to *getDiagramRevisions*
-  - removed *getOneWithHistory* method of flow-function service and the history and current attributes of flow-functions
-  - added revision inits and the changes above to api mock and mock services too
+  - added *getRevisions*, *rollback* and *deleteRevision* methods to the services of assets, assettypes, flow-functions and flows
+  - **BREAKING** renamed *findRevisions* of asset service to *getRevisions*
+  - **BREAKING** renamed old *getRevisions* method of flow service to *getDiagramRevisions*
+  - **BREAKING** removed *getOneWithHistory* method of flow-function service and the history and current attributes of flow-functions (use *getRevisions* instead)
 
 ## 2.3.1
 
