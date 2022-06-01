@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.20.13
+
+### Patch Changes
+
+- f6c5171: update all non-major dependencies
+
 ## 4.20.12
 
 ### Patch Changes
