@@ -7,10 +7,11 @@ export interface AmqpConnection {
   managedChannel: ChannelWrapper;
   managedConnection: AmqpConnectionManager;
   createSubscriber<T>(
-    handler: (msg: T | undefined, rawMessage?: ConsumeMessage) => Promise<any | undefined>,
+    handler: (msg: T | undefined, rawMessage?: ConsumeMessage) => Promise<any | undefined | void>,
     msgOptions: MessageHandlerOptions,
+    originalHandlerName: string,
   ): Promise<void>;
-  publish(exchange: string, routingKey: string, message: any, options?: Options.Publish): Promise<void>;
+  publish(exchange: string, routingKey: string, message: any, options?: Options.Publish): void;
 }
 
 export class Nack {
