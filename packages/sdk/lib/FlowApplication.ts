@@ -86,11 +86,15 @@ export class FlowApplication {
       }
 
       try {
-        await this.amqpConnection.createSubscriber((msg: any) => this.onMessage(msg), {
-          exchange: 'deployment',
-          routingKey: this.context.deploymentId,
-          queueOptions: { durable: false, exclusive: true },
-        });
+        await this.amqpConnection.createSubscriber(
+          (msg: any) => this.onMessage(msg),
+          {
+            exchange: 'deployment',
+            routingKey: this.context.deploymentId,
+            queueOptions: { durable: false, exclusive: true },
+          },
+          'FlowApplication.onMessage',
+        );
       } catch (err) {
         logErrorAndExit(`Could not subscribe to deployment exchange: ${err}`);
         return;
@@ -285,7 +289,11 @@ export class FlowApplication {
           contentType: 'application/json',
           data: { deploymentId: this.context.deploymentId, status: 'updated' },
         };
-        this.amqpConnection?.publish('deployment', 'health', statusEvent).catch((err) => this.logger.error(err));
+        try {
+          this.amqpConnection?.publish('deployment', 'health', statusEvent);
+        } catch (err) {
+          this.logger.error(err);
+        }
       } catch (err) {
         this.logger.error(err);
 
@@ -296,7 +304,11 @@ export class FlowApplication {
           contentType: 'application/json',
           data: { deploymentId: this.context.deploymentId, status: 'updating failed' },
         };
-        this.amqpConnection?.publish('deployment', 'health', statusEvent).catch((err) => this.logger.error(err));
+        try {
+          this.amqpConnection?.publish('deployment', 'health', statusEvent);
+        } catch (e) {
+          this.logger.error(e);
+        }
       }
     } else if (event.type === 'com.flowstudio.deployment.message') {
       const data = event.data as DeploymentMessage;
@@ -320,7 +332,7 @@ export class FlowApplication {
    * Publish a flow event to the amqp flowlogs exchange.
    * If the event size exceeds the limit it will be truncated
    */
-  public publishEvent = (event: FlowEvent): Promise<void> => {
+  public publishEvent = (event: FlowEvent): void => {
     if (!this.amqpConnection) {
       return;
     }

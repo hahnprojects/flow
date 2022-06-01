@@ -45,7 +45,7 @@ export class FlowLogger implements Logger {
   constructor(
     private readonly metadata: FlowElementContext,
     private readonly logger: Logger = defaultLogger,
-    private readonly publishEvent?: (event: FlowEvent) => Promise<void>,
+    private readonly publishEvent?: (event: FlowEvent) => void,
   ) {}
 
   public debug = (message, options?: LoggerOptions) => this.publish(message, 'debug', options);
@@ -57,7 +57,7 @@ export class FlowLogger implements Logger {
   private publish(message, level: string, options: LoggerOptions) {
     if (this.publishEvent) {
       const event = new FlowEvent(this.metadata, message, `flow.log.${level}`);
-      this.publishEvent(event)?.catch((err) => this.logger.error(err, this.metadata));
+      this.publishEvent(event);
     }
     // ensure correct message if message is an object
     // has no real effect if message is already a string
