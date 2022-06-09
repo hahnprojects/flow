@@ -5,7 +5,7 @@ importers:
   .:
     specifiers:
       '@changesets/cli': ^2.22.0
-      '@types/jest': ^27.5.2
+      '@types/jest': ^28.1.1
       '@types/node': ^16.11.39
       '@typescript-eslint/eslint-plugin': ^5.27.1
       '@typescript-eslint/parser': ^5.27.1
@@ -22,7 +22,7 @@ importers:
       typescript: ^4.7.3
     devDependencies:
       '@changesets/cli': 2.22.0
-      '@types/jest': 27.5.2
+      '@types/jest': 28.1.1
       '@types/node': 16.11.39
       '@typescript-eslint/eslint-plugin': 5.27.1_aq7uryhocdbvbqum33pitcm3y4
       '@typescript-eslint/parser': 5.27.1_ud6rd4xtew5bv4yhvkvu24pzm4
@@ -45,7 +45,7 @@ importers:
       '@hahnpro/flow-sdk': workspace:*
       '@nestjs/common': ^8.4.6
       '@nestjs/core': ^8.4.6
-      '@types/jest': ^27.5.2
+      '@types/jest': ^28.1.1
       '@types/node': ^16.11.39
       '@typescript-eslint/eslint-plugin': ^5.27.1
       '@typescript-eslint/parser': ^5.27.1
@@ -70,7 +70,7 @@ importers:
       '@hahnpro/flow-cli': link:../packages/cli
       '@nestjs/common': 8.4.6_ilikvm6h45uttjv3bneyjhbbs4
       '@nestjs/core': 8.4.6_qna2ix3wuyhvmc56wewcijj25m
-      '@types/jest': 27.5.2
+      '@types/jest': 28.1.1
       '@types/node': 16.11.39
       '@typescript-eslint/eslint-plugin': 5.27.1_aq7uryhocdbvbqum33pitcm3y4
       '@typescript-eslint/parser': 5.27.1_ud6rd4xtew5bv4yhvkvu24pzm4
@@ -107,7 +107,7 @@ importers:
   packages/cli:
     specifiers:
       '@types/express': ^4.17.13
-      '@types/jest': ^27.5.2
+      '@types/jest': ^28.1.1
       '@types/nconf': ^0.10.2
       '@types/node': ^16.11.39
       archiver: ^5.3.1
@@ -162,7 +162,7 @@ importers:
       ts-node: 10.8.1_pjlhwcktroxhni6x7uirug5lya
     devDependencies:
       '@types/express': 4.17.13
-      '@types/jest': 27.5.2
+      '@types/jest': 28.1.1
       '@types/nconf': 0.10.2
       '@types/node': 16.11.39
       eslint: 8.17.0
@@ -178,7 +178,7 @@ importers:
       '@nestjs/common': ^8.4.6
       '@types/amqp-connection-manager': ^2.0.12
       '@types/amqplib': ^0.8.2
-      '@types/jest': ^27.5.2
+      '@types/jest': ^28.1.1
       '@types/lodash': ^4.14.182
       '@types/node': ^16.11.39
       amqp-connection-manager: ^3.9.0
@@ -215,7 +215,7 @@ importers:
       '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
       '@types/amqp-connection-manager': 2.0.12
       '@types/amqplib': 0.8.2
-      '@types/jest': 27.5.2
+      '@types/jest': 28.1.1
       '@types/lodash': 4.14.182
       '@types/node': 16.11.39
       class-validator-jsonschema: 3.1.1_e6kgdsnyya5caxg3ysdyxrqm7a
@@ -1415,8 +1415,8 @@ packages:
       '@types/istanbul-lib-report': 3.0.0
     dev: true
 
-  /@types/jest/27.5.2:
-    resolution: {integrity: sha512-mpT8LJJ4CMeeahobofYWIjFo0xonRS/HfxnVEPMPFSQdGUt1uHCnoPT7Zhb+sjDU2wz0oKV0OLUR0WzrHNgfeA==}
+  /@types/jest/28.1.1:
+    resolution: {integrity: sha512-C2p7yqleUKtCkVjlOur9BWVA4HgUQmEj/HWCt5WzZ5mLXrWnyIfl0wGuArc+kBXsy0ZZfLp+7dywB4HtSVYGVA==}
     dependencies:
       jest-matcher-utils: 27.5.1
       pretty-format: 27.5.1
