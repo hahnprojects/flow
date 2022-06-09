@@ -53,7 +53,7 @@ describe('API test', () => {
         }
       }
 
-      const asset = assets.docs[assets.docs.length -1];
+      const asset = assets.docs[assets.docs.length - 1];
       const deleted = await api.assets.deleteOne(asset.id);
       expect(deleted.id).toEqual(asset.id);
       expect(deleted.deletedAt).toBeDefined();

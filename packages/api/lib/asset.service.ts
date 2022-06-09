@@ -18,7 +18,7 @@ export class AssetService extends DataService<Asset> {
     return this.httpClient.put<Asset>(`${this.basePath}/paperbin/restore/${id}`, {});
   }
 
-  public emptyTrash(offset: number): Promise<{ acknowledged: boolean, deletedCount: number }> {
+  public emptyTrash(offset: number): Promise<{ acknowledged: boolean; deletedCount: number }> {
     return this.httpClient.delete(`${this.basePath}/paperbin/clean`, { params: { offset } });
   }
 

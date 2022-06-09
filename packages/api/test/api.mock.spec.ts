@@ -9,7 +9,10 @@ dotenv.config();
 /* eslint-disable no-console */
 describe('Mock-API test', () => {
   const api = new MockAPI({
-    assets: [{ id: 'asset1', name: 'testAsset', type: { id: 'testId', name: 'testType' } }, { id: 'asset2', name: 'deleteAsset', type: { id: 'testId', name: 'testType' } }],
+    assets: [
+      { id: 'asset1', name: 'testAsset', type: { id: 'testId', name: 'testType' } },
+      { id: 'asset2', name: 'deleteAsset', type: { id: 'testId', name: 'testType' } },
+    ],
     assetRevisions: [{ id: 'assetRevision1', originalId: 'asset1', name: 'testAssetRevision', type: { id: 'testId', name: 'testType' } }],
     contents: [
       { id: 'content1', filename: 'testContent.txt', filePath: __dirname, mimetype: 'text/plain' },
@@ -77,7 +80,7 @@ describe('Mock-API test', () => {
         }
       }
 
-      const asset = assets.docs[assets.docs.length -1];
+      const asset = assets.docs[assets.docs.length - 1];
       const deleted = await api.assets.deleteOne(asset.id);
       expect(deleted.id).toEqual(asset.id);
       expect(deleted.deletedAt).toBeDefined();

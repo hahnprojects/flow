@@ -13,9 +13,9 @@ export class AssetMockService extends DataMockService<Asset> implements AssetSer
   }
 
   public paperBinRestoreAll(): Promise<Asset[]> {
-    const deleted = this.data.filter(v => v.deletedAt);
+    const deleted = this.data.filter((v) => v.deletedAt);
     for (const asset of deleted) {
-      delete asset.deletedAt
+      delete asset.deletedAt;
     }
     return Promise.resolve(deleted);
   }
@@ -26,14 +26,13 @@ export class AssetMockService extends DataMockService<Asset> implements AssetSer
     return Promise.resolve(deleted);
   }
 
-  public emptyTrash(offset: number): Promise<{ acknowledged: boolean; deletedCount: number; }> {
+  public emptyTrash(offset: number): Promise<{ acknowledged: boolean; deletedCount: number }> {
     const dateOffsSeconds = Math.round(new Date().getTime() / 1000) - offset;
     const date = new Date(dateOffsSeconds * 1000);
     const trash = this.data.filter((v) => new Date(v.deletedAt) < date);
     trash.map((v) => this.deleteOne(v.id));
     return Promise.resolve({ acknowledged: true, deletedCount: trash.length });
   }
-
 
   public getPaperBin(params?: RequestParameter): Promise<Paginated<Asset[]>> {
     const page = this.getAssets(params, true);
@@ -56,7 +55,7 @@ export class AssetMockService extends DataMockService<Asset> implements AssetSer
   }
 
   deleteOne(assetId: string, force = false): Promise<Asset> {
-    const asset = this.data.find((v) => v.id === assetId)
+    const asset = this.data.find((v) => v.id === assetId);
     if (!asset?.deletedAt && !force) {
       // put asset in paper bin by setting deletedAt prop
       asset.deletedAt = new Date().toISOString();
