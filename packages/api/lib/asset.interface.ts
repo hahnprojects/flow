@@ -38,6 +38,7 @@ export interface Asset {
   actions?: string[];
   author?: string;
   revision?: number;
+  deletedAt?: string;
 }
 
 export type AssetRevision = Asset & { originalId: string };

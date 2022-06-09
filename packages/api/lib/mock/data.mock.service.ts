@@ -20,8 +20,9 @@ export class DataMockService<T> extends DataService<T> {
 
   deleteOne(id: string): Promise<any> {
     const index = this.data.findIndex((v: any) => v.id === id);
+    const obj = this.data[index];
     this.data.splice(index, 1);
-    return Promise.resolve(undefined);
+    return Promise.resolve(obj);
   }
 
   getMany(params?: RequestParameter): Promise<Paginated<T[]>> {
