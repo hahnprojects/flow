@@ -52,6 +52,32 @@ describe('API test', () => {
           expect(revision.type).toHaveProperty('id');
         }
       }
+
+      const asset = assets.docs[assets.docs.length - 1];
+      const deleted = await api.assets.deleteOne(asset.id);
+      expect(deleted.id).toEqual(asset.id);
+      expect(deleted.deletedAt).toBeDefined();
+
+      assets = await api.assets.getMany();
+      expect(assets).toBeDefined();
+      expect(assets.docs.includes(deleted)).toBe(false);
+
+      let trash = await api.assets.getPaperBin();
+      expect(trash.docs.includes(deleted)).toBe(true);
+
+      await api.assets.paperBinRestoreOne(trash.docs[0].id);
+
+      trash = await api.assets.getPaperBin();
+      assets = await api.assets.getMany();
+      expect(trash.docs.includes(deleted)).toBe(false);
+      expect(assets.docs.includes(deleted)).toBe(true);
+
+      await api.assets.deleteOne(asset.id, true);
+
+      trash = await api.assets.getPaperBin();
+      assets = await api.assets.getMany();
+      expect(trash.docs.includes(deleted)).toBe(false);
+      expect(assets.docs.includes(deleted)).toBe(false);
     }
   }, 60000);
 

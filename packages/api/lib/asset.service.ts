@@ -10,6 +10,28 @@ export class AssetService extends DataService<Asset> {
     super(httpClient, '/assets');
   }
 
+  public paperBinRestoreAll(): Promise<Asset[]> {
+    return this.httpClient.put<Asset[]>(`${this.basePath}/paperbin/restore`, {});
+  }
+
+  public paperBinRestoreOne(id: string): Promise<Asset> {
+    return this.httpClient.put<Asset>(`${this.basePath}/paperbin/restore/${id}`, {});
+  }
+
+  public emptyTrash(offset: number): Promise<{ acknowledged: boolean; deletedCount: number }> {
+    return this.httpClient.delete(`${this.basePath}/paperbin/clean`, { params: { offset } });
+  }
+
+  public getPaperBin(params: RequestParameter = {}): Promise<Paginated<Asset[]>> {
+    params.limit = params.limit || 0;
+    params.page = params.page || 1;
+    return this.httpClient.get(`${this.basePath}/paperbin`, { params });
+  }
+
+  public deleteOne(id: string, force = false): Promise<any> {
+    return this.httpClient.delete(`${this.basePath}/${id}`, { params: { force } });
+  }
+
   public addAttachment = (id: string, form: FormData): Promise<Asset> => {
     const headers = { ...form.getHeaders() };
     return this.httpClient.post<Asset>(`${this.basePath}/${id}/attachment`, form, {
