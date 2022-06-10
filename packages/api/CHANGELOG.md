@@ -1,14 +1,20 @@
 # @hahnpro/hpc-api
 
+## 3.1.0
+
+### Minor Changes
+
+- d95c007: added function for interaction with asset-paperbin API
+
 ## 3.0.0
 
 ### Major Changes
 
 - 2c6d6f9: added revision functionality for AM and FS
-  - added *getRevisions*, *rollback* and *deleteRevision* methods to the services of assets, assettypes, flow-functions and flows
-  - **BREAKING** renamed *findRevisions* of asset service to *getRevisions*
-  - **BREAKING** renamed old *getRevisions* method of flow service to *getDiagramRevisions*
-  - **BREAKING** removed *getOneWithHistory* method of flow-function service and the history and current attributes of flow-functions (use *getRevisions* instead)
+  - added _getRevisions_, _rollback_ and _deleteRevision_ methods to the services of assets, assettypes, flow-functions and flows
+  - **BREAKING** renamed _findRevisions_ of asset service to _getRevisions_
+  - **BREAKING** renamed old _getRevisions_ method of flow service to _getDiagramRevisions_
+  - **BREAKING** removed _getOneWithHistory_ method of flow-function service and the history and current attributes of flow-functions (use _getRevisions_ instead)
 
 ## 2.3.1
 
