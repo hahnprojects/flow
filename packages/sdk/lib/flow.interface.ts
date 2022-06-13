@@ -45,3 +45,9 @@ export interface StreamOptions {
 }
 
 export type ClassType<T> = new (...args: any[]) => T;
+
+export enum LifecycleEvent {
+  ACTIVATED = 'com.hahnpro.flow_function.activated',
+  COMPLETED = 'com.hahnpro.flow_function.completed',
+  TERMINATED = 'com.hahnpro.flow_function.terminated',
+}

@@ -195,7 +195,6 @@ importers:
       rxjs: ^7.5.5
       string-interp: ^0.3.6
       typescript: ^4.7.3
-      uuid: ^8.3.2
     dependencies:
       '@hahnpro/hpc-api': link:../api
       amqp-connection-manager: 3.9.0_amqplib@0.10.0
@@ -209,7 +208,6 @@ importers:
       reflect-metadata: 0.1.13
       rxjs: 7.5.5
       string-interp: 0.3.6
-      uuid: 8.3.2
     devDependencies:
       '@golevelup/nestjs-rabbitmq': 2.4.0_ubvf3zpnfxbng4ysgp4z2vcq64
       '@nestjs/common': 8.4.6_kgmvgmqc4iohdboj3f7yqhrie4
@@ -5371,7 +5369,7 @@ packages:
       string_decoder: 0.10.31
 
   /readable-stream/1.1.14:
-    resolution: {integrity: sha512-+MeVjFf4L44XUkhM1eYbD8fyEsxcV81pqMSR5gblfcLCHfZvbrqy4/qYHE+/R5HoBUT11WV5O08Cr1n3YXkWVQ==}
+    resolution: {integrity: sha1-fPTFTvZI44EwhMY23SB54WbAgdk=}
     dependencies:
       core-util-is: 1.0.3
       inherits: 2.0.4
@@ -5473,7 +5471,7 @@ packages:
     dev: true
 
   /requires-port/1.0.0:
-    resolution: {integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==}
+    resolution: {integrity: sha1-kl0mAdOaxIXgkc8NpcbmlNw9yv8=}
 
   /resolve-cwd/3.0.0:
     resolution: {integrity: sha512-OrZaX2Mb+rJCpH/6CpSqt9xFVpN++x01XnN2ie9g6P5/3xelLAkXWVADpdz1IHD/KFfEXyE6V0U01OQ3UO2rEg==}
@@ -5914,7 +5912,7 @@ packages:
     dev: true
 
   /text-table/0.2.0:
-    resolution: {integrity: sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=}
+    resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
     dev: true
 
   /thingtalk-units/0.2.1:
@@ -5943,7 +5941,7 @@ packages:
     dev: true
 
   /to-fast-properties/2.0.0:
-    resolution: {integrity: sha1-3F5pjL0HkmW8c+A3doGk5Og/YW4=}
+    resolution: {integrity: sha512-/OaKK0xYrs3DmxRYqL/yDc+FxFUVYhDlXMhRmv3z915w2HF1tnN1omB354j8VUGO/hbRzyD6Y3sA7v7GS/ceog==}
     engines: {node: '>=4'}
     dev: true
 
@@ -6000,7 +5998,7 @@ packages:
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 28.1.1_@types+node@16.11.39
+      jest: 28.1.1_sxvwizcnvn4mgz6mpodobsoami
       jest-util: 28.1.0
       json5: 2.2.1
       lodash.memoize: 4.1.2

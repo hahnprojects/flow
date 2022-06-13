@@ -1,18 +1,18 @@
 import 'reflect-metadata';
 
-import type { CloudEvent } from 'cloudevents';
+import { CloudEvent } from 'cloudevents';
 import sizeof from 'object-sizeof';
 import { EventLoopUtilization, performance } from 'perf_hooks';
 import { PartialObserver, Subject } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'crypto';
 import { API } from '@hahnpro/hpc-api';
 
 import { AmqpConnection, Nack } from './amqp';
 import { delay, truncate } from './utils';
-import type { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, StreamOptions } from './flow.interface';
+import { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, LifecycleEvent, StreamOptions } from './flow.interface';
 import type { FlowElement } from './FlowElement';
-import type { FlowEvent } from './FlowEvent';
+import { FlowEvent } from './FlowEvent';
 import { FlowLogger, Logger } from './FlowLogger';
 import { RpcClient } from './RpcClient';
 
@@ -80,6 +80,7 @@ export class FlowApplication {
       try {
         await this.amqpConnection.managedChannel.assertExchange('deployment', 'direct', { durable: true });
         await this.amqpConnection.managedChannel.assertExchange('flowlogs', 'fanout', { durable: true });
+        await this.amqpConnection.managedChannel.assertExchange('flow', 'direct', { durable: true });
       } catch (e) {
         logErrorAndExit(`Could not assert exchanges: ${e}`);
         return;
@@ -157,10 +158,17 @@ export class FlowApplication {
         .pipe(
           tap(() => this.setQueueMetrics(targetStreamId)),
           mergeMap(async (event: FlowEvent) => {
-            this.performanceMap.set(event.getId(), performance.eventLoopUtilization());
+            const eventId = event.getId();
+            this.publishLifecycleEvent(element, eventId, LifecycleEvent.ACTIVATED);
+            this.performanceMap.set(eventId, performance.eventLoopUtilization());
+            const start = performance.now();
             try {
               await element[streamHandler](event);
+              const duration = Math.ceil(performance.now() - start);
+              this.publishLifecycleEvent(element, eventId, LifecycleEvent.COMPLETED, { duration });
             } catch (err) {
+              const duration = Math.ceil(performance.now() - start);
+              this.publishLifecycleEvent(element, eventId, LifecycleEvent.TERMINATED, { duration });
               try {
                 element.handleApiError(err);
               } catch (e) {
@@ -175,9 +183,9 @@ export class FlowApplication {
             if (elu) {
               this.performanceMap.delete(event.getId());
               elu = performance.eventLoopUtilization(elu);
-              if (elu.utilization > 0.7 && elu.active > 1000) {
+              if (elu.utilization > 0.75 && elu.active > 2000) {
                 this.logger.warn(
-                  `High event loop utilization detected for ${targetStreamId} with event ${event.getId()}! Handler has been active for ${Number(
+                  `High event loop utilization detected for ${targetStreamId} with event ${event.getId()}! Handler was active for ${Number(
                     elu.active,
                   ).toFixed(2)}ms with a utilization of ${Number(elu.utilization * 100).toFixed(
                     2,
@@ -192,6 +200,36 @@ export class FlowApplication {
 
     this.logger.log('Flow Deployment is running');
   }
+
+  private publishLifecycleEvent = (
+    element: FlowElement,
+    flowEventId: string,
+    eventType: LifecycleEvent,
+    data: Record<string, any> = {},
+  ) => {
+    if (!this.amqpConnection) {
+      return;
+    }
+    try {
+      const { flowId, deploymentId, id: elementId, functionFqn, inputStreamId } = element.getMetadata();
+      const event = new CloudEvent({
+        source: `flows/${flowId}/deployments/${deploymentId}/elements/${elementId}`,
+        type: eventType,
+        data: {
+          flowEventId,
+          functionFqn,
+          inputStreamId,
+          ...data,
+        },
+        time: new Date().toISOString(),
+      });
+      const message = event.toJSON();
+
+      return this.amqpConnection.publish('flow', 'lifecycle', message);
+    } catch (err) {
+      this.logger.error(err);
+    }
+  };
 
   private setQueueMetrics = (id: string) => {
     const metrics = this.outputQueueMetrics.get(id) || { size: 0, lastAdd: 0, lastRemove: Date.now(), warnings: 0 };

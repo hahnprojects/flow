@@ -54,6 +54,8 @@ export abstract class FlowElement<T = any> {
     this.setProperties(properties);
   };
 
+  public getMetadata = () => this.metadata;
+
   protected setProperties = (properties: T): void => {
     if (this.propertiesClassType) {
       this.properties = this.validateProperties(this.propertiesClassType, properties, this.whitelist);
@@ -156,7 +158,12 @@ export function InputStream(id = 'default', options?: { concurrent?: number; sto
       // add input stream to data to later determine if data should be propagated
       return method.call(
         this,
-        new FlowEvent({ ...event.getMetadata(), inputStreamId: id }, event.getData(), event.getType(), new Date(event.getTime())),
+        new FlowEvent(
+          { id: event.getMetadata().elementId, ...event.getMetadata(), inputStreamId: id },
+          event.getData(),
+          event.getType(),
+          new Date(event.getTime()),
+        ),
       );
     };
   };
