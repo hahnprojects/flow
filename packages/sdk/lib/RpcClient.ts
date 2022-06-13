@@ -1,6 +1,6 @@
 import { ChannelWrapper } from 'amqp-connection-manager';
 import { ConsumeMessage } from 'amqplib';
-import { v4 as uuid } from 'uuid';
+import { randomUUID as uuid } from 'crypto';
 import { AmqpConnection } from './amqp';
 
 export class RpcClient {

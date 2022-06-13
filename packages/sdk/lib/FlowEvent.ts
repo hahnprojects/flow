@@ -5,7 +5,7 @@ import { FlowElementContext } from './flow.interface';
 
 export class FlowEvent {
   private event: CloudEvent;
-  private metadata;
+  private metadata: { deploymentId: string; elementId: string; flowId: string; functionFqn: string; inputStreamId: string };
 
   constructor(metadata: FlowElementContext, data: any, outputId = 'default', time = new Date(), dataType?: string) {
     const { id: elementId, deploymentId, flowId, functionFqn, inputStreamId } = metadata;

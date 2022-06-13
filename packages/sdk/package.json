@@ -41,8 +41,7 @@
     "python-shell": "^3.0.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.5",
-    "string-interp": "^0.3.6",
-    "uuid": "^8.3.2"
+    "string-interp": "^0.3.6"
   },
   "devDependencies": {
     "@golevelup/nestjs-rabbitmq": "^2.4.0",
