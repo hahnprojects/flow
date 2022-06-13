@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.21.0
+
+### Minor Changes
+
+- a6487a4: Publish Flow lifecycle events to allow execution duration tracking for elements
+
 ## 4.20.14
 
 ### Patch Changes
