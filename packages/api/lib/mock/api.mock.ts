@@ -32,6 +32,8 @@ import { FlowModule } from '../flow-module.interface';
 import { FlowModulesMockService } from './flow-modules.mock.service';
 import { Artifact } from '../storage.interface';
 import { randomUUID } from 'crypto';
+import { LabelMockService } from './label.mock.service';
+import { Label } from '../label.interface';
 
 export class MockAPI implements API {
   public httpClient = null;
@@ -45,6 +47,7 @@ export class MockAPI implements API {
   public flowDeployments: FlowDeploymentService;
   public flowFunctions: FlowFunctionService;
   public flowModules: FlowModuleService;
+  public labels: LabelMockService;
   public proxy = null;
   public secrets: SecretMockService;
   public tasks: TaskMockService;
@@ -78,6 +81,7 @@ export class MockAPI implements API {
     functionRevisions?: FlowFunctionRevisionInit[];
     modules?: FlowModuleInit[];
     diagrams?: FlowDiagramInit[];
+    labels?: LabelInit[];
   }) {
     const {
       assets = [],
@@ -96,6 +100,7 @@ export class MockAPI implements API {
       functionRevisions = [],
       modules = [],
       diagrams = [],
+      labels = [],
     } = initData;
     // convert init data to normal data that the services usually use
     const assetTypes: Array<AssetType | string> = assets
@@ -260,6 +265,14 @@ export class MockAPI implements API {
       readWritePermissions: [],
     }));
 
+    const labels1: Label[] = labels.map((label) => ({
+      ...label,
+      color: '',
+      description: '',
+      readPermissions: [],
+      readWritePermissions: [],
+    }));
+
     this.assets = new AssetMockService(this, assets1, assetRevisions1);
     this.contents = new ContentMockService(contents1, contentData);
     this.endpoints = new EndpointMockService(endpoint1);
@@ -272,6 +285,7 @@ export class MockAPI implements API {
     this.flowDeployments = new FlowDeploymentMockService(deployments1, this);
     this.flowFunctions = new FlowFunctionsMockService(functions1, functionRevisions1);
     this.flowModules = new FlowModulesMockService(modules1);
+    this.labels = new LabelMockService(labels1);
 
     this.assetManager = this.assets;
     this.contentManager = this.contents;
@@ -309,6 +323,7 @@ export type FlowFunctionRevisionInit = AtLeast<FlowFunctionRevision, 'fqn' | 'id
 export type FlowModuleInit = Replace<AtLeast<FlowModule, 'name'>, 'artifacts', ArtifactInit[]>;
 export type ArtifactInit = AtLeast<Artifact & { path: string }, 'filename' | 'path'>;
 export type FlowDiagramInit = AtLeast<FlowDiagram, 'id' | 'flow'>;
+export type LabelInit = AtLeast<Label, 'id' | 'name'>;
 
 export interface UserInit {
   roles: string[];

@@ -338,6 +338,35 @@ describe('API test', () => {
       expect(module).toBeDefined();
     }
   }, 60000);
+
+  test('FLOW-API.13 labels', async () => {
+    const labels = await api.labels.getMany().catch((err) => logError(err));
+    expect(labels).toBeDefined();
+
+    if (labels) {
+      expect(Array.isArray(labels.docs)).toBe(true);
+      expect(labels.docs.length).toBeGreaterThan(0);
+      const labelId = labels.docs[0].id;
+      const label = await api.labels.getOne(labelId);
+      expect(label).toBeDefined();
+    }
+
+    const label = await api.labels.getOneByName('e2e');
+    expect(label).toBeDefined();
+    expect(label.name).toBe('e2e');
+
+    const newLabel = await api.labels.addOne({
+      name: 'new label',
+      description: 'label created by api',
+      readWritePermissions: ['user'],
+      readPermissions: [],
+    });
+    expect(newLabel).toBeDefined();
+    expect(newLabel.name).toBe('new label');
+
+    const count = await api.labels.count();
+    expect(count).toBeGreaterThan(0);
+  });
 });
 
 function logError(err: any) {
