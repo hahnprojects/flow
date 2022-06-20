@@ -31,7 +31,7 @@ describe('Mock-API test', () => {
     functionRevisions: [{ fqn: 'test.history.function', id: 'testFuncRevision', originalId: 'testFunc' }],
     deployments: [{ flow: 'flow1', id: '623ae4cedeaf1681711ff3b0', diagram: 'diagram1', refs: [{ id: 'asset1', resourceType: 'asset' }] }],
     modules: [{ name: 'testMod', artifacts: [{ filename: 'test.zip', path: join(__dirname, 'testFile.zip') }] }],
-    labels: [{ id: 'test', name: 'e2e' }]
+    labels: [{ id: 'test', name: 'e2e' }],
   });
 
   // tests copied from api.spec.ts
