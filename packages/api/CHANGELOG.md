@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 3.2.0
+
+### Minor Changes
+
+- 966f2e2: added label service for communication with labels API
+
 ## 3.1.0
 
 ### Minor Changes
