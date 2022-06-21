@@ -14,6 +14,7 @@ import { FlowService } from './flow.service';
 import { FlowFunctionService } from './flow-function.service';
 import { FlowModuleService } from './flow-module.service';
 import { FlowDeploymentService } from './flow-deployment.service';
+import { LabelService } from './label.service';
 
 export class API {
   public httpClient: HttpClient;
@@ -27,6 +28,7 @@ export class API {
   public flowDeployments: FlowDeploymentService;
   public flowFunctions: FlowFunctionService;
   public flowModules: FlowModuleService;
+  public labels: LabelService;
   public proxy: ProxyService;
   public secrets: SecretService;
   public tasks: TaskService;
@@ -109,6 +111,7 @@ export class API {
     this.flowDeployments = new FlowDeploymentService(this.httpClient);
     this.flowFunctions = new FlowFunctionService(this.httpClient);
     this.flowModules = new FlowModuleService(this.httpClient);
+    this.labels = new LabelService(this.httpClient);
     this.proxy = new ProxyService(this.httpClient);
     this.secrets = new SecretService(this.httpClient);
     this.tasks = new TaskService(this.httpClient);
