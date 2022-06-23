@@ -1,5 +1,12 @@
 # @hahnpro/flow-sdk
 
+## 4.21.2
+
+### Patch Changes
+
+- Updated dependencies [e0868c0]
+  - @hahnpro/hpc-api@3.2.1
+
 ## 4.21.1
 
 ### Patch Changes

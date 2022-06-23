@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 3.2.1
+
+### Patch Changes
+
+- e0868c0: added createdAt and updatedAt attributes to Event interface
+
 ## 3.2.0
 
 ### Minor Changes
