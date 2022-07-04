@@ -2,10 +2,16 @@ import { AssetType } from './asset.interface';
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
 import { Paginated } from './data.interface';
+import { TrashService } from './trash.service';
+import { mix } from 'ts-mixer';
 
-export class AssetTypesService extends DataService<AssetType> {
+export interface AssetTypesService extends DataService<AssetType>, TrashService<AssetType> {}
+
+@mix(DataService, TrashService)
+export class AssetTypesService {
   constructor(httpClient: HttpClient) {
-    super(httpClient, '/assettypes');
+    this.setTrashVals(httpClient, '/assettypes');
+    this.init(httpClient, '/assettypes');
   }
 
   public getRevisions(id: string): Promise<Paginated<AssetType[]>> {

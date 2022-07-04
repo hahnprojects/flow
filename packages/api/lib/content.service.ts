@@ -4,10 +4,16 @@ import { Content, ReturnType } from './content.interface';
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
 import { Readable } from 'stream';
+import { TrashService } from './trash.service';
+import { mix } from 'ts-mixer';
 
-export class ContentService extends DataService<Content> {
+export interface ContentService extends DataService<Content>, TrashService<Content> {}
+
+@mix(DataService, TrashService)
+export class ContentService {
   constructor(httpClient: HttpClient) {
-    super(httpClient, '/contents');
+    this.setTrashVals(httpClient, '/contents');
+    this.init(httpClient, '/contents');
   }
 
   upload = (form: FormData): Promise<Content> => {

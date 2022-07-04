@@ -4,4 +4,5 @@ export interface Secret {
   key: string;
   readPermissions: string[];
   readWritePermissions: string[];
+  deletedAt?: string;
 }

@@ -2,10 +2,16 @@ import { Paginated } from './data.interface';
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
 import { TimeSeries, TimeSeriesValue, TS_GROUPS } from './timeseries.interface';
+import { TrashService } from './trash.service';
+import { mix } from 'ts-mixer';
 
-export class TimeSeriesService extends DataService<TimeSeries> {
+export interface TimeSeriesService extends DataService<TimeSeries>, TrashService<TimeSeries> {}
+
+@mix(DataService, TrashService)
+export class TimeSeriesService {
   constructor(httpClient: HttpClient) {
-    super(httpClient, '/tsm');
+    this.setTrashVals(httpClient, '/tsm');
+    this.init(httpClient, '/tsm');
   }
 
   public addValue(id: string, value: { [values: string]: any }) {

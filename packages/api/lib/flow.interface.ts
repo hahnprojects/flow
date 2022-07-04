@@ -26,5 +26,5 @@ export interface FlowDiagram {
   author: string;
   createdAt?: Date | string;
   updatedAt?: Date | string;
-  deleteddAt?: Date | string;
+  deletedAt?: Date | string;
 }

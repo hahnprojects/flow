@@ -1,15 +1,21 @@
 import FormData from 'form-data';
-
 import { Asset, AssetRevision } from './asset.interface';
 import { Paginated, RequestParameter } from './data.interface';
-import { DataService } from './data.service';
 import { HttpClient } from './http.service';
+import { TrashService } from './trash.service';
+import { DataService } from './data.service';
+import { mix } from 'ts-mixer';
 
-export class AssetService extends DataService<Asset> {
+export interface AssetService extends DataService<Asset>, TrashService<Asset> {}
+
+@mix(DataService, TrashService)
+export class AssetService {
   constructor(httpClient: HttpClient) {
-    super(httpClient, '/assets');
+    this.setTrashVals(httpClient, '/assets');
+    this.init(httpClient, '/assets');
   }
 
+  /*
   public paperBinRestoreAll(): Promise<Asset[]> {
     return this.httpClient.put<Asset[]>(`${this.basePath}/paperbin/restore`, {});
   }
@@ -27,6 +33,8 @@ export class AssetService extends DataService<Asset> {
     params.page = params.page || 1;
     return this.httpClient.get(`${this.basePath}/paperbin`, { params });
   }
+
+   */
 
   public deleteOne(id: string, force = false): Promise<any> {
     return this.httpClient.delete(`${this.basePath}/${id}`, { params: { force } });

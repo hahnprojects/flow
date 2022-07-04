@@ -2,7 +2,12 @@ import { DataInterface, Filter, Paginated, RequestParameter } from './data.inter
 import { HttpClient } from './http.service';
 
 export class DataService<T> implements DataInterface<T> {
-  constructor(protected readonly httpClient: HttpClient, protected readonly basePath) {}
+  constructor(protected httpClient: HttpClient, protected basePath) {}
+
+  protected init(httpClient: HttpClient, basePath){
+    this.httpClient = httpClient;
+    this.basePath = basePath;
+  }
 
   public addOne(dto: any): Promise<T> {
     return this.httpClient.post<T>(this.basePath, dto);

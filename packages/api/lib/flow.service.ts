@@ -3,10 +3,16 @@ import { FlowDiagram, FlowDto } from './flow.interface';
 import { HttpClient } from './http.service';
 import { Paginated, RequestParameter } from './data.interface';
 import { FlowDeployment } from './flow-deployment.interface';
+import { TrashService } from './trash.service';
+import { mix } from 'ts-mixer';
 
-export class FlowService extends DataService<FlowDto> {
+export interface FlowService extends DataService<FlowDto>, TrashService<FlowDto> {}
+
+@mix(DataService, TrashService)
+export class FlowService {
   constructor(httpClient: HttpClient) {
-    super(httpClient, '/flows');
+    this.setTrashVals(httpClient, '/flows');
+    this.init(httpClient, '/flows');
   }
 
   // workaround as flow-service does not have a POST /many endpoint

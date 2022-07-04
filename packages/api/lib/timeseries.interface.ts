@@ -13,6 +13,7 @@ export interface TimeSeries {
   tsRef?: [string];
   autoDelData: Date;
   autoDelBucket: Date;
+  deletedAt?: string;
 }
 
 export interface TimeSeriesCondition {

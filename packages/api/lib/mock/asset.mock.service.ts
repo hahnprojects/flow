@@ -5,8 +5,14 @@ import { AssetService } from '../asset.service';
 import { Paginated, RequestParameter } from '../data.interface';
 import { MockAPI } from './api.mock';
 import { DataMockService } from './data.mock.service';
+import { mix } from 'ts-mixer';
+import { TrashMockService } from './trash.mock.service';
 
-export class AssetMockService extends DataMockService<Asset> implements AssetService {
+// TODO: continue here!!!
+export interface AssetMockService extends DataMockService<Asset>, TrashMockService<Asset> {}
+
+@mix(DataMockService, TrashMockService)
+export class AssetMockService implements AssetService {
   constructor(private api: MockAPI, assets: Asset[], private revisions: AssetRevision[]) {
     super();
     this.data = assets;

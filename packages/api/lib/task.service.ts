@@ -1,10 +1,16 @@
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
 import { Task } from './task.interface';
+import { TrashService } from './trash.service';
+import { mix } from 'ts-mixer';
 
-export class TaskService extends DataService<Task> {
+export interface TaskService extends DataService<Task>, TrashService<Task> {}
+
+@mix(DataService, TrashService)
+export class TaskService {
   constructor(httpClient: HttpClient) {
-    super(httpClient, '/tasks');
+    this.setTrashVals(httpClient, '/tasks');
+    this.init(httpClient, '/tasks');
   }
 
   // we may not need this method (already have the addOne method from DataService)
