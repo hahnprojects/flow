@@ -2,10 +2,19 @@ import FormData from 'form-data';
 import { Readable } from 'stream';
 
 import { Content, ReturnType } from '../content.interface';
-import { ContentService } from '../content.service';
 import { DataMockService } from './data.mock.service';
+import { TrashMockService } from './trash.mock.service';
+import { mix, settings } from 'ts-mixer';
+import { Paginated, RequestParameter } from '../data.interface';
 
-export class ContentMockService extends DataMockService<Content> implements ContentService {
+settings.initFunction = 'initMock';
+
+interface MixedClass extends DataMockService<Content>, TrashMockService<Content> {}
+
+@mix(DataMockService, TrashMockService)
+class MixedClass {}
+
+export class ContentMockService extends MixedClass {
   private contentData: Map<string, any> = new Map();
 
   constructor(contents: Content[], contentData: any[]) {
@@ -14,6 +23,13 @@ export class ContentMockService extends DataMockService<Content> implements Cont
     for (let i = 0; i < contents.length; i++) {
       this.contentData.set(contents[i].id, contentData[i]);
     }
+    this.initMock(contents, contentData);
+  }
+
+  public initMock(contents: Content[], contentData: any[]) {
+    this.data = contents;
+    this.initData(null, null);
+    this.initTrash(null, null, contents, this.deleteOne);
   }
 
   download(id: string, raw?: boolean): Promise<Blob | ArrayBuffer>;
@@ -63,6 +79,21 @@ export class ContentMockService extends DataMockService<Content> implements Cont
       case ReturnType.NODESTREAM:
         return Promise.resolve(Readable.from(this.contentData.get(id)));
     }
+  }
+
+  deleteOne(contentId: string, force = false): Promise<Content> {
+    const content = this.data.find((v) => v.id === contentId);
+    if (!content?.deletedAt && !force) {
+      // put content in paper bin by setting deletedAt prop
+      content.deletedAt = new Date().toISOString();
+      return Promise.resolve(content);
+    }
+    return super.deleteOne(contentId);
+  }
+
+  getMany(params?: RequestParameter): Promise<Paginated<Content[]>> {
+    const page = this.getItems(params, false);
+    return Promise.resolve(page);
   }
 
   upload(form: FormData): Promise<Content> {

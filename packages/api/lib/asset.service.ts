@@ -4,37 +4,20 @@ import { Paginated, RequestParameter } from './data.interface';
 import { HttpClient } from './http.service';
 import { TrashService } from './trash.service';
 import { DataService } from './data.service';
-import { mix } from 'ts-mixer';
+import { mix, settings } from 'ts-mixer';
+
+settings.initFunction = 'init';
 
 export interface AssetService extends DataService<Asset>, TrashService<Asset> {}
 
 @mix(DataService, TrashService)
 export class AssetService {
-  constructor(httpClient: HttpClient) {
-    this.setTrashVals(httpClient, '/assets');
-    this.init(httpClient, '/assets');
-  }
+  constructor(httpClient: HttpClient) {}
 
-  /*
-  public paperBinRestoreAll(): Promise<Asset[]> {
-    return this.httpClient.put<Asset[]>(`${this.basePath}/paperbin/restore`, {});
+  init(httpClient: HttpClient) {
+    this.initData(httpClient, '/assets');
+    this.initTrash(httpClient, '/assets');
   }
-
-  public paperBinRestoreOne(id: string): Promise<Asset> {
-    return this.httpClient.put<Asset>(`${this.basePath}/paperbin/restore/${id}`, {});
-  }
-
-  public emptyTrash(offset: number): Promise<{ acknowledged: boolean; deletedCount: number }> {
-    return this.httpClient.delete(`${this.basePath}/paperbin/clean`, { params: { offset } });
-  }
-
-  public getPaperBin(params: RequestParameter = {}): Promise<Paginated<Asset[]>> {
-    params.limit = params.limit || 0;
-    params.page = params.page || 1;
-    return this.httpClient.get(`${this.basePath}/paperbin`, { params });
-  }
-
-   */
 
   public deleteOne(id: string, force = false): Promise<any> {
     return this.httpClient.delete(`${this.basePath}/${id}`, { params: { force } });

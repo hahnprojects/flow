@@ -9,7 +9,5 @@ export interface SecretService extends DataService<Secret>, TrashService<Secret>
 @mix(DataService, TrashService)
 export class SecretService {
   constructor(httpClient: HttpClient) {
-    this.setTrashVals(httpClient, '/secrets');
-    this.init(httpClient, '/secrets');
   }
 }

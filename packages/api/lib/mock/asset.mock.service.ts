@@ -1,48 +1,34 @@
 import FormData from 'form-data';
 
 import { Asset, AssetRevision } from '../asset.interface';
-import { AssetService } from '../asset.service';
 import { Paginated, RequestParameter } from '../data.interface';
 import { MockAPI } from './api.mock';
 import { DataMockService } from './data.mock.service';
-import { mix } from 'ts-mixer';
+import { mix, settings } from 'ts-mixer';
 import { TrashMockService } from './trash.mock.service';
+import { HttpClient } from '../http.service';
 
-// TODO: continue here!!!
-export interface AssetMockService extends DataMockService<Asset>, TrashMockService<Asset> {}
+settings.initFunction = 'initMock';
+
+interface MixedClass extends DataMockService<Asset>, TrashMockService<Asset> {}
 
 @mix(DataMockService, TrashMockService)
-export class AssetMockService implements AssetService {
+class MixedClass {}
+
+export class AssetMockService extends MixedClass {
   constructor(private api: MockAPI, assets: Asset[], private revisions: AssetRevision[]) {
     super();
+    this.initMock(api, assets, revisions);
+  }
+
+  init(httpClient: HttpClient) {
+    super.initData(null, null);
+  }
+
+  public initMock(api: MockAPI, assets: Asset[], revisions: AssetRevision[]) {
     this.data = assets;
-  }
-
-  public paperBinRestoreAll(): Promise<Asset[]> {
-    const deleted = this.data.filter((v) => v.deletedAt);
-    for (const asset of deleted) {
-      delete asset.deletedAt;
-    }
-    return Promise.resolve(deleted);
-  }
-
-  public paperBinRestoreOne(id: string): Promise<Asset> {
-    const deleted = this.data.find((v) => v.id === id);
-    delete deleted.deletedAt;
-    return Promise.resolve(deleted);
-  }
-
-  public emptyTrash(offset: number): Promise<{ acknowledged: boolean; deletedCount: number }> {
-    const dateOffsSeconds = Math.round(new Date().getTime() / 1000) - offset;
-    const date = new Date(dateOffsSeconds * 1000);
-    const trash = this.data.filter((v) => new Date(v.deletedAt) < date);
-    trash.map((v) => this.deleteOne(v.id));
-    return Promise.resolve({ acknowledged: true, deletedCount: trash.length });
-  }
-
-  public getPaperBin(params?: RequestParameter): Promise<Paginated<Asset[]>> {
-    const page = this.getAssets(params, true);
-    return Promise.resolve(page);
+    this.initData(null, null);
+    this.initTrash(null, null, assets, this.deleteOne);
   }
 
   private getAssets(params: RequestParameter, deleted = false) {

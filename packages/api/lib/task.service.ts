@@ -9,8 +9,6 @@ export interface TaskService extends DataService<Task>, TrashService<Task> {}
 @mix(DataService, TrashService)
 export class TaskService {
   constructor(httpClient: HttpClient) {
-    this.setTrashVals(httpClient, '/tasks');
-    this.init(httpClient, '/tasks');
   }
 
   // we may not need this method (already have the addOne method from DataService)

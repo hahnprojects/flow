@@ -15,6 +15,6 @@ export interface Resource {
   refs?: ResourceReference[];
   createdAt?: string | Date;
   updatedAt?: string | Date;
-  deleteddAt?: string | Date;
+  deletedAt?: string | Date;
   revision?: string;
 }

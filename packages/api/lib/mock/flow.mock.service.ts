@@ -1,23 +1,38 @@
 import { DataMockService } from './data.mock.service';
 import { FlowDiagram, FlowDto, FlowRevision } from '../flow.interface';
-import { FlowService } from '../flow.service';
 import { Paginated, RequestParameter } from '../data.interface';
 import { FlowDeployment } from '../flow-deployment.interface';
 import { randomUUID } from 'crypto';
+import { TrashMockService } from './trash.mock.service';
+import { mix, settings } from 'ts-mixer';
 
-export class FlowMockService extends DataMockService<FlowDto> implements FlowService {
+settings.initFunction = 'initMock';
+
+interface MixedClass extends DataMockService<FlowDto>, TrashMockService<FlowDto> {}
+
+@mix(DataMockService, TrashMockService)
+class MixedClass {}
+
+export class FlowMockService extends MixedClass {
   constructor(flows: FlowDto[], private diagrams: FlowDiagram[], private revisions: FlowRevision[]) {
     super();
     this.data = flows;
+    this.initMock(flows, diagrams, revisions);
   }
 
-  addOne(dto: FlowDto): Promise<FlowDto> {
-    const id = randomUUID();
-    this.revisions.push({ ...dto, id, originalId: dto.id });
-    return super.addOne(dto);
+  public initMock(flows: FlowDto[], diagrams: FlowDiagram[], revisions: FlowRevision[]) {
+    this.data = flows;
+    this.initData(null, null);
+    this.initTrash(null, null, flows, this.deleteOne);
   }
 
-  deleteOne(id: string): Promise<any> {
+  deleteOne(id: string, force = false): Promise<any> {
+    const flow = this.data.find((v) => v.id === id);
+    if (!flow?.deletedAt && !force) {
+      // put flow in paper bin by setting deletedAt prop
+      flow.deletedAt = new Date().toISOString();
+      return Promise.resolve(flow);
+    }
     this.revisions
       .filter((revision) => revision.originalId === id)
       .forEach((revision) => {
@@ -25,6 +40,12 @@ export class FlowMockService extends DataMockService<FlowDto> implements FlowSer
         this.revisions.splice(index, 1);
       });
     return super.deleteOne(id);
+  }
+
+  addOne(dto: FlowDto): Promise<FlowDto> {
+    const id = randomUUID();
+    this.revisions.push({ ...dto, id, originalId: dto.id });
+    return super.addOne(dto);
   }
 
   async updateOne(id: string, dto: FlowDto): Promise<FlowDto> {
@@ -49,7 +70,7 @@ export class FlowMockService extends DataMockService<FlowDto> implements FlowSer
   }
 
   async getMany(params?: RequestParameter): Promise<Paginated<FlowDto[]>> {
-    const flows = await super.getMany(params);
+    const flows = await this.getItems(params, false);
     return {
       docs: flows.docs.map((v) => ({ ...v, diagram: this.diagrams.find((v1) => v1.id === v.diagram) })),
       total: 0,

@@ -10,8 +10,6 @@ export interface AssetTypesService extends DataService<AssetType>, TrashService<
 @mix(DataService, TrashService)
 export class AssetTypesService {
   constructor(httpClient: HttpClient) {
-    this.setTrashVals(httpClient, '/assettypes');
-    this.init(httpClient, '/assettypes');
   }
 
   public getRevisions(id: string): Promise<Paginated<AssetType[]>> {

@@ -1,28 +1,51 @@
 import { TrashService } from '../trash.service';
+import { Paginated, RequestParameter } from '../data.interface';
+import { HttpClient } from '../http.service';
 
-// TODO: continue here
-export class TrashMockService<T> implements TrashService<T> {
+export class TrashMockService<T> extends TrashService<T> {
+  protected trashData: T[] = [];
+  protected deleteOnecbf;
 
-  emptyTrash(offset: number): Promise<{ acknowledged: boolean; deletedCount: number }> {
-    return Promise.resolve({ acknowledged: false, deletedCount: 0 });
+  initTrash(httpClient: HttpClient, basePath, data = [], deleteOnecbf?) {
+    super.initTrash(httpClient, basePath);
+    this.trashData = data;
+    this.deleteOnecbf = deleteOnecbf;
   }
 
-  getTrash(params: RequestParameter | undefined): Promise<Paginated<T[]>> {
-    return Promise.resolve(undefined);
+  public trashRestoreAll(): Promise<T[]> {
+    const deleted = this.trashData.filter((v) => v['deletedAt']);
+    for (const asset of deleted) {
+      delete asset['deletedAt'];
+    }
+    return Promise.resolve(deleted);
   }
 
-  private http: HttpClient;
-  private path: string;
-
-  setTrashVals(httpClient: HttpClient, basePath): void {
+  public trashRestoreOne(id: string): Promise<T> {
+    const deleted = this.trashData.find((v) => v['id'] === id);
+    delete deleted['deletedAt'];
+    return Promise.resolve(deleted);
   }
 
-  trashRestoreAll(): Promise<T[]> {
-    return Promise.resolve([]);
+  public emptyTrash(offset: number): Promise<{ acknowledged: boolean; deletedCount: number }> {
+    const dateOffsSeconds = Math.round(new Date().getTime() / 1000) - offset;
+    const date = new Date(dateOffsSeconds * 1000);
+    const trash = this.trashData.filter((v) => new Date(v['deletedAt']) < date);
+    trash.map((v) => this.deleteOnecbf(v['id']));
+    return Promise.resolve({ acknowledged: true, deletedCount: trash.length });
   }
 
-  trashRestoreOne(id: string): Promise<T> {
-    return Promise.resolve(undefined);
+  public getTrash(params?: RequestParameter): Promise<Paginated<T[]>> {
+    const page = this.getItems(params, true);
+    return Promise.resolve(page);
   }
-  
+
+  protected getItems(params: RequestParameter, deleted = false) {
+    const data = this.trashData.filter((item) => !!item['deletedAt'] === deleted);
+    const page: Paginated<T[]> = {
+      docs: data,
+      limit: params && params.limit ? params.limit : Number.MAX_SAFE_INTEGER,
+      total: data.length,
+    };
+    return page;
+  }
 }

@@ -10,8 +10,6 @@ export interface TimeSeriesService extends DataService<TimeSeries>, TrashService
 @mix(DataService, TrashService)
 export class TimeSeriesService {
   constructor(httpClient: HttpClient) {
-    this.setTrashVals(httpClient, '/tsm');
-    this.init(httpClient, '/tsm');
   }
 
   public addValue(id: string, value: { [values: string]: any }) {

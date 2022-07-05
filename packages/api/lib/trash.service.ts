@@ -3,8 +3,7 @@ import { HttpClient } from './http.service';
 
 export class TrashService<T> {
   constructor(protected http: HttpClient, protected path: string) {}
-
-  setTrashVals(httpClient: HttpClient, basePath) {
+  initTrash(httpClient: HttpClient, basePath) {
     this.http = httpClient;
     this.path = basePath;
   }

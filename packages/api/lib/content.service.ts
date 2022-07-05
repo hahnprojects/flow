@@ -12,8 +12,6 @@ export interface ContentService extends DataService<Content>, TrashService<Conte
 @mix(DataService, TrashService)
 export class ContentService {
   constructor(httpClient: HttpClient) {
-    this.setTrashVals(httpClient, '/contents');
-    this.init(httpClient, '/contents');
   }
 
   upload = (form: FormData): Promise<Content> => {

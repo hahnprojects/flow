@@ -9,10 +9,9 @@ import { mix } from 'ts-mixer';
 export interface FlowService extends DataService<FlowDto>, TrashService<FlowDto> {}
 
 @mix(DataService, TrashService)
-export class FlowService {
+export class FlowService extends DataService<FlowDto> {
   constructor(httpClient: HttpClient) {
-    this.setTrashVals(httpClient, '/flows');
-    this.init(httpClient, '/flows');
+    super(httpClient, '/flows');
   }
 
   // workaround as flow-service does not have a POST /many endpoint

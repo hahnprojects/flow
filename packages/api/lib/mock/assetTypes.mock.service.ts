@@ -1,13 +1,31 @@
 import { AssetType, AssetTypeRevision } from '../asset.interface';
-import { AssetTypesService } from '../assettypes.service';
 import { DataMockService } from './data.mock.service';
-import { Paginated } from '../data.interface';
+import { Paginated, RequestParameter } from '../data.interface';
 import { randomUUID } from 'crypto';
+import { TrashMockService } from './trash.mock.service';
+import { mix } from 'ts-mixer';
 
-export class AssetTypesMockService extends DataMockService<AssetType> implements AssetTypesService {
+interface MixedClass extends DataMockService<AssetType>, TrashMockService<AssetType> {}
+
+@mix(DataMockService, TrashMockService)
+class MixedClass {}
+
+export class AssetTypesMockService extends MixedClass {
   constructor(assetTypes: AssetType[], private revisions: AssetTypeRevision[]) {
     super();
     this.data = assetTypes;
+    this.initMock(assetTypes, revisions);
+  }
+
+  public initMock(assetTypes: AssetType[], revisions: AssetTypeRevision[]) {
+    this.data = assetTypes;
+    this.initData(null, null);
+    this.initTrash(null, null, assetTypes, this.deleteOne);
+  }
+
+  getMany(params?: RequestParameter): Promise<Paginated<AssetType[]>> {
+    const page = this.getItems(params, false);
+    return Promise.resolve(page);
   }
 
   addOne(dto: AssetType): Promise<AssetType> {
@@ -16,7 +34,13 @@ export class AssetTypesMockService extends DataMockService<AssetType> implements
     return super.addOne(dto);
   }
 
-  deleteOne(id: string): Promise<any> {
+  deleteOne(id: string, force = false): Promise<any> {
+    const assettype = this.data.find((v) => v.id === id);
+    if (!assettype?.deletedAt && !force) {
+      // put asset in paper bin by setting deletedAt prop
+      assettype.deletedAt = new Date().toISOString();
+      return Promise.resolve(assettype);
+    }
     this.revisions
       .filter((revision) => revision.originalId === id)
       .forEach((revision) => {

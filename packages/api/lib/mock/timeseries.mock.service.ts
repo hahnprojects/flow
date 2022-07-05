@@ -1,12 +1,43 @@
-import { Paginated } from '../data.interface';
+import { Paginated, RequestParameter } from '../data.interface';
 import { TimeSeries, TimeSeriesValue, TS_GROUPS } from '../timeseries.interface';
-import { TimeSeriesService } from '../timeseries.service';
 import { DataMockService } from './data.mock.service';
+import { TrashMockService } from './trash.mock.service';
+import { mix, settings } from 'ts-mixer';
 
-export class TimeseriesMockService extends DataMockService<TimeSeries & { data: TimeSeriesValue[] }> implements TimeSeriesService {
+settings.initFunction = 'initMock';
+
+interface MixedClass
+  extends DataMockService<TimeSeries & { data: TimeSeriesValue[] }>,
+    TrashMockService<TimeSeries & { data: TimeSeriesValue[] }> {}
+
+@mix(DataMockService, TrashMockService)
+class MixedClass {}
+
+export class TimeseriesMockService extends MixedClass {
   constructor(timeseries: TimeSeries[], timeseriesValues: TimeSeriesValue[][]) {
     super();
+    this.initMock(timeseries, timeseriesValues);
     this.data = timeseries.map((value, index) => ({ ...value, data: timeseriesValues[index] }));
+  }
+
+  public initMock(timeseries: TimeSeries[], timeseriesValues: TimeSeriesValue[][]) {
+    this.initData(null, null);
+    this.initTrash(null, null, timeseries, this.deleteOne);
+  }
+
+  deleteOne(tsmId: string, force = false): Promise<TimeSeries> {
+    const tsm = this.data.find((v) => v.id === tsmId);
+    if (!tsm?.deletedAt && !force) {
+      // put tsm in paper bin by setting deletedAt prop
+      tsm.deletedAt = new Date().toISOString();
+      return Promise.resolve(tsm);
+    }
+    return super.deleteOne(tsmId);
+  }
+
+  getMany(params?: RequestParameter): Promise<Paginated<(TimeSeries & { data: TimeSeriesValue[] })[]>> {
+    const page = this.getItems(params, false);
+    return Promise.resolve(page);
   }
 
   addAssetTimeSeriesValues(
