@@ -1,10 +1,8 @@
 import { Task } from '../task.interface';
 import { DataMockService } from './data.mock.service';
 import { TrashMockService } from './trash.mock.service';
-import { mix, settings } from 'ts-mixer';
+import { mix } from 'ts-mixer';
 import { Paginated, RequestParameter } from '../data.interface';
-
-settings.initFunction = 'initMock';
 
 interface MixedClass extends DataMockService<Task>, TrashMockService<Task> {}
 
@@ -15,12 +13,6 @@ export class TaskMockService extends MixedClass {
   constructor(tasks: Task[]) {
     super();
     this.data = tasks;
-    this.initMock(tasks);
-  }
-
-  public initMock(tasks: Task[]) {
-    this.data = tasks;
-    this.initData(null, null);
     this.initTrash(null, null, tasks, this.deleteOne);
   }
 

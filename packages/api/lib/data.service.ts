@@ -4,6 +4,7 @@ import { HttpClient } from './http.service';
 export class DataService<T> implements DataInterface<T> {
   constructor(protected httpClient: HttpClient, protected basePath) {}
 
+  // TODO: try to remove this, find a better solution
   protected initData(httpClient: HttpClient, basePath) {
     this.httpClient = httpClient;
     this.basePath = basePath;
@@ -37,8 +38,8 @@ export class DataService<T> implements DataInterface<T> {
     return this.httpClient.put<T>(`${this.basePath}/${id}`, dto);
   }
 
-  public deleteOne(id: string): Promise<any> {
-    return this.httpClient.delete(`${this.basePath}/${id}`);
+  public deleteOne(id: string, force = false): Promise<any> {
+    return this.httpClient.delete(`${this.basePath}/${id}`, { params: { force } });
   }
 
   protected getFilterString(filter: Filter) {

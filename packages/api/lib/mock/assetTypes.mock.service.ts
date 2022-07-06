@@ -14,12 +14,6 @@ export class AssetTypesMockService extends MixedClass {
   constructor(assetTypes: AssetType[], private revisions: AssetTypeRevision[]) {
     super();
     this.data = assetTypes;
-    this.initMock(assetTypes, revisions);
-  }
-
-  public initMock(assetTypes: AssetType[], revisions: AssetTypeRevision[]) {
-    this.data = assetTypes;
-    this.initData(null, null);
     this.initTrash(null, null, assetTypes, this.deleteOne);
   }
 

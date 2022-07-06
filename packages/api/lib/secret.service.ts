@@ -4,10 +4,17 @@ import { Secret } from './secret.interface';
 import { TrashService } from './trash.service';
 import { mix } from 'ts-mixer';
 
-export interface SecretService extends DataService<Secret>, TrashService<Secret> {}
+interface MixedClass extends DataService<Secret>, TrashService<Secret> {}
 
 @mix(DataService, TrashService)
-export class SecretService {
+class MixedClass {
+  constructor(httpClient: HttpClient, basePath) {}
+}
+
+export class SecretService extends MixedClass {
   constructor(httpClient: HttpClient) {
+    super(httpClient, '/secrets');
+    this.initData(httpClient, '/secrets');
+    this.initTrash(httpClient, '/secrets');
   }
 }

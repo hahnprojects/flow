@@ -5,11 +5,18 @@ import { TimeSeries, TimeSeriesValue, TS_GROUPS } from './timeseries.interface';
 import { TrashService } from './trash.service';
 import { mix } from 'ts-mixer';
 
-export interface TimeSeriesService extends DataService<TimeSeries>, TrashService<TimeSeries> {}
+interface MixedClass extends DataService<TimeSeries>, TrashService<TimeSeries> {}
 
 @mix(DataService, TrashService)
-export class TimeSeriesService {
+class MixedClass {
+  constructor(httpClient: HttpClient, basePath) {}
+}
+
+export class TimeSeriesService extends MixedClass {
   constructor(httpClient: HttpClient) {
+    super(httpClient, '/tsm');
+    this.initTrash(httpClient, '/tsm');
+    this.initData(httpClient, '/tsm');
   }
 
   public addValue(id: string, value: { [values: string]: any }) {

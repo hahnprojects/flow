@@ -4,29 +4,26 @@ import { Paginated, RequestParameter } from '../data.interface';
 import { FlowDeployment } from '../flow-deployment.interface';
 import { randomUUID } from 'crypto';
 import { TrashMockService } from './trash.mock.service';
-import { mix, settings } from 'ts-mixer';
-
-settings.initFunction = 'initMock';
+import { mix } from 'ts-mixer';
+import { HttpClient } from '../http.service';
 
 interface MixedClass extends DataMockService<FlowDto>, TrashMockService<FlowDto> {}
 
 @mix(DataMockService, TrashMockService)
-class MixedClass {}
+class MixedClass {
+  constructor(httpClient: HttpClient, basePath) {
+  }
+}
 
 export class FlowMockService extends MixedClass {
   constructor(flows: FlowDto[], private diagrams: FlowDiagram[], private revisions: FlowRevision[]) {
-    super();
+    super(null, null);
     this.data = flows;
-    this.initMock(flows, diagrams, revisions);
+    //super.initData(null, null);
+    super.initTrash(null, null, this.data, this.deleteOne);
   }
 
-  public initMock(flows: FlowDto[], diagrams: FlowDiagram[], revisions: FlowRevision[]) {
-    this.data = flows;
-    this.initData(null, null);
-    this.initTrash(null, null, flows, this.deleteOne);
-  }
-
-  deleteOne(id: string, force = false): Promise<any> {
+  deleteOne(id: string, force = false): Promise<FlowDto> {
     const flow = this.data.find((v) => v.id === id);
     if (!flow?.deletedAt && !force) {
       // put flow in paper bin by setting deletedAt prop

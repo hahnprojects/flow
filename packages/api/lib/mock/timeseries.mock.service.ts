@@ -2,9 +2,7 @@ import { Paginated, RequestParameter } from '../data.interface';
 import { TimeSeries, TimeSeriesValue, TS_GROUPS } from '../timeseries.interface';
 import { DataMockService } from './data.mock.service';
 import { TrashMockService } from './trash.mock.service';
-import { mix, settings } from 'ts-mixer';
-
-settings.initFunction = 'initMock';
+import { mix } from 'ts-mixer';
 
 interface MixedClass
   extends DataMockService<TimeSeries & { data: TimeSeriesValue[] }>,
@@ -16,13 +14,8 @@ class MixedClass {}
 export class TimeseriesMockService extends MixedClass {
   constructor(timeseries: TimeSeries[], timeseriesValues: TimeSeriesValue[][]) {
     super();
-    this.initMock(timeseries, timeseriesValues);
     this.data = timeseries.map((value, index) => ({ ...value, data: timeseriesValues[index] }));
-  }
-
-  public initMock(timeseries: TimeSeries[], timeseriesValues: TimeSeriesValue[][]) {
-    this.initData(null, null);
-    this.initTrash(null, null, timeseries, this.deleteOne);
+    this.initTrash(null, null, this.data, this.deleteOne);
   }
 
   deleteOne(tsmId: string, force = false): Promise<TimeSeries> {

@@ -4,17 +4,18 @@ import { Paginated, RequestParameter } from './data.interface';
 import { HttpClient } from './http.service';
 import { TrashService } from './trash.service';
 import { DataService } from './data.service';
-import { mix, settings } from 'ts-mixer';
+import { mix } from 'ts-mixer';
 
-settings.initFunction = 'init';
-
-export interface AssetService extends DataService<Asset>, TrashService<Asset> {}
+interface MixedClass extends DataService<Asset>, TrashService<Asset> {}
 
 @mix(DataService, TrashService)
-export class AssetService {
-  constructor(httpClient: HttpClient) {}
+class MixedClass {
+  constructor(httpClient: HttpClient, basePath) {}
+}
 
-  init(httpClient: HttpClient) {
+export class AssetService extends MixedClass {
+  constructor(httpClient: HttpClient) {
+    super(httpClient, '/assets');
     this.initData(httpClient, '/assets');
     this.initTrash(httpClient, '/assets');
   }

@@ -7,11 +7,19 @@ import { Readable } from 'stream';
 import { TrashService } from './trash.service';
 import { mix } from 'ts-mixer';
 
-export interface ContentService extends DataService<Content>, TrashService<Content> {}
+interface MixedClass extends DataService<Content>, TrashService<Content> {}
 
 @mix(DataService, TrashService)
-export class ContentService {
+class MixedClass {
+  constructor(httpClient: HttpClient, basePath) {
+  }
+}
+
+export class ContentService extends MixedClass {
   constructor(httpClient: HttpClient) {
+    super(httpClient, '/contents');
+    this.initData(httpClient, '/contents');
+    this.initTrash(httpClient, '/contents');
   }
 
   upload = (form: FormData): Promise<Content> => {

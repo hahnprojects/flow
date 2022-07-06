@@ -6,12 +6,20 @@ import { FlowDeployment } from './flow-deployment.interface';
 import { TrashService } from './trash.service';
 import { mix } from 'ts-mixer';
 
-export interface FlowService extends DataService<FlowDto>, TrashService<FlowDto> {}
+interface MixedClass extends DataService<FlowDto>, TrashService<FlowDto> {}
 
 @mix(DataService, TrashService)
-export class FlowService extends DataService<FlowDto> {
+class MixedClass {
+  constructor(httpClient: HttpClient, path: string) {
+  }
+
+}
+
+export class FlowService extends MixedClass {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/flows');
+    this.initData(httpClient, '/flows');
+    this.initTrash(httpClient, '/flows');
   }
 
   // workaround as flow-service does not have a POST /many endpoint

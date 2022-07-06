@@ -4,10 +4,8 @@ import { Readable } from 'stream';
 import { Content, ReturnType } from '../content.interface';
 import { DataMockService } from './data.mock.service';
 import { TrashMockService } from './trash.mock.service';
-import { mix, settings } from 'ts-mixer';
+import { mix } from 'ts-mixer';
 import { Paginated, RequestParameter } from '../data.interface';
-
-settings.initFunction = 'initMock';
 
 interface MixedClass extends DataMockService<Content>, TrashMockService<Content> {}
 
@@ -23,12 +21,6 @@ export class ContentMockService extends MixedClass {
     for (let i = 0; i < contents.length; i++) {
       this.contentData.set(contents[i].id, contentData[i]);
     }
-    this.initMock(contents, contentData);
-  }
-
-  public initMock(contents: Content[], contentData: any[]) {
-    this.data = contents;
-    this.initData(null, null);
     this.initTrash(null, null, contents, this.deleteOne);
   }
 

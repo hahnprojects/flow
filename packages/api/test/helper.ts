@@ -1,7 +1,7 @@
 
 
 export async function testTrash(itemId, service) {
-  // test trash for contents
+  // test trash
   const deleted = await service.deleteOne(itemId);
   expect(deleted.id).toEqual(itemId);
   expect(deleted.deletedAt).toBeDefined();

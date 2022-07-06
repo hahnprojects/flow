@@ -306,7 +306,36 @@ describe('Mock-API test', () => {
         }
       }
 
-      await testTrash(flowId, api.flows);
+      // flow-mock-service's getMany is special so we can't use the testTrash from th e helper here
+      const deleted = await api.flows.deleteOne(flowId);
+      expect(deleted.id).toEqual(flowId);
+      expect(deleted.deletedAt).toBeDefined();
+
+      let items = await api.flows.getMany();
+      expect(items).toBeDefined();
+      // special case here because the getMany of the flows alters the dtos inside docs
+      expect(items.docs.filter((item) => item.id === deleted.id).length === 0).toBe(true);
+
+      let trash = await api.flows.getTrash();
+      expect(trash.docs[0]).toBe(deleted);
+      expect(trash.docs.includes(deleted)).toBe(true);
+
+      await api.flows.trashRestoreOne(trash.docs[0].id);
+
+      trash = await api.flows.getTrash();
+      items = await api.flows.getMany();
+      expect(trash.docs.includes(deleted)).toBe(false);
+      expect(items.docs.filter((item) => item.id === deleted.id).length === 1).toBe(true);
+
+      await api.flows.deleteOne(flowId, true);
+
+      trash = await api.flows.getTrash();
+      items = await api.flows.getMany();
+      expect(trash.docs.includes(deleted)).toBe(false);
+      expect(items.docs.filter((item) => item.id === deleted.id).length === 0).toBe(true);
+
+      // add flow again
+      await api.flows.addOne(deleted);
     }
   }, 60000);
 
