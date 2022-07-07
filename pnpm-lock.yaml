@@ -17,9 +17,12 @@ importers:
       jest: ^28.1.2
       prettier: ^2.7.1
       ts-jest: ^28.0.5
+      ts-mixer: ^6.0.1
       ts-node: ^10.8.2
       tslib: ^2.4.0
       typescript: ^4.7.4
+    dependencies:
+      ts-mixer: 6.0.1
     devDependencies:
       '@changesets/cli': 2.23.0
       '@types/jest': 28.1.4
@@ -5601,7 +5604,7 @@ packages:
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 28.1.2_@types+node@16.11.43
+      jest: 28.1.2_4maxphccb5fztufhofwcslq6fm
       jest-util: 28.1.1
       json5: 2.2.1
       lodash.memoize: 4.1.2
@@ -5610,6 +5613,10 @@ packages:
       typescript: 4.7.4
       yargs-parser: 21.0.1
     dev: true
+
+  /ts-mixer/6.0.1:
+    resolution: {integrity: sha512-hvE+ZYXuINrx6Ei6D6hz+PTim0Uf++dYbK9FFifLNwQj+RwKquhQpn868yZsCtJYiclZF1u8l6WZxxKi+vv7Rg==}
+    dev: false
 
   /ts-node/10.8.2_5qlmdbhxrylc4rhzh7wamif4di:
     resolution: {integrity: sha512-LYdGnoGddf1D6v8REPtIH+5iq/gTDuZqv2/UJUU7tKjuEU8xVZorBM+buCGNjj+pGEud+sOoM4CX3/YzINpENA==}
