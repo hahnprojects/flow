@@ -1,5 +1,3 @@
-
-
 export async function testTrash(itemId, service) {
   // test trash
   const deleted = await service.deleteOne(itemId);

@@ -11,8 +11,7 @@ interface MixedClass extends DataMockService<Asset>, TrashMockService<Asset> {}
 
 @mix(DataMockService, TrashMockService)
 class MixedClass {
-  constructor(httpClient: HttpClient, basePath) {
-  }
+  constructor(httpClient: HttpClient, basePath) {}
 }
 
 export class AssetMockService extends MixedClass {

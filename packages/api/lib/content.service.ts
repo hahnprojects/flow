@@ -11,8 +11,7 @@ interface MixedClass extends DataService<Content>, TrashService<Content> {}
 
 @mix(DataService, TrashService)
 class MixedClass {
-  constructor(httpClient: HttpClient, basePath) {
-  }
+  constructor(httpClient: HttpClient, basePath) {}
 }
 
 export class ContentService extends MixedClass {

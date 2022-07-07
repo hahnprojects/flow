@@ -11,8 +11,7 @@ interface MixedClass extends DataMockService<FlowDto>, TrashMockService<FlowDto>
 
 @mix(DataMockService, TrashMockService)
 class MixedClass {
-  constructor(httpClient: HttpClient, basePath) {
-  }
+  constructor(httpClient: HttpClient, basePath) {}
 }
 
 export class FlowMockService extends MixedClass {

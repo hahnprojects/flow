@@ -10,9 +10,7 @@ interface MixedClass extends DataService<FlowDto>, TrashService<FlowDto> {}
 
 @mix(DataService, TrashService)
 class MixedClass {
-  constructor(httpClient: HttpClient, path: string) {
-  }
-
+  constructor(httpClient: HttpClient, path: string) {}
 }
 
 export class FlowService extends MixedClass {
