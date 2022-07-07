@@ -17,12 +17,9 @@ importers:
       jest: ^28.1.2
       prettier: ^2.7.1
       ts-jest: ^28.0.5
-      ts-mixer: ^6.0.1
       ts-node: ^10.8.2
       tslib: ^2.4.0
       typescript: ^4.7.4
-    dependencies:
-      ts-mixer: 6.0.1
     devDependencies:
       '@changesets/cli': 2.23.0
       '@types/jest': 28.1.4
@@ -97,12 +94,14 @@ importers:
       form-data: ^4.0.0
       jwt-decode: ^3.1.2
       p-queue: ^6.6.2
+      ts-mixer: ^6.0.1
     dependencies:
       axios: 0.27.2
       eventsource: 2.0.2
       form-data: 4.0.0
       jwt-decode: 3.1.2
       p-queue: 6.6.2
+      ts-mixer: 6.0.1
     devDependencies:
       '@types/eventsource': 1.1.9
       axios-mock-adapter: 1.21.1_axios@0.27.2

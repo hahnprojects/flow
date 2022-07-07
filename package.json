@@ -78,8 +78,5 @@
         "class-transformer": "0.5.1"
       }
     }
-  },
-  "dependencies": {
-    "ts-mixer": "^6.0.1"
   }
 }
