@@ -1,5 +1,5 @@
 ## HowTo Mix?
-Da wir generische Klassen miteinander mixen sieht unsere Struktur wie folgt aus:
+Since we are using generic classes our mixin-structure looks like the following code snippet:
 ````
 import { mix } from 'ts-mixer';
 
@@ -34,18 +34,17 @@ class FooBar extends MixedClass {
     }
 }
 ````
-weitere infos zum Mixin: https://github.com/tannerntannern/ts-mixer
+Further information about mixin: https://github.com/tannerntannern/ts-mixer
 
-#### Warum wird hier eine 'Zwischen-Klasse' verwendet und nicht direkt die Annotation bei der FooBar-Klasse hinzugefügt?
-* Die MixedClass wird hier benötigt, weil Foobar ansonsten von keiner Klasse erben würde und dadurch "super" innerhalb der addOne nicht verwendet werden könnte.
+#### Why using an Interims-Class and not directly adding the @mix-annotation to the Foobar class?
+* We need the (interim) MixedClass because otherwise Foobar would not inherit from any class and we would not be able to call "super" within FooBar's methods.
 
 
-#### Warum für jeden Service eine eigene MixedClass, obwohl sie 'aktuell' überall die gleichen Klassen (DataService und TrashService) extended?
-* In Zukunft könnten die einzelnen Services zusätzlich zum Trash - und DataService noch von einem oder mehreren Services erben und diese Mixes können sich je nach Service unterscheiden.
+#### Why do we have an own MixedClass for every Service although this MixedClass is extending the same Classes everywhere?
+* In Future there could be additional Services in addition to Trash- and DataService, that can be extended by the services. Those combinations can differ from service to service, so every service needs an own MixedClass.
 
-## Warum Mixins?
-
-Mixins werden hier verwendet, um eine SuperClass aus den Services zu kombinieren, dessen (standard-) Methoden in den erbenden Services verwendet werden können.
+## Why Mixins?
+Mixins are used to form a superclass combined with the services whose methods are needed in the service that's extending the superclass.
 
 ````
     DataService - Class
@@ -64,18 +63,16 @@ Mixins werden hier verwendet, um eine SuperClass aus den Services zu kombinieren
 
 
 
-## Alternativen & Diskussion
+## Alternatives & Discussion
 // TODO: add your ideas here
+Alternatives that where taken into consideration but in terms of maintainability the decision was made against it.
 
-Alternativen, die bedacht aber im Hinblick auf Erweiterbarkeit, Wartbarkeit nicht implementiert wurden:
+### Write Trash-Methods in every single service that's using them.
+Generates a lot of duplicated code. (Additional methods inside the services do only make sense to cover some special cases.)
+* Harder to read and understand code: Services would be much bigger.
 
-### Trash-Methoden in die einzelnen Services schreiben, wo sie benötigt werden
-Erzeugt viel duplizierten Code. (Zusätzliche Methoden in den Services sind nur sinnvoll, wenn es sich um einen Spezialfall handelt.)
-* Unübersichtlichkeit: Services würden größer werden, als sie sein müssten
+### Add Trash-Methods to the DataService
+We have services that extend the DataService, but they don't and should not have the Trash methods inside. So this would be no good option.
 
-### Trash-Methoden im DataService hinzufügen
-Da wir Services haben, die von DataService erben jedoch nicht über die Endpunkte des Papierkorbs verfügen, wäre auch dies keine 'saubere' Lösung
-
-### TrashService extends DataService<T> und Service(WithTrash)<T> extends TrashService
-Das würde zwar klappen aber spätestens, wenn man eine Teilmenge der Services, die vom TrashService erben um einen weiteren Service erweitern möchte gibt es Probleme. 
-* Nicht erweiterbar
+### TrashService extends DataService<T> and Service(WithTrash)<T> extends TrashService
+This would work for now but as soon we want to extend a subset of the services that inherit from the TrashService by another service this won't work anymore.
