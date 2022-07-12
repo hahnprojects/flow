@@ -5,9 +5,6 @@ from functools import partial, wraps
 from aio_pika import IncomingMessage, Exchange, Message, connect_robust, ExchangeType
 from aio_pika.abc import AbstractRobustExchange
 import os
-import sys
-
-print(sys.version)
 
 user = os.getenv("RABBIT_USER", "guest")
 password = os.getenv("RABBIT_PASSWORD", "guest")
@@ -47,21 +44,21 @@ async def on_message(exchange: Exchange, message: IncomingMessage):
 
         asyncio.ensure_future(send_reply(exchange, reply1, message), loop=loop)
 
-    with message.process():
-        request = json.loads(message.body.decode())
 
-        # call function
-        if remote_procedures.keys().__contains__(request["functionName"]):
-            func = remote_procedures.get(request["functionName"])
-            future = loop.run_in_executor(None, func, *request["arguments"])
-            future.add_done_callback(callback)
+    request = json.loads(message.body.decode())
 
-        else:
-            reply = {
-                "type": "error",
-                "message": request["functionName"] + " is not a function",
-            }
-            await send_reply(exchange, reply, original_message=message)
+    # call function
+    if remote_procedures.keys().__contains__(request["functionName"]):
+        func = remote_procedures.get(request["functionName"])
+        future = loop.run_in_executor(None, func, *request["arguments"])
+        future.add_done_callback(callback)
+
+    else:
+        reply = {
+            "type": "error",
+            "message": request["functionName"] + " is not a function",
+        }
+        await send_reply(exchange, reply, original_message=message)
 
 
 async def send_reply(exchange: Exchange, reply, original_message: Message):
