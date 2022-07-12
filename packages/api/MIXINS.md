@@ -1,6 +1,8 @@
 ## HowTo Mix?
+
 Since we are using generic classes our mixin-structure looks like the following code snippet:
-````
+
+```
 import { mix } from 'ts-mixer';
 
 class Foo<T> {
@@ -11,9 +13,9 @@ class Foo<T> {
 
 class Bar<T> {
     public addOne(input: T): T {
-    
+
         ...
-        
+
         return input;
     }
 }
@@ -33,20 +35,23 @@ class FooBar extends MixedClass {
         return super.addOne(input1);
     }
 }
-````
+```
+
 Further information about mixin: https://github.com/tannerntannern/ts-mixer
 
 #### Why using an Interims-Class and not directly adding the @mix-annotation to the Foobar class?
-* We need the (interim) MixedClass because otherwise Foobar would not inherit from any class and we would not be able to call "super" within FooBar's methods.
 
+- We need the (interim) MixedClass because otherwise Foobar would not inherit from any class and we would not be able to call "super" within FooBar's methods.
 
 #### Why do we have an own MixedClass for every Service although this MixedClass is extending the same Classes everywhere?
-* In Future there could be additional Services in addition to Trash- and DataService, that can be extended by the services. Those combinations can differ from service to service, so every service needs an own MixedClass.
+
+- In Future there could be additional Services in addition to Trash- and DataService, that can be extended by the services. Those combinations can differ from service to service, so every service needs an own MixedClass.
 
 ## Why Mixins?
+
 Mixins are used to form a superclass combined with the services whose methods are needed in the service that's extending the superclass.
 
-````
+```
     DataService - Class
     |                 |
     |                 |______________________
@@ -59,20 +64,23 @@ Mixins are used to form a superclass combined with the services whose methods ar
         |                                   |
     Services with trash Endpoints          Services without additional, generalized trash Endpoints
 
-````
-
-
+```
 
 ## Alternatives & Discussion
+
 // TODO: add your ideas here
 Alternatives that where taken into consideration but in terms of maintainability the decision was made against it.
 
 ### Write Trash-Methods in every single service that's using them.
+
 Generates a lot of duplicated code. (Additional methods inside the services do only make sense to cover some special cases.)
-* Harder to read and understand code: Services would be much bigger.
+
+- Harder to read and understand code: Services would be much bigger.
 
 ### Add Trash-Methods to the DataService
+
 We have services that extend the DataService, but they don't and should not have the Trash methods inside. So this would be no good option.
 
 ### TrashService extends DataService<T> and Service(WithTrash)<T> extends TrashService
+
 This would work for now but as soon we want to extend a subset of the services that inherit from the TrashService by another service this won't work anymore.
