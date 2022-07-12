@@ -10,14 +10,15 @@ interface MixedClass extends DataService<FlowDto>, TrashService<FlowDto> {}
 
 @mix(DataService, TrashService)
 class MixedClass {
-  constructor(httpClient: HttpClient, path: string) {}
+  constructor(httpClient: HttpClient, path: string) {
+    this.initData(httpClient, path);
+    this.initTrash(httpClient, path);
+  }
 }
 
 export class FlowService extends MixedClass {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/flows');
-    this.initData(httpClient, '/flows');
-    this.initTrash(httpClient, '/flows');
   }
 
   // workaround as flow-service does not have a POST /many endpoint

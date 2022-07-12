@@ -11,14 +11,15 @@ interface MixedClass extends DataService<Content>, TrashService<Content> {}
 
 @mix(DataService, TrashService)
 class MixedClass {
-  constructor(httpClient: HttpClient, basePath) {}
+  constructor(httpClient: HttpClient, basePath) {
+    this.initData(httpClient, basePath);
+    this.initTrash(httpClient, basePath);
+  }
 }
 
 export class ContentService extends MixedClass {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/contents');
-    this.initData(httpClient, '/contents');
-    this.initTrash(httpClient, '/contents');
   }
 
   upload = (form: FormData): Promise<Content> => {

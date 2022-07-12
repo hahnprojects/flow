@@ -11,14 +11,13 @@ interface MixedClass extends DataMockService<FlowDto>, TrashMockService<FlowDto>
 
 @mix(DataMockService, TrashMockService)
 class MixedClass {
-  constructor(httpClient: HttpClient, basePath) {}
+  constructor(protected httpClient: HttpClient, protected basePath) {}
 }
 
 export class FlowMockService extends MixedClass {
   constructor(flows: FlowDto[], private diagrams: FlowDiagram[], private revisions: FlowRevision[]) {
     super(null, null);
     this.data = flows;
-    //super.initData(null, null);
     super.initTrash(null, null, this.data, this.deleteOne);
   }
 
@@ -66,7 +65,7 @@ export class FlowMockService extends MixedClass {
   }
 
   async getMany(params?: RequestParameter): Promise<Paginated<FlowDto[]>> {
-    const flows = await this.getItems(params, false);
+    const flows = this.getItems(params, false);
     return {
       docs: flows.docs.map((v) => ({ ...v, diagram: this.diagrams.find((v1) => v1.id === v.diagram) })),
       total: 0,

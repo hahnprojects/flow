@@ -8,13 +8,14 @@ interface MixedClass extends DataService<Secret>, TrashService<Secret> {}
 
 @mix(DataService, TrashService)
 class MixedClass {
-  constructor(httpClient: HttpClient, basePath) {}
+  constructor(httpClient: HttpClient, basePath) {
+    this.initData(httpClient, basePath);
+    this.initTrash(httpClient, basePath);
+  }
 }
 
 export class SecretService extends MixedClass {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/secrets');
-    this.initData(httpClient, '/secrets');
-    this.initTrash(httpClient, '/secrets');
   }
 }

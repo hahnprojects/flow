@@ -35,8 +35,6 @@ describe('Mock-API test', () => {
     labels: [{ id: 'test', name: 'e2e' }],
   });
 
-  // TODO: fix TIMESERIES AND FLOW TESTS also fix all services to work with mixin
-
   // tests copied from api.spec.ts
   // mock-api should behave the same way the normal api does
   test('FLOW.API.MOCK.1 assets', async () => {

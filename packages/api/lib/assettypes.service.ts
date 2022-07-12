@@ -5,11 +5,20 @@ import { Paginated } from './data.interface';
 import { TrashService } from './trash.service';
 import { mix } from 'ts-mixer';
 
-export interface AssetTypesService extends DataService<AssetType>, TrashService<AssetType> {}
+interface MixedClass extends DataService<AssetType>, TrashService<AssetType> {}
 
 @mix(DataService, TrashService)
-export class AssetTypesService {
-  constructor(httpClient: HttpClient) {}
+class MixedClass {
+  constructor(httpClient: HttpClient, basePath) {
+    this.initData(httpClient, basePath);
+    this.initTrash(httpClient, basePath);
+  }
+}
+
+export class AssetTypesService extends MixedClass {
+  constructor(httpClient: HttpClient) {
+    super(httpClient, '/assettypes');
+  }
 
   public getRevisions(id: string): Promise<Paginated<AssetType[]>> {
     return this.httpClient.get<Paginated<AssetType[]>>(`${this.basePath}/${id}/revisions`);

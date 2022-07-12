@@ -8,14 +8,15 @@ interface MixedClass extends DataService<Task>, TrashService<Task> {}
 
 @mix(DataService, TrashService)
 class MixedClass {
-  constructor(httpClient: HttpClient, basePath) {}
+  constructor(httpClient: HttpClient, basePath) {
+    this.initTrash(httpClient, basePath);
+    this.initData(httpClient, basePath);
+  }
 }
 
 export class TaskService extends MixedClass {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/tasks');
-    this.initTrash(httpClient, '/tasks');
-    this.initData(httpClient, '/tasks');
   }
 
   // we may not need this method (already have the addOne method from DataService)

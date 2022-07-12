@@ -9,14 +9,15 @@ interface MixedClass extends DataService<TimeSeries>, TrashService<TimeSeries> {
 
 @mix(DataService, TrashService)
 class MixedClass {
-  constructor(httpClient: HttpClient, basePath) {}
+  constructor(httpClient: HttpClient, basePath) {
+    this.initTrash(httpClient, basePath);
+    this.initData(httpClient, basePath);
+  }
 }
 
 export class TimeSeriesService extends MixedClass {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/tsm');
-    this.initTrash(httpClient, '/tsm');
-    this.initData(httpClient, '/tsm');
   }
 
   public addValue(id: string, value: { [values: string]: any }) {

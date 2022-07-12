@@ -26,11 +26,11 @@ export class TrashMockService<T> extends TrashService<T> {
     return Promise.resolve(deleted);
   }
 
-  public emptyTrash(offset: number): Promise<{ acknowledged: boolean; deletedCount: number }> {
+  public async emptyTrash(offset: number): Promise<{ acknowledged: boolean; deletedCount: number }> {
     const dateOffsSeconds = Math.round(new Date().getTime() / 1000) - offset;
     const date = new Date(dateOffsSeconds * 1000);
     const trash = this.trashData.filter((v) => new Date(v['deletedAt']) < date);
-    trash.map((v) => this.deleteOnecbf(v['id']));
+    await Promise.all(trash.map((v) => this.deleteOnecbf(v['id'])));
     return Promise.resolve({ acknowledged: true, deletedCount: trash.length });
   }
 

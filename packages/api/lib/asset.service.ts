@@ -10,14 +10,15 @@ interface MixedClass extends DataService<Asset>, TrashService<Asset> {}
 
 @mix(DataService, TrashService)
 class MixedClass {
-  constructor(httpClient: HttpClient, basePath) {}
+  constructor(httpClient: HttpClient, basePath) {
+    this.initData(httpClient, basePath);
+    this.initTrash(httpClient, basePath);
+  }
 }
 
 export class AssetService extends MixedClass {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/assets');
-    this.initData(httpClient, '/assets');
-    this.initTrash(httpClient, '/assets');
   }
 
   public deleteOne(id: string, force = false): Promise<any> {

@@ -4,7 +4,6 @@ import { HttpClient } from './http.service';
 export class DataService<T> implements DataInterface<T> {
   constructor(protected httpClient: HttpClient, protected basePath) {}
 
-  // TODO: try to remove this, find a better solution
   protected initData(httpClient: HttpClient, basePath) {
     this.httpClient = httpClient;
     this.basePath = basePath;
