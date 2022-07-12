@@ -15,6 +15,7 @@ export interface AssetType {
   updatedAt?: string;
   author?: string;
   revision?: number;
+  deletedAt?: string;
 }
 
 export type AssetTypeRevision = AssetType & { originalId: string };

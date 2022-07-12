@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import { MockAPI, ReturnType } from '../lib';
 import { Readable } from 'stream';
 import { join } from 'path';
+import { testTrash } from './helper';
 
 dotenv.config();
 
@@ -90,19 +91,20 @@ describe('Mock-API test', () => {
       expect(assets).toBeDefined();
       expect(assets.docs.includes(deleted)).toBe(false);
 
-      let trash = await api.assets.getPaperBin();
+      let trash = await api.assets.getTrash();
+      expect(trash.docs[0]).toBe(deleted);
       expect(trash.docs.includes(deleted)).toBe(true);
 
-      await api.assets.paperBinRestoreOne(trash.docs[0].id);
+      await api.assets.trashRestoreOne(trash.docs[0].id);
 
-      trash = await api.assets.getPaperBin();
+      trash = await api.assets.getTrash();
       assets = await api.assets.getMany();
       expect(trash.docs.includes(deleted)).toBe(false);
       expect(assets.docs.includes(deleted)).toBe(true);
 
       await api.assets.deleteOne(asset.id, true);
 
-      trash = await api.assets.getPaperBin();
+      trash = await api.assets.getTrash();
       assets = await api.assets.getMany();
       expect(trash.docs.includes(deleted)).toBe(false);
       expect(assets.docs.includes(deleted)).toBe(false);
@@ -140,6 +142,8 @@ describe('Mock-API test', () => {
 
       const stream = await api.contents.download(testDownloadId, ReturnType.NODESTREAM).catch((err) => logError(err));
       expect(stream instanceof Readable).toBeTruthy();
+
+      await testTrash(contentId, api.contents);
     }
   }, 60000);
 
@@ -187,6 +191,8 @@ describe('Mock-API test', () => {
       const secretId = secrets.docs[0].id;
       const secret = await api.secrets.getOne(secretId).catch((err) => logError(err));
       expect(secret).toBeDefined();
+
+      await testTrash(secretId, api.secrets);
     }
   }, 60000);
 
@@ -219,6 +225,8 @@ describe('Mock-API test', () => {
 
       const values = await api.timeSeries.getValues(tsId, 0).catch((err) => logError(err));
       expect(values).toBeDefined();
+
+      await testTrash(tsId, api.timeSeries);
     }
   }, 60000);
 
@@ -232,6 +240,8 @@ describe('Mock-API test', () => {
       const tskId = tasks.docs[0].id;
       const tsk = await api.tasks.getOne(tskId).catch((err) => logError(err));
       expect(tsk).toBeDefined();
+
+      await testTrash(tskId, api.tasks);
     }
   }, 60000);
 
@@ -293,6 +303,37 @@ describe('Mock-API test', () => {
           expect(revision.diagram).toBe('diagram1');
         }
       }
+
+      // flow-mock-service's getMany is special so we can't use the testTrash from th e helper here
+      const deleted = await api.flows.deleteOne(flowId);
+      expect(deleted.id).toEqual(flowId);
+      expect(deleted.deletedAt).toBeDefined();
+
+      let items = await api.flows.getMany();
+      expect(items).toBeDefined();
+      // special case here because the getMany of the flows alters the dtos inside docs
+      expect(items.docs.filter((item) => item.id === deleted.id).length === 0).toBe(true);
+
+      let trash = await api.flows.getTrash();
+      expect(trash.docs[0]).toBe(deleted);
+      expect(trash.docs.includes(deleted)).toBe(true);
+
+      await api.flows.trashRestoreOne(trash.docs[0].id);
+
+      trash = await api.flows.getTrash();
+      items = await api.flows.getMany();
+      expect(trash.docs.includes(deleted)).toBe(false);
+      expect(items.docs.filter((item) => item.id === deleted.id).length === 1).toBe(true);
+
+      await api.flows.deleteOne(flowId, true);
+
+      trash = await api.flows.getTrash();
+      items = await api.flows.getMany();
+      expect(trash.docs.includes(deleted)).toBe(false);
+      expect(items.docs.filter((item) => item.id === deleted.id).length === 0).toBe(true);
+
+      // add flow again
+      await api.flows.addOne(deleted);
     }
   }, 60000);
 

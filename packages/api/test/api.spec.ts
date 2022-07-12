@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 
 import { API, FlowDeployment } from '../lib';
+import { testTrash } from './helper';
 
 dotenv.config();
 
@@ -54,30 +55,7 @@ describe('API test', () => {
       }
 
       const asset = assets.docs[assets.docs.length - 1];
-      const deleted = await api.assets.deleteOne(asset.id);
-      expect(deleted.id).toEqual(asset.id);
-      expect(deleted.deletedAt).toBeDefined();
-
-      assets = await api.assets.getMany();
-      expect(assets).toBeDefined();
-      expect(assets.docs.includes(deleted)).toBe(false);
-
-      let trash = await api.assets.getPaperBin();
-      expect(trash.docs.includes(deleted)).toBe(true);
-
-      await api.assets.paperBinRestoreOne(trash.docs[0].id);
-
-      trash = await api.assets.getPaperBin();
-      assets = await api.assets.getMany();
-      expect(trash.docs.includes(deleted)).toBe(false);
-      expect(assets.docs.includes(deleted)).toBe(true);
-
-      await api.assets.deleteOne(asset.id, true);
-
-      trash = await api.assets.getPaperBin();
-      assets = await api.assets.getMany();
-      expect(trash.docs.includes(deleted)).toBe(false);
-      expect(assets.docs.includes(deleted)).toBe(false);
+      await testTrash(asset.id, api.assets);
     }
   }, 60000);
 
@@ -91,6 +69,8 @@ describe('API test', () => {
       const contentId = contents.docs[0].id;
       const content = await api.contents.download(contentId).catch((err) => logError(err));
       expect(content).toBeDefined();
+
+      await testTrash(contentId, api.contents);
     }
   }, 60000);
 
@@ -130,6 +110,8 @@ describe('API test', () => {
       const secretId = secrets.docs[0].id;
       const secret = await api.secrets.getOne(secretId).catch((err) => logError(err));
       expect(secret).toBeDefined();
+
+      await testTrash(secretId, api.secrets);
     }
   }, 60000);
 
@@ -158,6 +140,8 @@ describe('API test', () => {
       expect(ts).toBeDefined();
       const values = await api.timeSeries.getValues(tsId, 0).catch((err) => logError(err));
       expect(values).toBeDefined();
+
+      await testTrash(tsId, api.timeSeries);
     }
   }, 60000);
 
@@ -171,6 +155,8 @@ describe('API test', () => {
       const tskId = tasks.docs[0].id;
       const tsk = await api.tasks.getOne(tskId).catch((err) => logError(err));
       expect(tsk).toBeDefined();
+
+      await testTrash(tskId, api.tasks);
     }
   }, 60000);
 

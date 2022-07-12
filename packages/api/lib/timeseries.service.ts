@@ -1,9 +1,22 @@
+import { mix } from 'ts-mixer';
+
+import { APIBase } from './api-base';
 import { Paginated } from './data.interface';
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
 import { TimeSeries, TimeSeriesValue, TS_GROUPS } from './timeseries.interface';
+import { TrashService } from './trash.service';
 
-export class TimeSeriesService extends DataService<TimeSeries> {
+interface MixedClass extends DataService<TimeSeries>, TrashService<TimeSeries> {}
+
+@mix(DataService, TrashService)
+class MixedClass extends APIBase {
+  constructor(httpClient: HttpClient, basePath: string) {
+    super(httpClient, basePath);
+  }
+}
+
+export class TimeSeriesService extends MixedClass {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/tsm');
   }

@@ -1,8 +1,21 @@
+import { mix } from 'ts-mixer';
+
+import { APIBase } from './api-base';
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
 import { Task } from './task.interface';
+import { TrashService } from './trash.service';
 
-export class TaskService extends DataService<Task> {
+interface MixedClass extends DataService<Task>, TrashService<Task> {}
+
+@mix(DataService, TrashService)
+class MixedClass extends APIBase {
+  constructor(httpClient: HttpClient, basePath: string) {
+    super(httpClient, basePath);
+  }
+}
+
+export class TaskService extends MixedClass {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/tasks');
   }

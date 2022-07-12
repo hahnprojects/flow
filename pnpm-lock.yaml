@@ -94,12 +94,14 @@ importers:
       form-data: ^4.0.0
       jwt-decode: ^3.1.2
       p-queue: ^6.6.2
+      ts-mixer: ^6.0.1
     dependencies:
       axios: 0.27.2
       eventsource: 2.0.2
       form-data: 4.0.0
       jwt-decode: 3.1.2
       p-queue: 6.6.2
+      ts-mixer: 6.0.1
     devDependencies:
       '@types/eventsource': 1.1.9
       axios-mock-adapter: 1.21.1_axios@0.27.2
@@ -5601,7 +5603,7 @@ packages:
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 28.1.2_@types+node@16.11.43
+      jest: 28.1.2_4maxphccb5fztufhofwcslq6fm
       jest-util: 28.1.1
       json5: 2.2.1
       lodash.memoize: 4.1.2
@@ -5610,6 +5612,10 @@ packages:
       typescript: 4.7.4
       yargs-parser: 21.0.1
     dev: true
+
+  /ts-mixer/6.0.1:
+    resolution: {integrity: sha512-hvE+ZYXuINrx6Ei6D6hz+PTim0Uf++dYbK9FFifLNwQj+RwKquhQpn868yZsCtJYiclZF1u8l6WZxxKi+vv7Rg==}
+    dev: false
 
   /ts-node/10.8.2_5qlmdbhxrylc4rhzh7wamif4di:
     resolution: {integrity: sha512-LYdGnoGddf1D6v8REPtIH+5iq/gTDuZqv2/UJUU7tKjuEU8xVZorBM+buCGNjj+pGEud+sOoM4CX3/YzINpENA==}

@@ -1,16 +1,28 @@
 import FormData from 'form-data';
 import { Readable } from 'stream';
+import { mix } from 'ts-mixer';
 
 import { Content, ReturnType } from '../content.interface';
 import { ContentService } from '../content.service';
+import { Paginated, RequestParameter } from '../data.interface';
+import { APIBaseMock } from './api-base.mock';
 import { DataMockService } from './data.mock.service';
+import { TrashMockService } from './trash.mock.service';
 
-export class ContentMockService extends DataMockService<Content> implements ContentService {
+interface MixedClass extends DataMockService<Content>, TrashMockService<Content> {}
+
+@mix(DataMockService, TrashMockService)
+class MixedClass extends APIBaseMock<Content> {
+  constructor(data: Content[]) {
+    super(data);
+  }
+}
+
+export class ContentMockService extends MixedClass implements ContentService {
   private contentData: Map<string, any> = new Map();
 
   constructor(contents: Content[], contentData: any[]) {
-    super();
-    this.data = contents;
+    super(contents);
     for (let i = 0; i < contents.length; i++) {
       this.contentData.set(contents[i].id, contentData[i]);
     }
@@ -63,6 +75,21 @@ export class ContentMockService extends DataMockService<Content> implements Cont
       case ReturnType.NODESTREAM:
         return Promise.resolve(Readable.from(this.contentData.get(id)));
     }
+  }
+
+  deleteOne(contentId: string, force = false): Promise<Content> {
+    const content = this.data.find((v) => v.id === contentId);
+    if (!content?.deletedAt && !force) {
+      // put content in paper bin by setting deletedAt prop
+      content.deletedAt = new Date().toISOString();
+      return Promise.resolve(content);
+    }
+    return super.deleteOne(contentId);
+  }
+
+  getMany(params?: RequestParameter): Promise<Paginated<Content[]>> {
+    const page = this.getItems(params, false);
+    return Promise.resolve(page);
   }
 
   upload(form: FormData): Promise<Content> {

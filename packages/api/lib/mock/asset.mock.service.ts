@@ -1,42 +1,26 @@
 import FormData from 'form-data';
+import { mix } from 'ts-mixer';
 
 import { Asset, AssetRevision } from '../asset.interface';
 import { AssetService } from '../asset.service';
 import { Paginated, RequestParameter } from '../data.interface';
 import { MockAPI } from './api.mock';
+import { APIBaseMock } from './api-base.mock';
 import { DataMockService } from './data.mock.service';
+import { TrashMockService } from './trash.mock.service';
 
-export class AssetMockService extends DataMockService<Asset> implements AssetService {
+interface MixedClass extends DataMockService<Asset>, TrashMockService<Asset> {}
+
+@mix(DataMockService, TrashMockService)
+class MixedClass extends APIBaseMock<Asset> {
+  constructor(data: Asset[]) {
+    super(data);
+  }
+}
+
+export class AssetMockService extends MixedClass implements AssetService {
   constructor(private api: MockAPI, assets: Asset[], private revisions: AssetRevision[]) {
-    super();
-    this.data = assets;
-  }
-
-  public paperBinRestoreAll(): Promise<Asset[]> {
-    const deleted = this.data.filter((v) => v.deletedAt);
-    for (const asset of deleted) {
-      delete asset.deletedAt;
-    }
-    return Promise.resolve(deleted);
-  }
-
-  public paperBinRestoreOne(id: string): Promise<Asset> {
-    const deleted = this.data.find((v) => v.id === id);
-    delete deleted.deletedAt;
-    return Promise.resolve(deleted);
-  }
-
-  public emptyTrash(offset: number): Promise<{ acknowledged: boolean; deletedCount: number }> {
-    const dateOffsSeconds = Math.round(new Date().getTime() / 1000) - offset;
-    const date = new Date(dateOffsSeconds * 1000);
-    const trash = this.data.filter((v) => new Date(v.deletedAt) < date);
-    trash.map((v) => this.deleteOne(v.id));
-    return Promise.resolve({ acknowledged: true, deletedCount: trash.length });
-  }
-
-  public getPaperBin(params?: RequestParameter): Promise<Paginated<Asset[]>> {
-    const page = this.getAssets(params, true);
-    return Promise.resolve(page);
+    super(assets);
   }
 
   private getAssets(params: RequestParameter, deleted = false) {

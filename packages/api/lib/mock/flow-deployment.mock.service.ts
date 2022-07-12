@@ -1,14 +1,26 @@
-import { DataMockService } from './data.mock.service';
-import { FlowDeployment, FlowDeploymentMetrics, FlowDeploymentStatistic, FlowLog } from '../flow-deployment.interface';
-import { FlowDeploymentService } from '../flow-deployment.service';
-import { ResourceReference } from '../resource.interface';
 import { randomUUID } from 'crypto';
-import { MockAPI } from './api.mock';
+import { mix } from 'ts-mixer';
 
-export class FlowDeploymentMockService extends DataMockService<FlowDeployment> implements FlowDeploymentService {
+import { FlowDeploymentService } from '../flow-deployment.service';
+import { FlowDeployment, FlowDeploymentMetrics, FlowDeploymentStatistic, FlowLog } from '../flow-deployment.interface';
+import { ResourceReference } from '../resource.interface';
+import { MockAPI } from './api.mock';
+import { APIBaseMock } from './api-base.mock';
+import { DataMockService } from './data.mock.service';
+import { TrashMockService } from './trash.mock.service';
+
+interface MixedClass extends DataMockService<FlowDeployment>, TrashMockService<FlowDeployment> {}
+
+@mix(DataMockService, TrashMockService)
+class MixedClass extends APIBaseMock<FlowDeployment> {
+  constructor(data: FlowDeployment[]) {
+    super(data);
+  }
+}
+
+export class FlowDeploymentMockService extends MixedClass implements FlowDeploymentService {
   constructor(deployments: FlowDeployment[], private api: MockAPI) {
-    super();
-    this.data = deployments;
+    super(deployments);
   }
 
   public subscribeToStatus(
@@ -19,6 +31,7 @@ export class FlowDeploymentMockService extends DataMockService<FlowDeployment> i
     listener(new MessageEvent('message', { data: 'running' }));
     return Promise.resolve(randomUUID());
   }
+
   public subscribeToLogs(
     id: string,
     listener: (event: MessageEvent<any>) => void,
