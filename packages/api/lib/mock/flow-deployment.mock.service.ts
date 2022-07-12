@@ -133,7 +133,7 @@ export class FlowDeploymentMockService extends DataMockService<FlowDeployment> i
     // super simplified version of real resolver
     return Promise.all(
       Object.keys(properties).map(async (prop) => {
-        if (prop !== 'assetId') new Error('not implemented');
+        if (prop !== 'assetId') throw new Error('not implemented');
         return { id: (await this.api.assets.getOne(properties[prop])).id, resourceType: 'asset' };
       }),
     );

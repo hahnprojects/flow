@@ -7,7 +7,7 @@ export interface UserSettings {
   activeTags: string[];
   applications: Application[];
   tableSettings: TableSetting[];
-  favoriteLabelsOrder: Record<string, number>
+  favoriteLabelsOrder: Record<string, number>;
 }
 
 export interface Application {

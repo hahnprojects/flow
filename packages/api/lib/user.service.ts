@@ -5,7 +5,7 @@ import { UserSettings } from './user-settings.interface';
 export class UserService {
   private readonly basePath: string;
   constructor(private httpClient: HttpClient) {
-    this.basePath = '/user'
+    this.basePath = '/user';
   }
 
   async getCurrentUserRoles(): Promise<string[]> {
@@ -23,7 +23,7 @@ export class UserService {
   }
 
   public updateUserSettings(settings: UserSettings): Promise<UserSettings> {
-    return this .httpClient.put(this.basePath, settings);
+    return this.httpClient.put(this.basePath, settings);
   }
 
   public deleteUserSettings(): Promise<UserSettings> {

@@ -85,7 +85,7 @@ export function login(baseUrl = BASE_URL, realm = REALM) {
     const auhtUrl = client.authorizationUrl({ code_challenge, code_challenge_method: 'S256' });
 
     const app = express();
-    app.disable("x-powered-by");
+    app.disable('x-powered-by');
     app.use(express.static(viewsPath));
     app.set('views', viewsPath);
 

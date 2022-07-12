@@ -74,7 +74,7 @@ describe('InputStreamDecorator', () => {
       flowApp.subscribe('testResource.default', {
         next: async (_event: FlowEvent) => {
           try {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            await new Promise((resolve1) => setTimeout(resolve1, 1000));
             expect(spyInstance).toHaveBeenNthCalledWith(1, 'flowlogs', '', expect.objectContaining({ data: 'Flow Deployment is running' }));
             expect(spyInstance).toHaveBeenNthCalledWith(2, 'flowlogs', '', expect.objectContaining({ data: { test1: 'data' } }));
             expect(spyInstance).toHaveBeenNthCalledWith(4, 'flowlogs', '', expect.objectContaining({ data: { hello: 'world' } }));
