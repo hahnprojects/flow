@@ -32,14 +32,23 @@ export class FlowApplication {
   private context: FlowContext;
   private declarations: Record<string, ClassType<FlowElement>> = {};
   private elements: Record<string, FlowElement> = {};
-  private logger: Logger;
+  private readonly logger: Logger;
   private outputStreamMap = new Map<string, Subject<FlowEvent>>();
   private outputQueueMetrics = new Map<string, QueueMetrics>();
   private performanceMap = new Map<string, EventLoopUtilization>();
   private properties: Record<string, any>;
   private _rpcClient: RpcClient;
 
-  constructor(modules: ClassType<any>[], flow: Flow, logger?: Logger, private amqpConnection?: AmqpConnection, skipApi = false) {
+  private initialized = false;
+
+  constructor(
+    private modules: ClassType<any>[],
+    private flow: Flow,
+    logger?: Logger,
+    private amqpConnection?: AmqpConnection,
+    private skipApi = false,
+    explicitInit = false,
+  ) {
     this.logger = new FlowLogger({ id: 'none', functionFqn: 'FlowApplication', ...flow?.context }, logger || undefined, this.publishEvent);
 
     process.once('uncaughtException', (err) => {
@@ -56,24 +65,28 @@ export class FlowApplication {
       this.destroy(0);
     });
 
-    this.init(flow, modules, logger, skipApi);
+    if (!explicitInit) {
+      this.init();
+    }
   }
 
-  private async init(flow: Flow, modules: ClassType<any>[], logger: Logger, skipApi: boolean) {
-    this.context = { ...flow.context };
-    this.properties = flow.properties || {};
+  public async init() {
+    if (this.initialized) return;
+
+    this.context = { ...this.flow.context };
+    this.properties = this.flow.properties || {};
 
     try {
-      if (!skipApi) {
+      if (!this.skipApi) {
         this.api = new API();
       }
     } catch (err) {
       this.logger.error(err?.message || err);
     }
 
-    const logErrorAndExit = (err: string) => {
+    const logErrorAndExit = async (err: string) => {
       this.logger.error(new Error(err));
-      this.destroy(1);
+      await this.destroy(1);
     };
 
     if (this.amqpConnection) {
@@ -82,7 +95,7 @@ export class FlowApplication {
         await this.amqpConnection.managedChannel.assertExchange('flowlogs', 'fanout', { durable: true });
         await this.amqpConnection.managedChannel.assertExchange('flow', 'direct', { durable: true });
       } catch (e) {
-        logErrorAndExit(`Could not assert exchanges: ${e}`);
+        await logErrorAndExit(`Could not assert exchanges: ${e}`);
         return;
       }
 
@@ -97,40 +110,40 @@ export class FlowApplication {
           'FlowApplication.onMessage',
         );
       } catch (err) {
-        logErrorAndExit(`Could not subscribe to deployment exchange: ${err}`);
+        await logErrorAndExit(`Could not subscribe to deployment exchange: ${err}`);
         return;
       }
     }
 
-    for (const module of modules) {
+    for (const module of this.modules) {
       const moduleName = Reflect.getMetadata('module:name', module);
       const moduleDeclarations = Reflect.getMetadata('module:declarations', module);
       if (!moduleName || !moduleDeclarations || !Array.isArray(moduleDeclarations)) {
-        logErrorAndExit(`FlowModule (${module.name}) metadata is missing or invalid`);
+        await logErrorAndExit(`FlowModule (${module.name}) metadata is missing or invalid`);
         return;
       }
       for (const declaration of moduleDeclarations) {
         const functionFqn = Reflect.getMetadata('element:functionFqn', declaration);
         if (!functionFqn) {
-          logErrorAndExit(`FlowFunction (${declaration.name}) metadata is missing or invalid`);
+          await logErrorAndExit(`FlowFunction (${declaration.name}) metadata is missing or invalid`);
           return;
         }
         this.declarations[`${moduleName}.${functionFqn}`] = declaration;
       }
     }
 
-    for (const element of flow.elements) {
+    for (const element of this.flow.elements) {
       const { id, name, properties, module, functionFqn } = element;
       try {
-        const context: Context = { ...this.context, id, name, logger, app: this };
+        const context: Context = { ...this.context, id, name, logger: this.logger, app: this };
         this.elements[id] = new this.declarations[`${module}.${functionFqn}`](context, properties);
       } catch (err) {
-        logErrorAndExit(`Could not create FlowElement for ${module}.${functionFqn}`);
+        await logErrorAndExit(`Could not create FlowElement for ${module}.${functionFqn}`);
         return;
       }
     }
 
-    for (const connection of flow.connections) {
+    for (const connection of this.flow.connections) {
       const { source, target, sourceStream = 'default', targetStream = 'default' } = connection;
       if (!source || !target) {
         continue;
@@ -141,12 +154,12 @@ export class FlowApplication {
       const element = this.elements[target];
 
       if (!element || !element.constructor) {
-        logErrorAndExit(`${target} has not been initialized`);
+        await logErrorAndExit(`${target} has not been initialized`);
         return;
       }
       const streamHandler = Reflect.getMetadata(`stream:${targetStream}`, element.constructor);
       if (!streamHandler || !element[streamHandler]) {
-        logErrorAndExit(`${target} does not implement a handler for ${targetStream}`);
+        await logErrorAndExit(`${target} does not implement a handler for ${targetStream}`);
         return;
       }
 
@@ -198,6 +211,7 @@ export class FlowApplication {
         .subscribe();
     }
 
+    this.initialized = true;
     this.logger.log('Flow Deployment is running');
   }
 

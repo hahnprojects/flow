@@ -26,11 +26,11 @@ export class AssetMockService extends DataMockService<Asset> implements AssetSer
     return Promise.resolve(deleted);
   }
 
-  public emptyTrash(offset: number): Promise<{ acknowledged: boolean; deletedCount: number }> {
+  public async emptyTrash(offset: number): Promise<{ acknowledged: boolean; deletedCount: number }> {
     const dateOffsSeconds = Math.round(new Date().getTime() / 1000) - offset;
     const date = new Date(dateOffsSeconds * 1000);
     const trash = this.data.filter((v) => new Date(v.deletedAt) < date);
-    trash.map((v) => this.deleteOne(v.id));
+    await Promise.all(trash.map((v) => this.deleteOne(v.id)));
     return Promise.resolve({ acknowledged: true, deletedCount: trash.length });
   }
 
@@ -102,12 +102,12 @@ export class AssetMockService extends DataMockService<Asset> implements AssetSer
     return Promise.resolve(page);
   }
 
-  public rollback(assetId: string, revisionId: string): Promise<Asset> {
+  public rollback(_assetId: string, revisionId: string): Promise<Asset> {
     const asset = this.revisions.find((revision) => revision.id === revisionId);
     return Promise.resolve(asset);
   }
 
-  public deleteRevision(assetId: string, revisionId: string): Promise<any> {
+  public deleteRevision(_assetId: string, revisionId: string): Promise<any> {
     const index = this.revisions.findIndex((revision) => revision.id === revisionId);
     this.revisions.splice(index, 1);
     return Promise.resolve(revisionId);

@@ -170,7 +170,7 @@ export function InputStream(id = 'default', options?: { concurrent?: number; sto
 }
 
 export function FlowFunction(fqn: string): ClassDecorator {
-  const fqnRegExp = new RegExp('^([a-zA-Z][a-zA-Z0-9]*[.-])*[a-zA-Z][a-zA-Z0-9]*$');
+  const fqnRegExp = /^([a-zA-Z][a-zA-Z\d]*[.-])*[a-zA-Z][a-zA-Z\d]*$/;
   if (!fqnRegExp.test(fqn)) {
     throw new Error(`Flow Function FQN (${fqn}) is not valid`);
   }

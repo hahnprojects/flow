@@ -32,7 +32,7 @@ describe('rx', () => {
     flowApp.subscribe('testResource2.default', {
       next: (event: FlowEvent) => {
         count++;
-        expect(event.getData()).toEqual({ foo: 'bar' });
+        expect(event.getData()).toEqual(expect.objectContaining({ foo: 'bar' }));
         if (count === size) {
           done();
         }
@@ -40,7 +40,7 @@ describe('rx', () => {
     });
 
     const triggers = interval(1000);
-    triggers.pipe(take(size)).subscribe((x) => {
+    triggers.pipe(take(size)).subscribe((_x) => {
       flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
     });
   }, 60000);
@@ -51,7 +51,7 @@ class TestResource extends FlowResource {
   @InputStream('default')
   public async onDefault(event) {
     await delay(2000);
-    return this.emitOutput({ hello: 'world' });
+    return this.emitEvent({ hello: 'world' }, event);
   }
 }
 
@@ -64,7 +64,7 @@ class Tap extends FlowTask {
     this.tap$ = new Subject<FlowEvent>();
     this.tap$.subscribe({
       next: (event) => {
-        this.emitOutput(event.getData());
+        this.emitEvent({}, event);
       },
     });
   }
@@ -80,7 +80,7 @@ class TestResource2 extends FlowResource {
   @InputStream('default', { concurrent: 1 })
   public async onDefault(event) {
     await delay(1000);
-    return this.emitOutput({ foo: 'bar' });
+    return this.emitEvent({ foo: 'bar' }, event);
   }
 }
 

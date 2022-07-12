@@ -23,8 +23,8 @@ describe('Flow Application', () => {
 
     let iteration = 0;
     flowApp.subscribe('testResource.default', {
-      next: (event: FlowEvent) => {
-        const data = event.getData();
+      next: (event1: FlowEvent) => {
+        const data = event1.getData();
 
         iteration++;
         if (iteration === 1) {
@@ -141,7 +141,7 @@ class TestResource extends FlowResource {
     const data = { assetId, event: {}, elementProps: this.properties, flowProps: this.flowProperties };
 
     this.logger.verbose('test', { truncate: false });
-    return this.emitOutput(data);
+    return this.emitEvent(data, event);
   }
 }
 

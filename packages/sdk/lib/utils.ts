@@ -36,7 +36,7 @@ export function fillTemplate(value: any, ...templateVariables: any): any {
 
 export function getCircularReplacer() {
   const seen = new WeakSet();
-  return (key, value) => {
+  return (_key, value) => {
     if (typeof value === 'object' && value !== null) {
       if (seen.has(value)) {
         return;
@@ -57,7 +57,9 @@ export function delay(ms: number): Promise<void> {
 
 export async function deleteFiles(dir: string, ...filenames: string[]) {
   for (const filename of filenames) {
-    await fs.unlink(join(dir, filename)).catch((err) => {});
+    await fs.unlink(join(dir, filename)).catch((err) => {
+      /*ignore*/
+    });
   }
 }
 
@@ -90,7 +92,7 @@ export function runPyScript(scriptPath: string, data: any) {
         pyData = message;
       }
     });
-    pyshell.end((err, code, signal) => {
+    pyshell.end((err, _code, _signal) => {
       if (err) {
         return reject(err);
       }

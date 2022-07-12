@@ -37,7 +37,7 @@ export class FlowMockService extends DataMockService<FlowDto> implements FlowSer
     const flowId = typeof depl.flow === 'string' ? depl.flow : depl.flow.id;
     const diagramId = typeof depl.diagram === 'string' ? depl.diagram : depl.diagram.id;
     const revisions = await this.getDiagramRevisions(flowId);
-    return revisions.reverse()[0].id === diagramId;
+    return revisions[revisions.length - 1].id === diagramId;
   }
 
   public getDiagramRevisions(id: string): Promise<FlowDiagram[]> {
@@ -67,12 +67,12 @@ export class FlowMockService extends DataMockService<FlowDto> implements FlowSer
     return Promise.resolve(page);
   }
 
-  public rollback(id: string, revisionId: string): Promise<FlowDto> {
+  public rollback(_id: string, revisionId: string): Promise<FlowDto> {
     const flow = this.revisions.find((revision) => revision.id === revisionId);
     return Promise.resolve(flow);
   }
 
-  public deleteRevision(id: string, revisionId: string): Promise<any> {
+  public deleteRevision(_id: string, revisionId: string): Promise<any> {
     const index = this.revisions.findIndex((revision) => revision.id === revisionId);
     this.revisions.splice(index, 1);
     return Promise.resolve(revisionId);

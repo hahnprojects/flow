@@ -4,6 +4,11 @@ import { API, FlowDeployment } from '../lib';
 
 dotenv.config();
 
+process.env.API_BASE_URL = 'https://testing.hahnpro.com';
+process.env.AUTH_REALM = 'testing';
+process.env.API_USER = 'timo-test-client';
+process.env.AUTH_SECRET = 'tDCc1Lck9MuQgOcdCwSpd1JuTMEyg4CF';
+
 /* eslint-disable no-console */
 describe('API test', () => {
   const api = new API();
@@ -182,6 +187,9 @@ describe('API test', () => {
       expect(Array.isArray(roles)).toBe(true);
       expect(roles.length).toBeGreaterThan(0);
     }
+
+    const settings = await api.users.getUserSettings();
+    console.log(settings);
   }, 60000);
 
   test('FLOW-API.9 flows', async () => {
@@ -273,8 +281,8 @@ describe('API test', () => {
     if (deployments) {
       expect(Array.isArray(deployments.docs)).toBe(true);
       expect(deployments.docs.length).toBeGreaterThan(0);
-      const deplId = deployments.docs[0].id;
-      const deployment = (await api.flowDeployments.getOne(deplId).catch((err) => logError(err))) as FlowDeployment;
+      const deplId1 = deployments.docs[0].id;
+      const deployment = (await api.flowDeployments.getOne(deplId1).catch((err) => logError(err))) as FlowDeployment;
       expect(deployment).toBeDefined();
       expect(await api.flows.isDeploymentOnLatestDiagramVersion(deployment)).toBe(true);
     }
@@ -347,8 +355,8 @@ describe('API test', () => {
       expect(Array.isArray(labels.docs)).toBe(true);
       expect(labels.docs.length).toBeGreaterThan(0);
       const labelId = labels.docs[0].id;
-      const label = await api.labels.getOne(labelId);
-      expect(label).toBeDefined();
+      const label1 = await api.labels.getOne(labelId);
+      expect(label1).toBeDefined();
     }
 
     const label = await api.labels.getOneByName('e2e');

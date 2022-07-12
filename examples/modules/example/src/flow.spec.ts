@@ -64,7 +64,6 @@ describe('Example Test', () => {
         expect(data).toBeDefined();
         expect(data.num).toBeGreaterThanOrEqual(420);
         expect(data.num).toBeLessThanOrEqual(4200);
-        // console.log(data);
 
         done();
       },

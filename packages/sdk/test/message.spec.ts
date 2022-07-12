@@ -19,8 +19,8 @@ describe('Flow SDK', () => {
     const flowApp = new FlowApplication([TestModule], flow, null, null, true);
 
     flowApp.subscribe('testResource.default', {
-      next: (event: FlowEvent) => {
-        expect(event.getData()).toEqual({ elementId: 'testResource', test: 123 });
+      next: (event1: FlowEvent) => {
+        expect(event1.getData()).toEqual({ elementId: 'testResource', test: 123 });
         done();
       },
     });
@@ -38,11 +38,11 @@ describe('Flow SDK', () => {
 class TestResource extends FlowResource {
   @InputStream('default')
   public async onDefault(event) {
-    return this.emitOutput({ hello: 'world' });
+    return this.emitEvent({ hello: 'world' }, event);
   }
 
   public onMessage = (msg) => {
-    this.emitOutput(msg);
+    this.emitEvent(msg, null);
   };
 }
 

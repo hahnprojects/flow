@@ -20,11 +20,11 @@ export class FlowModulesMockService extends DataMockService<ExtendedFlowModule> 
     return Promise.resolve(module);
   }
 
-  publish(form: FormData): Promise<unknown> {
+  publish(_form: FormData): Promise<unknown> {
     return Promise.resolve(undefined);
   }
 
-  getOne(name: string, options: any = {}): Promise<ExtendedFlowModule> {
+  getOne(name: string, _options: any = {}): Promise<ExtendedFlowModule> {
     const t = this.data.find((v: any) => v.name === name);
     return Promise.resolve(t);
   }

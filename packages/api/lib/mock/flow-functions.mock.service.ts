@@ -22,8 +22,8 @@ export class FlowFunctionsMockService extends DataMockService<FlowFunctionDto> i
     this.revisions
       .filter((revision) => revision.originalId === fqn)
       .forEach((revision) => {
-        const index = this.revisions.indexOf(revision);
-        this.revisions.splice(index, 1);
+        const index1 = this.revisions.indexOf(revision);
+        this.revisions.splice(index1, 1);
       });
     return Promise.resolve(undefined);
   }
@@ -35,7 +35,7 @@ export class FlowFunctionsMockService extends DataMockService<FlowFunctionDto> i
     return Promise.resolve(flowFunction);
   }
 
-  getOne(fqn: string, options?: any): Promise<FlowFunctionDto> {
+  getOne(fqn: string, _options?: any): Promise<FlowFunctionDto> {
     const t = this.data.find((v: any) => v.fqn === fqn);
     return Promise.resolve(t);
   }
@@ -54,12 +54,12 @@ export class FlowFunctionsMockService extends DataMockService<FlowFunctionDto> i
     return Promise.resolve(page);
   }
 
-  public rollback(fqn: string, revisionId: string): Promise<FlowFunctionDto> {
+  public rollback(_fqn: string, revisionId: string): Promise<FlowFunctionDto> {
     const assetType = this.revisions.find((revision) => revision.id === revisionId);
     return Promise.resolve(assetType);
   }
 
-  public deleteRevision(fqn: string, revisionId: string): Promise<any> {
+  public deleteRevision(_fqn: string, revisionId: string): Promise<any> {
     const index = this.revisions.findIndex((revision) => revision.id === revisionId);
     this.revisions.splice(index, 1);
     return Promise.resolve(revisionId);

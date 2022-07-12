@@ -42,12 +42,12 @@ export class AssetTypesMockService extends DataMockService<AssetType> implements
     return Promise.resolve(page);
   }
 
-  public rollback(id: string, revisionId: string): Promise<AssetType> {
+  public rollback(_id: string, revisionId: string): Promise<AssetType> {
     const assetType = this.revisions.find((revision) => revision.id === revisionId);
     return Promise.resolve(assetType);
   }
 
-  public deleteRevision(assetId: string, revisionId: string): Promise<any> {
+  public deleteRevision(_assetId: string, revisionId: string): Promise<any> {
     const index = this.revisions.findIndex((revision) => revision.id === revisionId);
     this.revisions.splice(index, 1);
     return Promise.resolve(revisionId);

@@ -53,7 +53,7 @@ describe('InputStreamDecorator', () => {
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { test1: 'data', test2: 'otherData' }));
   }, 60000);
 
-  test('FLOW.ISD.5 should only log partial events', (done) => {
+  test('FLOW.ISD.5 should only log partial events', async () => {
     const flow = {
       elements: [
         { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
@@ -62,26 +62,31 @@ describe('InputStreamDecorator', () => {
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
     };
     const amqpConnection: any = { createSubscriber: jest.fn(), publish: jest.fn(), managedChannel: { assertExchange: jest.fn() } };
-    const flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, true);
-    const spyInstance = jest.spyOn(amqpConnection, 'publish').mockImplementation((exchange: string, routingKey: string, message: any) => {
-      return Promise.resolve();
-    });
+    const spyInstance = jest
+      .spyOn(amqpConnection, 'publish')
+      .mockImplementation((_exchange: string, _routingKey: string, _message: any) => {
+        return Promise.resolve();
+      });
+    const flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, true, true);
+    await flowApp.init();
 
-    flowApp.subscribe('testResource.default', {
-      next: async (event: FlowEvent) => {
-        try {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          expect(spyInstance).toHaveBeenLastCalledWith('flowlogs', '', expect.objectContaining({ data: { hello: 'world' } }));
-          expect(spyInstance).toHaveBeenCalledWith('flowlogs', '', expect.objectContaining({ data: { test1: 'data' } }));
-          expect(spyInstance).toHaveBeenCalledWith('flowlogs', '', expect.objectContaining({ data: 'Flow Deployment is running' }));
-          expect(spyInstance).toHaveBeenCalledTimes(3);
-          done();
-        } catch (error) {
-          done(error);
-        }
-      },
+    const done = new Promise<void>((resolve, reject) => {
+      flowApp.subscribe('testResource.default', {
+        next: async (_event: FlowEvent) => {
+          try {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            expect(spyInstance).toHaveBeenNthCalledWith(1, 'flowlogs', '', expect.objectContaining({ data: 'Flow Deployment is running' }));
+            expect(spyInstance).toHaveBeenNthCalledWith(2, 'flowlogs', '', expect.objectContaining({ data: { test1: 'data' } }));
+            expect(spyInstance).toHaveBeenNthCalledWith(4, 'flowlogs', '', expect.objectContaining({ data: { hello: 'world' } }));
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        },
+      });
     });
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { test1: 'data' }));
+    return done;
   });
 
   test('FLOW.ISD.6 stopPropagation should work in a mixed flow', (done) => {
@@ -260,7 +265,7 @@ class LongRunningTask extends FlowTask {
 
   @InputStream('b')
   public async onB(event: FlowEvent) {
-    await setTimeout(() => Promise.resolve(), 100);
+    await new Promise<void>((resolve) => setTimeout(resolve, 100));
     return this.emitEvent({ output: 'b' }, event);
   }
 }
@@ -327,7 +332,7 @@ class Stateful extends FlowTask {
 @FlowFunction('test.task.use-deprecated')
 class Deprecated extends FlowTask {
   @InputStream()
-  public onDefault(event: FlowEvent) {
+  public onDefault(_event: FlowEvent) {
     return this.emitOutput({ hello: 'world' });
   }
 }

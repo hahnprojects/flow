@@ -15,10 +15,10 @@ def factorial(n):
 
 
 def main():
-    jsonData = json.loads(sys.stdin.readlines()[0])
-    a = jsonData["a"]
-    b = jsonData["b"]
-    x = jsonData["x"]
+    json_data = json.loads(sys.stdin.readlines()[0])
+    a = json_data["a"]
+    b = json_data["b"]
+    x = json_data["x"]
 
     data = {"sum": sum(a, b, x), "mul": multiply(a, b, x), "factorial": factorial(a)}
 

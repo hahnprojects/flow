@@ -12,17 +12,17 @@ export class FlowDeploymentMockService extends DataMockService<FlowDeployment> i
   }
 
   public subscribeToStatus(
-    id: string,
+    _id: string,
     listener: (event: MessageEvent<any>) => void,
-    errorListener?: (event: MessageEvent<any>) => void,
+    _errorListener?: (event: MessageEvent<any>) => void,
   ): Promise<string> {
     listener(new MessageEvent('message', { data: 'running' }));
     return Promise.resolve(randomUUID());
   }
   public subscribeToLogs(
-    id: string,
+    _id: string,
     listener: (event: MessageEvent<any>) => void,
-    errorListener?: (event: MessageEvent) => void,
+    _errorListener?: (event: MessageEvent) => void,
   ): Promise<string> {
     listener(new MessageEvent('message', { data: 'foo' }));
     return Promise.resolve(randomUUID());
@@ -40,7 +40,7 @@ export class FlowDeploymentMockService extends DataMockService<FlowDeployment> i
     return Promise.resolve(deployment);
   }
 
-  public async resolveReferences(id: string, recursive?: boolean, types?: string[]): Promise<ResourceReference[]> {
+  public async resolveReferences(id: string, _recursive?: boolean, _types?: string[]): Promise<ResourceReference[]> {
     const depl = await this.getOne(id);
     return depl.refs ?? [];
   }
@@ -62,7 +62,7 @@ export class FlowDeploymentMockService extends DataMockService<FlowDeployment> i
     });
   }
 
-  public getDeploymentMetrics(id: string, range?: string, interval?: string): Promise<FlowDeploymentMetrics> {
+  public getDeploymentMetrics(_id: string, _range?: string, _interval?: string): Promise<FlowDeploymentMetrics> {
     return Promise.resolve({
       metrics: [{ timestamp: Date.now(), cpu: 0, memory: Math.random() * 1000000 }],
       stats: {
@@ -133,12 +133,8 @@ export class FlowDeploymentMockService extends DataMockService<FlowDeployment> i
     // super simplified version of real resolver
     return Promise.all(
       Object.keys(properties).map(async (prop) => {
-        switch (prop) {
-          case 'assetId':
-            return { id: (await this.api.assets.getOne(properties[prop])).id, resourceType: 'asset' };
-          default:
-            throw new Error('not implemented');
-        }
+        if (prop !== 'assetId') new Error('not implemented');
+        return { id: (await this.api.assets.getOne(properties[prop])).id, resourceType: 'asset' };
       }),
     );
   }

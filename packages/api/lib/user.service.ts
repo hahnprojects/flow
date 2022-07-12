@@ -1,8 +1,12 @@
 import { HttpClient } from './http.service';
 import jwtDecode from 'jwt-decode';
+import { UserSettings } from './user-settings.interface';
 
 export class UserService {
-  constructor(private httpClient: HttpClient) {}
+  private readonly basePath: string;
+  constructor(private httpClient: HttpClient) {
+    this.basePath = '/user'
+  }
 
   async getCurrentUserRoles(): Promise<string[]> {
     try {
@@ -12,5 +16,17 @@ export class UserService {
     } catch (err) {
       return null;
     }
+  }
+
+  public getUserSettings(): Promise<UserSettings> {
+    return this.httpClient.get(this.basePath);
+  }
+
+  public updateUserSettings(settings: UserSettings): Promise<UserSettings> {
+    return this .httpClient.put(this.basePath, settings);
+  }
+
+  public deleteUserSettings(): Promise<UserSettings> {
+    return this.httpClient.delete(this.basePath);
   }
 }

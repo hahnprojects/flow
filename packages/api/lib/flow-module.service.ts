@@ -22,11 +22,11 @@ export class FlowModuleService extends DataService<FlowModule> {
     return this.httpClient.post(`${this.basePath}`, form, config);
   }
 
-  public addOne(dto: any): Promise<FlowModule> {
+  public addOne(_dto: any): Promise<FlowModule> {
     throw new Error('not allowed: use publish instead');
   }
 
-  public addMany(dto: any[]): Promise<FlowModule[]> {
+  public addMany(_dto: any[]): Promise<FlowModule[]> {
     throw new Error('not allowed: use publish instead');
   }
 }

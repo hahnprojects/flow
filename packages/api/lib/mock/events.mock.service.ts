@@ -8,7 +8,7 @@ export class EventsMockService extends DataMockService<Event> implements EventsS
     this.data = events;
   }
 
-  getLastEventByAssetAndGroup(assetId: string, group: string): Promise<Event> {
+  getLastEventByAssetAndGroup(_assetId: string, _group: string): Promise<Event> {
     return Promise.resolve(this.data[this.data.length - 1]);
   }
 }

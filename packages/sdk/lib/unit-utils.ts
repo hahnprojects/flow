@@ -27,7 +27,7 @@ export function makeUnitDecorator(unit: string, metric: string, validationOption
 
 @ValidatorConstraint({ async: false })
 class UnitArgsValidator implements ValidatorConstraintInterface {
-  validate(value: any, validationArguments?: ValidationArguments): Promise<boolean> | boolean {
+  validate(value: any, _validationArguments?: ValidationArguments): Promise<boolean> | boolean {
     return isNumber(value);
   }
 

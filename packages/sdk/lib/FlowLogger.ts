@@ -11,10 +11,10 @@ export interface Logger {
 
 /* eslint-disable no-console */
 export const defaultLogger: Logger = {
-  debug: (msg, metadata?) => console.debug(msg),
-  error: (msg, metadata?) => console.error(msg),
-  log: (msg, metadata?) => console.log(msg),
-  warn: (msg, metadata?) => console.warn(msg),
+  debug: (msg, _metadata?) => console.debug(msg),
+  error: (msg, _metadata?) => console.error(msg),
+  log: (msg, _metadata?) => console.log(msg),
+  warn: (msg, _metadata?) => console.warn(msg),
   verbose: (msg, metadata?) => console.log(msg, metadata),
 };
 /* eslint-enable no-console */

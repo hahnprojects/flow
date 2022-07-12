@@ -25,7 +25,7 @@ export class Python extends FlowTask<Properties> {
       const response = JSON.parse(msg);
       return this.emitEvent({ sum: response.sum, mul: response.mul, factorial: response.factorial }, event);
     });
-    pyshell.end((err, exitCode, exitSignal) => {
+    pyshell.end((err, _exitCode, _exitSignal) => {
       if (err) {
         this.logger.error(err);
       }

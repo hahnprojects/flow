@@ -334,9 +334,9 @@ program
         cwd: project.location,
         ignore: ['node_modules/**/*', '**/package*.json', '**/tsconfig*.json'],
       };
-      glob('**/*.*', globOptions, async (error, files) => {
+      glob('**/*.*', globOptions, async (_error, files) => {
         const filtered = files.filter((file) => !file.endsWith('.spec.ts'));
-        const tsJsonMap = filtered.reduce((accumulator, current, index, array) => {
+        const tsJsonMap = filtered.reduce((accumulator, current, _index, array) => {
           if (current.endsWith('.ts')) {
             // get json file for current function
             const json = array.find((v) => v === `${current.split('.')[0]}.json`);
@@ -590,22 +590,22 @@ async function publishFunctions(project, update, baseUrl = BASE_URL) {
               try {
                 await axios.put(`${baseUrl}/api/flow/functions/${json.fqn}`, json, { headers });
                 logger.ok(`Flow Function "${json.fqn}" has been updated`);
-              } catch (error) {
+              } catch (err) {
                 logger.error(`Flow Function "${json.fqn}" could not be updated`);
-                handleApiError(error);
+                handleApiError(err);
               }
             } else {
               try {
                 await axios.post(`${baseUrl}/api/flow/functions`, json, { headers });
                 logger.ok(`Flow Function "${json.fqn}" has been created`);
-              } catch (error) {
+              } catch (err) {
                 logger.error(`Flow Function "${json.fqn}" could not be created`);
-                handleApiError(error);
+                handleApiError(err);
               }
             }
           }
-        } catch (error) {
-          logger.error(error);
+        } catch (err) {
+          logger.error(err);
         }
       }
       return resolve();
@@ -628,9 +628,9 @@ function zipDirectory(source, out) {
   });
 }
 
-function deleteFile(path) {
+function deleteFile(filePath) {
   return new Promise((resolve, reject) => {
-    fs.unlink(path, (error) => {
+    fs.unlink(filePath, (error) => {
       if (error) return reject(error);
       return resolve();
     });
@@ -737,20 +737,20 @@ function checkIfAll(projectName) {
   return false;
 }
 
-function readJson(path) {
+function readJson(filePath) {
   return new Promise((resolve, reject) => {
-    fs.readFile(path, { encoding: 'utf8' }, (error, data) => {
+    fs.readFile(filePath, { encoding: 'utf8' }, (error, data) => {
       if (error) return reject(error);
       try {
         return resolve(JSON.parse(data));
-      } catch (error) {
-        return reject(error);
+      } catch (err) {
+        return reject(err);
       }
     });
   });
 }
 
-function writeJson(path, data) {
+function writeJson(filePath, data) {
   return new Promise((resolve, reject) => {
     let dataString;
     try {
@@ -758,7 +758,7 @@ function writeJson(path, data) {
     } catch (error) {
       return reject(error);
     }
-    fs.writeFile(path, dataString, (error) => {
+    fs.writeFile(filePath, dataString, (error) => {
       if (error) return reject(error);
       return resolve();
     });

@@ -44,14 +44,14 @@ export async function getAccessToken(baseUrl = BASE_URL, realm = REALM) {
           try {
             const kcIssuer = await openidClient.Issuer.discover(`${baseUrl}/auth/realms/${realm}/`);
             const client = new kcIssuer.Client({ client_id: CLIENT_ID, client_secret: CLIENT_SECRET });
-            const tokenSet = await client.grant({ grant_type: 'client_credentials' });
+            const tokenSet1 = await client.grant({ grant_type: 'client_credentials' });
 
-            nconf.set(baseUrl.replace(/:/g, ''), tokenSet);
+            nconf.set(baseUrl.replace(/:/g, ''), tokenSet1);
             nconf.save((error) => {
               if (error) {
                 logger.error(error);
               }
-              return resolve(tokenSet.access_token);
+              return resolve(tokenSet1.access_token);
             });
           } catch (error) {
             return reject(error);
@@ -85,6 +85,7 @@ export function login(baseUrl = BASE_URL, realm = REALM) {
     const auhtUrl = client.authorizationUrl({ code_challenge, code_challenge_method: 'S256' });
 
     const app = express();
+    app.disable("x-powered-by");
     app.use(express.static(viewsPath));
     app.set('views', viewsPath);
 

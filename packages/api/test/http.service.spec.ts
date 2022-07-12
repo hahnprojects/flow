@@ -5,13 +5,13 @@ import { HttpClient } from '../lib';
 
 describe('HTTP Service', () => {
   let axiosMock: MockAdapter;
-  const assets = Array.from({ length: 5 }, (v, i) => ({ id: i, name: 'Asset' + i }));
+  const assets = Array.from({ length: 5 }, (_v, i) => ({ id: i, name: 'Asset' + i }));
 
   beforeEach(() => {
     axiosMock = new MockAdapter(axios, { delayResponse: 100 });
     axiosMock.onGet('/api/assets').reply(200, { docs: assets });
-    axiosMock.onGet(new RegExp('/api/assets/*')).reply(200, assets[0]);
-    axiosMock.onPost(new RegExp('/auth/*')).reply(200, {
+    axiosMock.onGet(/\/api\/assets\/*/).reply(200, assets[0]);
+    axiosMock.onPost(/\/auth\/*/).reply(200, {
       access_token: 'TOKEN',
       expires_in: 60000,
     });
@@ -40,25 +40,25 @@ describe('HTTP Service', () => {
   });
 
   it('FLOW.HS.2 should handle invalid access token', async () => {
-    axiosMock.onPost(new RegExp('/auth/*')).reply(200, {});
+    axiosMock.onPost(/\/auth\/*/).reply(200, {});
     const client = new HttpClient('/api', '/auth', 'test', 'test', 'test');
     await expect(client.get<any>('/assets')).rejects.toThrow('Invalid access token received');
   });
 
   it('FLOW.HS.3 should handle auth network errors', async () => {
-    axiosMock.onPost(new RegExp('/auth/*')).networkError();
+    axiosMock.onPost(/\/auth\/*/).networkError();
     const client = new HttpClient('/api', '/auth', 'test', 'test', 'test');
     await expect(client.get<any>('/assets')).rejects.toThrow('Network Error');
   });
 
   it('FLOW.HS.4 should handle auth timeouts', async () => {
-    axiosMock.onPost(new RegExp('/auth/*')).timeout();
+    axiosMock.onPost(/\/auth\/*/).timeout();
     const client = new HttpClient('/api', '/auth', 'test', 'test', 'test');
     await expect(client.get<any>('/assets')).rejects.toThrow('timeout of 10000ms exceeded');
   });
 
   it('FLOW.HS.5 should handle aborted auth requests', async () => {
-    axiosMock.onPost(new RegExp('/auth/*')).abortRequest();
+    axiosMock.onPost(/\/auth\/*/).abortRequest();
     const client = new HttpClient('/api', '/auth', 'test', 'test', 'test');
     await expect(client.get<any>('/assets')).rejects.toThrow('Request aborted');
   });
