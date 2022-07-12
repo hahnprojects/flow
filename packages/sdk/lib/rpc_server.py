@@ -82,7 +82,7 @@ async def main(loop, routing_key):
     channel = await connection.channel()
 
     dest_exchange = await channel.declare_exchange(name="rpc_direct_exchange", type=ExchangeType.DIRECT)
-    flow_logs_exchange = await channel.declare_exchange(name='flowlogs', type=ExchangeType.FANOUT, robust=True)
+    flow_logs_exchange = await channel.declare_exchange(name='flowlogs', type=ExchangeType.FANOUT, durable=True)
 
     queue = await channel.declare_queue("", exclusive=True)
 
