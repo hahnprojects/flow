@@ -93,12 +93,7 @@ describe('Flow RPC', () => {
 class TestResource extends FlowResource {
   constructor(context) {
     super(context);
-    const shell = this.runPyRpcScript(join(__dirname, 'rpc.test.py'), 10);
-    shell.on('message', (parsedChunk) => console.log(parsedChunk));
-    shell.on('error', (parsedChunk) => console.log(parsedChunk));
-    shell.on('pythonError', (parsedChunk) => console.log(parsedChunk));
-    shell.on('stderr', (parsedChunk) => console.log(parsedChunk));
-    shell.on('close', (parsedChunk) => console.log(parsedChunk));
+    this.runPyRpcScript(join(__dirname, 'rpc.test.py'), 10);
   }
 
   @InputStream('a')

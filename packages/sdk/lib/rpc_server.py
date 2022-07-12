@@ -5,6 +5,9 @@ from functools import partial, wraps
 from aio_pika import IncomingMessage, Exchange, Message, connect_robust, ExchangeType
 from aio_pika.abc import AbstractRobustExchange
 import os
+import sys
+
+print(sys.version)
 
 user = os.getenv("RABBIT_USER", "guest")
 password = os.getenv("RABBIT_PASSWORD", "guest")
@@ -104,4 +107,4 @@ def log(message):
     if flow_logs_exchange is not None:
         flow_logs_exchange.publish(Message(body=json.dumps(message).encode("utf-8")), "")
     else:
-        print("Connection not established. Call start_consumer first.")
+        raise Exception("Connection not established. Call start_consumer first.")
