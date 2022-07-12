@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 3.3.0
+
+### Minor Changes
+
+- 8bd0141: added trash endpoint for all supported resources
+
 ## 3.2.1
 
 ### Patch Changes
