@@ -1,12 +1,10 @@
+import { APIBase } from './api-base';
 import { DataInterface, Filter, Paginated, RequestParameter } from './data.interface';
 import { HttpClient } from './http.service';
 
-export class DataService<T> implements DataInterface<T> {
-  constructor(protected httpClient: HttpClient, protected basePath) {}
-
-  protected initData(httpClient: HttpClient, basePath) {
-    this.httpClient = httpClient;
-    this.basePath = basePath;
+export class DataService<T> extends APIBase implements DataInterface<T> {
+  constructor(httpClient: HttpClient, basePath: string) {
+    super(httpClient, basePath);
   }
 
   public addOne(dto: any): Promise<T> {
@@ -41,7 +39,7 @@ export class DataService<T> implements DataInterface<T> {
     return this.httpClient.delete(`${this.basePath}/${id}`, { params: { force } });
   }
 
-  protected getFilterString(filter: Filter) {
+  private getFilterString(filter: Filter) {
     // tags%3D%40tag1%20tag2%3Btype%3D%3Dtype%3Bparent%3D%3D5a9d6c5182b56300015371c8
     const { parent, tags, type } = filter;
     const filters: string[] = [];

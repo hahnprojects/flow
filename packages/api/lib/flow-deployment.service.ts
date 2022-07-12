@@ -1,9 +1,22 @@
+import { mix } from 'ts-mixer';
+
+import { APIBase } from './api-base';
 import { DataService } from './data.service';
 import { FlowDeployment, FlowDeploymentMetrics, FlowDeploymentStatistic, FlowLog } from './flow-deployment.interface';
 import { HttpClient } from './http.service';
 import { ResourceReference } from './resource.interface';
+import { TrashService } from './trash.service';
 
-export class FlowDeploymentService extends DataService<FlowDeployment> {
+interface MixedClass extends DataService<FlowDeployment>, TrashService<FlowDeployment> {}
+
+@mix(DataService, TrashService)
+class MixedClass extends APIBase {
+  constructor(httpClient: HttpClient, basePath: string) {
+    super(httpClient, basePath);
+  }
+}
+
+export class FlowDeploymentService extends MixedClass {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/flow/deployments');
   }

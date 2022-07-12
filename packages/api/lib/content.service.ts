@@ -1,19 +1,19 @@
 import FormData from 'form-data';
+import { Readable } from 'stream';
+import { mix } from 'ts-mixer';
 
+import { APIBase } from './api-base';
 import { Content, ReturnType } from './content.interface';
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
-import { Readable } from 'stream';
 import { TrashService } from './trash.service';
-import { mix } from 'ts-mixer';
 
 interface MixedClass extends DataService<Content>, TrashService<Content> {}
 
 @mix(DataService, TrashService)
-class MixedClass {
-  constructor(httpClient: HttpClient, basePath) {
-    this.initData(httpClient, basePath);
-    this.initTrash(httpClient, basePath);
+class MixedClass extends APIBase {
+  constructor(httpClient: HttpClient, basePath: string) {
+    super(httpClient, basePath);
   }
 }
 

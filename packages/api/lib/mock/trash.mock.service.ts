@@ -1,19 +1,17 @@
 import { TrashService } from '../trash.service';
 import { Paginated, RequestParameter } from '../data.interface';
-import { HttpClient } from '../http.service';
+import { APIBaseMock } from './api-base.mock';
 
-export class TrashMockService<T> extends TrashService<T> {
-  protected trashData: T[] = [];
+export class TrashMockService<T extends { id?: string }> extends TrashService<T> implements APIBaseMock<T> {
+  data: T[] = [];
   protected deleteOnecbf;
 
-  initTrash(httpClient: HttpClient, basePath, data = [], deleteOnecbf?) {
-    super.initTrash(httpClient, basePath);
-    this.trashData = data;
-    this.deleteOnecbf = deleteOnecbf;
+  constructor() {
+    super(null, null);
   }
 
   public trashRestoreAll(): Promise<T[]> {
-    const deleted = this.trashData.filter((v) => v['deletedAt']);
+    const deleted = this.data.filter((v) => v['deletedAt']);
     for (const asset of deleted) {
       delete asset['deletedAt'];
     }
@@ -21,7 +19,7 @@ export class TrashMockService<T> extends TrashService<T> {
   }
 
   public trashRestoreOne(id: string): Promise<T> {
-    const deleted = this.trashData.find((v) => v['id'] === id);
+    const deleted = this.data.find((v) => v['id'] === id);
     delete deleted['deletedAt'];
     return Promise.resolve(deleted);
   }
@@ -29,9 +27,9 @@ export class TrashMockService<T> extends TrashService<T> {
   public async emptyTrash(offset: number): Promise<{ acknowledged: boolean; deletedCount: number }> {
     const dateOffsSeconds = Math.round(new Date().getTime() / 1000) - offset;
     const date = new Date(dateOffsSeconds * 1000);
-    const trash = this.trashData.filter((v) => new Date(v['deletedAt']) < date);
-    await Promise.all(trash.map((v) => this.deleteOnecbf(v['id'])));
-    return Promise.resolve({ acknowledged: true, deletedCount: trash.length });
+    const trashIds = this.data.filter((v) => new Date(v['deletedAt']) < date).map((v) => v.id);
+    this.data = this.data.filter((item) => !trashIds.includes(item.id));
+    return Promise.resolve({ acknowledged: true, deletedCount: trashIds.length });
   }
 
   public getTrash(params?: RequestParameter): Promise<Paginated<T[]>> {
@@ -40,7 +38,7 @@ export class TrashMockService<T> extends TrashService<T> {
   }
 
   protected getItems(params: RequestParameter, deleted = false) {
-    const data = this.trashData.filter((item) => !!item['deletedAt'] === deleted);
+    const data = this.data.filter((item) => !!item['deletedAt'] === deleted);
     const page: Paginated<T[]> = {
       docs: data,
       limit: params && params.limit ? params.limit : Number.MAX_SAFE_INTEGER,

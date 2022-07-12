@@ -1,24 +1,26 @@
 import FormData from 'form-data';
+import { mix } from 'ts-mixer';
+
 import { Asset, AssetRevision } from '../asset.interface';
+import { AssetService } from '../asset.service';
 import { Paginated, RequestParameter } from '../data.interface';
 import { MockAPI } from './api.mock';
+import { APIBaseMock } from './api-base.mock';
 import { DataMockService } from './data.mock.service';
-import { mix } from 'ts-mixer';
 import { TrashMockService } from './trash.mock.service';
-import { HttpClient } from '../http.service';
 
 interface MixedClass extends DataMockService<Asset>, TrashMockService<Asset> {}
 
 @mix(DataMockService, TrashMockService)
-class MixedClass {
-  constructor(protected httpClient: HttpClient, protected basePath) {}
+class MixedClass extends APIBaseMock<Asset> {
+  constructor(data: Asset[]) {
+    super(data);
+  }
 }
 
-export class AssetMockService extends MixedClass {
+export class AssetMockService extends MixedClass implements AssetService {
   constructor(private api: MockAPI, assets: Asset[], private revisions: AssetRevision[]) {
-    super(null, null);
-    this.data = assets;
-    this.initTrash(null, null, assets, this.deleteOne);
+    super(assets);
   }
 
   private getAssets(params: RequestParameter, deleted = false) {

@@ -1,17 +1,18 @@
+import { mix } from 'ts-mixer';
+
+import { APIBase } from './api-base';
 import { AssetType } from './asset.interface';
+import { Paginated } from './data.interface';
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
-import { Paginated } from './data.interface';
 import { TrashService } from './trash.service';
-import { mix } from 'ts-mixer';
 
 interface MixedClass extends DataService<AssetType>, TrashService<AssetType> {}
 
 @mix(DataService, TrashService)
-class MixedClass {
-  constructor(httpClient: HttpClient, basePath) {
-    this.initData(httpClient, basePath);
-    this.initTrash(httpClient, basePath);
+class MixedClass extends APIBase {
+  constructor(httpClient: HttpClient, basePath: string) {
+    super(httpClient, basePath);
   }
 }
 

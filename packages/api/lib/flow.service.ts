@@ -1,18 +1,19 @@
+import { mix } from 'ts-mixer';
+
+import { APIBase } from './api-base';
+import { Paginated, RequestParameter } from './data.interface';
 import { DataService } from './data.service';
 import { FlowDiagram, FlowDto } from './flow.interface';
-import { HttpClient } from './http.service';
-import { Paginated, RequestParameter } from './data.interface';
 import { FlowDeployment } from './flow-deployment.interface';
+import { HttpClient } from './http.service';
 import { TrashService } from './trash.service';
-import { mix } from 'ts-mixer';
 
 interface MixedClass extends DataService<FlowDto>, TrashService<FlowDto> {}
 
 @mix(DataService, TrashService)
-class MixedClass {
-  constructor(httpClient: HttpClient, path: string) {
-    this.initData(httpClient, path);
-    this.initTrash(httpClient, path);
+class MixedClass extends APIBase {
+  constructor(httpClient: HttpClient, basePath: string) {
+    super(httpClient, basePath);
   }
 }
 

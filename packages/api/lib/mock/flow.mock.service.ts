@@ -1,24 +1,26 @@
-import { DataMockService } from './data.mock.service';
-import { FlowDiagram, FlowDto, FlowRevision } from '../flow.interface';
-import { Paginated, RequestParameter } from '../data.interface';
-import { FlowDeployment } from '../flow-deployment.interface';
 import { randomUUID } from 'crypto';
-import { TrashMockService } from './trash.mock.service';
 import { mix } from 'ts-mixer';
-import { HttpClient } from '../http.service';
+
+import { Paginated, RequestParameter } from '../data.interface';
+import { FlowDiagram, FlowDto, FlowRevision } from '../flow.interface';
+import { FlowService } from '../flow.service';
+import { FlowDeployment } from '../flow-deployment.interface';
+import { APIBaseMock } from './api-base.mock';
+import { DataMockService } from './data.mock.service';
+import { TrashMockService } from './trash.mock.service';
 
 interface MixedClass extends DataMockService<FlowDto>, TrashMockService<FlowDto> {}
 
 @mix(DataMockService, TrashMockService)
-class MixedClass {
-  constructor(protected httpClient: HttpClient, protected basePath) {}
+class MixedClass extends APIBaseMock<FlowDto> {
+  constructor(data: FlowDto[]) {
+    super(data);
+  }
 }
 
-export class FlowMockService extends MixedClass {
+export class FlowMockService extends MixedClass implements FlowService {
   constructor(flows: FlowDto[], private diagrams: FlowDiagram[], private revisions: FlowRevision[]) {
-    super(null, null);
-    this.data = flows;
-    super.initTrash(null, null, this.data, this.deleteOne);
+    super(flows);
   }
 
   deleteOne(id: string, force = false): Promise<FlowDto> {

@@ -1,19 +1,24 @@
+import { mix } from 'ts-mixer';
+
+import { Paginated, RequestParameter } from '../data.interface';
 import { Task } from '../task.interface';
+import { TaskService } from '../task.service';
+import { APIBaseMock } from './api-base.mock';
 import { DataMockService } from './data.mock.service';
 import { TrashMockService } from './trash.mock.service';
-import { mix } from 'ts-mixer';
-import { Paginated, RequestParameter } from '../data.interface';
 
 interface MixedClass extends DataMockService<Task>, TrashMockService<Task> {}
 
 @mix(DataMockService, TrashMockService)
-class MixedClass {}
+class MixedClass extends APIBaseMock<Task> {
+  constructor(data: Task[]) {
+    super(data);
+  }
+}
 
-export class TaskMockService extends MixedClass {
+export class TaskMockService extends MixedClass implements TaskService {
   constructor(tasks: Task[]) {
-    super();
-    this.data = tasks;
-    this.initTrash(null, null, tasks, this.deleteOne);
+    super(tasks);
   }
 
   async createTaskAttachedToAsset(dto: any): Promise<Task> {

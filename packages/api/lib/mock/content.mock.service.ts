@@ -1,27 +1,31 @@
 import FormData from 'form-data';
 import { Readable } from 'stream';
+import { mix } from 'ts-mixer';
 
 import { Content, ReturnType } from '../content.interface';
+import { ContentService } from '../content.service';
+import { Paginated, RequestParameter } from '../data.interface';
+import { APIBaseMock } from './api-base.mock';
 import { DataMockService } from './data.mock.service';
 import { TrashMockService } from './trash.mock.service';
-import { mix } from 'ts-mixer';
-import { Paginated, RequestParameter } from '../data.interface';
 
 interface MixedClass extends DataMockService<Content>, TrashMockService<Content> {}
 
 @mix(DataMockService, TrashMockService)
-class MixedClass {}
+class MixedClass extends APIBaseMock<Content> {
+  constructor(data: Content[]) {
+    super(data);
+  }
+}
 
-export class ContentMockService extends MixedClass {
+export class ContentMockService extends MixedClass implements ContentService {
   private contentData: Map<string, any> = new Map();
 
   constructor(contents: Content[], contentData: any[]) {
-    super();
-    this.data = contents;
+    super(contents);
     for (let i = 0; i < contents.length; i++) {
       this.contentData.set(contents[i].id, contentData[i]);
     }
-    this.initTrash(null, null, contents, this.deleteOne);
   }
 
   download(id: string, raw?: boolean): Promise<Blob | ArrayBuffer>;

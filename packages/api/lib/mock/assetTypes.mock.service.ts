@@ -1,20 +1,25 @@
-import { AssetType, AssetTypeRevision } from '../asset.interface';
-import { DataMockService } from './data.mock.service';
-import { Paginated, RequestParameter } from '../data.interface';
 import { randomUUID } from 'crypto';
-import { TrashMockService } from './trash.mock.service';
 import { mix } from 'ts-mixer';
+
+import { AssetType, AssetTypeRevision } from '../asset.interface';
+import { AssetTypesService } from '../assettypes.service';
+import { Paginated, RequestParameter } from '../data.interface';
+import { APIBaseMock } from './api-base.mock';
+import { DataMockService } from './data.mock.service';
+import { TrashMockService } from './trash.mock.service';
 
 interface MixedClass extends DataMockService<AssetType>, TrashMockService<AssetType> {}
 
 @mix(DataMockService, TrashMockService)
-class MixedClass {}
+class MixedClass extends APIBaseMock<AssetType> {
+  constructor(data: AssetType[]) {
+    super(data);
+  }
+}
 
-export class AssetTypesMockService extends MixedClass {
+export class AssetTypesMockService extends MixedClass implements AssetTypesService {
   constructor(assetTypes: AssetType[], private revisions: AssetTypeRevision[]) {
-    super();
-    this.data = assetTypes;
-    this.initTrash(null, null, assetTypes, this.deleteOne);
+    super(assetTypes);
   }
 
   getMany(params?: RequestParameter): Promise<Paginated<AssetType[]>> {

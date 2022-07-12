@@ -1,8 +1,9 @@
 import { Filter, Paginated, RequestParameter } from '../data.interface';
 import { DataService } from '../data.service';
+import { APIBaseMock } from './api-base.mock';
 
-export class DataMockService<T> extends DataService<T> {
-  protected data: T[] = [];
+export class DataMockService<T> extends DataService<T> implements APIBaseMock<T> {
+  data: T[] = [];
 
   constructor() {
     super(null, null);

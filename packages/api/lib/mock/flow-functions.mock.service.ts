@@ -1,8 +1,9 @@
+import { randomUUID } from 'crypto';
+
+import { Paginated } from '../data.interface';
 import { DataMockService } from './data.mock.service';
 import { FlowFunctionDto, FlowFunctionRevision } from '../flow-function.interface';
 import { FlowFunctionService } from '../flow-function.service';
-import { Paginated } from '../data.interface';
-import { randomUUID } from 'crypto';
 
 export class FlowFunctionsMockService extends DataMockService<FlowFunctionDto> implements FlowFunctionService {
   constructor(functions: FlowFunctionDto[], private revisions: FlowFunctionRevision[]) {

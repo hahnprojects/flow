@@ -1,19 +1,24 @@
+import { mix } from 'ts-mixer';
+
 import { Secret } from '../secret.interface';
+import { SecretService } from '../secret.service';
+import { Paginated, RequestParameter } from '../data.interface';
+import { APIBaseMock } from './api-base.mock';
 import { DataMockService } from './data.mock.service';
 import { TrashMockService } from './trash.mock.service';
-import { mix } from 'ts-mixer';
-import { Paginated, RequestParameter } from '../data.interface';
 
 interface MixedClass extends DataMockService<Secret>, TrashMockService<Secret> {}
 
 @mix(DataMockService, TrashMockService)
-class MixedClass {}
+class MixedClass extends APIBaseMock<Secret> {
+  constructor(data: Secret[]) {
+    super(data);
+  }
+}
 
-export class SecretMockService extends MixedClass {
+export class SecretMockService extends MixedClass implements SecretService {
   constructor(secrets: Secret[]) {
-    super();
-    this.data = secrets;
-    this.initTrash(null, null, secrets, this.deleteOne);
+    super(secrets);
   }
 
   deleteOne(contentId: string, force = false): Promise<Secret> {
