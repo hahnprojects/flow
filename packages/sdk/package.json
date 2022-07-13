@@ -40,7 +40,7 @@
     "object-sizeof": "^1.6.3",
     "python-shell": "^3.0.1",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.5.5",
+    "rxjs": "^7.5.6",
     "string-interp": "^0.3.6"
   },
   "devDependencies": {
@@ -48,7 +48,7 @@
     "@nestjs/common": "^8.4.7",
     "@types/amqp-connection-manager": "^2.0.12",
     "@types/amqplib": "^0.8.2",
-    "@types/jest": "^28.1.4",
+    "@types/jest": "^28.1.5",
     "@types/lodash": "^4.14.182",
     "@types/node": "^16.11.43",
     "class-validator-jsonschema": "^3.1.1",
