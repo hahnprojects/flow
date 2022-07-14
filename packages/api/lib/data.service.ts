@@ -1,12 +1,7 @@
 import { APIBase } from './api-base';
 import { DataInterface, Filter, Paginated, RequestParameter } from './data.interface';
-import { HttpClient } from './http.service';
 
 export class DataService<T> extends APIBase implements DataInterface<T> {
-  constructor(httpClient: HttpClient, basePath: string) {
-    super(httpClient, basePath);
-  }
-
   public addOne(dto: any): Promise<T> {
     return this.httpClient.post<T>(this.basePath, dto);
   }

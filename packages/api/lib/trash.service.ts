@@ -1,12 +1,7 @@
 import { APIBase } from './api-base';
 import { Paginated, RequestParameter } from './data.interface';
-import { HttpClient } from './http.service';
 
 export class TrashService<T> extends APIBase {
-  constructor(httpClient: HttpClient, basePath: string) {
-    super(httpClient, basePath);
-  }
-
   public trashRestoreAll(): Promise<T[]> {
     return this.httpClient.put<T[]>(`${this.basePath}/trash/restore`, {});
   }

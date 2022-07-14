@@ -7,16 +7,11 @@ import { HttpClient } from './http.service';
 import { ResourceReference } from './resource.interface';
 import { TrashService } from './trash.service';
 
-interface MixedClass extends DataService<FlowDeployment>, TrashService<FlowDeployment> {}
-
+interface BaseService extends DataService<FlowDeployment>, TrashService<FlowDeployment> {}
 @mix(DataService, TrashService)
-class MixedClass extends APIBase {
-  constructor(httpClient: HttpClient, basePath: string) {
-    super(httpClient, basePath);
-  }
-}
+class BaseService extends APIBase {}
 
-export class FlowDeploymentService extends MixedClass {
+export class FlowDeploymentService extends BaseService {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/flow/deployments');
   }

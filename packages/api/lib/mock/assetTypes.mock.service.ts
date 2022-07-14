@@ -8,16 +8,11 @@ import { APIBaseMock } from './api-base.mock';
 import { DataMockService } from './data.mock.service';
 import { TrashMockService } from './trash.mock.service';
 
-interface MixedClass extends DataMockService<AssetType>, TrashMockService<AssetType> {}
-
+interface BaseService extends DataMockService<AssetType>, TrashMockService<AssetType> {}
 @mix(DataMockService, TrashMockService)
-class MixedClass extends APIBaseMock<AssetType> {
-  constructor(data: AssetType[]) {
-    super(data);
-  }
-}
+class BaseService extends APIBaseMock<AssetType> {}
 
-export class AssetTypesMockService extends MixedClass implements AssetTypesService {
+export class AssetTypesMockService extends BaseService implements AssetTypesService {
   constructor(assetTypes: AssetType[], private revisions: AssetTypeRevision[]) {
     super(assetTypes);
   }

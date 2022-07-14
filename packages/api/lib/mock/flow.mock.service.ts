@@ -9,16 +9,11 @@ import { APIBaseMock } from './api-base.mock';
 import { DataMockService } from './data.mock.service';
 import { TrashMockService } from './trash.mock.service';
 
-interface MixedClass extends DataMockService<FlowDto>, TrashMockService<FlowDto> {}
-
+interface BaseService extends DataMockService<FlowDto>, TrashMockService<FlowDto> {}
 @mix(DataMockService, TrashMockService)
-class MixedClass extends APIBaseMock<FlowDto> {
-  constructor(data: FlowDto[]) {
-    super(data);
-  }
-}
+class BaseService extends APIBaseMock<FlowDto> {}
 
-export class FlowMockService extends MixedClass implements FlowService {
+export class FlowMockService extends BaseService implements FlowService {
   constructor(flows: FlowDto[], private diagrams: FlowDiagram[], private revisions: FlowRevision[]) {
     super(flows);
   }
