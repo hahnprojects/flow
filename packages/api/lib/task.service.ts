@@ -6,16 +6,11 @@ import { HttpClient } from './http.service';
 import { Task } from './task.interface';
 import { TrashService } from './trash.service';
 
-interface MixedClass extends DataService<Task>, TrashService<Task> {}
-
+interface BaseService extends DataService<Task>, TrashService<Task> {}
 @mix(DataService, TrashService)
-class MixedClass extends APIBase {
-  constructor(httpClient: HttpClient, basePath: string) {
-    super(httpClient, basePath);
-  }
-}
+class BaseService extends APIBase {}
 
-export class TaskService extends MixedClass {
+export class TaskService extends BaseService {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/tasks');
   }

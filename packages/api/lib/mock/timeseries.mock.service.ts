@@ -7,18 +7,13 @@ import { APIBaseMock } from './api-base.mock';
 import { DataMockService } from './data.mock.service';
 import { TrashMockService } from './trash.mock.service';
 
-interface MixedClass
+interface BaseService
   extends DataMockService<TimeSeries & { data: TimeSeriesValue[] }>,
     TrashMockService<TimeSeries & { data: TimeSeriesValue[] }> {}
-
 @mix(DataMockService, TrashMockService)
-class MixedClass extends APIBaseMock<TimeSeries & { data: TimeSeriesValue[] }> {
-  constructor(data: (TimeSeries & { data: TimeSeriesValue[] })[]) {
-    super(data);
-  }
-}
+class BaseService extends APIBaseMock<TimeSeries & { data: TimeSeriesValue[] }> {}
 
-export class TimeseriesMockService extends MixedClass implements TimeSeriesService {
+export class TimeseriesMockService extends BaseService implements TimeSeriesService {
   constructor(timeseries: TimeSeries[], timeseriesValues: TimeSeriesValue[][]) {
     const data = timeseries.map((value, index) => ({ ...value, data: timeseriesValues[index] }));
     super(data);

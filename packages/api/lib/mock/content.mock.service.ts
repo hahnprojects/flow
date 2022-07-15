@@ -9,16 +9,11 @@ import { APIBaseMock } from './api-base.mock';
 import { DataMockService } from './data.mock.service';
 import { TrashMockService } from './trash.mock.service';
 
-interface MixedClass extends DataMockService<Content>, TrashMockService<Content> {}
-
+interface BaseService extends DataMockService<Content>, TrashMockService<Content> {}
 @mix(DataMockService, TrashMockService)
-class MixedClass extends APIBaseMock<Content> {
-  constructor(data: Content[]) {
-    super(data);
-  }
-}
+class BaseService extends APIBaseMock<Content> {}
 
-export class ContentMockService extends MixedClass implements ContentService {
+export class ContentMockService extends BaseService implements ContentService {
   private contentData: Map<string, any> = new Map();
 
   constructor(contents: Content[], contentData: any[]) {

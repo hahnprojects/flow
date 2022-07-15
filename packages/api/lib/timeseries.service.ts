@@ -7,16 +7,11 @@ import { HttpClient } from './http.service';
 import { TimeSeries, TimeSeriesValue, TS_GROUPS } from './timeseries.interface';
 import { TrashService } from './trash.service';
 
-interface MixedClass extends DataService<TimeSeries>, TrashService<TimeSeries> {}
-
+interface BaseService extends DataService<TimeSeries>, TrashService<TimeSeries> {}
 @mix(DataService, TrashService)
-class MixedClass extends APIBase {
-  constructor(httpClient: HttpClient, basePath: string) {
-    super(httpClient, basePath);
-  }
-}
+class BaseService extends APIBase {}
 
-export class TimeSeriesService extends MixedClass {
+export class TimeSeriesService extends BaseService {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/tsm');
   }

@@ -7,16 +7,11 @@ import { APIBaseMock } from './api-base.mock';
 import { DataMockService } from './data.mock.service';
 import { TrashMockService } from './trash.mock.service';
 
-interface MixedClass extends DataMockService<Task>, TrashMockService<Task> {}
-
+interface BaseService extends DataMockService<Task>, TrashMockService<Task> {}
 @mix(DataMockService, TrashMockService)
-class MixedClass extends APIBaseMock<Task> {
-  constructor(data: Task[]) {
-    super(data);
-  }
-}
+class BaseService extends APIBaseMock<Task> {}
 
-export class TaskMockService extends MixedClass implements TaskService {
+export class TaskMockService extends BaseService implements TaskService {
   constructor(tasks: Task[]) {
     super(tasks);
   }

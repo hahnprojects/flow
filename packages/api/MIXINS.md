@@ -2,7 +2,7 @@
 
 Since we are using generic classes our mixin-structure looks like the following code snippet:
 
-```
+```ts
 import { mix } from 'ts-mixer';
 
 class Foo<T> {
@@ -13,21 +13,17 @@ class Foo<T> {
 
 class Bar<T> {
     public addOne(input: T): T {
-
         ...
-
         return input;
     }
 }
 
 
-interface MixedClass extends Foo<T1>, Bar<T2> { }
-
+interface BaseService extends Foo<T1>, Bar<T2> {}
 @mix(Foo, Bar)
-class MixedClass {}
+class BaseService {}
 
-
-class FooBar extends MixedClass {
+class FooBar extends BaseService {
     public addOne(input1: T1) {
         // do sth special here
         ...
@@ -41,11 +37,11 @@ Further information about mixin: https://github.com/tannerntannern/ts-mixer
 
 #### Why using an Interims-Class and not directly adding the @mix-annotation to the Foobar class?
 
-- We need the (interim) MixedClass because otherwise Foobar would not inherit from any class and we would not be able to call "super" within FooBar's methods.
+- We need the (interim) BaseService because otherwise Foobar would not inherit from any class and we would not be able to call "super" within FooBar's methods.
 
-#### Why do we have an own MixedClass for every Service although this MixedClass is extending the same Classes everywhere?
+#### Why do we have an own BaseService for every Service although this BaseService is extending the same Classes everywhere?
 
-- In Future there could be additional Services in addition to Trash- and DataService, that can be extended by the services. Those combinations can differ from service to service, so every service needs an own MixedClass.
+- In Future there could be additional Services in addition to Trash- and DataService, that can be extended by the services. Those combinations can differ from service to service, so every service needs an own BaseService.
 
 ## Why Mixins?
 
@@ -59,7 +55,7 @@ Mixins are used to form a superclass combined with the services whose methods ar
     |    TrashService                       |
     |        |                              |
     |        |                              |
-    MixedClass                              |
+    BaseService                              |
         |                                   |
         |                                   |
     Services with trash Endpoints          Services without additional, generalized trash Endpoints

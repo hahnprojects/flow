@@ -7,16 +7,11 @@ import { DataService } from './data.service';
 import { HttpClient } from './http.service';
 import { TrashService } from './trash.service';
 
-interface MixedClass extends DataService<AssetType>, TrashService<AssetType> {}
-
+interface BaseService extends DataService<AssetType>, TrashService<AssetType> {}
 @mix(DataService, TrashService)
-class MixedClass extends APIBase {
-  constructor(httpClient: HttpClient, basePath: string) {
-    super(httpClient, basePath);
-  }
-}
+class BaseService extends APIBase {}
 
-export class AssetTypesService extends MixedClass {
+export class AssetTypesService extends BaseService {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/assettypes');
   }
