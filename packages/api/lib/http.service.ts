@@ -14,7 +14,10 @@ export class HttpClient {
   private accessToken: string;
   private accessTokenExpiration = 0;
 
-  public eventSourcesMap: Map<string, EventSource> = new Map<string, EventSource>();
+  public eventSourcesMap: Map<
+    string,
+    { eventSource: EventSource; listener: (event: MessageEvent) => void; errListener: (event: MessageEvent) => void }
+  > = new Map();
 
   constructor(
     private baseURL: string,
@@ -52,19 +55,18 @@ export class HttpClient {
 
   public async addEventSource(url: string, listener: (event: MessageEvent) => void, errorListener?: (event: MessageEvent) => void) {
     const id = randomUUID();
+    const errListener = errorListener
+      ? errorListener
+      : (event) => {
+          throw new Error(JSON.stringify(event, null, 2));
+        };
     const es = new EventSource(`${this.baseURL}${url}`, {
       headers: { authorization: 'Bearer ' + (await this.getAccessToken()) },
     });
     es.addEventListener('message', listener);
-    es.addEventListener(
-      'error',
-      errorListener
-        ? errorListener
-        : (event) => {
-            throw new Error(JSON.stringify(event, null, 2));
-          },
-    );
-    this.eventSourcesMap.set(id, es);
+    es.addEventListener('error', errListener);
+    // the listeners have to be saved otherwise they cannot be removed
+    this.eventSourcesMap.set(id, { eventSource: es, listener, errListener });
     return id;
   }
 
@@ -74,9 +76,9 @@ export class HttpClient {
     }
     const es = this.eventSourcesMap.get(id);
     // close and unbind listeners so that the process quits cleanly
-    es.close();
-    es.removeEventListener('message', () => {});
-    es.removeEventListener('error', () => {});
+    es.eventSource.close();
+    es.eventSource.removeEventListener('message', es.listener);
+    es.eventSource.removeEventListener('error', es.errListener);
     this.eventSourcesMap.delete(id);
   }
 

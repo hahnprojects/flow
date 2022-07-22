@@ -10,7 +10,7 @@ const defaultLogger = {
   /* eslint-enable no-console */
 };
 
-export function checkTypes(definedTypes, propertiesSchema, jsonPath, logger = defaultLogger) {
+export function checkTypes(definedTypes, propertiesSchema, jsonPath, logger1 = defaultLogger) {
   const knownTypes = new Set([
     ...definedTypes,
     'string',
@@ -32,7 +32,7 @@ export function checkTypes(definedTypes, propertiesSchema, jsonPath, logger = de
   const properties = propertiesSchema.properties || {};
   for (const property of Object.keys(properties)) {
     if (properties[property].type && !knownTypes.has(properties[property].type)) {
-      logger.error(
+      logger1.error(
         `ERROR: unknown type ${properties[property].type}.
        Please add a schema for this type in ${jsonPath}
        for more info check the documentation`,
@@ -52,12 +52,12 @@ export async function getTypes(filePath) {
   }
 }
 
-export async function handleConvertedOutput(result, jsonPath, json, logger = defaultLogger) {
+export async function handleConvertedOutput(result, jsonPath, json, logger1 = defaultLogger) {
   let schema;
   try {
     schema = JSON.parse(result);
   } catch {
-    logger.error(result);
+    logger1.error(result);
     return json;
   }
 

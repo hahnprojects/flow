@@ -70,7 +70,6 @@ export class TimeseriesMockService extends MixedClass implements TimeSeriesServi
   async addValue(id: string, value: { [p: string]: any }): Promise<void> {
     const ts = await this.getOne(id, {});
     ts.data.push({ timestamp: new Date().valueOf(), value });
-    return;
   }
 
   getManyByAsset(assetId: string, names?: string[]): Promise<Paginated<TimeSeries[]>> {
