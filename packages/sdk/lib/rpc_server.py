@@ -3,6 +3,7 @@ import json
 from asyncio import Future
 from functools import partial, wraps
 from aio_pika import IncomingMessage, Exchange, Message, connect_robust, ExchangeType
+from aio_pika.abc import AbstractRobustExchange
 import os
 
 user = os.getenv("RABBIT_USER", "guest")
