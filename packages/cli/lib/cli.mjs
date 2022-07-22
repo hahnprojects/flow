@@ -743,8 +743,8 @@ function readJson(filePath) {
       if (error) return reject(error);
       try {
         return resolve(JSON.parse(data));
-      } catch (error1) {
-        return reject(error1);
+      } catch (error_) {
+        return reject(error_);
       }
     });
   });

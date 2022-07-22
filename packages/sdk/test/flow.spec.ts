@@ -31,7 +31,7 @@ describe('Flow Application', () => {
           id: 'longRunningTask',
           module: 'test-module',
           functionFqn: 'test.task.LongRunningTask',
-          properties: { delay: 500 }
+          properties: { delay: 500 },
         },
       ],
       connections: [
