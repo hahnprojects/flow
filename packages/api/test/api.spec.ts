@@ -259,8 +259,8 @@ describe('API test', () => {
     if (deployments) {
       expect(Array.isArray(deployments.docs)).toBe(true);
       expect(deployments.docs.length).toBeGreaterThan(0);
-      const deplId = deployments.docs[0].id;
-      const deployment = (await api.flowDeployments.getOne(deplId).catch((err) => logError(err))) as FlowDeployment;
+      const deplId1 = deployments.docs[0].id;
+      const deployment = (await api.flowDeployments.getOne(deplId1).catch((err) => logError(err))) as FlowDeployment;
       expect(deployment).toBeDefined();
       expect(await api.flows.isDeploymentOnLatestDiagramVersion(deployment)).toBe(true);
     }
@@ -333,8 +333,8 @@ describe('API test', () => {
       expect(Array.isArray(labels.docs)).toBe(true);
       expect(labels.docs.length).toBeGreaterThan(0);
       const labelId = labels.docs[0].id;
-      const label = await api.labels.getOne(labelId);
-      expect(label).toBeDefined();
+      const label1 = await api.labels.getOne(labelId);
+      expect(label1).toBeDefined();
     }
 
     const label = await api.labels.getOneByName('e2e');

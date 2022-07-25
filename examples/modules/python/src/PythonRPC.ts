@@ -30,7 +30,7 @@ export class PythonRPC extends FlowTask<Properties> {
   private sum = (a: number, b: number, c: number) => this.callRpcFunction('sum', a, b, c);
   private multiply = (a: number, b: number, c: number) => this.callRpcFunction('multiply', a, b, c);
   private factorial = (n: number) => this.callRpcFunction('factorial', n);
-  private executeRandomCalc = (n: number) => this.callRpcFunction('executeRandomCalc', n);
+  private executeRandomCalc = (n: number) => this.callRpcFunction('execute_random_calc', n);
 }
 
 class Properties {

@@ -6,7 +6,7 @@ import { FlowModule } from './FlowModule';
 class TestTrigger extends FlowTask {
   @InputStream('default')
   public async onDefault(event: FlowEvent) {
-    return this.emitOutput(event.getData());
+    return this.emitEvent({}, event);
   }
 }
 

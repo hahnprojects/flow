@@ -141,12 +141,8 @@ export class FlowDeploymentMockService extends BaseService implements FlowDeploy
     // super simplified version of real resolver
     return Promise.all(
       Object.keys(properties).map(async (prop) => {
-        switch (prop) {
-          case 'assetId':
-            return { id: (await this.api.assets.getOne(properties[prop])).id, resourceType: 'asset' };
-          default:
-            throw new Error('not implemented');
-        }
+        if (prop !== 'assetId') throw new Error('not implemented');
+        return { id: (await this.api.assets.getOne(properties[prop])).id, resourceType: 'asset' };
       }),
     );
   }

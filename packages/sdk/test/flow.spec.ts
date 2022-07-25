@@ -21,13 +21,18 @@ describe('Flow Application', () => {
     jest.restoreAllMocks();
   });
 
-  it('FLOW.FA.1 should run simple flow app with a long running task', (done) => {
+  it('FLOW.FA.1 should run simple flow app with a long running task', async () => {
     const size = 8;
     const flow = {
       elements: [
         { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
         { id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource' },
-        { id: 'longRunningTask', module: 'test-module', functionFqn: 'test.task.LongRunningTask', properties: { delay: 500 } },
+        {
+          id: 'longRunningTask',
+          module: 'test-module',
+          functionFqn: 'test.task.LongRunningTask',
+          properties: { delay: 500 },
+        },
       ],
       connections: [
         { id: 'testConnection1', source: 'testTrigger', target: 'testResource' },
@@ -38,7 +43,8 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApp = new FlowApplication([TestModule], flow, loggerMock, null, true);
+    const flowApp = new FlowApplication([TestModule], flow, loggerMock, null, true, true);
+    await flowApp.init();
 
     flowApp.subscribe('testResource.default', {
       next: (event: FlowEvent) => {
@@ -46,21 +52,27 @@ describe('Flow Application', () => {
       },
     });
 
-    let count = 0;
-    flowApp.subscribe('longRunningTask.default', {
-      next: (event: FlowEvent) => {
-        expect(event.getData()).toEqual({ foo: 'bar' });
-        expect(event.getDataContentType()).toBe('application/json');
-        expect(event.getSource()).toBe('flows/testFlow/deployments/testDeployment/elements/longRunningTask');
-        expect(event.getSubject()).toBe('test.task.LongRunningTask');
-        expect(event.getType()).toBe('default');
-        expect(event.getTime()).toBeDefined();
+    const done = new Promise<void>((resolve, reject) => {
+      let count = 0;
+      flowApp.subscribe('longRunningTask.default', {
+        next: (event: FlowEvent) => {
+          try {
+            expect(event.getData()).toEqual({ foo: 'bar' });
+            expect(event.getDataContentType()).toBe('application/json');
+            expect(event.getSource()).toBe('flows/testFlow/deployments/testDeployment/elements/longRunningTask');
+            expect(event.getSubject()).toBe('test.task.LongRunningTask');
+            expect(event.getType()).toBe('default');
+            expect(event.getTime()).toBeDefined();
 
-        if (++count === size) {
-          expect(mockExit).not.toHaveBeenCalled();
-          done();
-        }
-      },
+            if (++count === size) {
+              expect(mockExit).not.toHaveBeenCalled();
+              resolve();
+            }
+          } catch (e) {
+            reject(e);
+          }
+        },
+      });
     });
 
     for (let i = 0; i < size; i++) {
@@ -68,7 +80,8 @@ describe('Flow Application', () => {
     }
 
     expect(loggerMock.log).toHaveBeenCalledWith('Flow Deployment is running', expect.objectContaining(flow.context));
-  }, 60000);
+    return done;
+  }, 10000);
 
   it('FLOW.FA.2 should handle invalid stream handlers', async () => {
     const flow = {
@@ -82,8 +95,8 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    new FlowApplication([TestModule], flow, loggerMock, null, true);
-    await new Promise((res) => setTimeout(res, 300));
+    const flowApplication = new FlowApplication([TestModule], flow, loggerMock, null, true, true);
+    await flowApplication.init();
 
     expect(loggerMock.error).toHaveBeenCalledTimes(1);
     expect(loggerMock.error).toHaveBeenLastCalledWith(new Error('testResource does not implement a handler for does-not-exist'), {
@@ -104,8 +117,8 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    new FlowApplication([TestModule], flow, loggerMock, null, true);
-    await new Promise((res) => setTimeout(res, 300));
+    const flowApplication = new FlowApplication([TestModule], flow, loggerMock, null, true, true);
+    await flowApplication.init();
 
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
     expect(loggerMock.error).toHaveBeenCalledTimes(1);
@@ -116,6 +129,7 @@ describe('Flow Application', () => {
 
     expect(mockExit).toHaveBeenCalledWith(1);
   });
+
   it('FLOW.FA.4 should handle invalid connection targets', async () => {
     const flow = {
       elements: [{ id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' }],
@@ -125,8 +139,8 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    new FlowApplication([TestModule], flow, loggerMock, null, true);
-    await new Promise((res) => setTimeout(res, 300));
+    const flowApplication1 = new FlowApplication([TestModule], flow, loggerMock, null, true, true);
+    await flowApplication1.init();
 
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
     expect(loggerMock.error).toHaveBeenCalledTimes(1);
@@ -148,8 +162,8 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    new FlowApplication([FakeModule], flow, loggerMock, null, true);
-    await new Promise((res) => setTimeout(res, 300));
+    const flowApplication2 = new FlowApplication([FakeModule], flow, loggerMock, null, true, true);
+    await flowApplication2.init();
 
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
     expect(loggerMock.error).toHaveBeenCalledTimes(1);
@@ -171,8 +185,8 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    new FlowApplication([TestModule2], flow, loggerMock, null, true);
-    await new Promise((res) => setTimeout(res, 300));
+    const flowApplication3 = new FlowApplication([TestModule2], flow, loggerMock, null, true, true);
+    await flowApplication3.init();
 
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
     expect(loggerMock.error).toHaveBeenCalledTimes(1);
@@ -215,7 +229,7 @@ describe('Flow Application', () => {
 
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
     expect(loggerMock.log).toHaveBeenCalledWith('Flow Deployment is running', expect.objectContaining(flow.context));
-  }, 60000);
+  });
 
   it('FLOW.FA.8 should warn if event queue size is above threshold', (done) => {
     const flow = {
@@ -262,7 +276,7 @@ describe('Flow Application', () => {
     }
 
     expect(loggerMock.log).toHaveBeenCalledWith('Flow Deployment is running', expect.objectContaining(flow.context));
-  }, 60000);
+  });
 
   it('FLOW.FA.9 test complex properties', (done) => {
     const flow = {
@@ -309,7 +323,7 @@ describe('Flow Application', () => {
       },
     });
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
-  }, 60000);
+  });
 });
 
 @FlowFunction('test.resource.TestResource')

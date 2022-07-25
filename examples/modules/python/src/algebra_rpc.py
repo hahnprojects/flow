@@ -42,7 +42,7 @@ def factorial(n):
 
 
 @RemoteProcedure
-def executeRandomCalc(n):
+def execute_random_calc(n):
     global calcs
     return calcs[n]()
 
@@ -50,7 +50,7 @@ def executeRandomCalc(n):
 def init():
     global calcs
 
-    for i in range(int(sys.argv[3])):
+    for _ in range(int(sys.argv[3])):
         op = random.choice(['+', '-', '*', '/'])
         argument1 = random.randrange(100)
         argument2 = random.randrange(100)

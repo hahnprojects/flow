@@ -73,7 +73,7 @@ export abstract class FlowElement<T = any> {
     return this.emitEvent(data, null, outputId, time);
   }
 
-  protected emitEvent(data: any, inputEvent: FlowEvent, outputId = 'default', time = new Date()): FlowEvent {
+  protected emitEvent(data: Record<string, any>, inputEvent: FlowEvent, outputId = 'default', time = new Date()): FlowEvent {
     const partialEvent = new FlowEvent(this.metadata, data, outputId, time);
     const completeEvent = new FlowEvent(this.metadata, { ...(inputEvent?.getData() || {}), ...data }, outputId, time);
 
@@ -170,7 +170,7 @@ export function InputStream(id = 'default', options?: { concurrent?: number; sto
 }
 
 export function FlowFunction(fqn: string): ClassDecorator {
-  const fqnRegExp = new RegExp('^([a-zA-Z][a-zA-Z0-9]*[.-])*[a-zA-Z][a-zA-Z0-9]*$');
+  const fqnRegExp = /^([a-zA-Z][a-zA-Z\d]*[.-])*[a-zA-Z][a-zA-Z\d]*$/;
   if (!fqnRegExp.test(fqn)) {
     throw new Error(`Flow Function FQN (${fqn}) is not valid`);
   }

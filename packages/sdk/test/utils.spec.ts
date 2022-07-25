@@ -87,13 +87,11 @@ describe('utils', () => {
     filled = fillTemplate(tmplString, tmplVars);
     expect(filled).toEqual(undefined);
 
-    tmplString = '${foo}';
     tmplVars = null;
     filled = fillTemplate(tmplString, tmplVars);
     expect(filled).toEqual(undefined);
 
     tmplString = 'foo';
-    tmplVars = null;
     filled = fillTemplate(tmplString, tmplVars);
     expect(filled).toEqual('foo');
   });
@@ -201,13 +199,11 @@ describe('utils', () => {
     filled = fillTemplate(tmplString, tmplVars);
     expect(filled).toEqual(undefined);
 
-    tmplString = '${foo}';
     tmplVars = null;
     filled = fillTemplate(tmplString, tmplVars);
     expect(filled).toEqual(undefined);
 
     tmplString = 'foo';
-    tmplVars = null;
     filled = fillTemplate(tmplString, tmplVars);
     expect(filled).toEqual('foo');
   });

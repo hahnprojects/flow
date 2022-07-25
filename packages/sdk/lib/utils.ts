@@ -57,7 +57,9 @@ export function delay(ms: number): Promise<void> {
 
 export async function deleteFiles(dir: string, ...filenames: string[]) {
   for (const filename of filenames) {
-    await fs.unlink(join(dir, filename)).catch((err) => {});
+    await fs.unlink(join(dir, filename)).catch((err) => {
+      /*ignore*/
+    });
   }
 }
 

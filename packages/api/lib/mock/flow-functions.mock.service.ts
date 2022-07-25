@@ -23,8 +23,8 @@ export class FlowFunctionsMockService extends DataMockService<FlowFunctionDto> i
     this.revisions
       .filter((revision) => revision.originalId === fqn)
       .forEach((revision) => {
-        const index = this.revisions.indexOf(revision);
-        this.revisions.splice(index, 1);
+        const index1 = this.revisions.indexOf(revision);
+        this.revisions.splice(index1, 1);
       });
     return Promise.resolve(undefined);
   }

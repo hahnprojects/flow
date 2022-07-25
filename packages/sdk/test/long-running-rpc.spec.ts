@@ -42,7 +42,7 @@ class TestResource extends FlowResource {
   @InputStream('a')
   public async onA(event) {
     this.callRpcFunction('testA')
-      .then((res: any) => this.emitOutput(res, 'a'))
+      .then((res: any) => this.emitEvent(res, event, 'a'))
       .catch((err) => this.logger.error(err));
   }
 }

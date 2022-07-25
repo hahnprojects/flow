@@ -45,7 +45,7 @@ export class FlowService extends BaseService {
     const flowId = typeof depl.flow === 'string' ? depl.flow : depl.flow.id;
     const diagramId = typeof depl.diagram === 'string' ? depl.diagram : depl.diagram.id;
     const revisions = await this.getDiagramRevisions(flowId);
-    return revisions.reverse()[0].id === diagramId;
+    return revisions[revisions.length - 1].id === diagramId;
   }
 
   public getRevisions(id: string): Promise<Paginated<FlowDto[]>> {

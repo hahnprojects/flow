@@ -628,9 +628,9 @@ function zipDirectory(source, out) {
   });
 }
 
-function deleteFile(path) {
+function deleteFile(filePath) {
   return new Promise((resolve, reject) => {
-    fs.unlink(path, (error) => {
+    fs.unlink(filePath, (error) => {
       if (error) return reject(error);
       return resolve();
     });
@@ -737,20 +737,20 @@ function checkIfAll(projectName) {
   return false;
 }
 
-function readJson(path) {
+function readJson(filePath) {
   return new Promise((resolve, reject) => {
-    fs.readFile(path, { encoding: 'utf8' }, (error, data) => {
+    fs.readFile(filePath, { encoding: 'utf8' }, (error, data) => {
       if (error) return reject(error);
       try {
         return resolve(JSON.parse(data));
-      } catch (error) {
-        return reject(error);
+      } catch (error_) {
+        return reject(error_);
       }
     });
   });
 }
 
-function writeJson(path, data) {
+function writeJson(filePath, data) {
   return new Promise((resolve, reject) => {
     let dataString;
     try {
@@ -758,7 +758,7 @@ function writeJson(path, data) {
     } catch (error) {
       return reject(error);
     }
-    fs.writeFile(path, dataString, (error) => {
+    fs.writeFile(filePath, dataString, (error) => {
       if (error) return reject(error);
       return resolve();
     });

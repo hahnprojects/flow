@@ -82,7 +82,7 @@ export class API {
 
   constructor() {
     // remove leading and trailing slashes
-    const normalizePath = (value = '', defaultValue = '') => value.replace(/^\/+|\/+$/g, '') || defaultValue;
+    const normalizePath = (value = '', defaultValue = '') => value.replace(/(?:^\/+)|(?:\/+$)/g, '') || defaultValue;
 
     let apiBaseUrl = process.env.API_BASE_URL || 'https://testing.hahnpro.com';
     if (!apiBaseUrl.startsWith('https') && !apiBaseUrl.startsWith('http')) {
