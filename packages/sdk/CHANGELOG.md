@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.22.0
+
+### Minor Changes
+
+- aebe781: made the init function of the FlowApplication externally awaitable. To use this the expicitInit constructor option has to be set.
+
 ## 4.21.3
 
 ### Patch Changes
