@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.15.0
+
+### Minor Changes
+
+- 675a239: Use the more secure client_secret_jwt authentication method for authenticating service accounts against the HPC API
+
 ## 2.14.3
 
 ### Patch Changes
