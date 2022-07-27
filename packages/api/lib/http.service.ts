@@ -96,7 +96,7 @@ export class HttpClient {
       });
     }
     if (!this.tokenSet || this.tokenSet.expired() || this.tokenSet.expires_at < Date.now() / 1000 + TOKEN_EXPIRATION_BUFFER) {
-      this.tokenSet = await this.client.grant({ grant_type: 'client_credetials' });
+      this.tokenSet = await this.client.grant({ grant_type: 'client_credentials' });
     }
     return this.tokenSet.access_token;
   };
