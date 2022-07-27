@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 3.4.0
+
+### Minor Changes
+
+- 675a239: Use the more secure client_secret_jwt authentication method for authenticating service accounts against the HPC API
+
 ## 3.3.0
 
 ### Minor Changes
