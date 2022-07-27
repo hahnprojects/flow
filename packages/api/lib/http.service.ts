@@ -1,18 +1,17 @@
 import axios, { AxiosInstance, AxiosRequestConfig, Method } from 'axios';
 import EventSource from 'eventsource';
+import { BaseClient, Issuer, TokenSet } from 'openid-client';
 
 import { Queue } from './Queue';
 import { randomUUID } from 'crypto';
 
-const EXPIRATION_BUFFER = 30 * 1000;
+const TOKEN_EXPIRATION_BUFFER = 30; // 30 seconds
 
 export class HttpClient {
   private readonly axiosInstance: AxiosInstance;
-  private readonly authAxiosInstance: AxiosInstance;
   private readonly requestQueue: Queue;
-
-  private accessToken: string;
-  private accessTokenExpiration = 0;
+  private client: BaseClient;
+  private tokenSet: TokenSet;
 
   public eventSourcesMap: Map<
     string,
@@ -20,14 +19,13 @@ export class HttpClient {
   > = new Map();
 
   constructor(
-    private baseURL: string,
-    authbaseURL: string,
+    private readonly baseURL: string,
+    private readonly authbaseURL: string,
     private readonly realm: string,
-    private readonly client: string,
-    private readonly secret: string,
+    private readonly clientId: string,
+    private readonly clientSecret: string,
   ) {
     this.axiosInstance = axios.create({ baseURL, timeout: 60000 });
-    this.authAxiosInstance = axios.create({ baseURL: authbaseURL || baseURL, timeout: 10000 });
     this.requestQueue = new Queue({ concurrency: 1, timeout: 70000, throwOnTimeout: true });
   }
 
@@ -88,42 +86,18 @@ export class HttpClient {
     }
   }
 
-  public getAccessToken = (): Promise<string> => {
-    if (this.isTokenValid()) {
-      return Promise.resolve(this.accessToken);
-    } else {
-      return this.getToken();
+  public getAccessToken = async (): Promise<string> => {
+    if (!this.client?.issuer) {
+      const authIssuer = await Issuer.discover(`${this.authbaseURL}/auth/realms/${this.realm}/`);
+      this.client = await new authIssuer.Client({
+        client_id: this.clientId,
+        client_secret: this.clientSecret,
+        token_endpoint_auth_method: 'client_secret_jwt',
+      });
     }
-  };
-
-  private isTokenValid = (): boolean => {
-    if (this.accessToken && this.accessTokenExpiration) {
-      return Date.now() + EXPIRATION_BUFFER < this.accessTokenExpiration;
+    if (!this.tokenSet || this.tokenSet.expired() || this.tokenSet.expires_at < Date.now() / 1000 + TOKEN_EXPIRATION_BUFFER) {
+      this.tokenSet = await this.client.grant({ grant_type: 'client_credentials' });
     }
-    return false;
-  };
-
-  private getToken = (): Promise<string> => {
-    return new Promise<string>((resolve, reject) => {
-      const params = new URLSearchParams([
-        ['client_id', this.client],
-        ['client_secret', this.secret],
-        ['grant_type', 'client_credentials'],
-      ]);
-      const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
-
-      this.authAxiosInstance
-        .post<any>(`/realms/${this.realm}/protocol/openid-connect/token`, params.toString(), { headers })
-        .then((res) => {
-          if (res?.data?.access_token && res.data.expires_in) {
-            this.accessToken = res.data.access_token;
-            this.accessTokenExpiration = Date.now() + res.data.expires_in * 1000;
-            return resolve(res.data.access_token);
-          } else {
-            throw new Error('Invalid access token received');
-          }
-        })
-        .catch(reject);
-    });
+    return this.tokenSet.access_token;
   };
 }
