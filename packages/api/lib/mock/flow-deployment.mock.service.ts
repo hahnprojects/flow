@@ -41,7 +41,7 @@ export class FlowDeploymentMockService extends BaseService implements FlowDeploy
     flowDeployment.actualStatus = 'running';
   }
 
-  public async updateStatus(id: string, desiredStatus: 'running' | 'stopped' | 'deleted'): Promise<FlowDeployment> {
+  public async updateStatus(id: string, desiredStatus: 'running' | 'stopped' | 'deleted' | 'paused'): Promise<FlowDeployment> {
     const deployment = await this.getOne(id);
     deployment.desiredStatus = desiredStatus;
     deployment.actualStatus = desiredStatus;

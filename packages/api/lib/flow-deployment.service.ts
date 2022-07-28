@@ -44,7 +44,7 @@ export class FlowDeploymentService extends BaseService {
     return this.httpClient.get(`${this.basePath}/${id}/references`, { params });
   }
 
-  public updateStatus(id: string, desiredStatus: 'running' | 'stopped' | 'deleted'): Promise<FlowDeployment> {
+  public updateStatus(id: string, desiredStatus: 'running' | 'stopped' | 'deleted' | 'paused'): Promise<FlowDeployment> {
     return this.httpClient.put<FlowDeployment>(`${this.basePath}/${id}/status`, { desiredStatus });
   }
 
