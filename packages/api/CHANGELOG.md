@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 3.4.1
+
+### Patch Changes
+
+- e5202b0: Added paused status to FlowDeploymentService::updateStatus
+
 ## 3.4.0
 
 ### Minor Changes
