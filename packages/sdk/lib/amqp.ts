@@ -1,6 +1,10 @@
 import type { AmqpConnectionManager, ChannelWrapper } from 'amqp-connection-manager';
 import type { Channel, Connection, ConsumeMessage, Options } from 'amqplib';
 
+interface SubscriptionResult {
+  consumerTag: string;
+}
+
 export interface AmqpConnection {
   channel: Channel;
   connection: Connection;
@@ -10,7 +14,7 @@ export interface AmqpConnection {
     handler: (msg: T | undefined, rawMessage?: ConsumeMessage) => Promise<any | undefined | void>,
     msgOptions: MessageHandlerOptions,
     originalHandlerName: string,
-  ): Promise<void>;
+  ): Promise<SubscriptionResult>;
   publish(exchange: string, routingKey: string, message: any, options?: Options.Publish): void;
 }
 
