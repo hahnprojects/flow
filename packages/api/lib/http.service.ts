@@ -20,7 +20,7 @@ export class HttpClient {
 
   constructor(
     private readonly baseURL: string,
-    private readonly authbaseURL: string,
+    private readonly authBaseURL: string,
     private readonly realm: string,
     private readonly clientId: string,
     private readonly clientSecret: string,
@@ -88,7 +88,7 @@ export class HttpClient {
 
   public getAccessToken = async (): Promise<string> => {
     if (!this.client?.issuer) {
-      const authIssuer = await Issuer.discover(`${this.authbaseURL}/auth/realms/${this.realm}/`);
+      const authIssuer = await Issuer.discover(`${this.authBaseURL}/realms/${this.realm}/`);
       this.client = await new authIssuer.Client({
         client_id: this.clientId,
         client_secret: this.clientSecret,
