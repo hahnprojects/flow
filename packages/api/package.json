@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@types/eventsource": "^1.1.9",
-    "axios-mock-adapter": "^1.21.1",
+    "axios-mock-adapter": "^1.21.2",
     "nock": "^13.2.9"
   },
   "engines": {
