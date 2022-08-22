@@ -1,6 +1,6 @@
 {
   "name": "@hahnpro/hpc-api",
-  "version": "3.4.1",
+  "version": "3.4.2",
   "description": "Module for easy access to the HahnPRO API",
   "license": "MIT",
   "author": {
@@ -40,7 +40,7 @@
   "devDependencies": {
     "@mswjs/interceptors": "^0.17.3",
     "@types/eventsource": "^1.1.9",
-    "axios-mock-adapter": "^1.21.1",
+    "axios-mock-adapter": "^1.21.2",
     "nock": "^13.2.9"
   },
   "engines": {

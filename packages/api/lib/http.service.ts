@@ -21,13 +21,13 @@ export class HttpClient {
 
   constructor(
     private readonly baseURL: string,
-    private readonly authbaseURL: string,
+    private readonly authBaseURL: string,
     private readonly realm: string,
     private readonly clientId: string,
     private readonly clientSecret: string,
   ) {
     this.axiosInstance = axios.create({ baseURL, timeout: 60000 });
-    this.authAxiosInstance = axios.create({ baseURL: authbaseURL || baseURL, timeout: 10000 });
+    this.authAxiosInstance = axios.create({ baseURL: authBaseURL || baseURL, timeout: 10000 });
     this.requestQueue = new Queue({ concurrency: 1, timeout: 70000, throwOnTimeout: true });
   }
 
