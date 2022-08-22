@@ -40,8 +40,7 @@
   "devDependencies": {
     "@mswjs/interceptors": "^0.17.3",
     "@types/eventsource": "^1.1.9",
-    "axios-mock-adapter": "^1.21.2",
-    "nock": "^13.2.9"
+    "axios-mock-adapter": "^1.21.2"
   },
   "engines": {
     "node": ">=v14.13"

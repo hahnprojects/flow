@@ -98,8 +98,8 @@ export class HttpClient {
   private validateIssuer(issuer: Issuer) {
     if (
       !issuer.issuer ||
-      !issuer.grant_types_supported.includes('client_credentials') ||
-      !issuer.token_endpoint_auth_methods_supported.includes('client_secret_jwt')
+      !issuer.grant_types_supported?.includes('client_credentials') ||
+      !issuer.token_endpoint_auth_methods_supported?.includes('client_secret_jwt')
     ) {
       throw new Error('Issuer does not support client_secret_jwt');
     }
@@ -117,7 +117,7 @@ export class HttpClient {
   }
 
   public async requestAccessToken() {
-    const issuer = await this.discoverIssuer(`${this.authbaseURL}/realms/${this.realm}`);
+    const issuer = await this.discoverIssuer(`${this.authBaseURL}/realms/${this.realm}`);
 
     const timestamp = Date.now() / 1000;
     const audience = [...new Set([issuer.issuer, issuer.token_endpoint].filter(Boolean))];
