@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 3.4.3
+
+### Patch Changes
+
+- 6ce20bb: Migrated form openid-client to custom auth implementation, to make the api package browser compatible
+
 ## 3.4.2
 
 ### Patch Changes
