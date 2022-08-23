@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, Method } from 'axios';
 import EventSource from 'eventsource';
-import { randomUUID } from 'crypto';
+import { v4 } from 'uuid';
 import { CompactSign } from 'jose';
 import { Queue } from './Queue';
 import { TokenSet } from './token-set';
@@ -54,7 +54,7 @@ export class HttpClient {
   };
 
   public async addEventSource(url: string, listener: (event: MessageEvent) => void, errorListener?: (event: MessageEvent) => void) {
-    const id = randomUUID();
+    const id = v4();
     const errListener = errorListener
       ? errorListener
       : (event) => {
@@ -125,7 +125,7 @@ export class HttpClient {
     const assertionPayload = {
       iat: timestamp,
       exp: timestamp + 60,
-      jti: randomUUID(),
+      jti: v4(),
       iss: this.clientId,
       sub: this.clientId,
       aud: audience,
