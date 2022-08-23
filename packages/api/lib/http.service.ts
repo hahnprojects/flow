@@ -1,16 +1,17 @@
 import axios, { AxiosInstance, AxiosRequestConfig, Method } from 'axios';
 import EventSource from 'eventsource';
-import { BaseClient, Issuer, TokenSet } from 'openid-client';
-
-import { Queue } from './Queue';
 import { randomUUID } from 'crypto';
+import { CompactSign } from 'jose';
+import { Queue } from './Queue';
+import { TokenSet } from './token-set';
+import { stringify } from 'querystring';
 
 const TOKEN_EXPIRATION_BUFFER = 30; // 30 seconds
 
 export class HttpClient {
   private readonly axiosInstance: AxiosInstance;
+  private readonly authAxiosInstance: AxiosInstance;
   private readonly requestQueue: Queue;
-  private client: BaseClient;
   private tokenSet: TokenSet;
 
   public eventSourcesMap: Map<
@@ -26,6 +27,7 @@ export class HttpClient {
     private readonly clientSecret: string,
   ) {
     this.axiosInstance = axios.create({ baseURL, timeout: 60000 });
+    this.authAxiosInstance = axios.create({ baseURL: authBaseURL || baseURL, timeout: 10000 });
     this.requestQueue = new Queue({ concurrency: 1, timeout: 70000, throwOnTimeout: true });
   }
 
@@ -87,17 +89,85 @@ export class HttpClient {
   }
 
   public getAccessToken = async (): Promise<string> => {
-    if (!this.client?.issuer) {
-      const authIssuer = await Issuer.discover(`${this.authBaseURL}/realms/${this.realm}/`);
-      this.client = await new authIssuer.Client({
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-        token_endpoint_auth_method: 'client_secret_jwt',
-      });
-    }
-    if (!this.tokenSet || this.tokenSet.expired() || this.tokenSet.expires_at < Date.now() / 1000 + TOKEN_EXPIRATION_BUFFER) {
-      this.tokenSet = await this.client.grant({ grant_type: 'client_credentials' });
+    if (!this.tokenSet || this.tokenSet.expired() || this.tokenSet.expiresAt < Date.now() / 1000 + TOKEN_EXPIRATION_BUFFER) {
+      return this.requestAccessToken();
     }
     return this.tokenSet.access_token;
   };
+
+  private validateIssuer(issuer: Issuer): Issuer {
+    if (
+      !issuer.issuer ||
+      !issuer.grant_types_supported?.includes('client_credentials') ||
+      !issuer.token_endpoint_auth_methods_supported?.includes('client_secret_jwt')
+    ) {
+      throw new Error('Issuer does not support client_secret_jwt');
+    }
+
+    return issuer;
+  }
+
+  private async discoverIssuer(uri: string): Promise<Issuer> {
+    const wellKnownUri = `${uri}/.well-known/openid-configuration`;
+    const issuerResponse = await this.authAxiosInstance.get(wellKnownUri, {
+      responseType: 'json',
+      headers: { Accept: 'application/json' },
+    });
+    return this.validateIssuer(issuerResponse.data);
+  }
+
+  private async requestAccessToken(): Promise<string> {
+    const issuer = await this.discoverIssuer(`${this.authBaseURL}/realms/${this.realm}`);
+
+    const timestamp = Date.now() / 1000;
+    const audience = [...new Set([issuer.issuer, issuer.token_endpoint].filter(Boolean))];
+
+    const assertionPayload = {
+      iat: timestamp,
+      exp: timestamp + 60,
+      jti: randomUUID(),
+      iss: this.clientId,
+      sub: this.clientId,
+      aud: audience,
+    };
+
+    const supportedAlgos = issuer.token_endpoint_auth_signing_alg_values_supported;
+    const alg =
+      issuer.token_endpoint_auth_signing_alg ??
+      (Array.isArray(supportedAlgos) && supportedAlgos.find((signAlg) => /^HS(?:256|384|512)/.test(signAlg)));
+
+    if (!alg) {
+      throw new Error('Issuer has to support HS256, HS384 or HS512');
+    }
+
+    const assertion = await new CompactSign(Buffer.from(JSON.stringify(assertionPayload)))
+      .setProtectedHeader({ alg })
+      .sign(new TextEncoder().encode(this.clientSecret));
+
+    const opts = {
+      client_id: this.clientId,
+      client_assertion: assertion,
+      client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+      grant_type: 'client_credentials',
+    };
+    const authResponse = await this.authAxiosInstance.post(issuer.token_endpoint, stringify(opts), {
+      headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
+
+    if (authResponse?.data?.access_token && authResponse.data.expires_in) {
+      this.tokenSet = new TokenSet(authResponse.data.access_token, authResponse.data.expires_in);
+      return authResponse.data.access_token;
+    } else {
+      throw new Error('Invalid access token received');
+    }
+  }
+}
+
+interface Issuer {
+  issuer: string;
+  token_endpoint: string;
+  grant_types_supported: string[];
+  token_endpoint_auth_methods_supported: string[];
+  token_endpoint_auth_signing_alg?: string;
+  token_endpoint_auth_signing_alg_values_supported: string[];
 }
