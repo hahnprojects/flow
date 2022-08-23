@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, Method } from 'axios';
 import EventSource from 'eventsource';
-import { randomBytes, randomUUID } from 'crypto';
+import { randomUUID } from 'crypto';
 import { CompactSign } from 'jose';
 import { Queue } from './Queue';
 import { TokenSet } from './token-set';
@@ -95,7 +95,7 @@ export class HttpClient {
     return this.tokenSet.access_token;
   };
 
-  private validateIssuer(issuer: Issuer) {
+  private validateIssuer(issuer: Issuer): Issuer {
     if (
       !issuer.issuer ||
       !issuer.grant_types_supported?.includes('client_credentials') ||
@@ -107,7 +107,7 @@ export class HttpClient {
     return issuer;
   }
 
-  public async discoverIssuer(uri: string) {
+  private async discoverIssuer(uri: string): Promise<Issuer> {
     const wellKnownUri = `${uri}/.well-known/openid-configuration`;
     const issuerResponse = await this.authAxiosInstance.get(wellKnownUri, {
       responseType: 'json',
@@ -116,17 +116,16 @@ export class HttpClient {
     return this.validateIssuer(issuerResponse.data);
   }
 
-  public async requestAccessToken() {
+  private async requestAccessToken(): Promise<string> {
     const issuer = await this.discoverIssuer(`${this.authBaseURL}/realms/${this.realm}`);
 
     const timestamp = Date.now() / 1000;
     const audience = [...new Set([issuer.issuer, issuer.token_endpoint].filter(Boolean))];
 
-    const encode = (input) => Buffer.from(input, 'utf8').toString('base64url');
     const assertionPayload = {
       iat: timestamp,
       exp: timestamp + 60,
-      jti: encode(randomBytes(32)),
+      jti: randomUUID(),
       iss: this.clientId,
       sub: this.clientId,
       aud: audience,
@@ -156,10 +155,7 @@ export class HttpClient {
     });
 
     if (authResponse?.data?.access_token && authResponse.data.expires_in) {
-      this.tokenSet = new TokenSet({
-        access_token: authResponse.data.access_token,
-        expires_in: authResponse.data.expires_in,
-      });
+      this.tokenSet = new TokenSet(authResponse.data.access_token, authResponse.data.expires_in);
       return authResponse.data.access_token;
     } else {
       throw new Error('Invalid access token received');
