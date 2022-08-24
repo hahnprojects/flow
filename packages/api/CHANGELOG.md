@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 3.4.4
+
+### Patch Changes
+
+- 29eb88e: changed over to uuid package for uuid generation. as crypto package is not usable in a cross-platform manner.
+
 ## 3.4.3
 
 ### Patch Changes
