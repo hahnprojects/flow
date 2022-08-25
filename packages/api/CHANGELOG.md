@@ -1,5 +1,23 @@
 # @hahnpro/hpc-api
 
+## 3.4.4
+
+### Patch Changes
+
+- 29eb88e: changed over to uuid package for uuid generation. as crypto package is not usable in a cross-platform manner.
+
+## 3.4.3
+
+### Patch Changes
+
+- 6ce20bb: Migrated form openid-client to custom auth implementation, to make the api package browser compatible
+
+## 3.4.2
+
+### Patch Changes
+
+- fa3bf33: Fixes base path of authorization url for HPC API
+
 ## 3.4.1
 
 ### Patch Changes
