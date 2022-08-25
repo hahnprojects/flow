@@ -64,6 +64,6 @@ export class TimeSeriesService extends BaseService {
     params.filter = params.filter || '';
     params.populate = params.populate || '';
     params.sort = params.sort || '';
-    return this.httpClient.get(`${this.basePath}`, { params });
+    return this.httpClient.get<Paginated<TimeSeries[]>>(`${this.basePath}`, { params });
   }
 }
