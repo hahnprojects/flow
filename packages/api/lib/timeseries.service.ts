@@ -1,7 +1,7 @@
 import { mix } from 'ts-mixer';
 
 import { APIBase } from './api-base';
-import { Paginated } from './data.interface';
+import { Paginated, RequestParameter } from './data.interface';
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
 import { TimeSeries, TimeSeriesValue, TS_GROUPS } from './timeseries.interface';
@@ -56,5 +56,14 @@ export class TimeSeriesService extends BaseService {
   public getManyByAsset(assetId: string, names?: string[]): Promise<Paginated<TimeSeries[]>> {
     const params = Array.isArray(names) ? { names: names.join() } : {};
     return this.httpClient.get<Paginated<TimeSeries[]>>(`${this.basePath}/asset/${assetId}`, { params });
+  }
+
+  public getManyOfPeriodFiltered(params: RequestParameter) {
+    params.limit = params.limit || 0;
+    params.page = params.page || 1;
+    params.filter = params.filter || '';
+    params.populate = params.populate || '';
+    params.sort = params.sort || '';
+    return this.httpClient.get(`${this.basePath}`, { params });
   }
 }

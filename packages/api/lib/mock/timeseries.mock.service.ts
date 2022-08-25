@@ -103,4 +103,37 @@ export class TimeseriesMockService extends BaseService implements TimeSeriesServ
     const ts = await this.getOne(id, {});
     return ts.data.filter((v) => v.timestamp < to && v.timestamp > from);
   }
+
+  async getManyOfPeriodFiltered(param: RequestParameter) {
+    let filter = param?.filter;
+    const filterObj = {
+      assetRef: undefined,
+      name: undefined,
+      id: undefined,
+    };
+    let filterArray = filter?.split(';');
+    filterArray?.forEach((element) => {
+      const splitString = element.split('==');
+      if (splitString.length === 2 && splitString[0] in filterObj) {
+        filterObj[splitString[0]] =
+          splitString[0] === 'name' ? (filterObj[splitString[0]] = decodeURIComponent(splitString[1]).trim()) : splitString[1];
+      }
+    });
+
+    const page = { docs: [], limit: param?.limit ?? 10, total: 0 };
+    for (const entry of this.data) {
+      if (
+        (filterObj.id === entry.id || !filterObj.id) &&
+        (filterObj.assetRef === entry.assetRef || !filterObj.assetRef) &&
+        (filterObj.name === entry.name || !filterObj.name)
+      ) {
+        page.docs.push(entry);
+      }
+      if (page.docs.length === page.limit) {
+        break;
+      }
+    }
+    page.total = page.docs.length;
+    return Promise.resolve(page);
+  }
 }
