@@ -15,6 +15,7 @@ import { FlowFunctionService } from './flow-function.service';
 import { FlowModuleService } from './flow-module.service';
 import { FlowDeploymentService } from './flow-deployment.service';
 import { LabelService } from './label.service';
+import { VaultService } from './vault.service';
 
 export class API {
   public httpClient: HttpClient;
@@ -34,6 +35,7 @@ export class API {
   public tasks: TaskService;
   public timeSeries: TimeSeriesService;
   public users: UserService;
+  public vault: VaultService;
 
   /**
    * @deprecated use "assets" instead
