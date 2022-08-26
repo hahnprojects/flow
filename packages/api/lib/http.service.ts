@@ -52,9 +52,9 @@ export class HttpClient {
               return this.axiosInstance.request<T>({ ...config, headers, method, url, data });
             })
             .then((response) => {
-              let data = response.data;
-              data['$cached'] = (response as any).cached;
-              resolve(data);
+              const response_data = response.data;
+              response_data['$cached'] = (response as any).cached;
+              resolve(response_data);
             })
             .catch(reject);
         }),
