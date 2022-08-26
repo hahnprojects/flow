@@ -13,6 +13,7 @@ export interface RequestParameter {
   page?: number;
   populate?: string;
   sort?: string;
+  cache?: boolean;
 }
 
 export interface Filter {

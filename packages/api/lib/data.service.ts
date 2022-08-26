@@ -12,6 +12,9 @@ export class DataService<T> extends APIBase implements DataInterface<T> {
 
   public getOne(id: string, options: any = {}): Promise<T> {
     const params = options.populate ? { populate: options.populate } : {};
+    if (options.cache === false) {
+      params['cache'] = false;
+    }
     return this.httpClient.get<T>(`${this.basePath}/${id}`, { params });
   }
 

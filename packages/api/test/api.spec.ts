@@ -353,6 +353,37 @@ describe('API test', () => {
     const count = await api.labels.count();
     expect(count).toBeGreaterThan(0);
   });
+
+  test('FLOW.API.14 cache assets', async () => {
+    const assets = await api.assets.getMany({ limit: 1 }).catch((err) => logError(err));
+    expect(assets).toBeDefined();
+    expect(assets['$cached']).toBeDefined();
+    expect(assets['$cached']).toBeFalsy();
+    const assets_cached = await api.assets.getMany({ limit: 1 }).catch((err) => logError(err));
+    expect(assets_cached).toBeDefined();
+    expect(assets_cached['$cached']).toBeDefined();
+    expect(assets_cached['$cached']).toBeTruthy();
+    const assets_not_cached = await api.assets.getMany({ limit: 1, cache: false }).catch((err) => logError(err));
+    expect(assets_not_cached).toBeDefined();
+    expect(assets_not_cached['$cached']).toBeDefined();
+    expect(assets_not_cached['$cached']).toBeFalsy();
+
+    if (assets) {
+      expect(Array.isArray(assets.docs)).toBe(true);
+      expect(assets.docs.length).toBeGreaterThan(0);
+      const assetId = assets.docs[0].id;
+      const asset = await api.assets.getOne(assetId).catch((err) => logError(err));
+      expect(asset).toBeDefined();
+      expect(asset['$cached']).toBeDefined();
+      expect(asset['$cached']).toBeFalsy();
+      const asset_cached = await api.assets.getOne(assetId).catch((err) => logError(err));
+      expect(asset_cached).toBeDefined();
+      expect(asset_cached['$cached']).toBeTruthy();
+      const asset_not_cached = await api.assets.getOne(assetId, { cache: false }).catch((err) => logError(err));
+      expect(asset_not_cached).toBeDefined();
+      expect(asset_not_cached['$cached']).toBeFalsy();
+    }
+  });
 });
 
 function logError(err: any) {

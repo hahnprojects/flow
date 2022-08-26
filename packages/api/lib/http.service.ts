@@ -51,7 +51,11 @@ export class HttpClient {
               const headers = { Authorization: `Bearer ${token}`, ...config.headers };
               return this.axiosInstance.request<T>({ ...config, headers, method, url, data });
             })
-            .then((response) => resolve(response.data))
+            .then((response) => {
+              let data = response.data;
+              data['$cached'] = (response as any).cached;
+              resolve(data);
+            })
             .catch(reject);
         }),
     );
