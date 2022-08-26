@@ -9,8 +9,8 @@ describe('HTTP Service', () => {
 
   beforeEach(() => {
     axiosMock = new MockAdapter(axios, { delayResponse: 100 });
-    axiosMock.onGet('/api/assets').reply(200, { docs: assets });
-    axiosMock.onGet(/\/api\/assets\/*/).reply(200, assets[0]);
+    axiosMock.onGet('/api/assets').reply(200, { docs: assets }, []);
+    axiosMock.onGet(/\/api\/assets\/*/).reply(200, assets[0], []);
     axiosMock.onGet('/realms/test/.well-known/openid-configuration').reply(200, {
       issuer: 'https://test.com/realms/test',
       authorization_endpoint: 'https://test.com/realms/test/protocol/openid-connect/auth',

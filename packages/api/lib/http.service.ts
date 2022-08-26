@@ -5,6 +5,7 @@ import { CompactSign } from 'jose';
 import { Queue } from './Queue';
 import { TokenSet } from './token-set';
 import { stringify } from 'querystring';
+import { setupCache } from 'axios-cache-interceptor';
 
 const TOKEN_EXPIRATION_BUFFER = 30; // 30 seconds
 
@@ -26,7 +27,10 @@ export class HttpClient {
     private readonly clientId: string,
     private readonly clientSecret: string,
   ) {
-    this.axiosInstance = axios.create({ baseURL, timeout: 60000 });
+    this.axiosInstance = setupCache(
+      axios.create({ baseURL, timeout: 60000 }),
+      { ttl: 5 * 60 * 1000 }, // 5 min cache for get requests
+    );
     this.authAxiosInstance = axios.create({ baseURL: authBaseURL || baseURL, timeout: 10000 });
     this.requestQueue = new Queue({ concurrency: 1, timeout: 70000, throwOnTimeout: true });
   }
