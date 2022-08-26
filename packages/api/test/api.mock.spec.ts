@@ -478,7 +478,7 @@ describe('Mock-API test', () => {
       expect(Array.isArray(vaultSecrets.docs)).toBe(true);
       expect(vaultSecrets.docs.length).toBeGreaterThan(0);
       const secretName = vaultSecrets.docs[0].name;
-      const vaultSecret = await api.vault.getOne(secretName).catch((err) => logError(err));
+      const vaultSecret = await api.vault.getOne(secretName, { idKey: 'name' }).catch((err) => logError(err));
       expect(vaultSecret).toBeDefined();
 
       const secret = await api.vault.getSecret(secretName).catch((err) => logError(err));

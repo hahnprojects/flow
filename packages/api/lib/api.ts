@@ -119,6 +119,7 @@ export class API {
     this.tasks = new TaskService(this.httpClient);
     this.timeSeries = new TimeSeriesService(this.httpClient);
     this.users = new UserService(this.httpClient);
+    this.vault = new VaultService(this.httpClient);
 
     this.assetManager = this.assets;
     this.contentManager = this.contents;

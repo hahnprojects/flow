@@ -49,8 +49,9 @@ export class DataMockService<T> extends DataService<T> implements APIBaseMock<T>
     return Promise.resolve(page);
   }
 
-  getOne(id: string, options?: any): Promise<T> {
-    const t = this.data.find((v: any) => v.id === id);
+  getOne(id: string, options: Record<string, any> & { idKey?: string } = {}): Promise<T> {
+    const idKey = options.idKey || 'id';
+    const t = this.data.find((v: any) => v[idKey] === id);
     return Promise.resolve(t);
   }
 
