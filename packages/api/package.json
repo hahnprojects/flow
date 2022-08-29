@@ -1,6 +1,6 @@
 {
   "name": "@hahnpro/hpc-api",
-  "version": "3.4.4",
+  "version": "3.5.0",
   "description": "Module for easy access to the HahnPRO API",
   "license": "MIT",
   "author": {

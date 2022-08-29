@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 3.5.0
+
+### Minor Changes
+
+- f2b8d05: add vault endpoint to create and get secrets
+
 ## 3.4.4
 
 ### Patch Changes
