@@ -33,6 +33,7 @@ describe('Mock-API test', () => {
     deployments: [{ flow: 'flow1', id: '623ae4cedeaf1681711ff3b0', diagram: 'diagram1', refs: [{ id: 'asset1', resourceType: 'asset' }] }],
     modules: [{ name: 'testMod', artifacts: [{ filename: 'test.zip', path: join(__dirname, 'testFile.zip') }] }],
     labels: [{ id: 'test', name: 'e2e' }],
+    vault: [{ id: 'vault1', name: 'test', secret: 'testSecret' }],
   });
 
   // tests copied from api.spec.ts
@@ -469,6 +470,21 @@ describe('Mock-API test', () => {
     const count = await api.labels.count();
     expect(count).toBeGreaterThan(0);
   });
+  test('FLOW.API.MOCK.14 vault', async () => {
+    const vaultSecrets = await api.vault.getMany().catch((err) => logError(err));
+    expect(vaultSecrets).toBeDefined();
+
+    if (vaultSecrets) {
+      expect(Array.isArray(vaultSecrets.docs)).toBe(true);
+      expect(vaultSecrets.docs.length).toBeGreaterThan(0);
+      const secretName = vaultSecrets.docs[0].name;
+      const vaultSecret = await api.vault.getOne(secretName, { idKey: 'name' }).catch((err) => logError(err));
+      expect(vaultSecret).toBeDefined();
+
+      const secret = await api.vault.getSecret(secretName).catch((err) => logError(err));
+      expect(secret).toBe('testSecret');
+    }
+  }, 60000);
 });
 
 function logError(err: any) {

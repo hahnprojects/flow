@@ -34,6 +34,8 @@ import { Artifact } from '../storage.interface';
 import { randomUUID } from 'crypto';
 import { LabelMockService } from './label.mock.service';
 import { Label } from '../label.interface';
+import { VaultSecret } from '../vault.interface';
+import { VaultMockService } from './vault.mock.service';
 
 export class MockAPI implements API {
   public httpClient = null;
@@ -53,6 +55,7 @@ export class MockAPI implements API {
   public tasks: TaskMockService;
   public timeSeries: TimeseriesMockService;
   public users: UserMockService;
+  public vault: VaultMockService;
 
   public assetManager: AssetMockService;
   public contentManager: ContentMockService;
@@ -82,6 +85,7 @@ export class MockAPI implements API {
     modules?: FlowModuleInit[];
     diagrams?: FlowDiagramInit[];
     labels?: LabelInit[];
+    vault?: VaultSecretInit[];
   }) {
     const {
       assets = [],
@@ -101,6 +105,7 @@ export class MockAPI implements API {
       modules = [],
       diagrams = [],
       labels = [],
+      vault = [],
     } = initData;
     // convert init data to normal data that the services usually use
     const assetTypes: Array<AssetType | string> = assets
@@ -273,6 +278,8 @@ export class MockAPI implements API {
       readWritePermissions: [],
     }));
 
+    const vaultSecrets1: VaultSecret[] = vault.map((v) => ({ ...v, readPermissions: [], readWritePermissions: [] }));
+
     this.assets = new AssetMockService(this, assets1, assetRevisions1);
     this.contents = new ContentMockService(contents1, contentData);
     this.endpoints = new EndpointMockService(endpoint1);
@@ -286,6 +293,7 @@ export class MockAPI implements API {
     this.flowFunctions = new FlowFunctionsMockService(functions1, functionRevisions1);
     this.flowModules = new FlowModulesMockService(modules1);
     this.labels = new LabelMockService(labels1);
+    this.vault = new VaultMockService(vaultSecrets1);
 
     this.assetManager = this.assets;
     this.contentManager = this.contents;
@@ -324,6 +332,7 @@ export type FlowModuleInit = Replace<AtLeast<FlowModule, 'name'>, 'artifacts', A
 export type ArtifactInit = AtLeast<Artifact & { path: string }, 'filename' | 'path'>;
 export type FlowDiagramInit = AtLeast<FlowDiagram, 'id' | 'flow'>;
 export type LabelInit = AtLeast<Label, 'id' | 'name'>;
+export type VaultSecretInit = AtLeast<VaultSecret, 'name' | 'secret'>;
 
 export interface UserInit {
   roles: string[];
