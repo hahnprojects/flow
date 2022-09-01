@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 3.6.0
+
+### Minor Changes
+
+- 6a5ab51: fix vault base path
+
 ## 3.5.0
 
 ### Minor Changes
