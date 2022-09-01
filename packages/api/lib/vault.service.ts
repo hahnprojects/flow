@@ -4,7 +4,7 @@ import { HttpClient } from './http.service';
 
 export class VaultService extends DataService<VaultSecret> {
   constructor(httpClient: HttpClient) {
-    super(httpClient, '/vault');
+    super(httpClient, '/vault/secrets');
   }
 
   public getSecret(name: string, version?: number): Promise<string> {
