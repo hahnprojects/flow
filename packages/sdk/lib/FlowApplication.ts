@@ -32,7 +32,7 @@ export class FlowApplication {
   private context: FlowContext;
   private declarations: Record<string, ClassType<FlowElement>> = {};
   private elements: Record<string, FlowElement> = {};
-  private readonly logger: Logger;
+  private readonly logger: FlowLogger;
   private outputStreamMap = new Map<string, Subject<FlowEvent>>();
   private outputQueueMetrics = new Map<string, QueueMetrics>();
   private performanceMap = new Map<string, EventLoopUtilization>();
@@ -44,12 +44,16 @@ export class FlowApplication {
   constructor(
     private modules: ClassType<any>[],
     private flow: Flow,
-    logger?: Logger,
+    private readonly baseLogger?: Logger,
     private amqpConnection?: AmqpConnection,
     private skipApi = false,
     explicitInit = false,
   ) {
-    this.logger = new FlowLogger({ id: 'none', functionFqn: 'FlowApplication', ...flow?.context }, logger || undefined, this.publishEvent);
+    this.logger = new FlowLogger(
+      { id: 'none', functionFqn: 'FlowApplication', ...flow?.context },
+      baseLogger || undefined,
+      this.publishEvent,
+    );
 
     process.once('uncaughtException', (err) => {
       this.logger.error('Uncaught exception!');
@@ -65,7 +69,7 @@ export class FlowApplication {
       this.destroy(0);
     });
 
-    if (!explicitInit) {
+    if (explicitInit !== true) {
       this.init();
     }
   }
@@ -135,7 +139,7 @@ export class FlowApplication {
     for (const element of this.flow.elements) {
       const { id, name, properties, module, functionFqn } = element;
       try {
-        const context: Context = { ...this.context, id, name, logger: this.logger, app: this };
+        const context: Context = { ...this.context, id, name, logger: this.baseLogger, app: this };
         this.elements[id] = new this.declarations[`${module}.${functionFqn}`](context, properties);
       } catch (err) {
         await logErrorAndExit(`Could not create FlowElement for ${module}.${functionFqn}`);
