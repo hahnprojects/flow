@@ -38,7 +38,7 @@ export class FlowService extends BaseService {
   }
 
   public getDiagramRevisions(id: string): Promise<FlowDiagram[]> {
-    return this.httpClient.get<FlowDiagram[]>(`${this.basePath}/${id}/revisions`);
+    return this.httpClient.get<FlowDiagram[]>(`${this.basePath}/${id}/diagram/revisions`);
   }
 
   public async isDeploymentOnLatestDiagramVersion(depl: FlowDeployment): Promise<boolean> {
