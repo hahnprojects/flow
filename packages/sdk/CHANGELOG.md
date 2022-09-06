@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.22.9
+
+### Patch Changes
+
+- 18d9a0b: Fixed logging. All logs were processed and published twice.
+
 ## 4.22.8
 
 ### Patch Changes
