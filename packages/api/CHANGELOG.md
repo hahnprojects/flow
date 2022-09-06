@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 3.6.1
+
+### Patch Changes
+
+- bcc1b60: Fixed bug where wrong endpoint was called when requesting flow diagram revisions. The flow revisions endpoint was called instead.
+
 ## 3.6.0
 
 ### Minor Changes
