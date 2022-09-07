@@ -96,7 +96,7 @@ importers:
       jwt-decode: ^3.1.2
       p-queue: ^6.6.2
       ts-mixer: ^6.0.1
-      uuid: ^8.3.2
+      uuid: ^9.0.0
     dependencies:
       axios: 0.27.2
       eventsource: 2.0.2
@@ -105,7 +105,7 @@ importers:
       jwt-decode: 3.1.2
       p-queue: 6.6.2
       ts-mixer: 6.0.1
-      uuid: 8.3.2
+      uuid: 9.0.0
     devDependencies:
       '@types/eventsource': 1.1.9
       axios-mock-adapter: 1.21.2_axios@0.27.2
@@ -5799,6 +5799,11 @@ packages:
   /uuid/8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     hasBin: true
+
+  /uuid/9.0.0:
+    resolution: {integrity: sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg==}
+    hasBin: true
+    dev: false
 
   /v8-compile-cache-lib/3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
