@@ -44,11 +44,11 @@
     "string-interp": "^0.3.6"
   },
   "devDependencies": {
-    "@golevelup/nestjs-rabbitmq": "^3.2.0",
-    "@nestjs/common": "^9.0.11",
+    "@golevelup/nestjs-rabbitmq": "^3.3.0",
+    "@nestjs/common": "^9.1.1",
     "@types/amqp-connection-manager": "^2.0.12",
     "@types/amqplib": "^0.8.2",
-    "@types/jest": "^29.0.2",
+    "@types/jest": "^29.0.3",
     "@types/lodash": "^4.14.185",
     "@types/node": "^16.11.59",
     "class-validator-jsonschema": "^3.1.1",
