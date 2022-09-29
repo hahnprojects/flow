@@ -1,0 +1,39 @@
+name: Test
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - packages/hahnpro/flow-sdk
+  pull_request:
+    branches: [main, master]
+    paths:
+      - packages/hahnpro/flow-sdk
+  release:
+    types: [created]
+    paths:
+      - packages/hahnpro/flow-sdk
+
+jobs:
+  test-sdk:
+    name: Test SDK
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.7", "3.8", "3.9", "3.10" ]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2
+        with:
+          poetry-version: "1.2"
+      - name: Test SDK
+        env:
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+        run: |
+          cd packages/hahnpro/flow_sdk
+          poetry install
+          poetry run python -m unittest discover
