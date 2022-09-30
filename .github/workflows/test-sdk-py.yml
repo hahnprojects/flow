@@ -4,15 +4,15 @@ on:
   push:
     branches: [main, master]
     paths:
-      - 'packages/hahnpro/flow-sdk/**'
+      - packages/hahnpro/flow_sdk/**
   pull_request:
     branches: [main, master]
     paths:
-      - 'packages/hahnpro/flow-sdk/**'
+      - packages/hahnpro/flow_sdk/**
   release:
     types: [created]
     paths:
-      - 'packages/hahnpro/flow-sdk/**'
+      - packages/hahnpro/flow_sdk/**
 
 jobs:
   test-sdk:
