@@ -4,15 +4,15 @@ on:
   push:
     branches: [main, master]
     paths:
-      - packages/hahnpro/hpc-api
+      - packages/hahnpro/hpc-api/**
   pull_request:
     branches: [main, master]
     paths:
-      - packages/hahnpro/hpc-api
+      - packages/hahnpro/hpc-api/**
   release:
     types: [created]
     paths:
-      - packages/hahnpro/hpc-api
+      - packages/hahnpro/hpc-api/**
 
 jobs:
   test-api:
