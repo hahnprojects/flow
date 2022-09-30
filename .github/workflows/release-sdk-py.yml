@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - packages/hahnpro/flow-sdk/**
+      - 'packages/hahnpro/flow-sdk/**'
 
 jobs:
   build-sdk:
