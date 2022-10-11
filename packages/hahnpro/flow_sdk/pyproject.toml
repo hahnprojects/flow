@@ -9,6 +9,7 @@ packages = [{include = "flow_sdk"}]
 [tool.poetry.dependencies]
 python = "^3.7"
 aio-pika = "^8.2.2"
+typing-extensions = "^4.4.0"
 
 
 [build-system]
