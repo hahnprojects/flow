@@ -10,7 +10,7 @@ class HttpClientTestCase(unittest.TestCase):
             'https://testing.hahnpro.com',
             'https://testing.hahnpro.com/auth',
             'testing',
-            'timo-test-client',
+            'e2e-test-client',
             os.environ["AUTH_SECRET"]
         )
         self.assertTrue(http_client.get_access_token())
