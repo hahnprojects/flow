@@ -15,8 +15,8 @@ on:
       - packages/hahnpro/flow_sdk/**
 
 jobs:
-  test-sdk:
-    name: Test SDK
+  test-sdk-py:
+    name: Test PY SDK
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -30,7 +30,7 @@ jobs:
         uses: abatilo/actions-poetry@v2
         with:
           poetry-version: "1.2"
-      - name: Test SDK
+      - name: Test PY SDK
         env:
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
         run: |

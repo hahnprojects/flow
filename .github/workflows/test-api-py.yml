@@ -15,8 +15,8 @@ on:
       - packages/hahnpro/hpc_api/**
 
 jobs:
-  test-api:
-    name: Test API
+  test-api-py:
+    name: Test PY API
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -30,7 +30,7 @@ jobs:
         uses: abatilo/actions-poetry@v2
         with:
           poetry-version: "1.2"
-      - name: Test API
+      - name: Test PY API
         env:
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
         run: |

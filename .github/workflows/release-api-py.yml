@@ -7,8 +7,8 @@ on:
       - packages/hahnpro/hpc_api/**
 
 jobs:
-  build-api:
-    name: Build and Release API
+  build-api-py:
+    name: Build and Release PY API
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -24,12 +24,12 @@ jobs:
           poetry self add poetry-multiproject-plugin@0.3.3
           poetry config repositories.test-pypi https://test.pypi.org/legacy/
           poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_SECRET }}
-      - name: Build API
+      - name: Build PY API
         run: |
           cd packages/hahnpro/hpc_api
           poetry install
           poetry build-project
-      - name: Publish
+      - name: Publish PY API
         run: |
           cd packages/hahnpro/hpc_api
           poetry publish -r test-pypi

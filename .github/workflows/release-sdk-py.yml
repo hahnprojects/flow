@@ -7,8 +7,8 @@ on:
       - packages/hahnpro/flow_sdk/**
 
 jobs:
-  build-sdk:
-    name: Build and Release SDK
+  build-sdk-py:
+    name: Build and Release PY SDK
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -24,12 +24,12 @@ jobs:
           poetry self add poetry-multiproject-plugin@0.3.3
           poetry config repositories.test-pypi https://test.pypi.org/legacy/
           poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_SECRET }}
-      - name: Build SDK
+      - name: Build PY SDK
         run: |
           cd packages/hahnpro/flow_sdk
           poetry install
           poetry build-project
-      - name: Publish
+      - name: Publish PY SDK
         run: |
           cd packages/hahnpro/flow_sdk
           poetry publish -r test-pypi
