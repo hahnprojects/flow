@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hahnpro-hpc-api"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["timoklingenhoefer <timo.klingenhoefer@web.de>"]
 readme = "README.md"
