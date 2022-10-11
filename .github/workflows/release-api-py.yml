@@ -1,8 +1,21 @@
 name: Release
 
+#on:
+#  push:
+#    branches: [main]
+#    paths:
+#      - packages/hahnpro/hpc_api/**
 on:
   push:
-    branches: [main]
+    branches: [main, master]
+    paths:
+      - packages/hahnpro/hpc_api/**
+  pull_request:
+    branches: [main, master]
+    paths:
+      - packages/hahnpro/hpc_api/**
+  release:
+    types: [created]
     paths:
       - packages/hahnpro/hpc_api/**
 
