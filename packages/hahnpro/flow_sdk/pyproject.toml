@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["timoklingenhoefer <timo.klingenhoefer@web.de>"]
 readme = "README.md"
-packages = [{include = "flow_sdk"}]
+packages = [{include = "hahnpro_flow_sdk"}]
 
 [tool.poetry.dependencies]
 python = "^3.7"

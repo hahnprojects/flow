@@ -46,29 +46,3 @@ jobs:
         run: |
           cd packages/hahnpro/hpc_api
           poetry publish -r test-pypi
-  build-sdk:
-    name: Build and Release SDK
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: "3.10"
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
-        with:
-          poetry-version: "1.2"
-      - name: Setup Poetry
-        run: |
-          poetry self add poetry-multiproject-plugin
-          poetry config repositories.test-pypi https://test.pypi.org/legacy/
-          poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_SECRET }}
-      - name: Build SDK
-        run: |
-          cd packages/hahnpro/flow_sdk
-          poetry install
-          poetry build-project
-      - name: Publish
-        run: |
-          cd packages/hahnpro/flow_sdk
-          poetry publish -r test-pypi
