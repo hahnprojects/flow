@@ -330,7 +330,7 @@ For building, packaging and publishing a module the [Flow-CLI](packages/cli/READ
 }
 ```
 
-Alternatively you can install the Flow-CLI globally `npm i -g @hahnpro/flow-cli` and use it directly: `flow-cli build <modulename>`
+Alternatively you can install the Flow-CLI globally `npm i -g @hahnpro/flow-cli` and use it directly: `flow build <modulename>`
 
 ### Flow-Module Upload
 
@@ -359,10 +359,10 @@ A `.zip` file will be created in the `dist` folder. This file is ready to be upl
 To authenticate against a target platform you can use either of the following commands:
 
 ```bash
-flow-cli login --url https://cloud.hahnpro.com --realm cloud
+flow login --url https://cloud.hahnpro.com --realm cloud
 
 # or
-flow-cli publish-module <modulename> --url https://cloud.hahnpro.com --realm cloud
+flow publish-module <modulename> --url https://cloud.hahnpro.com --realm cloud
 ```
 
 Instead of setting the `--url` and `--realm` options you can also set the respective environment variables (`BASE_URL` and `REALM`)
@@ -373,10 +373,10 @@ To manually remove the authentication token run one of the following commands
 
 ```bash
 # Remove auth data for all platforms
-flow-cli logout
+flow logout
 
 # Remove auth data for specific platform
-flow-cli logout --url https://cloud.hahnpro.com
+flow logout --url https://cloud.hahnpro.com
 ```
 
 ### Service Account

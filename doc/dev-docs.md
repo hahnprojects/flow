@@ -13,7 +13,7 @@ To use the API you will have to authenticate yourself with every request. For th
 header with a [JWT-Token](https://jwt.io/introduction) is needed.
 
 To get the JWT-Token, you have to use your API-Username and Password to get the token from Keycloak. The request to
-keycloak needs to be a POST request with `{'grant_type': 'client_credentials'}` as the body.
+keycloak needs to be a POST request with `{'grant_type': 'client_secret_jwt'}` as the body.
 
 The token is valid for a set amount of time, after which you will need to reauthenticate.
 In the `expires_in` response field you can get the time for which the token will be valid.
@@ -28,21 +28,26 @@ You will need to set the variables `API_BASE_URL`, `AUTH_BASE_URL`, `AUTH_REALM`
 will often be the same as the `API_BASE_URL`.
 
 ```python
-import requests
-import getpass
+from authlib.oauth2.rfc7523 import ClientSecretJWT
+from authlib.integrations.requests_client import OAuth2Session
 
-# gets an access token
-keycloak_url = AUTH_BASE_URL + '/auth/realms/' + AUTH_REALM + '/protocol/openid-connect/token'
-headers = {'Content-Type':'application/x-www-form-urlencoded'}
-apiPw = getpass.getpass('Password for ' + API_USER)
-auth=(API_USER, apiPw)
-data = {'grant_type': 'client_credentials'}
-res = requests.post(keycloak_url, auth=auth, headers=headers, data=data )
-apiPw = '';
-token = res.json()['access_token']
-print('token: ' +  token[:5] + '...' + str(len(token)))
-headers = {'Authorization':'Bearer ' + token,
-           'Content-Type': 'application/json'}
+API_BASE_URL = os.environ["API_BASE_URL"]
+AUTH_SECRET = os.environ["AUTH_SECRET"]
+AUTH_ISSUER = os.environ["AUTH_ISSUER"]
+API_USER = os.environ.get('API_USER', 'flow-executor-service')
+
+token_endpoint = (
+    AUTH_BASE_URL + '/auth/realms/' + AUTH_REALM + '/protocol/openid-connect/token'
+)
+session = OAuth2Session(
+    API_USER, AUTH_SECRET,
+    token_endpoint_auth_method='client_secret_jwt'
+)
+session.register_client_auth_method(ClientSecretJWT(token_endpoint))
+result = session.fetch_token(token_endpoint)
+token = result["access_token"]
+# print("token: " + token[:5] + "..." + str(len(token)))
+headers = {"Authorization": "Bearer " + token}
 
 ```
 
@@ -317,7 +322,7 @@ blob = res.content
 Upload new Content:
 
 If you are using the same `headers` set from the authentication example, you have
-to the `Content-Type` header.
+to delete the `Content-Type` header.
 
 ```python
 del headers['Content-Type']
@@ -486,6 +491,11 @@ await api.timeSeriesManager.addValue('1234', value);
 ## 4. FAQ
 
 ### 4.1. How to log messages from Python in a FlowFunction
+
+#### current solution
+In the Python code you can use the `log` function from the rpc_server to send logs directly from py.
+
+#### older solution
 
 > this is just possible for _RPC_ style Python integration.
 
