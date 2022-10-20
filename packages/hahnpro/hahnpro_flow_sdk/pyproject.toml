@@ -1,10 +1,10 @@
 [tool.poetry]
 name = "hahnpro-flow-sdk"
-version = "0.1.4"
+version = "0.1.13"
 description = ""
 authors = ["timoklingenhoefer <timo.klingenhoefer@web.de>"]
 readme = "README.md"
-packages = [{include = "hahnpro_flow_sdk"}]
+packages = [{include = "rpc"}]
 
 [tool.poetry.dependencies]
 python = "^3.7"

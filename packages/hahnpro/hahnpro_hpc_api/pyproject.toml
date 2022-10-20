@@ -4,7 +4,7 @@ version = "0.1.1"
 description = ""
 authors = ["timoklingenhoefer <timo.klingenhoefer@web.de>"]
 readme = "README.md"
-packages = [{include = "hahnpro_hpc_api"}]
+packages = [{include = "api"}]
 
 [tool.poetry.dependencies]
 python = "^3.7"

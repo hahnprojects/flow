@@ -1,6 +1,6 @@
 import sys
 import random
-from hahnpro_flow_sdk import RemoteProcedure, start_consumer  # todo fix structure
+from hahnpro_flow_sdk.rpc import RemoteProcedure, start_consumer
 
 # to use this you need to install hahnpro_flow_sdk (pip install hahnpro_flow_sdk)
 
