@@ -1,21 +1,8 @@
 name: Release
 
-#on:
-#  push:
-#    branches: [main]
-#    paths:
-#      - packages/hahnpro/hpc_api/**
 on:
   push:
-    branches: [main, master]
-    paths:
-      - packages/hahnpro/hpc_api/**
-  pull_request:
-    branches: [main, master]
-    paths:
-      - packages/hahnpro/hpc_api/**
-  release:
-    types: [created]
+    branches: [main]
     paths:
       - packages/hahnpro/hpc_api/**
 
@@ -35,8 +22,7 @@ jobs:
       - name: Setup Poetry
         run: |
           poetry self add poetry-multiproject-plugin@0.3.3
-          poetry config repositories.test-pypi https://test.pypi.org/legacy/
-          poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_SECRET }}
+          poetry config pypi-token.test-pypi ${{ secrets.PYPI_SECRET }}
       - name: Build PY API
         run: |
           cd packages/hahnpro/hpc_api

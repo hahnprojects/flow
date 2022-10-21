@@ -22,8 +22,7 @@ jobs:
       - name: Setup Poetry
         run: |
           poetry self add poetry-multiproject-plugin@0.3.3
-          poetry config repositories.test-pypi https://test.pypi.org/legacy/
-          poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_SECRET }}
+          poetry config pypi-token.test-pypi ${{ secrets.PYPI_SECRET }}
       - name: Build PY SDK
         run: |
           cd packages/hahnpro/flow_sdk
