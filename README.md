@@ -455,6 +455,8 @@ npm install @hahnpro/flow-sdk@latest @hahnpro/flow-cli@latest
 
 ### Migration to version 4.8.0+
 
+The `emitOutput(data)` method of the Flow-Function is deprecated.
+
 Replace all occurrences of `emitOutput(data)` with `emitEvent(data, event)`, using the
 input event of the function.
 
@@ -481,6 +483,25 @@ public onDefault(event: FlowEvent) {
   return this.emitEvent(data, event, 'notdefault');
 }
 ```
+
+### Migration to ts-version 4.22.9+ and py-version 1.0.0
+
+The use of the `rpc-server.py` by importing from the ts-package is deprecated.
+
+By starting a py-script using the `runPyRpcScript(...)` an additional parameter is set that contains the path to the `rpc-server.py` file.
+
+from:
+```python
+sys.path.append(sys.argv[1])
+from rpc_server import RemoteProcedure, start_consumer
+```
+
+to:
+```python
+from hahnpro_flow_sdk.rpc import RemoteProcedure, start_consumer
+```
+
+The indices of the `sys.argv` array do NOT need to be changed. 
 
 ## License
 
