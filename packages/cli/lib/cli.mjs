@@ -639,23 +639,31 @@ function deleteFile(filePath) {
 
 function getProcess(cmd) {
   switch (cmd) {
-    case CMD.BUILD:
+    case CMD.BUILD: {
       return 'tsc';
-    case CMD.FORMAT:
+    }
+    case CMD.FORMAT: {
       return 'prettier';
+    }
     case CMD.INSTALL:
-    case CMD.AUDIT:
+    case CMD.AUDIT: {
       return 'npm';
-    case CMD.LINT:
+    }
+    case CMD.LINT: {
       return 'eslint';
-    case CMD.RUN:
+    }
+    case CMD.RUN: {
       return 'node';
-    case CMD.TEST:
+    }
+    case CMD.TEST: {
       return 'jest';
-    case CMD.WATCH:
+    }
+    case CMD.WATCH: {
       return 'nodemon';
-    default:
+    }
+    default: {
       return '';
+    }
   }
 }
 
@@ -679,45 +687,56 @@ function copyProjectFiles(project) {
 
 function getProcessArguments(cmd, project) {
   switch (cmd) {
-    case CMD.AUDIT:
+    case CMD.AUDIT: {
       return ['audit', '--audit-level=moderate'];
+    }
     case CMD.BUILD: {
       const filename = path.join(project.location, 'tsconfig.module.json');
       const configFile = fs.existsSync(filename) ? filename : project.location;
       return ['-p', configFile];
     }
-    case CMD.FORMAT:
+    case CMD.FORMAT: {
       return ['--write', '**/*.ts'];
-    case CMD.INSTALL:
+    }
+    case CMD.INSTALL: {
       return ['install', '--no-package-lock'];
-    case CMD.LINT:
+    }
+    case CMD.LINT: {
       return [project.location + '/**/*.{js,ts}', '--fix'];
-    case CMD.RUN:
+    }
+    case CMD.RUN: {
       return [project.location];
-    case CMD.TEST:
+    }
+    case CMD.TEST: {
       return project.name === 'all'
         ? ['--runInBand', '--coverage', '--forceExit', '--verbose', '--passWithNoTests']
         : ['roots', project.location, '--forceExit', '--verbose', '--passWithNoTests'];
-    case CMD.WATCH:
+    }
+    case CMD.WATCH: {
       return ['--inspect', project.location];
-    default:
+    }
+    default: {
       return [];
+    }
   }
 }
 
 function getProcessOptions(cmd, project) {
   switch (cmd) {
-    case CMD.INSTALL:
+    case CMD.INSTALL: {
       return { cwd: project.location };
+    }
   }
 }
 
 function getLabel(cmd) {
   switch (cmd) {
-    case CMD.RUN:
+    case CMD.RUN: {
       return 'Running';
-    default:
+    }
+    default: {
       return `${cmd.charAt(0).toUpperCase()}${cmd.slice(1)}ing`;
+    }
   }
 }
 
