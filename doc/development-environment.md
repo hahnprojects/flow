@@ -56,8 +56,8 @@ should install it globally on your system (`npm i -g @hahnpro/flow-cli`).
 
 ## Python
 
-The only dependency needed is [`hahnpro_flow_sdk`](https://pypi.org/project/hahnpro-flow-sdk/). It contains everything 
-needed for the RPC-style communication and other helpful functions for interacting with the HahnPRO API.
+The only dependency needed is [`aio-pika`](https://pypi.org/project/aio-pika/). It is needed for
+the RabbitMQ connection used in the RPC-style Python integration.
 
 ## Configuration
 

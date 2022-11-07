@@ -1,8 +1,10 @@
 import sys
 import random
-from hahnpro_flow_sdk.rpc import RemoteProcedure, start_consumer
 
-# to use this you need to install hahnpro_flow_sdk (pip install hahnpro_flow_sdk)
+sys.path.append(sys.argv[1])
+from rpc_server import RemoteProcedure, start_consumer
+
+# to use this you need to install aio-pika (pip install aio-pika)
 
 random.seed(0)
 calcs = []
