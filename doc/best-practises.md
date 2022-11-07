@@ -200,7 +200,7 @@ def func():
 
     df = pd.DataFrame(cars, columns= ['Brand', 'Price'])
 
-    return df.to_json(orient='records') # or other orientation check https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_json.html for more info
+    return df.to_json(orient='records') # or other orientaton check https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_json.html for more info
 ```
 
 ```typescript
