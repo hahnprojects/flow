@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "hahnpro-flow-sdk"
+version = "1.0.0"
+description = ""
+authors = ["timoklingenhoefer <timo.klingenhoefer@web.de>"]
+readme = "README.md"
+packages = [{include = "rpc"}]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+aio-pika = "^8.2.2"
+typing-extensions = "^4.4.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

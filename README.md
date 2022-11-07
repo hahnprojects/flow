@@ -4,12 +4,24 @@
 
 For release notes, see the [CHANGELOG](CHANGELOG.md)
 
+The Flow-SDK and the API package it uses are available in both typescript and python variants.
+Currently, the python version is still in development and only contains limited functionality, such as the functions and decorators needed for the
+integration of python code into a typescript Flow-Function. In the future the SDKs for both languages will have the same features, allowing for hybrid
+TS and Py Flows, using native Py Flow-Functions. 
+
+
 ## Installing
 
-The preferred way to install the Flow-SDK is to use the [npm package manager](https://www.npmjs.com/). Simply type the following into a terminal window:
+The preferred way to install the Flow-SDK is to use the [npm package manager](https://www.npmjs.com/) or [pip](https://pypi.org/project/pip/).
+
+Simply type the following into a terminal window:
 
 ```bash
 npm install @hahnpro/flow-sdk
+```
+or
+```bash
+pip install hahnpro_flow_sdk
 ```
 
 For building, testing, linting, packaging and publishing your flow-modules, please also install @hahnpro/flow-cli:
@@ -279,10 +291,46 @@ There are two possibilities to run python scripts in your Flow-Functions.
 #### rpc:
 
 - communication over rabbitmq
-- function calls equivalent to normal local function calls
+- python function calls equivalent to normal local ts function calls
 - script gets instantiated when the Flow-Function gets instantiated and destroyed when the Flow-Function gets destroyed
 - script stays running between messages
 - useful for complex scripts that have to keep running to save data in memory
+
+On the typescript side the python script file has to be started by calling the ```runPyScript``` method provided by the Flow-Function in the constructor.
+
+```typescript
+import { FlowFunction, FlowTask } from '@hahnpro/flow-sdk';
+
+@FlowFunction('my.task.py')
+export class PyTask extends FlowTask<Properties> {
+  constructor(context, properties: unknown) {
+    super(context, properties, Properties, true);
+    this.runPyRpcScript('path/to/file.py', 'optionalCommandLineParameter');
+  }
+}
+```
+
+By adding extra parameters after the filepath, you can give extra parameters to the script that can be accessed on the python side using the
+```sys.argv``` array. The parameters start at index 3 as the indices 1 and 2 contain parameters by which the RPC-messages get routed.
+
+To now access the functions of the python-script, the function hs to have the ```@RemoteProcedure``` decorator.
+
+```python
+@RemoteProcedure
+def factorial(n):
+    return 1 if (n == 1 or n == 0) else n * factorial(n - 1)
+```
+
+In TS class this function can then be declared by using the ```callRpcFunction``` method in a new arrow-function.
+
+```typescript
+private factorial = (n: number): Promise<number> => this.callRpcFunction('factorial', n) as Promise<number>;
+```
+
+Here the parameter- and return-types can also be defined.
+By the nature of RPC-calls these functions always return Promises. 
+The first parameter of the ```callRpcFunction``` method has to be the exact name of the function in python. 
+Now the ```factorial``` py-function can be used in ts like it was a native ts function.
 
 See the [examples](examples) for how to run python scripts in your Flow-Function implementation.
 
@@ -309,6 +357,7 @@ For information on running Flow-Module tests in CI see [this](/doc/flow-testing-
 
 ### Testing examples
 
+
 - [Simple Test](examples/modules/example/src/simple.spec.ts)
 
 - [Complex Flow Test](examples/modules/example/src/flow.spec.ts)
@@ -330,7 +379,7 @@ For building, packaging and publishing a module the [Flow-CLI](packages/cli/READ
 }
 ```
 
-Alternatively you can install the Flow-CLI globally `npm i -g @hahnpro/flow-cli` and use it directly: `flow-cli build <modulename>`
+Alternatively you can install the Flow-CLI globally `npm i -g @hahnpro/flow-cli` and use it directly: `flow build <modulename>`
 
 ### Flow-Module Upload
 
@@ -359,10 +408,10 @@ A `.zip` file will be created in the `dist` folder. This file is ready to be upl
 To authenticate against a target platform you can use either of the following commands:
 
 ```bash
-flow-cli login --url https://cloud.hahnpro.com --realm cloud
+flow login --url https://cloud.hahnpro.com --realm cloud
 
 # or
-flow-cli publish-module <modulename> --url https://cloud.hahnpro.com --realm cloud
+flow publish-module <modulename> --url https://cloud.hahnpro.com --realm cloud
 ```
 
 Instead of setting the `--url` and `--realm` options you can also set the respective environment variables (`BASE_URL` and `REALM`)
@@ -373,10 +422,10 @@ To manually remove the authentication token run one of the following commands
 
 ```bash
 # Remove auth data for all platforms
-flow-cli logout
+flow logout
 
 # Remove auth data for specific platform
-flow-cli logout --url https://cloud.hahnpro.com
+flow logout --url https://cloud.hahnpro.com
 ```
 
 ### Service Account
@@ -406,6 +455,8 @@ npm install @hahnpro/flow-sdk@latest @hahnpro/flow-cli@latest
 
 ### Migration to version 4.8.0+
 
+The `emitOutput(data)` method of the Flow-Function is deprecated.
+
 Replace all occurrences of `emitOutput(data)` with `emitEvent(data, event)`, using the
 input event of the function.
 
@@ -432,6 +483,25 @@ public onDefault(event: FlowEvent) {
   return this.emitEvent(data, event, 'notdefault');
 }
 ```
+
+### Migration to ts-version 4.22.9+ and py-version 1.0.0
+
+The use of the `rpc-server.py` by importing from the ts-package is deprecated.
+
+By starting a py-script using the `runPyRpcScript(...)` an additional parameter is set that contains the path to the `rpc-server.py` file.
+
+from:
+```python
+sys.path.append(sys.argv[1])
+from rpc_server import RemoteProcedure, start_consumer
+```
+
+to:
+```python
+from hahnpro_flow_sdk.rpc import RemoteProcedure, start_consumer
+```
+
+The indices of the `sys.argv` array do NOT need to be changed. 
 
 ## License
 
