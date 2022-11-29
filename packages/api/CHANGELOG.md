@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 3.6.4
+
+### Patch Changes
+
+- f445b96: Fixes issue with http response encoding/transformation by downgrading axios
+
 ## 3.6.3
 
 ### Patch Changes

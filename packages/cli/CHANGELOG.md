@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.15.3
+
+### Patch Changes
+
+- f445b96: Fixes issue with http response encoding/transformation by downgrading axios
+
 ## 2.15.2
 
 ### Patch Changes
