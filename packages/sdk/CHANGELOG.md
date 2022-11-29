@@ -1,5 +1,13 @@
 # @hahnpro/flow-sdk
 
+## 4.22.12
+
+### Patch Changes
+
+- f445b96: Fixes issue with http response encoding/transformation by downgrading axios
+- Updated dependencies [f445b96]
+  - @hahnpro/hpc-api@3.6.4
+
 ## 4.22.11
 
 ### Patch Changes
