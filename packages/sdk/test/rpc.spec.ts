@@ -88,12 +88,23 @@ describe('Flow RPC', () => {
   test('FLOW.RPC.6 rpc function returns numpy object', (done) => {
     flowApp.subscribe('testResource.f', {
       next: (event: FlowEvent) => {
-        console.log(event.getData());
+        expect(event.getData()).toEqual({ res: '100000000' });
         done();
       },
     });
 
-    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { powers: [{ timestamp: 1234, powers: 567 }, { timestamp: 89, powers: 1011 }] }, 'f'));
+    flowApp.emit(
+      new FlowEvent(
+        { id: 'testTrigger' },
+        {
+          powers: [
+            { timestamp: 1234, powers: 567 },
+            { timestamp: 89, powers: 1011 },
+          ],
+        },
+        'f',
+      ),
+    );
   }, 60000);
 
   afterAll(async () => {
@@ -155,7 +166,7 @@ class TestResource extends FlowResource {
   @InputStream('f')
   public async onF(event) {
     this.callRpcFunction('testF')
-      .then((res: any) => this.emitOutput(res, 'f'))
+      .then((res: any) => this.emitOutput({ res }, 'f'))
       .catch((err) => {
         this.logger.error(err);
         this.emitOutput({ err }, 'f');
