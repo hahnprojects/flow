@@ -16,6 +16,7 @@ describe('Flow RPC', () => {
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'c', target: 'testResource', targetStream: 'c' },
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'd', target: 'testResource', targetStream: 'd' },
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'e', target: 'testResource', targetStream: 'e' },
+        { id: 'testConnection1', source: 'testTrigger', sourceStream: 'f', target: 'testResource', targetStream: 'f' },
       ],
       context: {
         flowId: 'testFlow',
@@ -84,6 +85,17 @@ describe('Flow RPC', () => {
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}, 'e'));
   });
 
+  test('FLOW.RPC.6 rpc function returns numpy object', (done) => {
+    flowApp.subscribe('testResource.f', {
+      next: (event: FlowEvent) => {
+        console.log(event.getData());
+        done();
+      },
+    });
+
+    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, { powers: [{ timestamp: 1234, powers: 567 }, { timestamp: 89, powers: 1011 }] }, 'f'));
+  }, 60000);
+
   afterAll(async () => {
     await flowApp.destroy();
   });
@@ -93,7 +105,11 @@ describe('Flow RPC', () => {
 class TestResource extends FlowResource {
   constructor(context) {
     super(context);
-    this.runPyRpcScript(join(__dirname, 'rpc.test.py'), 10);
+    const shell = this.runPyRpcScript(join(__dirname, 'rpc.test.py'), 10);
+    shell.on('error', (error) => console.log(error));
+    shell.on('pythonError', (error) => console.log(error));
+    shell.on('stderr', (error) => console.log(error));
+    shell.on('message', (error) => console.log(error));
   }
 
   @InputStream('a')
@@ -133,6 +149,16 @@ class TestResource extends FlowResource {
       .catch((err) => {
         this.logger.error(err);
         this.emitEvent({ err }, event, 'e');
+      });
+  }
+
+  @InputStream('f')
+  public async onF(event) {
+    this.callRpcFunction('testF')
+      .then((res: any) => this.emitOutput(res, 'f'))
+      .catch((err) => {
+        this.logger.error(err);
+        this.emitOutput({ err }, 'f');
       });
   }
 }

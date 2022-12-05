@@ -37,6 +37,8 @@ async def on_message(exchange: Exchange, message: IncomingMessage):
     def callback(future: Future):
         try:
             res = future.result()
+            if type(res) is tuple and type(res[1]) is type and issubclass(res[1], json.JSONEncoder):
+                res = json.dumps(res[0], cls=res[1])
             reply1 = {"type": "reply", "value": res}
         except Exception as err:
             # print(traceback.format_list(traceback.extract_stack(err)))
