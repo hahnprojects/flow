@@ -443,10 +443,10 @@ async function findProjects() {
   const isProject = (directory) =>
     new Promise((resolve) => {
       fs.access(path.join(directory, 'package.json'), (error) => {
-        if (!error) {
-          resolve(true);
-        } else {
+        if (error) {
           resolve(false);
+        } else {
+          resolve(true);
         }
       });
     });
