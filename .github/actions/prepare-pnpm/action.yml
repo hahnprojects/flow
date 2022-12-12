@@ -7,7 +7,7 @@ inputs:
     required: false
   pnpm-version:
     description: 'PNPM version'
-    default: 7.14.1
+    default: 7.18.2
     required: false
 runs:
   using: 'composite'
