@@ -89,7 +89,7 @@ export abstract class FlowElement<T = any> {
 
   protected validateProperties<P>(classType: ClassType<P>, properties: any = {}, whitelist = false): P {
     const props: P = plainToInstance<P, any>(classType, properties);
-    const errors = validateSync(props as any, { whitelist });
+    const errors = validateSync(props as any, { forbidUnknownValues: false, whitelist });
     if (Array.isArray(errors) && errors.length > 0) {
       for (const e of errors) {
         this.logValidationErrors(e);
