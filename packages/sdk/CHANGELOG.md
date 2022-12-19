@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.23.0
+
+### Minor Changes
+
+- d83cedd: Added capability that lets the user return a custom json serializer in their RPC functions to serilaize data that contains non python types (like numpy or pandas) without adding any dependencies.
+
 ## 4.22.12
 
 ### Patch Changes
