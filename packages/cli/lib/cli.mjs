@@ -58,15 +58,16 @@ program
   .on('--help', () => {});
 
 program
-  .command('build [projectName]')
-  .description('Builds specified project')
-  .action(async (projectName) => {
+  .command('build [moduleNames]')
+  .description('Build specified Module(s)')
+  .action(async (moduleNames) => {
     try {
-      if (checkIfAll(projectName)) process.exit(1);
-      const project = await findProject(projectName);
-      await exec(CMD.INSTALL, project);
-      await exec(CMD.BUILD, project);
-      await copyProjectFiles(project);
+      const projects = await selectProjects(moduleNames);
+      for (const project of projects) {
+        await exec(CMD.INSTALL, project);
+        await exec(CMD.BUILD, project);
+        await copyProjectFiles(project);
+      }
     } catch (error) {
       if (error) logger.log(error);
       process.exit(1);
@@ -74,17 +75,12 @@ program
   });
 
 program
-  .command('install [projectName]')
-  .description('Installs the dependencies of the specified project')
-  .action(async (projectName) => {
+  .command('install [moduleNames]')
+  .description('Install the dependencies of the specified Module(s)')
+  .action(async (moduleNames) => {
     try {
-      if (projectName === 'all') {
-        const projects = await findProjects();
-        for (const project of projects) {
-          await exec(CMD.INSTALL, project);
-        }
-      } else {
-        const project = await findProject(projectName);
+      const projects = await selectProjects(moduleNames);
+      for (const project of projects) {
         await exec(CMD.INSTALL, project);
       }
     } catch (error) {
@@ -94,17 +90,12 @@ program
   });
 
 program
-  .command('audit [projectName]')
-  .description('Audit dependencies')
-  .action(async (projectName) => {
+  .command('audit [moduleNames]')
+  .description('Audit dependencies for the specified Module(s)')
+  .action(async (moduleNames) => {
     try {
-      if (projectName === 'all') {
-        const projects = await findProjects();
-        for (const project of projects) {
-          await exec(CMD.AUDIT, project);
-        }
-      } else {
-        const project = await findProject(projectName);
+      const projects = await selectProjects(moduleNames);
+      for (const project of projects) {
         await exec(CMD.AUDIT, project);
       }
     } catch (error) {
@@ -114,12 +105,14 @@ program
   });
 
 program
-  .command('lint [projectName]')
-  .description('Lint project files')
-  .action(async (projectName) => {
+  .command('lint [moduleNames]')
+  .description('Lint source files for the specified Module(s)')
+  .action(async (moduleNames) => {
     try {
-      const project = await findProject(projectName);
-      await exec(CMD.LINT, project);
+      const projects = await selectProjects(moduleNames);
+      for (const project of projects) {
+        await exec(CMD.LINT, project);
+      }
     } catch (error) {
       if (error) logger.log(error);
       process.exit(1);
@@ -158,7 +151,7 @@ program
 
 program
   .command('format')
-  .description('Formats all typescript files according to prettier configuration')
+  .description('Format all typescript files according to prettier configuration')
   .action(async () => {
     try {
       await exec(CMD.FORMAT, { name: 'all' });
@@ -169,18 +162,19 @@ program
   });
 
 program
-  .command('package [projectName]')
-  .description('Builds specified Module and packages it as .zip File for manual upload to the platform')
-  .action(async (projectName) => {
+  .command('package [moduleNames]')
+  .description('Build specified Module(s) and package as .zip file for manual upload to the platform')
+  .action(async (moduleNames) => {
     try {
-      if (checkIfAll(projectName)) process.exit(1);
-      const project = await findProject(projectName);
+      const projects = await selectProjects(moduleNames);
       await clean(BUILD_DIR);
-      await exec(CMD.INSTALL, project);
-      await exec(CMD.BUILD, project);
-      await copyProjectFiles(project);
-      await validateModule(project);
-      await packageModule(project);
+      for (const project of projects) {
+        await exec(CMD.INSTALL, project);
+        await exec(CMD.BUILD, project);
+        await copyProjectFiles(project);
+        await validateModule(project);
+        await packageModule(project);
+      }
     } catch (error) {
       if (error) logger.log(error);
       process.exit(1);
@@ -188,28 +182,21 @@ program
   });
 
 program
-  .command('publish-module [projectName]')
+  .command('publish-module [moduleNames]')
   .requiredOption('--url <url>', 'URL of target platform', process.env.BASE_URL)
   .requiredOption('-r, --realm <realm>', 'Auth realm of target platform', process.env.REALM)
   .option('-f, --functions', 'publish flow functions')
   .option('-u, --update', 'update existing flow functions')
   .option('-s, --skip', 'skip modules that already exists with the current version')
-  .description('Publishes specified Module to Cloud Platform')
-  .action(async (projectName, options) => {
+  .description('Publish specified Module(s) to Cloud Platform')
+  .action(async (moduleNames, options) => {
     try {
-      const projects = [];
-      if (projectName === 'all') {
-        for (const project of await findProjects()) {
-          projects.push(project);
-        }
-      } else {
-        projects.push(await findProject(projectName));
-      }
+      const projects = await selectProjects(moduleNames);
 
       apiToken = await getAccessToken(options.url, options.realm);
       logger.ok('Got Access Token');
+      await clean(BUILD_DIR);
       for (const project of projects) {
-        await clean(BUILD_DIR);
         await exec(CMD.INSTALL, project);
         await exec(CMD.BUILD, project);
         await copyProjectFiles(project);
@@ -242,21 +229,14 @@ program
   });
 
 program
-  .command('publish-functions [projectName]')
+  .command('publish-functions [moduleNames]')
   .requiredOption('--url <url>', 'URL of target platform', process.env.BASE_URL)
   .requiredOption('-r, --realm <realm>', 'Auth realm of target platform', process.env.REALM)
   .option('-u, --update', 'update existing flow functions')
-  .description('Publishes all Flow Functions inside specified Module to Cloud Platform')
-  .action(async (projectName, options) => {
+  .description('Publish all Flow Functions inside specified Module(s) to Cloud Platform')
+  .action(async (moduleNames, options) => {
     try {
-      const projects = [];
-      if (projectName === 'all') {
-        for (const project of await findProjects()) {
-          projects.push(project);
-        }
-      } else {
-        projects.push(await findProject(projectName));
-      }
+      const projects = await selectProjects(moduleNames);
 
       apiToken = await getAccessToken(options.url, options.realm);
       logger.ok('Got Access Token');
@@ -301,19 +281,18 @@ program
   });
 
 program
-  .command('test [projectName]')
-  .description('Runs tests for your project')
-  .action(async (projectName) => {
+  .command('test [moduleNames]')
+  .description('Runs tests for specified Module(s)')
+  .action(async (moduleNames) => {
     try {
-      // check if it is running in Gitlab CI
-      if (process.env.CI && projectName === 'all') {
-        const projects = await findProjects();
-        for (const project1 of projects.filter((project) => !project['excludeTestsInCI'])) {
-          // only run tests that can be run in CI
-          await exec(CMD.TEST, project1);
-        }
-      } else {
-        const project = await findProject(projectName);
+      // check if it is running in CI environment
+      let projects = await selectProjects(moduleNames);
+      if (process.env.CI) {
+        // only run tests that can be run in CI
+        projects = projects.filter((project) => !project['excludeTestsInCI']);
+      }
+
+      for (const project of projects) {
         await exec(CMD.TEST, project);
       }
     } catch (error) {
@@ -506,6 +485,37 @@ function findProject(projectName) {
 
     logger.error(`Cloud not find ${projectName} Module.`);
     reject();
+  });
+}
+
+function selectProjects(value) {
+  return new Promise(async (resolve, reject) => {
+    if (!value) {
+      logger.error('No Module specified');
+      return reject();
+    }
+
+    const projectNames = value.split(',').map((v) => v.trim());
+    const allProjects = await findProjects();
+    if (value === 'all') {
+      return resolve(allProjects);
+    }
+
+    const projects = [];
+    for (const project of allProjects) {
+      const location = path.parse(project.location);
+      const directoryName = location.name + location.ext;
+      if (projectNames.includes(project.name) || projectNames.includes(directoryName)) {
+        projects.push(project);
+      }
+    }
+
+    if (projects.length === 0) {
+      logger.error(`Cloud not find any Modules for ${JSON.stringify(projectNames)}.`);
+      reject();
+    }
+
+    return resolve(projects);
   });
 }
 

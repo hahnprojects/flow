@@ -75,7 +75,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Python dependencies
-        run: pip install aio_pika
+        run: pip install "aio-pika==8.2.*"
       - name: Prepare PNPM
         uses: ./.github/actions/prepare-pnpm
       - name: Activate Post Build Hooks
