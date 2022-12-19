@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.16.0
+
+### Minor Changes
+
+- 62972a2: When executing commands like `flow build` or `flow publish-module` multiple Modules can now be specified as a comma-separated list: e.g. `flow build module1,module2`
+
 ## 2.15.3
 
 ### Patch Changes
