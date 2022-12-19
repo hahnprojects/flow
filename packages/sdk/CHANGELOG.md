@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.23.1
+
+### Patch Changes
+
+- df86691: Allow unknown values for property validation
+
 ## 4.23.0
 
 ### Minor Changes
