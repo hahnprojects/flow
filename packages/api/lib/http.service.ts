@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig, Method } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, Method, RawAxiosRequestHeaders } from 'axios';
 import EventSource from 'eventsource';
 import { v4 } from 'uuid';
 import { CompactSign } from 'jose';
@@ -44,7 +44,7 @@ export class HttpClient {
         new Promise((resolve, reject) => {
           this.getAccessToken()
             .then((token) => {
-              const headers = { Authorization: `Bearer ${token}`, ...config.headers };
+              const headers = { Authorization: `Bearer ${token}`, ...config.headers } as RawAxiosRequestHeaders;
               return this.axiosInstance.request<T>({ ...config, headers, method, url, data });
             })
             .then((response) => resolve(response.data))
