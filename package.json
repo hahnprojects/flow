@@ -77,6 +77,9 @@
       "allowedVersions": {
         "class-transformer": "0.5.1"
       }
+    },
+    "overrides": {
+      "debug@<3.1.0": ">=3.1.0"
     }
   }
 }
