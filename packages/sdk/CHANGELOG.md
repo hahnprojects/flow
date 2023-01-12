@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.23.3
+
+### Patch Changes
+
+- b659f75: Updated dependencies to reduce vulnerabilities
+
 ## 4.23.2
 
 ### Patch Changes
