@@ -39,11 +39,17 @@ export class TimeseriesMockService extends BaseService implements TimeSeriesServ
     name: string,
     readPermissions: string[],
     readWritePermissions: string[],
-    values: { [p: string]: any },
+    values: { [timestamp: string]: any },
   ): Promise<TimeSeries> {
     const ts = this.data.find((v) => v.assetRef === assetId);
+    const data: TimeSeriesValue[] = Object.entries(values).map(([timestamp, value]) => {
+      if (value !== null && typeof value === 'object') {
+        return { timestamp, ...value };
+      } else {
+        return { timestamp, value };
+      }
+    });
     if (!ts) {
-      const data = values.map((v) => ({ timestamp: Date.now(), ...v }));
       const dto: TimeSeries & { data: TimeSeriesValue[] } = {
         autoDelBucket: undefined,
         autoDelData: undefined,
@@ -58,13 +64,19 @@ export class TimeseriesMockService extends BaseService implements TimeSeriesServ
       };
       return this.addOne(dto);
     }
-    ts.data = { ...ts.data, ...values };
+    ts.data = [...ts.data, ...data];
     return Promise.resolve(ts);
   }
 
-  async addValue(id: string, value: { [p: string]: any }): Promise<void> {
+  async addValue(id: string, value: { [timestamp: string]: any }): Promise<void> {
     const ts = await this.getOne(id, {});
-    ts.data.push({ timestamp: new Date().valueOf(), value });
+    for (const [timestamp, v] of Object.entries(value)) {
+      if (v !== null && typeof v === 'object') {
+        ts.data.push({ timestamp, ...v });
+      } else {
+        ts.data.push({ timestamp: parseInt(timestamp, 10), value: v });
+      }
+    }
   }
 
   getManyByAsset(assetId: string, names?: string[]): Promise<Paginated<TimeSeries[]>> {
