@@ -16,7 +16,7 @@ export class TimeSeriesService extends BaseService {
     super(httpClient, '/tsm');
   }
 
-  public addValue(id: string, value: { [values: string]: any }) {
+  public addValue(id: string, value: { [timestamp: string]: any }) {
     return this.httpClient.post<void>(`${this.basePath}/${id}`, value);
   }
 
