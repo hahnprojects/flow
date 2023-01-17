@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 3.6.6
+
+### Patch Changes
+
+- b53dd91: fix addition of timeseries values in mock api
+
 ## 3.6.5
 
 ### Patch Changes
