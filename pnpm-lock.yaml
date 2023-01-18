@@ -125,7 +125,7 @@ importers:
       class-transformer: 0.5.1
       class-validator: ~0.14.0
       class-validator-jsonschema: ^4.0.0
-      commander: ^9.5.0
+      commander: ^10.0.0
       copyfiles: ^2.4.1
       dotenv: ^16.0.3
       ejs: ^3.1.8
@@ -153,7 +153,7 @@ importers:
       class-transformer: 0.5.1
       class-validator: 0.14.0
       class-validator-jsonschema: 4.0.0_7f31647ca314686879b2036bff9c02e4
-      commander: 9.5.0
+      commander: 10.0.0
       copyfiles: 2.4.1
       dotenv: 16.0.3
       ejs: 3.1.8
@@ -2292,9 +2292,9 @@ packages:
     dependencies:
       delayed-stream: 1.0.0
 
-  /commander/9.5.0:
-    resolution: {integrity: sha512-KRs7WVDKg86PWiuAqhDrAQnTXZKraVcCc6vFdL14qrZ/DcWwuRo7VoiYXalXO7S5GKpqYiVEwCbgFDfxNHKJBQ==}
-    engines: {node: ^12.20.0 || >=14}
+  /commander/10.0.0:
+    resolution: {integrity: sha512-zS5PnTI22FIRM6ylNW8G4Ap0IEOyk62fhLSD0+uHRT9McRCLGpkVNvao4bjimpK/GShynyQkFFxHhwMcETmduA==}
+    engines: {node: '>=14'}
     dev: false
 
   /compress-commons/4.1.1:
