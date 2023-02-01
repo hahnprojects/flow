@@ -39,7 +39,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@types/eventsource": "1.1.11",
+    "@types/eventsource": "1.1.10",
     "axios-mock-adapter": "^1.21.2"
   },
   "engines": {
