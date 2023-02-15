@@ -59,7 +59,7 @@ importers:
       jest: ^29.4.1
       nodemon: ^2.0.20
       prettier: ^2.8.3
-      python-shell: ^3.0.1
+      python-shell: ^5.0.0
       reflect-metadata: ^0.1.13
       rxjs: ^7.8.0
       ts-jest: ^29.0.5
@@ -67,7 +67,7 @@ importers:
     dependencies:
       '@hahnpro/flow-sdk': link:../packages/sdk
       class-validator: 0.14.0
-      python-shell: 3.0.1
+      python-shell: 5.0.0
     devDependencies:
       '@golevelup/nestjs-rabbitmq': 3.4.0_ubmmrcqtmfxeoof5hyze5vl4ge
       '@hahnpro/flow-cli': link:../packages/cli
@@ -199,7 +199,7 @@ importers:
       jest: ^29.4.1
       lodash: ^4.17.21
       object-sizeof: ^2.4.2
-      python-shell: ^3.0.1
+      python-shell: ^5.0.0
       reflect-metadata: ^0.1.13
       rxjs: ^7.8.0
       string-interp: ^0.3.6
@@ -213,7 +213,7 @@ importers:
       cloudevents: 6.0.3
       lodash: 4.17.21
       object-sizeof: 2.4.2
-      python-shell: 3.0.1
+      python-shell: 5.0.0
       reflect-metadata: 0.1.13
       rxjs: 7.8.0
       string-interp: 0.3.6
@@ -5063,8 +5063,8 @@ packages:
     resolution: {integrity: sha512-rRV+zQD8tVFys26lAGR9WUuS4iUAngJScM+ZRSKtvl5tKeZ2t5bvdNFdNHBW9FWR4guGHlgmsZ1G7BSm2wTbuA==}
     engines: {node: '>=6'}
 
-  /python-shell/3.0.1:
-    resolution: {integrity: sha512-TWeotuxe1auhXa5bGRScxnc2J+0r41NBntSa6RYZtMBLtAEsvCboKrEbW6DvASosWQepVkhZZlT3B5Ei766G+Q==}
+  /python-shell/5.0.0:
+    resolution: {integrity: sha512-RUOOOjHLhgR1MIQrCtnEqz/HJ1RMZBIN+REnpSUrfft2bXqXy69fwJASVziWExfFXsR1bCY0TznnHooNsCo0/w==}
     engines: {node: '>=0.10'}
     dev: false
 

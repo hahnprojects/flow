@@ -38,7 +38,7 @@
     "cloudevents": "^6.0.3",
     "lodash": "^4.17.21",
     "object-sizeof": "^2.4.2",
-    "python-shell": "^3.0.1",
+    "python-shell": "^5.0.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
     "string-interp": "^0.3.6"
