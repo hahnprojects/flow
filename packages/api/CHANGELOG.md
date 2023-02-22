@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 3.7.0
+
+### Minor Changes
+
+- 7159fd4: Added API function to get Asset Attachments
+
 ## 3.6.7
 
 ### Patch Changes
