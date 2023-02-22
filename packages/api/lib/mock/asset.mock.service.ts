@@ -1,7 +1,7 @@
 import FormData from 'form-data';
 import { mix } from 'ts-mixer';
 
-import { Asset, AssetRevision } from '../asset.interface';
+import { Asset, AssetRevision, Attachment } from '../asset.interface';
 import { AssetService } from '../asset.service';
 import { Paginated, RequestParameter } from '../data.interface';
 import { MockAPI } from './api.mock';
@@ -65,6 +65,12 @@ export class AssetMockService extends BaseService implements AssetService {
     const content = await this.api.contentManager.upload(form);
     asset.attachments.push(content.id);
     return Promise.resolve(asset);
+  }
+
+  public async getAttachments(assetId: string): Promise<Paginated<Attachment[]>> {
+    const contents = await this.api.contentManager.getMany();
+    const docs = contents.docs.filter((c) => c.assets?.includes?.(assetId));
+    return { docs, total: docs.length, limit: 0 };
   }
 
   public getChildren(assetId: string, params: RequestParameter = {}): Promise<Paginated<Asset[]>> {

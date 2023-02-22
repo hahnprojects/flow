@@ -1,3 +1,5 @@
+import { Content } from './content.interface';
+
 export interface AssetType {
   id?: string;
   name: string;
@@ -44,13 +46,7 @@ export interface Asset {
 
 export type AssetRevision = Asset & { originalId: string };
 
-export interface Attachment {
-  id?: string;
-  filename: string;
-  metadata: {
-    mimetype: string;
-  };
-}
+export type Attachment = Content;
 
 export interface Action {
   id?: string;
