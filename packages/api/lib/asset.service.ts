@@ -2,7 +2,7 @@ import FormData from 'form-data';
 import { mix } from 'ts-mixer';
 
 import { APIBase } from './api-base';
-import { Asset, AssetRevision } from './asset.interface';
+import { Asset, AssetRevision, Attachment } from './asset.interface';
 import { Paginated, RequestParameter } from './data.interface';
 import { DataService } from './data.service';
 import { HttpClient } from './http.service';
@@ -32,6 +32,10 @@ export class AssetService extends BaseService {
 
   public getChildren(assetId: string, params: RequestParameter = {}): Promise<Paginated<Asset[]>> {
     return this.getManyFiltered({ parent: assetId }, params);
+  }
+
+  public getAttachments(assetId: string): Promise<Paginated<Attachment[]>> {
+    return this.httpClient.get<Paginated<Attachment[]>>(`${this.basePath}/${assetId}/attachments`);
   }
 
   public getRevisions(assetId: string): Promise<Paginated<AssetRevision[]>> {
