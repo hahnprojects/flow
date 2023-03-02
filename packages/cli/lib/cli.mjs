@@ -9,7 +9,7 @@ import { Command } from 'commander';
 import copyfiles from 'copyfiles';
 import { execa } from 'execa';
 import FormData from 'form-data';
-import glob from 'glob';
+import { glob } from 'glob';
 import HttpsProxyAgent from 'https-proxy-agent';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
@@ -313,25 +313,24 @@ program
         cwd: project.location,
         ignore: ['node_modules/**/*', '**/package*.json', '**/tsconfig*.json'],
       };
-      glob('**/*.*', globOptions, async (error, files) => {
-        const filtered = files.filter((file) => !file.endsWith('.spec.ts'));
-        const tsJsonMap = filtered.reduce((accumulator, current, index, array) => {
-          if (current.endsWith('.ts')) {
-            // get json file for current function
-            const json = array.find((v) => v === `${current.split('.')[0]}.json`);
-            if (json) {
-              accumulator.push({
-                ts: path.join(globOptions.cwd, current),
-                json: path.join(globOptions.cwd, json),
-              });
-            }
+      const files = await glob('**/*.*', globOptions);
+      const filtered = files.filter((file) => !file.endsWith('.spec.ts'));
+      const tsJsonMap = filtered.reduce((accumulator, current, index, array) => {
+        if (current.endsWith('.ts')) {
+          // get json file for current function
+          const json = array.find((v) => v === `${current.split('.')[0]}.json`);
+          if (json) {
+            accumulator.push({
+              ts: path.join(globOptions.cwd, current),
+              json: path.join(globOptions.cwd, json),
+            });
           }
-          return accumulator;
-        }, []);
-        for (let entry of tsJsonMap) {
-          await generateSchemasForFile(entry.ts, entry.json);
         }
-      });
+        return accumulator;
+      }, []);
+      for (let entry of tsJsonMap) {
+        await generateSchemasForFile(entry.ts, entry.json);
+      }
     } catch (error) {
       if (error) logger.log(error);
       process.exit(1);
@@ -585,41 +584,37 @@ async function publishFunctions(project, update, baseUrl = BASE_URL) {
       cwd: project.location,
       ignore: ['node_modules/**/*', '**/package*.json', '**/tsconfig*.json'],
     };
-    glob('**/*.json', globOptions, async (error, files) => {
-      if (error) {
-        return reject(error);
-      }
-      const headers = { Authorization: `Bearer ${apiToken}` };
+    const files = await glob('**/*.json', globOptions).catch((error) => reject(error));
+    const headers = { Authorization: `Bearer ${apiToken}` };
 
-      for (const file of files) {
-        try {
-          const data = await fs.promises.readFile(path.join(globOptions.cwd, file));
-          const json = JSON.parse(data.toString());
-          if (json.fqn && json.category) {
-            if (update) {
-              try {
-                await axios.put(`${baseUrl}/api/flow/functions/${json.fqn}`, json, { headers });
-                logger.ok(`Flow Function "${json.fqn}" has been updated`);
-              } catch (error) {
-                logger.error(`Flow Function "${json.fqn}" could not be updated`);
-                handleApiError(error);
-              }
-            } else {
-              try {
-                await axios.post(`${baseUrl}/api/flow/functions`, json, { headers });
-                logger.ok(`Flow Function "${json.fqn}" has been created`);
-              } catch (error) {
-                logger.error(`Flow Function "${json.fqn}" could not be created`);
-                handleApiError(error);
-              }
+    for (const file of files || []) {
+      try {
+        const data = await fs.promises.readFile(path.join(globOptions.cwd, file));
+        const json = JSON.parse(data.toString());
+        if (json.fqn && json.category) {
+          if (update) {
+            try {
+              await axios.put(`${baseUrl}/api/flow/functions/${json.fqn}`, json, { headers });
+              logger.ok(`Flow Function "${json.fqn}" has been updated`);
+            } catch (error) {
+              logger.error(`Flow Function "${json.fqn}" could not be updated`);
+              handleApiError(error);
+            }
+          } else {
+            try {
+              await axios.post(`${baseUrl}/api/flow/functions`, json, { headers });
+              logger.ok(`Flow Function "${json.fqn}" has been created`);
+            } catch (error) {
+              logger.error(`Flow Function "${json.fqn}" could not be created`);
+              handleApiError(error);
             }
           }
-        } catch (error) {
-          logger.error(error);
         }
+      } catch (error) {
+        logger.error(error);
       }
-      return resolve();
-    });
+    }
+    return resolve();
   });
 }
 
