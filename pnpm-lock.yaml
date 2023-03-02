@@ -198,7 +198,7 @@ importers:
       cloudevents: ^6.0.4
       jest: ^29.4.3
       lodash: ^4.17.21
-      object-sizeof: ~2.6.1
+      object-sizeof: ~2.4.2
       python-shell: ^3.0.1
       reflect-metadata: ^0.1.13
       rxjs: ^7.8.0
@@ -212,7 +212,7 @@ importers:
       class-validator: 0.14.0
       cloudevents: 6.0.4
       lodash: 4.17.21
-      object-sizeof: 2.6.1
+      object-sizeof: 2.4.2
       python-shell: 3.0.1
       reflect-metadata: 0.1.13
       rxjs: 7.8.0
@@ -830,7 +830,7 @@ packages:
       '@nestjs/common': ^9.x
       rxjs: ^7.x
     dependencies:
-      '@nestjs/common': 9.3.9_ca43gjgfb2qovizjnmxfs634zy
+      '@nestjs/common': 9.3.9_welcnyot5bzd5wa2aovbkxpi4i
       lodash: 4.17.21
       rxjs: 7.8.0
     dev: true
@@ -4754,8 +4754,8 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
-  /object-sizeof/2.6.1:
-    resolution: {integrity: sha512-a7VJ1Zx7ZuHceKwjgfsSqzV/X0PVGvpZz7ho3Dn4Cs0LLcR5e5WuV+gsbizmplD8s0nAXMJmckKB2rkSiPm/Gg==}
+  /object-sizeof/2.4.2:
+    resolution: {integrity: sha512-aNlv+NSeDjpiGGKd05iio6OnwxT+q2kAqJa9ALhMDke0OAH1YhFDztA/o9iqYc2bHkzGBlPwjrhPOcLDoPzPsg==}
     dependencies:
       buffer: 6.0.3
     dev: false
@@ -5782,7 +5782,7 @@ packages:
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 29.4.3_@types+node@18.14.4
+      jest: 29.4.3_jcb3wguyhnpyd5azbry5ackz4u
       jest-util: 29.4.3
       json5: 2.2.3
       lodash.memoize: 4.1.2
