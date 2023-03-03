@@ -1,21 +1,27 @@
+const TOKEN_EXPIRATION_BUFFER = 20; // 20 seconds
+
 export class TokenSet {
-  public expiresAt: number;
-  public access_token: string;
+  private readonly _accessToken: string;
+  private readonly _expiresAt: number;
 
   constructor(access_token: string, expires_in: number) {
-    this.expires_in = expires_in;
-    this.access_token = access_token;
+    this._accessToken = access_token;
+    this._expiresAt = Math.floor(Date.now() / 1000) + Number(expires_in);
   }
 
-  set expires_in(value) {
-    this.expiresAt = Date.now() + Number(value);
+  get accessToken(): string {
+    return this._accessToken;
   }
 
-  get expires_in(): number {
-    return Math.max(this.expiresAt - Date.now(), 0);
+  get expiresAt(): number {
+    return this._expiresAt;
   }
 
-  expired(): boolean {
-    return this.expires_in === 0;
+  get expiresIn(): number {
+    return Math.max(this.expiresAt - Math.ceil(Date.now() / 1000), 0);
+  }
+
+  public isExpired(): boolean {
+    return this.expiresIn <= TOKEN_EXPIRATION_BUFFER;
   }
 }

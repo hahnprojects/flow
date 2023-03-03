@@ -23,6 +23,7 @@ describe('HTTP Service', () => {
 
   afterEach(() => {
     axiosMock.restore();
+    jest.useRealTimers();
   });
 
   it('FLOW.HS.1 should queue requests', async () => {
@@ -93,5 +94,40 @@ describe('HTTP Service', () => {
     axiosMock.onGet('/api/assets').abortRequest();
     const client = new HttpClient('/api', 'https://test.com', 'test', 'test', 'test');
     await expect(client.get<any>('/assets')).rejects.toThrow('Request aborted');
+  });
+
+  it('FLOW.HS.9 should refresh token only when expired', async () => {
+    jest
+      .useFakeTimers({
+        doNotFake: ['nextTick', 'setImmediate', 'clearImmediate', 'setInterval', 'clearInterval', 'setTimeout', 'clearTimeout'],
+      })
+      .setSystemTime(new Date('2042-01-01'));
+
+    axiosMock.onPost('/realms/test/protocol/openid-connect/token').reply(200, {
+      access_token: 'TOKEN',
+      expires_in: 60,
+    });
+
+    const client = new HttpClient('/api', 'https://test.com', 'test', 'test', 'test');
+    await client.get<any>('/assets');
+    await client.get<any>('/assets');
+    expect(axiosMock.history.post.length).toBe(1);
+    expect(axiosMock.history.post[0].url).toBe('https://test.com/realms/test/protocol/openid-connect/token');
+
+    jest.setSystemTime(jest.now() + 39000);
+    await client.get<any>('/assets');
+    await client.get<any>('/assets');
+    expect(axiosMock.history.post.length).toBe(1);
+
+    jest.setSystemTime(jest.now() + 2000);
+    await client.get<any>('/assets');
+    await client.get<any>('/assets');
+    expect(axiosMock.history.post.length).toBe(2);
+    expect(axiosMock.history.post[1].url).toBe('https://test.com/realms/test/protocol/openid-connect/token');
+
+    jest.setSystemTime(jest.now() + 60000);
+    await client.get<any>('/assets');
+    await client.get<any>('/assets');
+    expect(axiosMock.history.post.length).toBe(3);
   });
 });
