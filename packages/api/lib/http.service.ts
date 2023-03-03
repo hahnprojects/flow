@@ -6,8 +6,6 @@ import { Queue } from './Queue';
 import { TokenSet } from './token-set';
 import { stringify } from 'querystring';
 
-const TOKEN_EXPIRATION_BUFFER = 30; // 30 seconds
-
 export class HttpClient {
   private readonly axiosInstance: AxiosInstance;
   private readonly authAxiosInstance: AxiosInstance;
@@ -88,11 +86,11 @@ export class HttpClient {
     }
   }
 
-  public getAccessToken = async (): Promise<string> => {
-    if (!this.tokenSet || this.tokenSet.expired() || this.tokenSet.expiresAt < Date.now() / 1000 + TOKEN_EXPIRATION_BUFFER) {
+  public getAccessToken = async (forceRefresh = false): Promise<string> => {
+    if (forceRefresh || !this.tokenSet || this.tokenSet.isExpired()) {
       return this.requestAccessToken();
     }
-    return this.tokenSet.access_token;
+    return this.tokenSet.accessToken;
   };
 
   private validateIssuer(issuer: Issuer): Issuer {
