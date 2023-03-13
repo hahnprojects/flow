@@ -37,7 +37,7 @@ export class FlowApplication {
   private outputQueueMetrics = new Map<string, QueueMetrics>();
   private performanceMap = new Map<string, EventLoopUtilization>();
   private properties: Record<string, any>;
-  private _rpcClient: RpcClient;
+  public rpcClient: RpcClient;
 
   private initialized = false;
 
@@ -117,6 +117,9 @@ export class FlowApplication {
         await logErrorAndExit(`Could not subscribe to deployment exchange: ${err}`);
         return;
       }
+
+      this.rpcClient = new RpcClient(this.amqpConnection);
+      await this.rpcClient.init();
     }
 
     for (const module of this.modules) {
@@ -403,17 +406,6 @@ export class FlowApplication {
     }
   };
 
-  public async rpcClient() {
-    if (!this.amqpConnection) {
-      throw new Error('No AMQP connection available');
-    }
-    if (!this._rpcClient) {
-      this._rpcClient = new RpcClient(this.amqpConnection);
-      await this._rpcClient.init();
-    }
-    return this._rpcClient;
-  }
-
   /**
    * Calls onDestroy lifecycle method on all flow elements,
    * closes amqp connection after allowing logs to be processed and published
@@ -425,7 +417,7 @@ export class FlowApplication {
         for (const element of Object.values(this.elements)) {
           element?.onDestroy?.();
         }
-        await this._rpcClient?.close();
+        await this.rpcClient?.close();
       } catch (err) {
         this.logger.error(err);
       }

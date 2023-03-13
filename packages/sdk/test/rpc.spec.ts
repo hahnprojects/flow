@@ -15,12 +15,12 @@ describe('Flow RPC', () => {
       ],
       connections: [
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'a', target: 'testResource', targetStream: 'a' },
+        { id: 'testConnection2', source: 'testTrigger', sourceStream: 'b', target: 'testResource2', targetStream: 'b' },
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'b', target: 'testResource', targetStream: 'b' },
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'c', target: 'testResource', targetStream: 'c' },
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'd', target: 'testResource', targetStream: 'd' },
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'e', target: 'testResource', targetStream: 'e' },
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'f', target: 'testResource', targetStream: 'f' },
-        { id: 'testConnection2', source: 'testTrigger', sourceStream: 'a', target: 'testResource2', targetStream: 'a' },
       ],
       context: {
         flowId: 'testFlow',
