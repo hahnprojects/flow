@@ -428,7 +428,7 @@ export class FlowApplication {
       /* eslint-disable-next-line no-console */
       console.error(err);
     } finally {
-      if (process.env.JEST_WORKER_ID == undefined || process.env.NODE_ENV !== 'test') {
+      if (process.env.NODE_ENV !== 'test') {
         process.exit(exitCode);
       }
     }

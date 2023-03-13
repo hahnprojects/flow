@@ -32,15 +32,26 @@ jobs:
     strategy:
       matrix:
         node-version: [16.x, 18.x, 19.x]
+    services:
+      rabbitmq:
+        image: rabbitmq:3.11
+        ports:
+          - 5672:5672
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8.x
+      - name: Install Python dependencies
+        run: pip install "aio-pika==9.0.*" numpy
       - name: Prepare PNPM
         uses: ./.github/actions/prepare-pnpm
         with:
           node-version: ${{ matrix.node-version }}
       - name: Test SDK
-        run: pnpm test packages/sdk -- --testPathIgnorePatterns rpc.spec.ts sidrive.spec.ts
+        run: pnpm test packages/sdk -- --forceExit --runInBand --testPathIgnorePatterns sidrive.spec.ts
   test-api:
     name: Test API
     runs-on: ubuntu-latest
@@ -75,7 +86,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Python dependencies
-        run: pip install "aio-pika==8.2.*"
+        run: pip install "aio-pika==9.0.*"
       - name: Prepare PNPM
         uses: ./.github/actions/prepare-pnpm
       - name: Activate Post Build Hooks

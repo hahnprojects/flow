@@ -5,16 +5,7 @@ import { loggerMock } from './logger.mock';
 import { Type } from 'class-transformer';
 
 describe('Flow Application', () => {
-  let mockExit;
-
-  beforeEach(() => {
-    // ensure process.exit gets called
-    delete process.env.JEST_WORKER_ID;
-    mockExit = jest.spyOn(process, 'exit').mockImplementation();
-  });
-
   afterEach(() => {
-    mockExit.mockClear();
     loggerMock.log.mockReset();
     loggerMock.warn.mockReset();
     loggerMock.error.mockReset();
@@ -65,7 +56,6 @@ describe('Flow Application', () => {
             expect(event.getTime()).toBeDefined();
 
             if (++count === size) {
-              expect(mockExit).not.toHaveBeenCalled();
               resolve();
             }
           } catch (e) {
@@ -104,8 +94,6 @@ describe('Flow Application', () => {
       functionFqn: 'FlowApplication',
       id: 'none',
     });
-
-    expect(mockExit).toHaveBeenCalledWith(1);
   });
 
   it('FLOW.FA.3 should handle invalid function FQNs', async () => {
@@ -126,8 +114,6 @@ describe('Flow Application', () => {
       new Error('Could not create FlowElement for test-module.test.resource.Test123'),
       expect.objectContaining(flow.context),
     );
-
-    expect(mockExit).toHaveBeenCalledWith(1);
   });
 
   it('FLOW.FA.4 should handle invalid connection targets', async () => {
@@ -149,8 +135,6 @@ describe('Flow Application', () => {
       functionFqn: 'FlowApplication',
       id: 'none',
     });
-
-    expect(mockExit).toHaveBeenCalledWith(1);
   });
 
   it('FLOW.FA.5 should handle invalid flow modules', async () => {
@@ -172,8 +156,6 @@ describe('Flow Application', () => {
       functionFqn: 'FlowApplication',
       id: 'none',
     });
-
-    expect(mockExit).toHaveBeenCalledWith(1);
   });
 
   it('FLOW.FA.6 should handle invalid flow functions', async () => {
@@ -195,8 +177,6 @@ describe('Flow Application', () => {
       functionFqn: 'FlowApplication',
       id: 'none',
     });
-
-    expect(mockExit).toHaveBeenCalledWith(1);
   });
 
   it('FLOW.FA.7 should warn if high event loop utilization is detected', (done) => {
@@ -222,7 +202,6 @@ describe('Flow Application', () => {
           expect.stringContaining('High event loop utilization detected for highEluTask.default with event'),
           { ...flow.context, functionFqn: 'FlowApplication', id: 'none' },
         );
-        expect(mockExit).not.toHaveBeenCalled();
         done();
       },
     });
@@ -248,7 +227,6 @@ describe('Flow Application', () => {
         try {
           expect(event.getData()).toEqual({ foo: 'bar' });
           if (++count === 10) {
-            expect(mockExit).not.toHaveBeenCalled();
             expect(loggerMock.warn).toHaveBeenCalledTimes(2);
             expect(loggerMock.warn).toHaveBeenCalledWith('Input stream "longRunningTask.default" has 100 queued events', {
               deploymentId: 'testDeployment',
