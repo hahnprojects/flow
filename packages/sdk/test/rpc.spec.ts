@@ -9,7 +9,10 @@ describe('Flow RPC', () => {
 
   beforeAll(async () => {
     const flow = {
-      elements: [{ id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource' }],
+      elements: [
+        { id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testResource2', module: 'test-module', functionFqn: 'test.resource.TestResource' },
+      ],
       connections: [
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'a', target: 'testResource', targetStream: 'a' },
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'b', target: 'testResource', targetStream: 'b' },
@@ -17,6 +20,7 @@ describe('Flow RPC', () => {
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'd', target: 'testResource', targetStream: 'd' },
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'e', target: 'testResource', targetStream: 'e' },
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'f', target: 'testResource', targetStream: 'f' },
+        { id: 'testConnection2', source: 'testTrigger', sourceStream: 'a', target: 'testResource2', targetStream: 'a' },
       ],
       context: {
         flowId: 'testFlow',
