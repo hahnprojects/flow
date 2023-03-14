@@ -14,10 +14,13 @@ export class RpcClient {
   }
 
   public async init() {
-    this.channel = this.amqpConnection.managedConnection.createChannel({ json: true });
-    await this.channel.waitForConnect();
-    await this.channel.assertExchange('rpc_direct_exchange', 'direct', { durable: false });
-    await this.channel.consume('amq.rabbitmq.reply-to', this.onMessage, { noAck: true });
+    this.channel = this.amqpConnection.managedConnection.createChannel({
+      json: true,
+      setup: async (channel) => {
+        await channel.assertExchange('rpc_direct_exchange', 'direct', { durable: false });
+        await channel.consume('amq.rabbitmq.reply-to', this.onMessage, { noAck: true });
+      },
+    });
   }
 
   private onMessage = (msg: ConsumeMessage) => {

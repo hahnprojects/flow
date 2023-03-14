@@ -37,7 +37,7 @@ export class FlowApplication {
   private outputQueueMetrics = new Map<string, QueueMetrics>();
   private performanceMap = new Map<string, EventLoopUtilization>();
   private properties: Record<string, any>;
-  public rpcClient: RpcClient;
+  private _rpcClient: RpcClient;
 
   private initialized = false;
 
@@ -118,8 +118,8 @@ export class FlowApplication {
         return;
       }
 
-      this.rpcClient = new RpcClient(this.amqpConnection);
-      await this.rpcClient.init();
+      this._rpcClient = new RpcClient(this.amqpConnection);
+      await this._rpcClient.init();
     }
 
     for (const module of this.modules) {
@@ -281,6 +281,8 @@ export class FlowApplication {
 
   public subscribe = (streamId: string, observer: PartialObserver<FlowEvent>) => this.getOutputStream(streamId).subscribe(observer);
 
+  public rpcClient = () => this._rpcClient;
+
   public emit = (event: FlowEvent) => {
     if (event) {
       try {
@@ -417,7 +419,7 @@ export class FlowApplication {
         for (const element of Object.values(this.elements)) {
           element?.onDestroy?.();
         }
-        await this.rpcClient?.close();
+        await this._rpcClient?.close();
       } catch (err) {
         this.logger.error(err);
       }
