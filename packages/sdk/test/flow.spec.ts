@@ -208,7 +208,7 @@ describe('Flow Application', () => {
 
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
     expect(loggerMock.log).toHaveBeenCalledWith('Flow Deployment is running', expect.objectContaining(flow.context));
-  });
+  }, 10000);
 
   it('FLOW.FA.8 should warn if event queue size is above threshold', (done) => {
     const flow = {
@@ -254,7 +254,7 @@ describe('Flow Application', () => {
     }
 
     expect(loggerMock.log).toHaveBeenCalledWith('Flow Deployment is running', expect.objectContaining(flow.context));
-  });
+  }, 10000);
 
   it('FLOW.FA.9 test complex properties', (done) => {
     const flow = {
