@@ -23,8 +23,8 @@ There are two possibilities to run python scripts in your Flow-Functions.
 The RPC client does not implement any custom json serializers for non python types, as this
 would require adding the packages where these types come from as dependencies.
 
-If you want to return non-standard types despite that you, can implement your own json 
-serializer to be used by the RPC client. 
+If you want to return non-standard types despite that you, can implement your own json
+serializer to be used by the RPC client.
 The serializer has to inherit from the builtin class `json.JSONEncoder`. To then make the client use it,
 return it together with your data as a tuple.
 
@@ -42,7 +42,7 @@ class NpEncoder(json.JSONEncoder):
         if isinstance(obj, np.ndarray):
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
-    
+
 @RemoteProcedure
 def returnsNumpy():
     return np.power(100, 4, dtype=np.int64), NpEncoder

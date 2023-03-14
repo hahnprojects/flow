@@ -1,6 +1,7 @@
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { join } from 'path';
+import { PythonShell } from 'python-shell';
 
 describe('Flow RPC long running task', () => {
   let flowApp: FlowApplication;
@@ -22,8 +23,9 @@ describe('Flow RPC long running task', () => {
 
   test('FLOW.LRPC.1 rpc long running task', (done) => {
     flowApp.subscribe('testResource.a', {
-      next: (event: FlowEvent) => {
+      next: async (event: FlowEvent) => {
         expect(event.getData()).toBeDefined();
+        await flowApp.destroy();
         done();
       },
     });
@@ -34,10 +36,14 @@ describe('Flow RPC long running task', () => {
 
 @FlowFunction('test.resource.TestResource')
 class TestResource extends FlowResource {
+  private shell: PythonShell;
+
   constructor(context) {
     super(context);
-    this.runPyRpcScript(join(__dirname, 'long-rpc.test.py'));
+    this.shell = this.runPyRpcScript(join(__dirname, 'long-rpc.test.py'));
   }
+
+  onDestroy = () => this.shell.kill();
 
   @InputStream('a')
   public async onA(event) {

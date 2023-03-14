@@ -5,14 +5,7 @@ import { FlowFunction, FlowTask } from '../lib';
 import { loggerMock } from './logger.mock';
 
 describe('Property Validation', () => {
-  let mockExit;
-
-  beforeEach(() => {
-    mockExit = jest.spyOn(process, 'exit').mockImplementation();
-  });
-
   afterEach(() => {
-    mockExit.mockClear();
     loggerMock.log.mockReset();
     loggerMock.warn.mockReset();
     loggerMock.error.mockReset();
@@ -149,7 +142,7 @@ describe('Property Validation', () => {
 
     expect(() => new Task({ logger: loggerMock }, { nested: 42 })).toThrow('Properties Validation failed');
     expect(loggerMock.error).toHaveBeenLastCalledWith(
-      'Validation for property "nested" failed:\n{"isArray":"nested must be an array"}\nvalue: 42',
+      'Validation for property "nested" failed:\n{"isArray":"nested must be an array","nestedValidation":"each value in nested property nested must be either object or array"}\nvalue: 42',
       { functionFqn: 'test' },
     );
     expect(() => new Task({ logger: loggerMock }, {})).toThrow('Properties Validation failed');

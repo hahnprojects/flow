@@ -65,6 +65,13 @@ describe('InputStreamDecorator', () => {
       createSubscriber: jest.fn(),
       publish: jest.fn(),
       managedChannel: { assertExchange: jest.fn() },
+      managedConnection: {
+        createChannel: () => ({
+          assertExchange: jest.fn(),
+          waitForConnect: jest.fn(),
+          consume: jest.fn(),
+        }),
+      },
     };
     const spyInstance = jest
       .spyOn(amqpConnection, 'publish')

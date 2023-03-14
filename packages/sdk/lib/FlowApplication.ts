@@ -117,6 +117,8 @@ export class FlowApplication {
         await logErrorAndExit(`Could not subscribe to deployment exchange: ${err}`);
         return;
       }
+
+      this._rpcClient = new RpcClient(this.amqpConnection);
     }
 
     for (const module of this.modules) {
@@ -278,6 +280,8 @@ export class FlowApplication {
 
   public subscribe = (streamId: string, observer: PartialObserver<FlowEvent>) => this.getOutputStream(streamId).subscribe(observer);
 
+  public rpcClient = () => this._rpcClient;
+
   public emit = (event: FlowEvent) => {
     if (event) {
       try {
@@ -403,17 +407,6 @@ export class FlowApplication {
     }
   };
 
-  public async rpcClient() {
-    if (!this.amqpConnection) {
-      throw new Error('No AMQP connection available');
-    }
-    if (!this._rpcClient) {
-      this._rpcClient = new RpcClient(this.amqpConnection);
-      await this._rpcClient.init();
-    }
-    return this._rpcClient;
-  }
-
   /**
    * Calls onDestroy lifecycle method on all flow elements,
    * closes amqp connection after allowing logs to be processed and published
@@ -436,7 +429,7 @@ export class FlowApplication {
       /* eslint-disable-next-line no-console */
       console.error(err);
     } finally {
-      if (process.env.JEST_WORKER_ID == undefined || process.env.NODE_ENV !== 'test') {
+      if (process.env.NODE_ENV !== 'test') {
         process.exit(exitCode);
       }
     }

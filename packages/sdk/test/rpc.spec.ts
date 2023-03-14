@@ -1,5 +1,6 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { join } from 'path';
+import { PythonShell } from 'python-shell';
 
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 
@@ -7,11 +8,15 @@ import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, Inp
 describe('Flow RPC', () => {
   let flowApp: FlowApplication;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const flow = {
-      elements: [{ id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource' }],
+      elements: [
+        { id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testResource2', module: 'test-module', functionFqn: 'test.resource.TestResource' },
+      ],
       connections: [
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'a', target: 'testResource', targetStream: 'a' },
+        { id: 'testConnection2', source: 'testTrigger', sourceStream: 'b', target: 'testResource2', targetStream: 'b' },
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'b', target: 'testResource', targetStream: 'b' },
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'c', target: 'testResource', targetStream: 'c' },
         { id: 'testConnection1', source: 'testTrigger', sourceStream: 'd', target: 'testResource', targetStream: 'd' },
@@ -27,13 +32,14 @@ describe('Flow RPC', () => {
     await amqpConnection.init();
     flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, true, true);
     await flowApp.init();
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
   });
 
   test('FLOW.RPC.1 publish message', (done) => {
     flowApp.subscribe('testResource.a', {
-      next: (event: FlowEvent) => {
+      next: async (event: FlowEvent) => {
         expect(event.getData()).toEqual({ res: 'foo' });
+        await flowApp.destroy();
         done();
       },
     });
@@ -43,8 +49,9 @@ describe('Flow RPC', () => {
 
   test('FLOW.RPC.2 return sent value', (done) => {
     flowApp.subscribe('testResource.b', {
-      next: (event: FlowEvent) => {
+      next: async (event: FlowEvent) => {
         expect(event.getData()).toEqual(expect.objectContaining({ res: 'bar' }));
+        await flowApp.destroy();
         done();
       },
     });
@@ -54,8 +61,10 @@ describe('Flow RPC', () => {
 
   test('FLOW.RPC.3 error in remote procedure', (done) => {
     flowApp.subscribe('testResource.c', {
-      next: (event: FlowEvent) => {
+      next: async (event: FlowEvent) => {
+        console.log(event.getData());
         expect(event.getData().err).toBeDefined();
+        await flowApp.destroy();
         done();
       },
     });
@@ -65,8 +74,9 @@ describe('Flow RPC', () => {
 
   test('FLOW.RPC.4 should return argument', (done) => {
     flowApp.subscribe('testResource.d', {
-      next: (event: FlowEvent) => {
+      next: async (event: FlowEvent) => {
         expect(event.getData()).toEqual({ res: '10' });
+        await flowApp.destroy();
         done();
       },
     });
@@ -76,8 +86,9 @@ describe('Flow RPC', () => {
 
   test('FLOW.RPC.5 rpc function does not exist', (done) => {
     flowApp.subscribe('testResource.e', {
-      next: (event: FlowEvent) => {
+      next: async (event: FlowEvent) => {
         expect(event.getData().err).toBeDefined();
+        await flowApp.destroy();
         done();
       },
     });
@@ -87,8 +98,9 @@ describe('Flow RPC', () => {
 
   test('FLOW.RPC.6 rpc function returns numpy object', (done) => {
     flowApp.subscribe('testResource.f', {
-      next: (event: FlowEvent) => {
+      next: async (event: FlowEvent) => {
         expect(event.getData()).toEqual({ res: '100000000' });
+        await flowApp.destroy();
         done();
       },
     });
@@ -105,23 +117,23 @@ describe('Flow RPC', () => {
         'f',
       ),
     );
-  }, 60000);
-
-  afterAll(async () => {
-    await flowApp.destroy();
   });
 });
 
 @FlowFunction('test.resource.TestResource')
 class TestResource extends FlowResource {
+  private shell: PythonShell;
+
   constructor(context) {
     super(context);
-    const shell = this.runPyRpcScript(join(__dirname, 'rpc.test.py'), 10);
-    shell.on('error', (error) => console.log(error));
-    shell.on('pythonError', (error) => console.log(error));
-    shell.on('stderr', (error) => console.log(error));
-    shell.on('message', (error) => console.log(error));
+    this.shell = this.runPyRpcScript(join(__dirname, 'rpc.test.py'), 10);
+    this.shell.on('error', (error) => console.log(error));
+    this.shell.on('pythonError', (error) => console.log(error));
+    this.shell.on('stderr', (error) => console.log(error));
+    this.shell.on('message', (error) => console.log(error));
   }
+
+  onDestroy = () => this.shell.kill();
 
   @InputStream('a')
   public async onA(event) {
