@@ -11,9 +11,7 @@ export class RpcClient {
     if (!amqpConnection) {
       throw new Error('currently no amqp connection available');
     }
-  }
 
-  public async init() {
     this.channel = this.amqpConnection.managedConnection.createChannel({
       json: true,
       setup: async (channel) => {

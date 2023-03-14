@@ -119,7 +119,6 @@ export class FlowApplication {
       }
 
       this._rpcClient = new RpcClient(this.amqpConnection);
-      await this._rpcClient.init();
     }
 
     for (const module of this.modules) {

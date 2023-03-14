@@ -32,7 +32,7 @@ describe('Flow RPC', () => {
     await amqpConnection.init();
     flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, true, true);
     await flowApp.init();
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
   });
 
   test('FLOW.RPC.1 publish message', (done) => {
@@ -62,6 +62,7 @@ describe('Flow RPC', () => {
   test('FLOW.RPC.3 error in remote procedure', (done) => {
     flowApp.subscribe('testResource.c', {
       next: async (event: FlowEvent) => {
+        console.log(event.getData());
         expect(event.getData().err).toBeDefined();
         await flowApp.destroy();
         done();
