@@ -2,7 +2,7 @@
 
 # Flow SDK & CLI
 
-For release notes, see the [CHANGELOG](CHANGELOG.md)
+For release notes, see the [SDK CHANGELOG](packages/sdk/CHANGELOG.md) and [CLI CHANGELOG](packages/cli/CHANGELOG.md)
 
 ## Installing
 

@@ -1,8 +1,9 @@
+import { Type } from 'class-transformer';
 import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
+import { setTimeout } from 'timers/promises';
 
 import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
 import { loggerMock } from './logger.mock';
-import { Type } from 'class-transformer';
 
 describe('Flow Application', () => {
   afterEach(() => {
@@ -34,7 +35,7 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApp = new FlowApplication([TestModule], flow, loggerMock, null, true, true);
+    const flowApp = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
     await flowApp.init();
 
     flowApp.subscribe('testResource.default', {
@@ -85,7 +86,7 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApplication = new FlowApplication([TestModule], flow, loggerMock, null, true, true);
+    const flowApplication = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
     await flowApplication.init();
 
     expect(loggerMock.error).toHaveBeenCalledTimes(1);
@@ -105,7 +106,7 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApplication = new FlowApplication([TestModule], flow, loggerMock, null, true, true);
+    const flowApplication = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
     await flowApplication.init();
 
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
@@ -125,7 +126,7 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApplication1 = new FlowApplication([TestModule], flow, loggerMock, null, true, true);
+    const flowApplication1 = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
     await flowApplication1.init();
 
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
@@ -146,7 +147,7 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApplication2 = new FlowApplication([FakeModule], flow, loggerMock, null, true, true);
+    const flowApplication2 = new FlowApplication([FakeModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
     await flowApplication2.init();
 
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
@@ -167,7 +168,7 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApplication3 = new FlowApplication([TestModule2], flow, loggerMock, null, true, true);
+    const flowApplication3 = new FlowApplication([TestModule2], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
     await flowApplication3.init();
 
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
@@ -183,32 +184,33 @@ describe('Flow Application', () => {
     const flow = {
       elements: [
         { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
-        { id: 'highEluTask', module: 'test-module', functionFqn: 'test.task.HighEluTask', properties: { n: 500_000_000 } },
+        { id: 'highEluTask', module: 'test-module', functionFqn: 'test.task.HighEluTask', properties: { n: 1_000_000_000 } },
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'highEluTask' }],
-      context: {
-        flowId: 'testFlow',
-        deploymentId: 'testDeployment',
-      },
+      context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
     };
     const flowApp = new FlowApplication([TestModule], flow, loggerMock, null, true);
 
     flowApp.subscribe('highEluTask.default', {
       next: async (event: FlowEvent) => {
         expect(event.getData()).toEqual({ foo: 'bar' });
-        await new Promise((res) => setTimeout(res, 100));
-        expect(loggerMock.warn).toHaveBeenCalledTimes(1);
-        expect(loggerMock.warn).toHaveBeenCalledWith(
-          expect.stringContaining('High event loop utilization detected for highEluTask.default with event'),
-          { ...flow.context, functionFqn: 'FlowApplication', id: 'none' },
-        );
-        done();
+        await setTimeout(200);
+        try {
+          expect(loggerMock.warn).toHaveBeenCalledTimes(1);
+          expect(loggerMock.warn).toHaveBeenCalledWith(
+            expect.stringContaining('High event loop utilization detected for highEluTask.default with event'),
+            { ...flow.context, functionFqn: 'FlowApplication', id: 'none' },
+          );
+          done();
+        } catch (err) {
+          done(err);
+        }
       },
     });
 
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
     expect(loggerMock.log).toHaveBeenCalledWith('Flow Deployment is running', expect.objectContaining(flow.context));
-  }, 10000);
+  }, 20000);
 
   it('FLOW.FA.8 should warn if event queue size is above threshold', (done) => {
     const flow = {
@@ -219,7 +221,7 @@ describe('Flow Application', () => {
       connections: [{ id: 'testConnection', source: 'testTrigger', target: 'longRunningTask' }],
       context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
     };
-    const flowApp = new FlowApplication([TestModule], flow, loggerMock, null, true);
+    const flowApp = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true });
 
     let count = 0;
     flowApp.subscribe('longRunningTask.default', {
@@ -291,7 +293,7 @@ describe('Flow Application', () => {
       connections: [{ id: 'testConnection', source: 'testTrigger', target: 'complex' }],
       context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
     };
-    const flowApp = new FlowApplication([TestModule], flow, loggerMock, null, true);
+    const flowApp = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true });
 
     flowApp.subscribe('complex.default', {
       next: (event: FlowEvent) => {
@@ -373,7 +375,7 @@ class HighEluTask extends FlowTask<HighEluProperties> {
   public async onDefault(event) {
     for (let i = 0; i < this.properties.n; i++) {
       if (i % (this.properties.n / 10) === 0) {
-        await new Promise((res) => setTimeout(res, 10));
+        await setTimeout(10);
       }
     }
     return this.emitEvent({ foo: 'bar' }, null);

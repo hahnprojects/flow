@@ -20,7 +20,7 @@ describe('rx', () => {
         { id: 'testConnection3', source: 'testResource1', target: 'tap' },
       ],
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
+    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
 
     flowApp.subscribe('tap.default', {
       next: (event: FlowEvent) => {

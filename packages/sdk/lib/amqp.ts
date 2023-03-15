@@ -1,21 +1,34 @@
-import type { AmqpConnectionManager, ChannelWrapper } from 'amqp-connection-manager';
-import type { Channel, Connection, ConsumeMessage, Options } from 'amqplib';
-
-interface SubscriptionResult {
-  consumerTag: string;
-}
+import { AmqpConnectionManager, ChannelWrapper, connect } from 'amqp-connection-manager';
 
 export interface AmqpConnection {
-  channel: Channel;
-  connection: Connection;
   managedChannel: ChannelWrapper;
   managedConnection: AmqpConnectionManager;
-  createSubscriber<T>(
-    handler: (msg: T | undefined, rawMessage?: ConsumeMessage) => Promise<any | undefined | void>,
-    msgOptions: MessageHandlerOptions,
-    originalHandlerName: string,
-  ): Promise<SubscriptionResult>;
-  publish(exchange: string, routingKey: string, message: any, options?: Options.Publish): void;
+}
+
+export interface AmqpConnectionConfig {
+  protocol?: string;
+  hostname?: string;
+  vhost?: string;
+  user?: string;
+  password?: string;
+  port?: number;
+}
+
+export function createAmqpConnection(config: AmqpConnectionConfig): AmqpConnectionManager {
+  if (!config) {
+    return;
+  }
+
+  const {
+    protocol = process.env.RABBIT_PROTOCOL || 'amqp',
+    hostname = process.env.RABBIT_HOST || 'localhost',
+    port = +process.env.RABBIT_PORT || 5672,
+    user = process.env.RABBIT_USER || 'guest',
+    password = process.env.RABBIT_PASSWORD || 'guest',
+    vhost = process.env.RABBIT_VHOST || '',
+  } = config;
+  const uri = `${protocol}://${user}:${password}@${hostname}:${port}${vhost ? '/' + vhost : ''}`;
+  return connect(uri);
 }
 
 export class Nack {
@@ -24,24 +37,4 @@ export class Nack {
   get requeue() {
     return this._requeue;
   }
-}
-
-export interface MessageHandlerOptions {
-  exchange: string;
-  routingKey: string | string[];
-  queue?: string;
-  queueOptions?: QueueOptions;
-}
-
-export interface QueueOptions {
-  durable?: boolean;
-  exclusive?: boolean;
-  autoDelete?: boolean;
-  arguments?: any;
-  messageTtl?: number;
-  expires?: number;
-  deadLetterExchange?: string;
-  deadLetterRoutingKey?: string;
-  maxLength?: number;
-  maxPriority?: number;
 }

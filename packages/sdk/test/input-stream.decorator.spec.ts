@@ -1,3 +1,5 @@
+import { setTimeout } from 'timers/promises';
+
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
 
 describe('InputStreamDecorator', () => {
@@ -39,7 +41,7 @@ describe('InputStreamDecorator', () => {
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
+    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
     flowApp.subscribe('testResource.default', {
       next: (event: FlowEvent) => {
         const data = event.getData();
@@ -61,23 +63,18 @@ describe('InputStreamDecorator', () => {
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
     };
+
+    const publish = jest.fn();
     const amqpConnection: any = {
-      createSubscriber: jest.fn(),
-      publish: jest.fn(),
-      managedChannel: { assertExchange: jest.fn() },
       managedConnection: {
         createChannel: () => ({
           assertExchange: jest.fn(),
           waitForConnect: jest.fn(),
           consume: jest.fn(),
+          publish,
         }),
       },
     };
-    const spyInstance = jest
-      .spyOn(amqpConnection, 'publish')
-      .mockImplementation((_exchange: string, _routingKey: string, _message: any) => {
-        return Promise.resolve();
-      });
     const flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, true, true);
     await flowApp.init();
 
@@ -85,10 +82,10 @@ describe('InputStreamDecorator', () => {
       flowApp.subscribe('testResource.default', {
         next: async (event: FlowEvent) => {
           try {
-            await new Promise((resolve1) => setTimeout(resolve1, 1000));
-            expect(spyInstance).toHaveBeenNthCalledWith(1, 'flowlogs', '', expect.objectContaining({ data: 'Flow Deployment is running' }));
-            expect(spyInstance).toHaveBeenNthCalledWith(2, 'flowlogs', '', expect.objectContaining({ data: { test1: 'data' } }));
-            expect(spyInstance).toHaveBeenNthCalledWith(4, 'flowlogs', '', expect.objectContaining({ data: { hello: 'world' } }));
+            await setTimeout(1000);
+            expect(publish).toHaveBeenNthCalledWith(1, 'flowlogs', '', expect.objectContaining({ data: 'Flow Deployment is running' }));
+            expect(publish).toHaveBeenNthCalledWith(2, 'flowlogs', '', expect.objectContaining({ data: { test1: 'data' } }));
+            expect(publish).toHaveBeenNthCalledWith(4, 'flowlogs', '', expect.objectContaining({ data: { hello: 'world' } }));
             resolve();
           } catch (error) {
             reject(error);
@@ -114,7 +111,7 @@ describe('InputStreamDecorator', () => {
         { id: 'c3', source: 'testTask2', target: 'testRessource' },
       ],
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
+    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
     flowApp.subscribe('testTask1.default', {
       next: (event: FlowEvent) => {
         expect(event.getData()).toEqual({ input: 'data', task1: 'test' });
@@ -174,7 +171,7 @@ describe('InputStreamDecorator', () => {
         { id: 'c2', source: 'testTrigger', target: 'testTask1', targetStream: 'other' },
       ],
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
+    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
 
     let bothDone = false;
     flowApp.subscribe('testTask1.default', {
@@ -223,7 +220,7 @@ describe('InputStreamDecorator', () => {
       ],
       connections: [{ id: 'c1', source: 'testTrigger', target: 'stateful' }],
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
+    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
 
     let count = 0;
     flowApp.subscribe('stateful.default', {
@@ -239,11 +236,11 @@ describe('InputStreamDecorator', () => {
 
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
 
-    setTimeout(() => {
+    setTimeout(100).then(() => {
       flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
       // no waiting...
       flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
-    }, 100);
+    });
   });
 
   test('FLOW.ISD.13 deprecated should still work as expected', () => {
@@ -276,7 +273,7 @@ class LongRunningTask extends FlowTask {
 
   @InputStream('b')
   public async onB(event: FlowEvent) {
-    await new Promise<void>((resolve) => setTimeout(resolve, 100));
+    await setTimeout(100);
     return this.emitEvent({ output: 'b' }, event);
   }
 }
@@ -335,7 +332,7 @@ class Stateful extends FlowTask {
 
   @InputStream('default')
   public async onDefault(event: FlowEvent) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    await setTimeout(200);
     return this.emitEvent({ prop: this.prop++ }, event);
   }
 }

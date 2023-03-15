@@ -117,7 +117,7 @@ After the definition of the Flow, it has to be instantiated. In the case of the 
 is done like the following:
 
 ```typescript
-const flowApp = new FlowApplication([ExampleModule, TestModule], flow, null, null, true);
+const flowApp = new FlowApplication([ExampleModule, TestModule], flow, { skipApi: true });
 ```
 
 The first argument of the constructor is an array of the modules that are used by the flow.
@@ -137,12 +137,11 @@ When using a Python script, a connection to a RabbitMQ broker is needed. When yo
 is set up like described [here](./development-environment.md), you can use the following snippet:
 
 ```typescript
-const amqpConnection = new AmqpConnection({ uri: 'amqp://localhost' });
-await amqpConnection.init();
+const amqpConfig = { hostname: 'localhost', port: 5672 };
+const flowApp = new FlowApplication([ExampleModule, TestModule], flow, { amqpConfig, skipApi: true });
 ```
 
-This will connect to the broker running locally. To use this pass `amqpConnection` instead of `null`
-as the second optional (fourth overall) argument to the constructor.
+The Flow Application will automatically try to establish an AMQP connection with the provided config.
 
 ### Definition of Function output checks
 
@@ -180,6 +179,6 @@ sent to the trigger, which then launches the execution of the Flow.
 flowApp.emit(new FlowEvent({ id: 'trigger' }, { foo: bar }));
 ```
 
-Here an event with the data `{ foo: bar }` is emitted to the Function with the id `trigger`.  
+Here an event with the data `{ foo: bar }` is emitted to the Function with the id `trigger`.
 There can be multiple statements like this, to test multiple iterations through the flow. This will
 likely require an adjustment to the listeners to handle more than one event.
