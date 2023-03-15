@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.23.8
+
+### Patch Changes
+
+- ce4c6ca: Fixed bug that caused complete failure of the RPC mechanism, when multiple functions tried to call a RPC function for the first time at the same time. Bug was fixed by removing obsolete lazy initialization of RpcClient.
+
 ## 4.23.7
 
 ### Patch Changes
