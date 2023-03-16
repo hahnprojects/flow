@@ -1,7 +1,7 @@
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { join } from 'path';
 import { PythonShell } from 'python-shell';
+import { setTimeout } from 'timers/promises';
 
 describe('Flow RPC long running task', () => {
   let flowApp: FlowApplication;
@@ -15,10 +15,8 @@ describe('Flow RPC long running task', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const amqpConnection = new AmqpConnection({ uri: 'amqp://localhost' });
-    await amqpConnection.init();
-    flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    flowApp = new FlowApplication([TestModule], flow, { amqpConfig: {}, skipApi: true });
+    await setTimeout(2000);
   });
 
   test('FLOW.LRPC.1 rpc long running task', (done) => {

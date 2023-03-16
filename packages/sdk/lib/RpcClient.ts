@@ -1,20 +1,24 @@
-import { ChannelWrapper } from 'amqp-connection-manager';
-import { ConsumeMessage } from 'amqplib';
-import { randomUUID as uuid } from 'crypto';
-import { AmqpConnection } from './amqp';
+import type { AmqpConnectionManager, Channel, ChannelWrapper } from 'amqp-connection-manager';
+import type { ConsumeMessage } from 'amqplib';
+import { randomUUID } from 'crypto';
+import sizeof from 'object-sizeof';
+
+import { FlowLogger } from './FlowLogger';
+
+const MAX_MSG_SIZE = +process.env.MAX_RPC_MSG_SIZE_BYTES;
+const WARN_MSG_SIZE = +process.env.WARN_RPC_MSG_SIZE_BYTES;
 
 export class RpcClient {
-  private channel: ChannelWrapper;
+  private readonly channel: ChannelWrapper;
   private openRequests: Map<string, { resolve; reject; trace: string }> = new Map<string, { resolve; reject; trace: string }>();
 
-  constructor(private amqpConnection: AmqpConnection) {
+  constructor(amqpConnection: AmqpConnectionManager, private readonly logger?: FlowLogger) {
     if (!amqpConnection) {
       throw new Error('currently no amqp connection available');
     }
-
-    this.channel = this.amqpConnection.managedConnection.createChannel({
+    this.channel = amqpConnection.createChannel({
       json: true,
-      setup: async (channel) => {
+      setup: async (channel: Channel) => {
         await channel.assertExchange('rpc_direct_exchange', 'direct', { durable: false });
         await channel.consume('amq.rabbitmq.reply-to', this.onMessage, { noAck: true });
       },
@@ -57,8 +61,19 @@ export class RpcClient {
     return new Promise((resolve, reject) => {
       // save to correlationId-> resolve/reject map
       // on return resolve or reject promise
+
+      if (MAX_MSG_SIZE || WARN_MSG_SIZE) {
+        const messageSize = sizeof(args);
+        if (messageSize > MAX_MSG_SIZE) {
+          throw new Error(`Max RPC message size exceeded: ${messageSize} bytes / ${MAX_MSG_SIZE} bytes`);
+        }
+        if (messageSize > WARN_MSG_SIZE) {
+          this.logger?.warn(`Large RPC message size detected: ${messageSize} bytes`);
+        }
+      }
+
       const call = { functionName, arguments: args };
-      const correlationId = uuid();
+      const correlationId = randomUUID();
       this.openRequests.set(correlationId, { resolve, reject, trace: RpcClient.formatTrace(stack) });
       this.channel
         .publish('rpc_direct_exchange', routingKey, call, { correlationId, replyTo: 'amq.rabbitmq.reply-to' })

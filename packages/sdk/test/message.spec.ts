@@ -16,7 +16,7 @@ describe('Flow SDK', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, null, true);
+    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
 
     flowApp.subscribe('testResource.default', {
       next: (event1: FlowEvent) => {

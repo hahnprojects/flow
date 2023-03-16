@@ -1,20 +1,21 @@
 import 'reflect-metadata';
 
+import { API } from '@hahnpro/hpc-api';
+import { AmqpConnectionManager, Channel, ChannelWrapper } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
+import { randomUUID as uuid } from 'crypto';
 import sizeof from 'object-sizeof';
 import { EventLoopUtilization, performance } from 'perf_hooks';
 import { PartialObserver, Subject } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
-import { randomUUID as uuid } from 'crypto';
-import { API } from '@hahnpro/hpc-api';
 
-import { AmqpConnection, Nack } from './amqp';
-import { delay, truncate } from './utils';
+import { AmqpConnection, AmqpConnectionConfig, Nack, createAmqpConnection } from './amqp';
 import { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, LifecycleEvent, StreamOptions } from './flow.interface';
 import type { FlowElement } from './FlowElement';
 import { FlowEvent } from './FlowEvent';
 import { FlowLogger, Logger } from './FlowLogger';
 import { RpcClient } from './RpcClient';
+import { delay, truncate } from './utils';
 
 const MAX_EVENT_SIZE_BYTES = +process.env.MAX_EVENT_SIZE_BYTES || 512 * 1024; // 512kb
 const WARN_EVENT_PROCESSING_SEC = +process.env.WARN_EVENT_PROCESSING_SEC || 60;
@@ -27,31 +28,64 @@ interface QueueMetrics {
   warnings: number;
 }
 
+interface FlowAppConfig {
+  logger?: Logger;
+  amqpConfig?: AmqpConnectionConfig;
+  amqpConnection?: AmqpConnectionManager;
+  skipApi?: boolean;
+  explicitInit?: boolean;
+}
+
 export class FlowApplication {
-  public api: API;
+  private _api: API;
+  private _rpcClient: RpcClient;
+  private amqpChannel: ChannelWrapper;
+  private readonly amqpConnection: AmqpConnectionManager;
+  private readonly baseLogger: Logger;
   private context: FlowContext;
   private declarations: Record<string, ClassType<FlowElement>> = {};
   private elements: Record<string, FlowElement> = {};
+  private initialized = false;
   private readonly logger: FlowLogger;
   private outputStreamMap = new Map<string, Subject<FlowEvent>>();
   private outputQueueMetrics = new Map<string, QueueMetrics>();
   private performanceMap = new Map<string, EventLoopUtilization>();
   private properties: Record<string, any>;
-  private _rpcClient: RpcClient;
+  private readonly skipApi: boolean;
 
-  private initialized = false;
-
+  constructor(modules: ClassType<any>[], flow: Flow, config?: FlowAppConfig);
+  constructor(
+    modules: ClassType<any>[],
+    flow: Flow,
+    baseLogger?: Logger,
+    amqpConnection?: AmqpConnection,
+    skipApi?: boolean,
+    explicitInit?: boolean,
+  );
   constructor(
     private modules: ClassType<any>[],
     private flow: Flow,
-    private readonly baseLogger?: Logger,
-    private amqpConnection?: AmqpConnection,
-    private skipApi = false,
-    explicitInit = false,
+    baseLoggerOrConfig?: Logger | FlowAppConfig,
+    amqpConnection?: AmqpConnection,
+    skipApi?: boolean,
+    explicitInit?: boolean,
   ) {
+    if (baseLoggerOrConfig && !(baseLoggerOrConfig as Logger).log) {
+      const config = baseLoggerOrConfig as FlowAppConfig;
+      this.baseLogger = config.logger;
+      this.amqpConnection = config.amqpConnection || createAmqpConnection(config.amqpConfig);
+      this.skipApi = config.skipApi || false;
+      explicitInit = config.explicitInit || false;
+    } else {
+      this.baseLogger = baseLoggerOrConfig as Logger;
+      this.amqpConnection = amqpConnection?.managedConnection;
+      this.skipApi = skipApi || false;
+      explicitInit = explicitInit || false;
+    }
+
     this.logger = new FlowLogger(
       { id: 'none', functionFqn: 'FlowApplication', ...flow?.context },
-      baseLogger || undefined,
+      this.baseLogger || undefined,
       this.publishEvent,
     );
 
@@ -74,6 +108,17 @@ export class FlowApplication {
     }
   }
 
+  get rpcClient(): RpcClient {
+    if (!this._rpcClient && this.amqpConnection) {
+      this._rpcClient = new RpcClient(this.amqpConnection, this.logger);
+    }
+    return this._rpcClient;
+  }
+
+  get api(): API {
+    return this._api;
+  }
+
   public async init() {
     if (this.initialized) return;
 
@@ -82,7 +127,7 @@ export class FlowApplication {
 
     try {
       if (!this.skipApi) {
-        this.api = new API();
+        this._api = new API();
       }
     } catch (err) {
       this.logger.error(err?.message || err);
@@ -93,33 +138,27 @@ export class FlowApplication {
       await this.destroy(1);
     };
 
-    if (this.amqpConnection) {
-      try {
-        await this.amqpConnection.managedChannel.assertExchange('deployment', 'direct', { durable: true });
-        await this.amqpConnection.managedChannel.assertExchange('flowlogs', 'fanout', { durable: true });
-        await this.amqpConnection.managedChannel.assertExchange('flow', 'direct', { durable: true });
-      } catch (e) {
-        await logErrorAndExit(`Could not assert exchanges: ${e}`);
-        return;
-      }
+    this.amqpChannel = this.amqpConnection?.createChannel({
+      json: true,
+      setup: async (channel: Channel) => {
+        try {
+          await channel.assertExchange('deployment', 'direct', { durable: true });
+          await channel.assertExchange('flowlogs', 'fanout', { durable: true });
+          await channel.assertExchange('flow', 'direct', { durable: true });
+        } catch (e) {
+          await logErrorAndExit(`Could not assert exchanges: ${e}`);
+        }
 
-      try {
-        await this.amqpConnection.createSubscriber(
-          (msg: any) => this.onMessage(msg),
-          {
-            exchange: 'deployment',
-            routingKey: this.context.deploymentId,
-            queueOptions: { durable: false, exclusive: true },
-          },
-          'FlowApplication.onMessage',
-        );
-      } catch (err) {
-        await logErrorAndExit(`Could not subscribe to deployment exchange: ${err}`);
-        return;
-      }
-
-      this._rpcClient = new RpcClient(this.amqpConnection);
-    }
+        try {
+          const queue = await channel.assertQueue(null, { durable: false, exclusive: true });
+          await channel.bindQueue(queue.queue, 'deployment', this.context.deploymentId);
+          await channel.consume(queue.queue, (msg: any) => this.onMessage(msg));
+        } catch (err) {
+          await logErrorAndExit(`Could not subscribe to deployment exchange: ${err}`);
+        }
+      },
+    });
+    this.amqpChannel && (await this.amqpChannel.waitForConnect());
 
     for (const module of this.modules) {
       const moduleName = Reflect.getMetadata('module:name', module);
@@ -227,7 +266,7 @@ export class FlowApplication {
     eventType: LifecycleEvent,
     data: Record<string, any> = {},
   ) => {
-    if (!this.amqpConnection) {
+    if (!this.amqpChannel) {
       return;
     }
     try {
@@ -245,7 +284,7 @@ export class FlowApplication {
       });
       const message = event.toJSON();
 
-      return this.amqpConnection.publish('flow', 'lifecycle', message);
+      return this.amqpChannel.publish('flow', 'lifecycle', message);
     } catch (err) {
       this.logger.error(err);
     }
@@ -279,8 +318,6 @@ export class FlowApplication {
   };
 
   public subscribe = (streamId: string, observer: PartialObserver<FlowEvent>) => this.getOutputStream(streamId).subscribe(observer);
-
-  public rpcClient = () => this._rpcClient;
 
   public emit = (event: FlowEvent) => {
     if (event) {
@@ -350,7 +387,7 @@ export class FlowApplication {
           data: { deploymentId: this.context.deploymentId, status: 'updated' },
         };
         try {
-          this.amqpConnection?.publish('deployment', 'health', statusEvent);
+          this.amqpChannel?.publish('deployment', 'health', statusEvent);
         } catch (err) {
           this.logger.error(err);
         }
@@ -365,7 +402,7 @@ export class FlowApplication {
           data: { deploymentId: this.context.deploymentId, status: 'updating failed' },
         };
         try {
-          this.amqpConnection?.publish('deployment', 'health', statusEvent);
+          this.amqpChannel?.publish('deployment', 'health', statusEvent);
         } catch (e) {
           this.logger.error(e);
         }
@@ -392,8 +429,8 @@ export class FlowApplication {
    * Publish a flow event to the amqp flowlogs exchange.
    * If the event size exceeds the limit it will be truncated
    */
-  public publishEvent = (event: FlowEvent): void => {
-    if (!this.amqpConnection) {
+  public publishEvent = (event: FlowEvent): Promise<boolean> => {
+    if (!this.amqpChannel) {
       return;
     }
     try {
@@ -401,7 +438,7 @@ export class FlowApplication {
       if (sizeof(message) > MAX_EVENT_SIZE_BYTES) {
         message.data = truncate(message.data);
       }
-      return this.amqpConnection.publish('flowlogs', '', message);
+      return this.amqpChannel.publish('flowlogs', '', message);
     } catch (err) {
       this.logger.error(err);
     }
@@ -418,13 +455,13 @@ export class FlowApplication {
         for (const element of Object.values(this.elements)) {
           element?.onDestroy?.();
         }
-        await this._rpcClient?.close();
+        this._rpcClient && (await this._rpcClient.close());
       } catch (err) {
         this.logger.error(err);
       }
       // allow time for logs to be processed
       await delay(250);
-      await this.amqpConnection?.managedConnection?.close();
+      this.amqpConnection && (await this.amqpConnection.close());
     } catch (err) {
       /* eslint-disable-next-line no-console */
       console.error(err);

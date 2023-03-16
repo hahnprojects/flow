@@ -1,5 +1,5 @@
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { FlowApplication, FlowEvent, TestModule } from '@hahnpro/flow-sdk';
+import { setTimeout } from 'timers/promises';
 
 import PythonModule from '../';
 
@@ -24,10 +24,8 @@ describe('Python', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const amqpConnection = new AmqpConnection({ uri: 'amqp://localhost' });
-    await amqpConnection.init();
-    flowApp = new FlowApplication([PythonModule, TestModule], flow, null, amqpConnection, true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    flowApp = new FlowApplication([PythonModule, TestModule], flow, { amqpConfig: {}, skipApi: true });
+    await setTimeout(2000);
   });
 
   test('rpc', (done) => {

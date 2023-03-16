@@ -119,7 +119,7 @@ export abstract class FlowElement<T = any> {
   protected interpolate = (value: any, ...templateVariables: any) => fillTemplate(value, ...templateVariables);
 
   protected async callRpcFunction(functionName: string, ...args: any[]) {
-    return this.app?.rpcClient().callFunction(this.rpcRoutingKey, functionName, ...args);
+    return this.app?.rpcClient.callFunction(this.rpcRoutingKey, functionName, ...args);
   }
 
   protected runPyRpcScript(scriptPath: string, ...args: (string | boolean | number)[]) {

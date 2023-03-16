@@ -12,6 +12,7 @@ host = os.getenv("RABBIT_HOST", "localhost")
 port = os.getenv("RABBIT_PORT", "5672")
 vhost = os.getenv("RABBIT_VHOST", "")
 routingKey = os.getenv("RPC_ROUTING_KEY", "rpc")
+max_msg_size = int(os.getenv("MAX_RPC_MSG_SIZE_BYTES", "0"))
 
 remote_procedures = {}
 flow_logs_exchange: AbstractRobustExchange
@@ -64,11 +65,18 @@ async def on_message(exchange: Exchange, message: IncomingMessage):
 
 
 async def send_reply(exchange: Exchange, reply, original_message: Message):
+    body = json.dumps(reply).encode("utf-8")
+
+    if max_msg_size > 0 and len(body) > max_msg_size:
+        body = json.dumps(
+            {
+                "type": "error",
+                "message": "Max RPC message size exceeded: " + str(len(body)) + " bytes / " + max_msg_size + " bytes",
+            }
+        ).encode("utf-8")
+
     await exchange.publish(
-        Message(
-            body=json.dumps(reply).encode("utf-8"),
-            correlation_id=original_message.correlation_id
-        ),
+        Message(body=body, correlation_id=original_message.correlation_id),
         routing_key=original_message.reply_to,
     )
 
