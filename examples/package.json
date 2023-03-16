@@ -21,8 +21,6 @@
   },
   "devDependencies": {
     "@hahnpro/flow-cli": "workspace:*",
-    "@nestjs/common": "^9.3.9",
-    "@nestjs/core": "^9.3.9",
     "@types/jest": "^29.4.2",
     "@types/node": "^18.15.3",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
