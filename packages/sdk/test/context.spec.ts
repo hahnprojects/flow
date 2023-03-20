@@ -56,7 +56,7 @@ describe('Flow Application', () => {
     });
 
     flowApp
-      .onMessage(event)
+      .onMessage({ content: JSON.stringify(event) } as any)
       .then(() => {
         return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
       })
@@ -69,7 +69,7 @@ describe('Flow Application', () => {
             properties: { test: 42 },
           },
         });
-        return flowApp.onMessage(event);
+        return flowApp.onMessage({ content: JSON.stringify(event) } as any);
       })
       .then(() => {
         return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));

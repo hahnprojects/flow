@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 
 import { API } from '@hahnpro/hpc-api';
+import { ConsumeMessage } from 'amqplib';
 import { AmqpConnectionManager, Channel, ChannelWrapper } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
 import { randomUUID as uuid } from 'crypto';
@@ -9,7 +10,7 @@ import { EventLoopUtilization, performance } from 'perf_hooks';
 import { PartialObserver, Subject } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
 
-import { AmqpConnection, AmqpConnectionConfig, Nack, createAmqpConnection } from './amqp';
+import { AmqpConnection, AmqpConnectionConfig, createAmqpConnection } from './amqp';
 import { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, LifecycleEvent, StreamOptions } from './flow.interface';
 import type { FlowElement } from './FlowElement';
 import { FlowEvent } from './FlowEvent';
@@ -152,7 +153,7 @@ export class FlowApplication {
         try {
           const queue = await channel.assertQueue(null, { durable: false, exclusive: true });
           await channel.bindQueue(queue.queue, 'deployment', this.context.deploymentId);
-          await channel.consume(queue.queue, (msg: any) => this.onMessage(msg));
+          await channel.consume(queue.queue, (msg) => this.onMessage(msg));
         } catch (err) {
           await logErrorAndExit(`Could not subscribe to deployment exchange: ${err}`);
         }
@@ -350,12 +351,21 @@ export class FlowApplication {
     return this.properties;
   }
 
-  public onMessage = async (event: CloudEvent<any>): Promise<Nack | undefined> => {
+  public onMessage = async (msg: ConsumeMessage) => {
+    let event: CloudEvent<any>;
+    try {
+      event = JSON.parse(msg.content.toString());
+    } catch (err) {
+      this.logger.error(err);
+      return;
+    }
+
     if (event.type === 'com.flowstudio.deployment.update') {
       try {
         const flow = event.data as Flow;
         if (!flow) {
-          return new Nack(false);
+          this.amqpChannel.nack(msg, false, false);
+          return;
         }
         let context: Partial<FlowElementContext> = {};
         if (flow.context) {
@@ -420,9 +430,8 @@ export class FlowApplication {
     } else if (event.type === 'com.flowstudio.deployment.destroy') {
       this.destroy();
     } else {
-      return new Nack(false);
+      this.amqpChannel.nack(msg, false, false);
     }
-    return undefined;
   };
 
   /**

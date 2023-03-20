@@ -1,10 +1,30 @@
+import { AmqpConnectionManager, Channel, ChannelWrapper, connect } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
 
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 
 /* eslint-disable no-console */
 describe('Flow SDK', () => {
-  test('FLOW.SDK.1 publish message', (done) => {
+  let amqpChannel: ChannelWrapper;
+  let amqpConnection: AmqpConnectionManager;
+
+  beforeAll(async () => {
+    amqpConnection = connect('amqp://localhost:5672');
+    amqpChannel = amqpConnection.createChannel({
+      json: true,
+      setup: async (channel: Channel) => {
+        await channel.assertExchange('deployment', 'direct', { durable: true });
+      },
+    });
+    await amqpChannel.waitForConnect();
+  });
+
+  afterAll(async () => {
+    await amqpChannel?.close();
+    await amqpConnection?.close();
+  });
+
+  test('FLOW.SDK.1 publish message', async () => {
     const flow = {
       elements: [
         { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
@@ -16,13 +36,20 @@ describe('Flow SDK', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
+    const flowApp = new FlowApplication([TestModule], flow, { amqpConnection, skipApi: true, explicitInit: true });
+    await flowApp.init();
 
-    flowApp.subscribe('testResource.default', {
-      next: (event1: FlowEvent) => {
-        expect(event1.getData()).toEqual({ elementId: 'testResource', test: 123 });
-        done();
-      },
+    const done = new Promise<void>((resolve, reject) => {
+      flowApp.subscribe('testResource.default', {
+        next: (event1: FlowEvent) => {
+          try {
+            expect(event1.getData()).toEqual({ elementId: 'testResource', test: 123 });
+            resolve();
+          } catch (e) {
+            reject(e);
+          }
+        },
+      });
     });
 
     const event = new CloudEvent({
@@ -30,8 +57,9 @@ describe('Flow SDK', () => {
       type: 'com.flowstudio.deployment.message',
       data: { elementId: 'testResource', test: 123 },
     });
-    flowApp.onMessage(event);
-  }, 60000);
+    amqpChannel.publish('deployment', 'testDeployment', event.toJSON());
+    return done;
+  }, 10000);
 });
 
 @FlowFunction('test.resource.TestResource')
