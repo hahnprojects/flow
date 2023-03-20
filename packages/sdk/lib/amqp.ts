@@ -30,11 +30,3 @@ export function createAmqpConnection(config: AmqpConnectionConfig): AmqpConnecti
   const uri = `${protocol}://${user}:${password}@${hostname}:${port}${vhost ? '/' + vhost : ''}`;
   return connect(uri);
 }
-
-export class Nack {
-  constructor(private readonly _requeue: boolean = false) {}
-
-  get requeue() {
-    return this._requeue;
-  }
-}
