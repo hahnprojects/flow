@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.24.1
+
+### Patch Changes
+
+- 7fbe93b: Fixed parsing of incoming amqp messages
+
 ## 4.24.0
 
 ### Minor Changes
