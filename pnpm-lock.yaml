@@ -189,7 +189,7 @@ importers:
       cloudevents: ^6.0.4
       jest: ^29.5.0
       lodash: ^4.17.21
-      object-sizeof: ~2.6.1
+      object-sizeof: ~2.4.2
       python-shell: ^3.0.1
       reflect-metadata: ^0.1.13
       rxjs: ^7.8.0
@@ -203,7 +203,7 @@ importers:
       class-validator: 0.14.0
       cloudevents: 6.0.4
       lodash: 4.17.21
-      object-sizeof: 2.6.1
+      object-sizeof: 2.4.2
       python-shell: 3.0.1
       reflect-metadata: 0.1.13
       rxjs: 7.8.0
@@ -4600,8 +4600,8 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
-  /object-sizeof/2.6.1:
-    resolution: {integrity: sha512-a7VJ1Zx7ZuHceKwjgfsSqzV/X0PVGvpZz7ho3Dn4Cs0LLcR5e5WuV+gsbizmplD8s0nAXMJmckKB2rkSiPm/Gg==}
+  /object-sizeof/2.4.2:
+    resolution: {integrity: sha512-aNlv+NSeDjpiGGKd05iio6OnwxT+q2kAqJa9ALhMDke0OAH1YhFDztA/o9iqYc2bHkzGBlPwjrhPOcLDoPzPsg==}
     dependencies:
       buffer: 6.0.3
     dev: false
@@ -5652,7 +5652,7 @@ packages:
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 29.5.0_@types+node@18.15.9
+      jest: 29.5.0_pmgrs25thnkpxppldkivhcndby
       jest-util: 29.5.0
       json5: 2.2.3
       lodash.memoize: 4.1.2
