@@ -7,13 +7,13 @@ inputs:
     required: false
   pnpm-version:
     description: 'PNPM version'
-    default: 7.24.3
+    default: 7
     required: false
 runs:
   using: 'composite'
   steps:
     - name: Set up PNPM
-      uses: pnpm/action-setup@v2.2.4
+      uses: pnpm/action-setup@v2
       with:
         version: ${{ inputs.pnpm-version }}
     - name: Set up Node.js ${{ inputs.node-version }}
