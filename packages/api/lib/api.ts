@@ -16,6 +16,7 @@ import { FlowModuleService } from './flow-module.service';
 import { FlowDeploymentService } from './flow-deployment.service';
 import { LabelService } from './label.service';
 import { VaultService } from './vault.service';
+import { NotificationService } from './notification.service';
 
 export class API {
   public httpClient: HttpClient;
@@ -36,6 +37,7 @@ export class API {
   public timeSeries: TimeSeriesService;
   public users: UserService;
   public vault: VaultService;
+  public notifications: NotificationService;
 
   /**
    * @deprecated use "assets" instead
@@ -120,6 +122,7 @@ export class API {
     this.timeSeries = new TimeSeriesService(this.httpClient);
     this.users = new UserService(this.httpClient);
     this.vault = new VaultService(this.httpClient);
+    this.notifications = new NotificationService(this.httpClient);
 
     this.assetManager = this.assets;
     this.contentManager = this.contents;

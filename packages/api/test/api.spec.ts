@@ -353,6 +353,28 @@ describe('API test', () => {
     const count = await api.labels.count();
     expect(count).toBeGreaterThan(0);
   });
+
+  test('FLOW-API.14 notifications', async () => {
+    const notifications = await api.notifications.getMany().catch((err) => logError(err));
+    expect(notifications).toBeDefined();
+
+    if (notifications) {
+      expect(Array.isArray(notifications.docs)).toBe(true);
+      expect(notifications.docs.length).toBeGreaterThan(0);
+      const notificationId = notifications.docs[0].id;
+      const notification1 = await api.labels.getOne(notificationId);
+      expect(notification1).toBeDefined();
+    }
+
+    const newNotification = await api.notifications.addOne({
+      name: 'Test Notification',
+      description: 'notification created by api',
+      userId: '1314143-2424ido2',
+      notificationType: 'WARNING',
+    });
+    expect(newNotification).toBeDefined();
+    expect(newNotification.name).toBe('Test Notification');
+  });
 });
 
 function logError(err: any) {
