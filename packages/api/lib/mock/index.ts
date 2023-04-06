@@ -8,3 +8,4 @@ export * from './timeseries.mock.service';
 export * from './task.mock.service';
 export * from './events.mock.service';
 export * from './vault.mock.service';
+export * from './notification.mock.service';

@@ -34,6 +34,7 @@ describe('Mock-API test', () => {
     modules: [{ name: 'testMod', artifacts: [{ filename: 'test.zip', path: join(__dirname, 'testFile.zip') }] }],
     labels: [{ id: 'test', name: 'e2e' }],
     vault: [{ id: 'vault1', name: 'test', secret: 'testSecret' }],
+    notifications: [{ id: 'notification1', name: 'notification', userId: 'testUser', notificationType: 'INFO' }],
   });
 
   // tests copied from api.spec.ts
@@ -483,6 +484,20 @@ describe('Mock-API test', () => {
 
       const secret = await api.vault.getSecret(secretName).catch((err) => logError(err));
       expect(secret).toBe('testSecret');
+    }
+  }, 60000);
+
+  test('FLOW.API.MOCK.15 notifications', async () => {
+    const notifications = await api.notifications.getMany().catch((err) => logError(err));
+    expect(notifications).toBeDefined();
+
+    if (notifications) {
+      expect(Array.isArray(notifications.docs)).toBe(true);
+      expect(notifications.docs.length).toBeGreaterThan(0);
+      const notificationId = notifications.docs[0].id;
+      const notification = await api.notifications.getOne(notificationId).catch((err) => logError(err));
+      expect(notification).toBeDefined();
+      expect((notification as any).read).toBe(false);
     }
   }, 60000);
 });

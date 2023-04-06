@@ -36,6 +36,8 @@ import { LabelMockService } from './label.mock.service';
 import { Label } from '../label.interface';
 import { VaultSecret } from '../vault.interface';
 import { VaultMockService } from './vault.mock.service';
+import { Notification } from '../notification.interface';
+import { NotificationMockService } from './notification.mock.service';
 
 export class MockAPI implements API {
   public httpClient = null;
@@ -56,6 +58,7 @@ export class MockAPI implements API {
   public timeSeries: TimeseriesMockService;
   public users: UserMockService;
   public vault: VaultMockService;
+  public notifications: NotificationMockService;
 
   public assetManager: AssetMockService;
   public contentManager: ContentMockService;
@@ -86,6 +89,7 @@ export class MockAPI implements API {
     diagrams?: FlowDiagramInit[];
     labels?: LabelInit[];
     vault?: VaultSecretInit[];
+    notifications?: NotificationInit[];
   }) {
     const {
       assets = [],
@@ -106,6 +110,7 @@ export class MockAPI implements API {
       diagrams = [],
       labels = [],
       vault = [],
+      notifications = [],
     } = initData;
     // convert init data to normal data that the services usually use
     const assetTypes: Array<AssetType | string> = assets
@@ -280,6 +285,8 @@ export class MockAPI implements API {
 
     const vaultSecrets1: VaultSecret[] = vault.map((v) => ({ ...v, readPermissions: [], readWritePermissions: [] }));
 
+    const notifications1: Notification[] = notifications.map((n) => ({ ...n, link: '', description: '', read: false }));
+
     this.assets = new AssetMockService(this, assets1, assetRevisions1);
     this.contents = new ContentMockService(contents1, contentData);
     this.endpoints = new EndpointMockService(endpoint1);
@@ -294,6 +301,7 @@ export class MockAPI implements API {
     this.flowModules = new FlowModulesMockService(modules1);
     this.labels = new LabelMockService(labels1);
     this.vault = new VaultMockService(vaultSecrets1);
+    this.notifications = new NotificationMockService(notifications1);
 
     this.assetManager = this.assets;
     this.contentManager = this.contents;
@@ -333,6 +341,7 @@ export type ArtifactInit = AtLeast<Artifact & { path: string }, 'filename' | 'pa
 export type FlowDiagramInit = AtLeast<FlowDiagram, 'id' | 'flow'>;
 export type LabelInit = AtLeast<Label, 'id' | 'name'>;
 export type VaultSecretInit = AtLeast<VaultSecret, 'name' | 'secret'>;
+export type NotificationInit = AtLeast<Notification, 'id' | 'name' | 'userId' | 'notificationType'>;
 
 export interface UserInit {
   roles: string[];
