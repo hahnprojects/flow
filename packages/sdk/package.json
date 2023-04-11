@@ -37,7 +37,7 @@
     "class-validator": "~0.14.0",
     "cloudevents": "^6.0.4",
     "lodash": "^4.17.21",
-    "object-sizeof": "~2.6.1",
+    "object-sizeof": "~2.4.2",
     "python-shell": "^3.0.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
@@ -51,6 +51,13 @@
     "class-validator-jsonschema": "^5.0.0",
     "jest": "^29.5.0",
     "typescript": "^4.9.5"
+  },
+  "peerDependencies": {
+    "axios": "1.x",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
+    "lodash": "4.x",
+    "python-shell": "3.x"
   },
   "engines": {
     "node": "^14.13.1 || >=16.0.0"
