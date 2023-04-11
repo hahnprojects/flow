@@ -1,5 +1,17 @@
 # @hahnpro/flow-sdk
 
+## 4.25.0
+
+### Minor Changes
+
+- 4d18ce7: Updated dependencies to reduce vulnerabilities.
+  Added peer dependencies
+
+### Patch Changes
+
+- Updated dependencies [6cd509a]
+  - @hahnpro/hpc-api@3.8.0
+
 ## 4.24.1
 
 ### Patch Changes
