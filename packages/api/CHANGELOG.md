@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 3.8.0
+
+### Minor Changes
+
+- 6cd509a: Added notification endpoint to create and update notifications
+
 ## 3.7.1
 
 ### Patch Changes
