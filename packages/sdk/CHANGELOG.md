@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 4.26.0
+
+### Minor Changes
+
+- 97a6e09: Added a Mock-API parameter to the FlowApplication constructor. This enables simple use of the Mock-API in flow tests.
+
 ## 4.25.0
 
 ### Minor Changes
