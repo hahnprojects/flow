@@ -2,7 +2,7 @@ import { Type } from 'class-transformer';
 import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
 import { setTimeout } from 'timers/promises';
 
-import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
+import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream, MockAPI } from '../lib';
 import { loggerMock } from './logger.mock';
 
 describe('Flow Application', () => {
@@ -303,6 +303,20 @@ describe('Flow Application', () => {
       },
     });
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+  });
+
+  it('FLOW.FA.10 should take a Mock-API as a parameter', () => {
+    const flow = {
+      elements: [
+        { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
+        { id: 'testTask', module: 'test-module', functionFqn: 'test.task.TestTask' },
+      ],
+      connections: [{ id: 'testConnection', source: 'testTrigger', target: 'testTask' }],
+      context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
+    };
+    const flowApp = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, mockApi: new MockAPI({}) });
+
+    expect(flowApp.api).toBeInstanceOf(MockAPI);
   });
 });
 

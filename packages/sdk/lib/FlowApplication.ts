@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { API } from '@hahnpro/hpc-api';
+import { API, MockAPI } from '@hahnpro/hpc-api';
 import { ConsumeMessage } from 'amqplib';
 import { AmqpConnectionManager, Channel, ChannelWrapper } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
@@ -35,6 +35,7 @@ interface FlowAppConfig {
   amqpConnection?: AmqpConnectionManager;
   skipApi?: boolean;
   explicitInit?: boolean;
+  mockApi?: MockAPI;
 }
 
 export class FlowApplication {
@@ -70,6 +71,7 @@ export class FlowApplication {
     amqpConnection?: AmqpConnection,
     skipApi?: boolean,
     explicitInit?: boolean,
+    mockApi?: MockAPI,
   ) {
     if (baseLoggerOrConfig && !(baseLoggerOrConfig as Logger).log) {
       const config = baseLoggerOrConfig as FlowAppConfig;
@@ -77,11 +79,13 @@ export class FlowApplication {
       this.amqpConnection = config.amqpConnection || createAmqpConnection(config.amqpConfig);
       this.skipApi = config.skipApi || false;
       explicitInit = config.explicitInit || false;
+      this._api = config.mockApi || null;
     } else {
       this.baseLogger = baseLoggerOrConfig as Logger;
       this.amqpConnection = amqpConnection?.managedConnection;
       this.skipApi = skipApi || false;
       explicitInit = explicitInit || false;
+      this._api = mockApi || null;
     }
 
     this.logger = new FlowLogger(
@@ -127,7 +131,8 @@ export class FlowApplication {
     this.properties = this.flow.properties || {};
 
     try {
-      if (!this.skipApi) {
+      if (!this.skipApi && !(this._api instanceof MockAPI)) {
+        // only create real API if it should not be skipped and is not already a mock
         this._api = new API();
       }
     } catch (err) {
