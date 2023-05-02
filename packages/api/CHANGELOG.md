@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 3.8.1
+
+### Patch Changes
+
+- 75c87ab: fixed addition of timeseries values and events in mock api
+
 ## 3.8.0
 
 ### Minor Changes
