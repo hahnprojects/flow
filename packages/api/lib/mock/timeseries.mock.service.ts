@@ -64,7 +64,7 @@ export class TimeseriesMockService extends BaseService implements TimeSeriesServ
       };
       return this.addOne(dto);
     }
-    ts.data = [...ts.data, ...data];
+    ts.data = ts.data ? [...ts.data, ...data] : data;
     return Promise.resolve(ts);
   }
 

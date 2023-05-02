@@ -204,6 +204,7 @@ export class MockAPI implements API {
       cause: v.cause,
       level: v.level,
       group: v.group,
+      createdAt: v.createdAt,
     }));
 
     const timeseriesValues: TimeSeriesValue[][] = timeSeries.map((v) => v.values);
