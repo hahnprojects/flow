@@ -35,7 +35,7 @@
     "amqplib": "^0.10.3",
     "class-transformer": "0.5.1",
     "class-validator": "~0.14.0",
-    "cloudevents": "^6.0.4",
+    "cloudevents": "^7.0.0",
     "lodash": "^4.17.21",
     "object-sizeof": "~2.4.2",
     "python-shell": "^3.0.1",
