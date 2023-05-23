@@ -6,7 +6,6 @@ import { EventsService } from './events.service';
 import { HttpClient } from './http.service';
 import { ProxyService } from './proxy.service';
 import { SecretService } from './secret.service';
-import { SiDriveIqService } from './sidriveiq.service';
 import { TaskService } from './task.service';
 import { TimeSeriesService } from './timeseries.service';
 import { UserService } from './user.service';
@@ -41,49 +40,6 @@ export class API {
 
   /**
    * @deprecated use "assets" instead
-   */
-  public assetManager: AssetService;
-
-  /**
-   * @deprecated use "contents" instead
-   */
-  public contentManager: ContentService;
-
-  /**
-   * @deprecated use "endpoints" instead
-   */
-  public endpointManager: EndpointService;
-
-  /**
-   * @deprecated use "events" instead
-   */
-  public eventsManager: EventsService;
-
-  /**
-   * @deprecated use "secrets" instead
-   */
-  public secretsManager: SecretService;
-
-  /**
-   * @deprecated use proxy service instead
-   */
-  public siDrive: SiDriveIqService;
-
-  /**
-   * @deprecated use "tasks" instead
-   */
-  public taskManager: TaskService;
-
-  /**
-   * @deprecated use "timeSeries" instead
-   */
-  public timeSeriesManager: TimeSeriesService;
-
-  /**
-   * @deprecated use "users" instead
-   */
-  public userManager: UserService;
-
   constructor() {
     // remove leading and trailing slashes
     const normalizePath = (value = '', defaultValue = '') => value.replace(/(?:^\/+)|(?:\/+$)/g, '') || defaultValue;
@@ -123,15 +79,5 @@ export class API {
     this.users = new UserService(this.httpClient);
     this.vault = new VaultService(this.httpClient);
     this.notifications = new NotificationService(this.httpClient);
-
-    this.assetManager = this.assets;
-    this.contentManager = this.contents;
-    this.endpointManager = this.endpoints;
-    this.eventsManager = this.events;
-    this.secretsManager = this.secrets;
-    this.siDrive = new SiDriveIqService(this.httpClient);
-    this.taskManager = this.tasks;
-    this.timeSeriesManager = this.timeSeries;
-    this.userManager = this.users;
   }
 }

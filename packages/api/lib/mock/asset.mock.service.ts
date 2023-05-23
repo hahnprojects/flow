@@ -62,13 +62,13 @@ export class AssetMockService extends BaseService implements AssetService {
 
   async addAttachment(id: string, form: FormData): Promise<Asset> {
     const asset = this.data.find((v) => v.id === id);
-    const content = await this.api.contentManager.upload(form);
+    const content = await this.api.contents.upload(form);
     asset.attachments.push(content.id);
     return Promise.resolve(asset);
   }
 
   public async getAttachments(assetId: string): Promise<Paginated<Attachment[]>> {
-    const contents = await this.api.contentManager.getMany();
+    const contents = await this.api.contents.getMany();
     const docs = contents.docs.filter((c) => c.assets?.includes?.(assetId));
     return { docs, total: docs.length, limit: 0 };
   }

@@ -60,16 +60,6 @@ export class MockAPI implements API {
   public vault: VaultMockService;
   public notifications: NotificationMockService;
 
-  public assetManager: AssetMockService;
-  public contentManager: ContentMockService;
-  public endpointManager: EndpointMockService;
-  public eventsManager: EventsMockService;
-  public secretsManager: SecretMockService;
-  public siDrive = null;
-  public taskManager: TaskMockService;
-  public timeSeriesManager: TimeseriesMockService;
-  public userManager: UserMockService;
-
   constructor(initData: {
     assets?: AssetInit[];
     assetRevisions?: AssetRevisionInit[];
@@ -303,15 +293,6 @@ export class MockAPI implements API {
     this.labels = new LabelMockService(labels1);
     this.vault = new VaultMockService(vaultSecrets1);
     this.notifications = new NotificationMockService(notifications1);
-
-    this.assetManager = this.assets;
-    this.contentManager = this.contents;
-    this.endpointManager = this.endpoints;
-    this.secretsManager = this.secrets;
-    this.timeSeriesManager = this.timeSeries;
-    this.taskManager = this.tasks;
-    this.eventsManager = this.events;
-    this.userManager = this.users;
   }
 }
 

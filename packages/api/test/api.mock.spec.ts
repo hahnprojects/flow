@@ -150,12 +150,12 @@ describe('Mock-API test', () => {
   }, 60000);
 
   test('FLOW.API.MOCK.3 endpoint', async () => {
-    const sendNotifMock = jest.spyOn(api.endpointManager, 'sendNotification');
-    await api.endpointManager.sendNotification('endpoint1', { subject: 'test', message: 'Test' }).catch((err) => logError(err));
+    const sendNotifMock = jest.spyOn(api.endpoints, 'sendNotification');
+    await api.endpoints.sendNotification('endpoint1', { subject: 'test', message: 'Test' }).catch((err) => logError(err));
     expect(sendNotifMock).toBeCalledTimes(1);
     expect(sendNotifMock).toBeCalledWith('endpoint1', { subject: 'test', message: 'Test' });
 
-    await api.endpointManager
+    await api.endpoints
       .sendNotification('endpoint1', {
         subject: 'test',
         message: 'Test',
@@ -179,7 +179,7 @@ describe('Mock-API test', () => {
       assetLink: 'readme',
     });
 
-    const log = await api.endpointManager.readLastLogByGroup('endpoint1', 'test');
+    const log = await api.endpoints.readLastLogByGroup('endpoint1', 'test');
     expect(log).toBeDefined();
   }, 60000);
 

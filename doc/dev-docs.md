@@ -139,7 +139,7 @@ This example uses the [`pyjwt` library](https://pyjwt.readthedocs.io/en/stable/)
 Get user roles from JWT-Token.
 
 ```typescript
-const roles = await api.userManager.getCurrentUserRoles();
+const roles = await api.users.getCurrentUserRoles();
 ```
 
 </details>
@@ -225,27 +225,27 @@ Get all assets:
 
 ```typescript
 // get a paginated list of all Assets
-const all = await api.assetManager.getMany();
+const all = await api.assets.getMany();
 const assets = all.docs; // asset-objects are contained in the docs array
 ```
 
 Get a single Asset:
 
 ```typescript
-const asset = await api.assetManager.getOne('*ID of asset*');
+const asset = await api.assets.getOne('*ID of asset*');
 ```
 
 Get all Assets with tag:
 
 ```typescript
-const filtered = await api.assetManager.getManyFiltered({ tags: ['test'] });
+const filtered = await api.assets.getManyFiltered({ tags: ['test'] });
 const assets = filtered.docs;
 ```
 
 Populate Asset-type and Parent-Asset:
 
 ```typescript
-const many = await api.assetManager.getMany({ populate: 'type,parent' });
+const many = await api.assets.getMany({ populate: 'type,parent' });
 const assets = many.docs;
 ```
 
@@ -259,17 +259,17 @@ const asset: Asset = {
   readWritePermissions: ['test', 'admin'],
 };
 
-await api.assetManager.addOne(asset);
+await api.assets.addOne(asset);
 ```
 
 Update existing Asset:
 
 ```typescript
-const asset = await api.assetManager.getOne('1234');
+const asset = await api.assets.getOne('1234');
 // modify
 asset.tags.push('newTag');
 
-await api.assetManager.updateOne('1234', asset);
+await api.assets.updateOne('1234', asset);
 ```
 
 </details>
@@ -353,22 +353,22 @@ res = requests.post(API_BASE_URL + API_AM_PATH + '/1234/attachment', data=payloa
 Get all Contents:
 
 ```typescript
-const many = await api.contentManager.getMany();
+const many = await api.contents.getMany();
 const contents = many.docs;
 ```
 
 Download Content:
 
 ```typescript
-const content = await api.contentManager.getOne('1234');
-const file = await api.contentManager.download(content.id);
+const content = await api.contents.getOne('1234');
+const file = await api.contents.download(content.id);
 ```
 
 Download Content attached to an Asset:
 
 ```typescript
-const asset = await api.assetManager.getOne('1234');
-const file = await api.contentManager.download(asset.attachments[0]);
+const asset = await api.contents.getOne('1234');
+const file = await api.contents.download(asset.attachments[0]);
 ```
 
 Upload new Content:
@@ -381,7 +381,7 @@ form.append('file', fs.createReadStream('/foo/bar.jpg'));
 form.append('readPermission', 'test');
 form.append('readWritePermission', 'test');
 
-await api.contentManager.upload(form);
+await api.contents.upload(form);
 ```
 
 Attach Content to Asset:
@@ -394,7 +394,7 @@ form.append('file', fs.createReadStream('/foo/bar.jpg'));
 form.append('readPermission', 'test');
 form.append('readWritePermission', 'test');
 
-await api.assetManager.addAttachment('1234', form);
+await api.assets.addAttachment('1234', form);
 ```
 
 </details>
@@ -449,12 +449,12 @@ requests.post(API_BASE_URL + API_TSM_PATH + '/1234', data=json.dumps(data), head
 Get Timeseries:
 
 ```typescript
-const ts = await api.timeSeriesManager.getOne('1234');
+const ts = await api.timeSeries.getOne('1234');
 
 const from = 0; // timestamp
 const to = Date.now(); // timestamp (optional)
 const group = '12h'; // "10s", "1m", "5m", "15m", "30m", "1h", "3h", "6h", "12h", "1d", "7d" (optional)
-const values = await api.timeSeriesManager.getValuesOfPeriod(tsId, from, to, group);
+const values = await api.timeSeries.getValuesOfPeriod(tsId, from, to, group);
 ```
 
 Create new empty timeseries:
@@ -468,7 +468,7 @@ const ts: TimeSeries = {
   maxBucketTimeRange: 86400000,
 };
 
-await api.timeSeriesManager.addOne(ts);
+await api.timeSeries.addOne(ts);
 ```
 
 Add value to Timeseries:
@@ -478,7 +478,7 @@ const value = { '1234': 5, '1235': 6 }; // { *timestamp* : *value*}
 // multiple values
 const value1 = { '1234': { val1: 1, val2: 2 } };
 
-await api.timeSeriesManager.addValue('1234', value);
+await api.timeSeries.addValue('1234', value);
 ```
 
 </details>
