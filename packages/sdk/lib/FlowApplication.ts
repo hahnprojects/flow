@@ -55,6 +55,7 @@ export class FlowApplication {
   private performanceMap = new Map<string, EventLoopUtilization>();
   private properties: Record<string, any>;
   private readonly skipApi: boolean;
+  private readonly apiClient?: HttpClient;
 
   constructor(modules: ClassType<any>[], flow: Flow, config?: FlowAppConfig);
   constructor(
@@ -81,6 +82,7 @@ export class FlowApplication {
       this.skipApi = config.skipApi || false;
       explicitInit = config.explicitInit || false;
       this._api = config.mockApi || null;
+      this.apiClient = config.apiClient;
     } else {
       this.baseLogger = baseLoggerOrConfig as Logger;
       this.amqpConnection = amqpConnection?.managedConnection;
@@ -134,7 +136,7 @@ export class FlowApplication {
     try {
       if (!this.skipApi && !(this._api instanceof MockAPI)) {
         // only create real API if it should not be skipped and is not already a mock
-        this._api = new API();
+        this._api = new API(this.apiClient);
       }
     } catch (err) {
       this.logger.error(err?.message || err);
