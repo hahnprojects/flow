@@ -18,8 +18,6 @@ import { VaultService } from './vault.service';
 import { NotificationService } from './notification.service';
 
 export class API {
-  public httpClient: HttpClient;
-
   public assets: AssetService;
   public assetTypes: AssetTypesService;
   public contents: ContentService;
@@ -38,29 +36,29 @@ export class API {
   public vault: VaultService;
   public notifications: NotificationService;
 
-  /**
-   * @deprecated use "assets" instead
-  constructor() {
-    // remove leading and trailing slashes
-    const normalizePath = (value = '', defaultValue = '') => value.replace(/(?:^\/+)|(?:\/+$)/g, '') || defaultValue;
+  constructor(public readonly httpClient?: HttpClient) {
+    if (!httpClient) {
+      // remove leading and trailing slashes
+      const normalizePath = (value = '', defaultValue = '') => value.replace(/(?:^\/+)|(?:\/+$)/g, '') || defaultValue;
 
-    let apiBaseUrl = process.env.API_BASE_URL || 'https://testing.hahnpro.com';
-    if (!apiBaseUrl.startsWith('https') && !apiBaseUrl.startsWith('http')) {
-      /* eslint-disable-next-line no-console */
-      console.info('no protocol specified - using HTTPS');
-      apiBaseUrl = `https://${apiBaseUrl}`;
-    }
-    const apiUrl = apiBaseUrl + '/' + normalizePath(process.env.API_BASE_PATH, 'api');
-    const authBaseUrl = process.env.AUTH_BASE_URL || apiBaseUrl;
-    const authUrl = authBaseUrl + '/' + normalizePath(process.env.AUTH_BASE_PATH, 'auth');
-    const realm = process.env.AUTH_REALM || 'hpc';
-    const client = process.env.API_USER || 'flow-executor-service';
-    const secret = process.env.AUTH_SECRET;
-    if (!secret) {
-      throw new Error('"API_BASE_URL", "API_USER", "AUTH_REALM" and "AUTH_SECRET" environment variables must be set');
-    }
+      let apiBaseUrl = process.env.API_BASE_URL || 'https://testing.hahnpro.com';
+      if (!apiBaseUrl.startsWith('https') && !apiBaseUrl.startsWith('http')) {
+        /* eslint-disable-next-line no-console */
+        console.info('no protocol specified - using HTTPS');
+        apiBaseUrl = `https://${apiBaseUrl}`;
+      }
+      const apiUrl = apiBaseUrl + '/' + normalizePath(process.env.API_BASE_PATH, 'api');
+      const authBaseUrl = process.env.AUTH_BASE_URL || apiBaseUrl;
+      const authUrl = authBaseUrl + '/' + normalizePath(process.env.AUTH_BASE_PATH, 'auth');
+      const realm = process.env.AUTH_REALM || 'hpc';
+      const client = process.env.API_USER || 'flow-executor-service';
+      const secret = process.env.AUTH_SECRET;
+      if (!secret) {
+        throw new Error('"API_BASE_URL", "API_USER", "AUTH_REALM" and "AUTH_SECRET" environment variables must be set');
+      }
 
-    this.httpClient = new HttpClient(apiUrl, authUrl, realm, client, secret);
+      this.httpClient = new HttpClient(apiUrl, authUrl, realm, client, secret);
+    }
 
     this.assets = new AssetService(this.httpClient);
     this.assetTypes = new AssetTypesService(this.httpClient);

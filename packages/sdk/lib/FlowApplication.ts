@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { API, MockAPI } from '@hahnpro/hpc-api';
+import { API, HttpClient, MockAPI } from '@hahnpro/hpc-api';
 import { ConsumeMessage } from 'amqplib';
 import { AmqpConnectionManager, Channel, ChannelWrapper } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
@@ -33,6 +33,7 @@ interface FlowAppConfig {
   logger?: Logger;
   amqpConfig?: AmqpConnectionConfig;
   amqpConnection?: AmqpConnectionManager;
+  apiClient?: HttpClient;
   skipApi?: boolean;
   explicitInit?: boolean;
   mockApi?: MockAPI;
