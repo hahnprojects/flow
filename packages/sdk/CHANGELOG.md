@@ -1,5 +1,17 @@
 # @hahnpro/flow-sdk
 
+## 4.27.0
+
+### Minor Changes
+
+- a7ea37b: Allow API HttpClient to be provided
+
+### Patch Changes
+
+- Updated dependencies [a7ea37b]
+- Updated dependencies [a7ea37b]
+  - @hahnpro/hpc-api@4.0.0
+
 ## 4.26.1
 
 ### Patch Changes

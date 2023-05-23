@@ -1,5 +1,15 @@
 # @hahnpro/hpc-api
 
+## 4.0.0
+
+### Major Changes
+
+- a7ea37b: Removed deprecated API methods and properties
+
+### Minor Changes
+
+- a7ea37b: Allow API HttpClient to be provided
+
 ## 3.8.1
 
 ### Patch Changes
