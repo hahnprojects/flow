@@ -6,7 +6,6 @@ import { EventsService } from './events.service';
 import { HttpClient } from './http.service';
 import { ProxyService } from './proxy.service';
 import { SecretService } from './secret.service';
-import { SiDriveIqService } from './sidriveiq.service';
 import { TaskService } from './task.service';
 import { TimeSeriesService } from './timeseries.service';
 import { UserService } from './user.service';
@@ -19,8 +18,6 @@ import { VaultService } from './vault.service';
 import { NotificationService } from './notification.service';
 
 export class API {
-  public httpClient: HttpClient;
-
   public assets: AssetService;
   public assetTypes: AssetTypesService;
   public contents: ContentService;
@@ -39,72 +36,29 @@ export class API {
   public vault: VaultService;
   public notifications: NotificationService;
 
-  /**
-   * @deprecated use "assets" instead
-   */
-  public assetManager: AssetService;
+  constructor(public readonly httpClient?: HttpClient) {
+    if (!httpClient) {
+      // remove leading and trailing slashes
+      const normalizePath = (value = '', defaultValue = '') => value.replace(/(?:^\/+)|(?:\/+$)/g, '') || defaultValue;
 
-  /**
-   * @deprecated use "contents" instead
-   */
-  public contentManager: ContentService;
+      let apiBaseUrl = process.env.API_BASE_URL || 'https://testing.hahnpro.com';
+      if (!apiBaseUrl.startsWith('https') && !apiBaseUrl.startsWith('http')) {
+        /* eslint-disable-next-line no-console */
+        console.info('no protocol specified - using HTTPS');
+        apiBaseUrl = `https://${apiBaseUrl}`;
+      }
+      const apiUrl = apiBaseUrl + '/' + normalizePath(process.env.API_BASE_PATH, 'api');
+      const authBaseUrl = process.env.AUTH_BASE_URL || apiBaseUrl;
+      const authUrl = authBaseUrl + '/' + normalizePath(process.env.AUTH_BASE_PATH, 'auth');
+      const realm = process.env.AUTH_REALM || 'hpc';
+      const client = process.env.API_USER || 'flow-executor-service';
+      const secret = process.env.AUTH_SECRET;
+      if (!secret) {
+        throw new Error('"API_BASE_URL", "API_USER", "AUTH_REALM" and "AUTH_SECRET" environment variables must be set');
+      }
 
-  /**
-   * @deprecated use "endpoints" instead
-   */
-  public endpointManager: EndpointService;
-
-  /**
-   * @deprecated use "events" instead
-   */
-  public eventsManager: EventsService;
-
-  /**
-   * @deprecated use "secrets" instead
-   */
-  public secretsManager: SecretService;
-
-  /**
-   * @deprecated use proxy service instead
-   */
-  public siDrive: SiDriveIqService;
-
-  /**
-   * @deprecated use "tasks" instead
-   */
-  public taskManager: TaskService;
-
-  /**
-   * @deprecated use "timeSeries" instead
-   */
-  public timeSeriesManager: TimeSeriesService;
-
-  /**
-   * @deprecated use "users" instead
-   */
-  public userManager: UserService;
-
-  constructor() {
-    // remove leading and trailing slashes
-    const normalizePath = (value = '', defaultValue = '') => value.replace(/(?:^\/+)|(?:\/+$)/g, '') || defaultValue;
-
-    let apiBaseUrl = process.env.API_BASE_URL || 'https://testing.hahnpro.com';
-    if (!apiBaseUrl.startsWith('https') && !apiBaseUrl.startsWith('http')) {
-      /* eslint-disable-next-line no-console */
-      console.info('no protocol specified - using HTTPS');
-      apiBaseUrl = `https://${apiBaseUrl}`;
+      this.httpClient = new HttpClient(apiUrl, authUrl, realm, client, secret);
     }
-    const apiUrl = apiBaseUrl + '/' + normalizePath(process.env.API_BASE_PATH, 'api');
-    const authBaseUrl = process.env.AUTH_BASE_URL || apiBaseUrl;
-    const authUrl = authBaseUrl + '/' + normalizePath(process.env.AUTH_BASE_PATH, 'auth');
-    const realm = process.env.AUTH_REALM || 'hpc';
-    const client = process.env.API_USER || 'flow-executor-service';
-    const secret = process.env.AUTH_SECRET;
-    if (!secret) {
-      throw new Error('"API_BASE_URL", "API_USER", "AUTH_REALM" and "AUTH_SECRET" environment variables must be set');
-    }
-
-    this.httpClient = new HttpClient(apiUrl, authUrl, realm, client, secret);
 
     this.assets = new AssetService(this.httpClient);
     this.assetTypes = new AssetTypesService(this.httpClient);
@@ -123,15 +77,5 @@ export class API {
     this.users = new UserService(this.httpClient);
     this.vault = new VaultService(this.httpClient);
     this.notifications = new NotificationService(this.httpClient);
-
-    this.assetManager = this.assets;
-    this.contentManager = this.contents;
-    this.endpointManager = this.endpoints;
-    this.eventsManager = this.events;
-    this.secretsManager = this.secrets;
-    this.siDrive = new SiDriveIqService(this.httpClient);
-    this.taskManager = this.tasks;
-    this.timeSeriesManager = this.timeSeries;
-    this.userManager = this.users;
   }
 }

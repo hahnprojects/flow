@@ -1,15 +1,16 @@
 import axios, { AxiosInstance, AxiosRequestConfig, Method, RawAxiosRequestHeaders } from 'axios';
 import EventSource from 'eventsource';
-import { v4 } from 'uuid';
 import { CompactSign } from 'jose';
+import { stringify } from 'node:querystring';
+import { v4 } from 'uuid';
+
 import { Queue } from './Queue';
 import { TokenSet } from './token-set';
-import { stringify } from 'querystring';
 
 export class HttpClient {
-  private readonly axiosInstance: AxiosInstance;
-  private readonly authAxiosInstance: AxiosInstance;
-  private readonly requestQueue: Queue;
+  protected readonly axiosInstance: AxiosInstance;
+  protected readonly authAxiosInstance: AxiosInstance;
+  protected readonly requestQueue: Queue;
   private tokenSet: TokenSet;
 
   public eventSourcesMap: Map<
@@ -18,11 +19,11 @@ export class HttpClient {
   > = new Map();
 
   constructor(
-    private readonly baseURL: string,
-    private readonly authBaseURL: string,
-    private readonly realm: string,
-    private readonly clientId: string,
-    private readonly clientSecret: string,
+    protected readonly baseURL: string,
+    protected readonly authBaseURL: string,
+    protected readonly realm: string,
+    protected readonly clientId: string,
+    protected readonly clientSecret: string,
   ) {
     this.axiosInstance = axios.create({ baseURL, timeout: 60000 });
     this.authAxiosInstance = axios.create({ baseURL: authBaseURL || baseURL, timeout: 10000 });
@@ -36,7 +37,7 @@ export class HttpClient {
   public post = <T>(url: string, data: any, config?: AxiosRequestConfig) => this.request<T>('POST', url, config, data);
   public put = <T>(url: string, data: any, config?: AxiosRequestConfig) => this.request<T>('PUT', url, config, data);
 
-  private request = <T>(method: Method, url: string, config: AxiosRequestConfig = {}, data?): Promise<T> => {
+  protected request = <T>(method: Method, url: string, config: AxiosRequestConfig = {}, data?): Promise<T> => {
     return this.requestQueue.add(
       () =>
         new Promise((resolve, reject) => {
@@ -93,7 +94,7 @@ export class HttpClient {
     return this.tokenSet.accessToken;
   };
 
-  private validateIssuer(issuer: Issuer): Issuer {
+  protected validateIssuer(issuer: Issuer): Issuer {
     if (
       !issuer.issuer ||
       !issuer.grant_types_supported?.includes('client_credentials') ||
@@ -105,7 +106,7 @@ export class HttpClient {
     return issuer;
   }
 
-  private async discoverIssuer(uri: string): Promise<Issuer> {
+  protected async discoverIssuer(uri: string): Promise<Issuer> {
     const wellKnownUri = `${uri}/.well-known/openid-configuration`;
     const issuerResponse = await this.authAxiosInstance.get(wellKnownUri, {
       responseType: 'json',
@@ -114,7 +115,7 @@ export class HttpClient {
     return this.validateIssuer(issuerResponse.data);
   }
 
-  private async requestAccessToken(): Promise<string> {
+  protected async requestAccessToken(): Promise<string> {
     const issuer = await this.discoverIssuer(`${this.authBaseURL}/realms/${this.realm}`);
 
     const timestamp = Date.now() / 1000;
