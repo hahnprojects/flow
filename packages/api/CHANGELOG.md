@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 4.0.1
+
+### Patch Changes
+
+- 92673bb: Updated dependencies to reduce vulnerabilities
+
 ## 4.0.0
 
 ### Major Changes
