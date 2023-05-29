@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, Method, RawAxiosRequestHeaders } from 'axios';
 import EventSource from 'eventsource';
 import { CompactSign } from 'jose';
-import { stringify } from 'node:querystring';
+import { stringify } from 'querystring';
 import { v4 } from 'uuid';
 
 import { Queue } from './Queue';
