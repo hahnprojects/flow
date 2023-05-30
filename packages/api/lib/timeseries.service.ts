@@ -57,4 +57,9 @@ export class TimeSeriesService extends BaseService {
     const params = Array.isArray(names) ? { names: names.join() } : {};
     return this.httpClient.get<Paginated<TimeSeries[]>>(`${this.basePath}/asset/${assetId}`, { params });
   }
+
+  public async getMostRecentTimeSeriesValueByAssetAndTimeSeriesName(assetId: string, timeSeriesName: string) {
+    const params = { names: timeSeriesName };
+    return this.httpClient.get<TimeSeriesValue>(`${this.basePath}/asset/${assetId}/recent`, { params });
+  }
 }
