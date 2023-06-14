@@ -93,5 +93,7 @@ jobs:
         run: pnpm config set enable-pre-post-scripts true
       - name: Build API & SDK
         run: pnpm --filter @hahnpro/hpc-api --filter @hahnpro/flow-sdk build
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
       - name: Test Examples
         run: pnpm --filter flow-module-examples test all

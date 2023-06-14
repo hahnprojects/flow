@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@types/eventsource": "1.1.11",
-    "axios-mock-adapter": "^1.21.4"
+    "axios-mock-adapter": "^1.21.5"
   },
   "engines": {
     "node": ">=v14.13"
