@@ -10,7 +10,7 @@ import copyfiles from 'copyfiles';
 import { execa } from 'execa';
 import FormData from 'form-data';
 import { glob } from 'glob';
-import HttpsProxyAgent from 'https-proxy-agent';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -20,6 +20,8 @@ import { fileURLToPath } from 'node:url';
 import { getAccessToken, login, logout } from './auth.mjs';
 import { handleApiError, handleConvertedOutput, logger, prepareTsFile } from './utils.mjs';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 const require = createRequire(import.meta.url);
 const BASE_URL = process.env.BASE_URL || process.env.PLATFORM_URL;
 const BUILD_DIR = process.env.BUILD_DIR || 'dist';
@@ -27,16 +29,16 @@ const BUILD_DIR = process.env.BUILD_DIR || 'dist';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-let axios = Axios;
+let axios = Axios.create();
 if (process.env.https_proxy || process.env.http_proxy) {
-  const httpsAgent = HttpsProxyAgent(process.env.https_proxy || process.env.http_proxy);
+  const httpsAgent = new HttpsProxyAgent(process.env.https_proxy || process.env.http_proxy);
   axios = Axios.create({ httpsAgent, proxy: false });
 }
 
 let apiToken;
 let projectsRoot = 'modules';
 
-const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json')));
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json')).toString());
 
 const CMD = {
   AUDIT: 'audit',
