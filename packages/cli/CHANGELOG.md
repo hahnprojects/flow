@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.16.6
+
+### Patch Changes
+
+- d728d56: Fixed http(s) proxy support
+
 ## 2.16.5
 
 ### Patch Changes
