@@ -1,7 +1,7 @@
 // @ts-check
 import express from 'express';
 import getPort from 'get-port';
-import HttpsProxyAgent from 'https-proxy-agent';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 import nconf from 'nconf';
 import open from 'open';
 import openidClient, { custom } from 'openid-client';
@@ -24,7 +24,7 @@ nconf.file({ file: join(__dirname, 'config') });
 
 if (process.env.https_proxy || process.env.http_proxy) {
   custom.setHttpOptionsDefaults({
-    agent: HttpsProxyAgent(process.env.https_proxy || process.env.http_proxy),
+    agent: new HttpsProxyAgent(process.env.https_proxy || process.env.http_proxy),
   });
 }
 
