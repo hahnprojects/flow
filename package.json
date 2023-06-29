@@ -9,11 +9,11 @@
     "test": "jest"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.26.1",
+    "@changesets/cli": "^2.26.2",
     "@types/jest": "^29.5.2",
     "@types/node": "^18.16.18",
-    "@typescript-eslint/eslint-plugin": "^5.60.0",
-    "@typescript-eslint/parser": "^5.60.0",
+    "@typescript-eslint/eslint-plugin": "^5.60.1",
+    "@typescript-eslint/parser": "^5.60.1",
     "copyfiles": "^2.4.1",
     "dotenv": "^16.3.1",
     "eslint": "^8.43.0",
@@ -23,8 +23,8 @@
     "prettier": "^2.8.8",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
-    "tslib": "^2.5.3",
-    "typescript": "^5.0.4"
+    "tslib": "^2.6.0",
+    "typescript": "^5.1.6"
   },
   "engines": {
     "node": "^14.13.1 || >=16.0.0"
