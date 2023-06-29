@@ -12,7 +12,7 @@
     "removeComments": true,
     "rootDir": "modules",
     "sourceMap": false,
-    "target": "es2017",
+    "target": "es2021",
     "types": ["jest", "node"],
     "typeRoots": ["node_modules/@types"]
   },
