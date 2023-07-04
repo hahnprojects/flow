@@ -6,4 +6,7 @@ export class NotificationService extends DataService<Notification> {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/notifications');
   }
+  notifyUserByRole(notificationBody: Notification): Promise<Notification | Notification[]> {
+    return this.httpClient.post<Notification | Notification[]>(`${this.basePath}`, notificationBody);
+  }
 }
