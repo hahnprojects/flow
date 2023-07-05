@@ -14,7 +14,11 @@ interface BaseService extends DataMockService<Asset>, TrashMockService<Asset> {}
 class BaseService extends APIBaseMock<Asset> {}
 
 export class AssetMockService extends BaseService implements AssetService {
-  constructor(private api: MockAPI, assets: Asset[], private revisions: AssetRevision[]) {
+  constructor(
+    private api: MockAPI,
+    assets: Asset[],
+    private revisions: AssetRevision[],
+  ) {
     super(assets);
   }
 

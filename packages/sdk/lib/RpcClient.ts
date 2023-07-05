@@ -12,7 +12,10 @@ export class RpcClient {
   private readonly channel: ChannelWrapper;
   private openRequests: Map<string, { resolve; reject; trace: string }> = new Map<string, { resolve; reject; trace: string }>();
 
-  constructor(amqpConnection: AmqpConnectionManager, private readonly logger?: FlowLogger) {
+  constructor(
+    amqpConnection: AmqpConnectionManager,
+    private readonly logger?: FlowLogger,
+  ) {
     if (!amqpConnection) {
       throw new Error('currently no amqp connection available');
     }
