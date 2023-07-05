@@ -6,7 +6,10 @@ import { FlowFunctionDto, FlowFunctionRevision } from '../flow-function.interfac
 import { FlowFunctionService } from '../flow-function.service';
 
 export class FlowFunctionsMockService extends DataMockService<FlowFunctionDto> implements FlowFunctionService {
-  constructor(functions: FlowFunctionDto[], private revisions: FlowFunctionRevision[]) {
+  constructor(
+    functions: FlowFunctionDto[],
+    private revisions: FlowFunctionRevision[],
+  ) {
     super();
     this.data = functions;
   }

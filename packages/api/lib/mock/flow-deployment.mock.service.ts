@@ -14,7 +14,10 @@ interface BaseService extends DataMockService<FlowDeployment>, TrashMockService<
 class BaseService extends APIBaseMock<FlowDeployment> {}
 
 export class FlowDeploymentMockService extends BaseService implements FlowDeploymentService {
-  constructor(deployments: FlowDeployment[], private api: MockAPI) {
+  constructor(
+    deployments: FlowDeployment[],
+    private api: MockAPI,
+  ) {
     super(deployments);
   }
 

@@ -14,7 +14,11 @@ interface BaseService extends DataMockService<FlowDto>, TrashMockService<FlowDto
 class BaseService extends APIBaseMock<FlowDto> {}
 
 export class FlowMockService extends BaseService implements FlowService {
-  constructor(flows: FlowDto[], private diagrams: FlowDiagram[], private revisions: FlowRevision[]) {
+  constructor(
+    flows: FlowDto[],
+    private diagrams: FlowDiagram[],
+    private revisions: FlowRevision[],
+  ) {
     super(flows);
   }
 
