@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 4.0.2
+
+### Patch Changes
+
+- cdcd295: add new property to notification service
+
 ## 4.0.1
 
 ### Patch Changes
