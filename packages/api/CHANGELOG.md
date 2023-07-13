@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 4.1.0
+
+### Minor Changes
+
+- 621277d: add event level override functions to asset service
+
 ## 4.0.2
 
 ### Patch Changes
