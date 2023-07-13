@@ -84,6 +84,14 @@ describe('Mock-API test', () => {
         }
       }
 
+      await api.assets.updateEventCausesAsset('asset1', { cause: 'cause1', level: 'WARNING' });
+      await api.assets.updateEventCausesAsset('asset1', { cause: 'cause1', level: 'CRITICAL' });
+      await api.assets.updateEventCausesAsset('asset2', { cause: 'cause2', level: 'INFO' });
+      await api.assets.updateEventCausesAsset('asset2', { cause: 'cause3', level: 'OK' });
+
+      const eventCauses = await api.assets.getEventLevelOverride(['asset1', 'asset2'], ['cause1', 'cause2', 'cause3']);
+      expect(eventCauses).toEqual({ asset1: { cause1: 'CRITICAL' }, asset2: { cause2: 'INFO', cause3: 'OK' } });
+
       const asset = assets.docs[assets.docs.length - 1];
       const deleted = await api.assets.deleteOne(asset.id);
       expect(deleted.id).toEqual(asset.id);

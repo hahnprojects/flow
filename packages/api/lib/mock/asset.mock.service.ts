@@ -1,7 +1,7 @@
 import FormData from 'form-data';
 import { mix } from 'ts-mixer';
 
-import { Asset, AssetRevision, Attachment } from '../asset.interface';
+import { Asset, AssetRevision, Attachment, EventCause, EventLevelOverride } from '../asset.interface';
 import { AssetService } from '../asset.service';
 import { Paginated, RequestParameter } from '../data.interface';
 import { MockAPI } from './api.mock';
@@ -14,11 +14,7 @@ interface BaseService extends DataMockService<Asset>, TrashMockService<Asset> {}
 class BaseService extends APIBaseMock<Asset> {}
 
 export class AssetMockService extends BaseService implements AssetService {
-  constructor(
-    private api: MockAPI,
-    assets: Asset[],
-    private revisions: AssetRevision[],
-  ) {
+  constructor(private api: MockAPI, assets: Asset[], private revisions: AssetRevision[]) {
     super(assets);
   }
 
@@ -79,6 +75,38 @@ export class AssetMockService extends BaseService implements AssetService {
 
   public getChildren(assetId: string, params: RequestParameter = {}): Promise<Paginated<Asset[]>> {
     return this.getManyFiltered({ parent: assetId }, params);
+  }
+
+  public getEventLevelOverride(ids: string[], causes: string[]): Promise<EventLevelOverride> {
+    const eventCausesAssets = this.data.filter((v) => v.name.startsWith('hpc-event-causes-'));
+    return Promise.resolve(
+      ids.reduce(
+        (acc, id) => ({
+          ...acc,
+          [id]: eventCausesAssets.find((v) => v.name.includes(id))?.data ?? {},
+        }),
+        {},
+      ),
+    );
+  }
+
+  public updateEventCausesAsset(id: string, dto: EventCause): Promise<Asset> {
+    // simplified id and data
+    const asset = this.data.find((v) => v.id === id);
+    const eventCausesAsset = this.data.find((v) => v.name === 'hpc-event-causes-' + asset.id);
+    if (eventCausesAsset) {
+      eventCausesAsset.data[dto.cause] = dto.level;
+      return Promise.resolve(eventCausesAsset);
+    }
+    return this.addOne({
+      name: 'hpc-event-causes-' + asset.id,
+      type: undefined,
+      readPermissions: [],
+      readWritePermissions: [],
+      data: {
+        [dto.cause]: dto.level,
+      },
+    });
   }
 
   public getRevisions(assetId: string): Promise<Paginated<AssetRevision[]>> {

@@ -66,3 +66,14 @@ export interface Action {
 }
 
 export type ActionRevision = Action & { originalId: string };
+
+export interface EventCause {
+  cause: string;
+  level: string;
+}
+
+export interface EventLevelOverride {
+  [assetId: string]: {
+    [eventCause: string]: string;
+  };
+}
