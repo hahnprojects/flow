@@ -135,7 +135,7 @@ export class MockAPI implements API {
       readWritePermissions: [],
       size: 0,
       fileId: '',
-      mimetype: v.mimetype || '',
+      mimetype: v.mimetype ?? '',
     }));
     const contentData: any[] = contents.map((v) => {
       return v.data ? v.data : readFileSync(join(v.filePath, v.filename));

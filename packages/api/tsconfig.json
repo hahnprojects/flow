@@ -4,6 +4,7 @@
     "baseUrl": ".",
     "outDir": "dist",
     "removeComments": false,
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "target": "ES2015"
   }
 }
