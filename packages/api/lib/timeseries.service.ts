@@ -38,7 +38,7 @@ export class TimeSeriesService extends BaseService {
     return this.httpClient.post<TimeSeries>(`${this.basePath}/assets/${assetId}`, dto);
   }
 
-  public getMostRecentValue(id: string, before: Date): Promise<TimeSeriesValue> {
+  public getMostRecentValue(id: string, before?: Date): Promise<TimeSeriesValue> {
     const params = before ? { before: before.toISOString() } : {};
     return this.httpClient.get<TimeSeriesValue>(`${this.basePath}/${id}/recent`, { params });
   }
