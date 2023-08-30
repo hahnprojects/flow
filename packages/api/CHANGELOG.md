@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 4.1.2
+
+### Patch Changes
+
+- f86bcac: Updated dependencies to reduce vulnerabilities
+
 ## 4.1.1
 
 ### Patch Changes
