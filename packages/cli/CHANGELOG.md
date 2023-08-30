@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.16.7
+
+### Patch Changes
+
+- f86bcac: Updated dependencies to reduce vulnerabilities
+
 ## 2.16.6
 
 ### Patch Changes
