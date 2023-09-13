@@ -36,11 +36,11 @@
     "jwt-decode": "^3.1.2",
     "p-queue": "^6.6.2",
     "ts-mixer": "^6.0.3",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/eventsource": "1.1.11",
-    "axios-mock-adapter": "^1.21.5"
+    "axios-mock-adapter": "^1.22.0"
   },
   "engines": {
     "node": ">=v14.13"
