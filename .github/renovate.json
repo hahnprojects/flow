@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base", ":prHourlyLimitNone", "helpers:disableTypesNodeMajor", "group:allNonMajor"],
-  "ignoreDeps": ["node", "object-sizeof"],
+  "ignoreDeps": ["node"],
   "ignorePaths": ["**/node_modules/**", "**/test/**"],
   "rangeStrategy": "bump",
   "schedule": ["before 10am on Wednesday"],
