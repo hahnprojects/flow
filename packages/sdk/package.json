@@ -27,7 +27,8 @@
     "build": "../../node_modules/.bin/tsc -p tsconfig.lib.json",
     "build:nocomments": "../../node_modules/.bin/tsc -p tsconfig.nocomments.json",
     "postbuild": "../../node_modules/.bin/copyfiles -u 1 lib/*.py dist",
-    "prepublishOnly": "pnpm build && pnpm build:nocomments && pnpm postbuild"
+    "prepublishOnly": "pnpm build && pnpm build:nocomments && pnpm postbuild",
+    "lint": "eslint '*/**/*.{js,ts}'"
   },
   "dependencies": {
     "@hahnpro/hpc-api": "workspace:*",
@@ -45,9 +46,9 @@
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.3",
-    "@types/jest": "^29.5.6",
+    "@types/jest": "^29.5.7",
     "@types/lodash": "^4.14.200",
-    "@types/node": "^18.18.7",
+    "@types/node": "^20.8.10",
     "class-validator-jsonschema": "^5.0.0",
     "jest": "^29.7.0",
     "typescript": "^5.2.2"
@@ -60,6 +61,6 @@
     "python-shell": "3.x"
   },
   "engines": {
-    "node": "^14.13.1 || >=16.0.0"
+    "node": ">=v18"
   }
 }

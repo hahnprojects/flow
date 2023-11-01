@@ -32,8 +32,8 @@
     "axios": "~1.6.0",
     "eventsource": "^2.0.2",
     "form-data": "^4.0.0",
-    "jose": "^4.15.4",
-    "jwt-decode": "^3.1.2",
+    "jose": "^5.0.1",
+    "jwt-decode": "^4.0.0",
     "p-queue": "^6.6.2",
     "ts-mixer": "^6.0.3",
     "uuid": "^9.0.1"
@@ -43,6 +43,6 @@
     "axios-mock-adapter": "^1.22.0"
   },
   "engines": {
-    "node": ">=v14.13"
+    "node": ">=v18"
   }
 }
