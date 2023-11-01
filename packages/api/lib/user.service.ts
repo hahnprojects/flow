@@ -1,6 +1,7 @@
+import { jwtDecode } from 'jwt-decode';
+
 import { HttpClient } from './http.service';
 import { UserSettings } from './user-settings.interface';
-import jwtDecode from 'jwt-decode';
 
 export class UserService {
   private readonly basePath: string;
