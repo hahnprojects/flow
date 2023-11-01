@@ -1,5 +1,15 @@
 # @hahnpro/hpc-api
 
+## 5.0.0
+
+### Major Changes
+
+- 19af51f: Updated dependencies to reduce vulnerabilities
+
+  **Breaking changes**
+
+  - Raise minimum Node.js version to v18 for hpc-api and flow-sdk packages
+
 ## 4.1.2
 
 ### Patch Changes
