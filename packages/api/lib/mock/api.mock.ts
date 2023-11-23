@@ -109,147 +109,124 @@ export class MockAPI implements API {
         return typeof v === 'string'
           ? v
           : {
-              name: v.name,
-              id: v.id,
-              readPermissions: [],
-              readWritePermissions: [],
-              typeSchema: {},
-              uiSchema: {},
+              ...v,
+              readPermissions: v.readPermissions || [],
+              readWritePermissions: v.readWritePermissions || [],
+              typeSchema: v.typeSchema ?? {},
+              uiSchema: v.uiSchema ?? {},
             };
       });
     const assets1: Asset[] = assets.map((v, index) => ({
       ...v,
-      readPermissions: [],
-      readWritePermissions: [],
+      readPermissions: v.readPermissions ?? [],
+      readWritePermissions: v.readWritePermissions ?? [],
       type: assetTypes[index],
     }));
     const assetRevisions1: AssetRevision[] = assetRevisions.map((v, index) => ({
       ...v,
-      readPermissions: [],
-      readWritePermissions: [],
+      readPermissions: v.readPermissions ?? [],
+      readWritePermissions: v.readWritePermissions ?? [],
       type: assetTypes[index],
     }));
     const contents1: Content[] = contents.map((v) => ({
       ...v,
-      readPermissions: [],
-      readWritePermissions: [],
-      size: 0,
-      fileId: '',
+      readPermissions: v.readPermissions ?? [],
+      readWritePermissions: v.readWritePermissions ?? [],
+      size: v.size ?? 0,
+      fileId: v.fileId ?? '',
       mimetype: v.mimetype ?? '',
     }));
-    const contentData: any[] = contents.map((v) => {
-      return v.data ? v.data : readFileSync(join(v.filePath, v.filename));
-    });
-    const secrets1: Secret[] = secrets.map((v) => ({ ...v, readPermissions: [], readWritePermissions: [] }));
-    const timeSeries1: TimeSeries[] = timeSeries.map((value) => ({
-      id: value.id,
-      name: value.name,
-      description: '',
-      readPermissions: [],
-      readWritePermissions: [],
-      assetRef: value.assetRef,
-      assetRef$name: value.assetRef$name,
-      assetTsId: value.assetTsId,
-      minDate: value.minDate,
-      maxBucketTimeRange: 0,
-      tsRef: value.tsRef,
-      autoDelData: new Date(),
-      autoDelBucket: new Date(),
+    const contentData: any[] = contents.map((v) => (v.data ? v.data : readFileSync(join(v.filePath, v.filename))));
+    const secrets1: Secret[] = secrets.map((v) => ({
+      ...v,
+      readPermissions: v.readPermissions ?? [],
+      readWritePermissions: v.readWritePermissions ?? [],
     }));
-    const endpoint1: Endpoint[] = endpoints.map((value) => ({
-      id: value.id,
-      name: value.name,
-      description: value.description,
-      status: value.status,
-      config: value.config,
-      notificationCheckInterval: value.notificationCheckInterval,
-      notificationPauseInterval: value.notificationPauseInterval,
-      nbOfNotificationsBetweenPauseInterval: value.nbOfNotificationsBetweenPauseInterval,
-      readPermissions: [],
-      readWritePermissions: [],
+    const timeSeries1: TimeSeries[] = timeSeries.map((v) => ({
+      ...v,
+      description: v.description ?? '',
+      readPermissions: v.readPermissions ?? [],
+      readWritePermissions: v.readWritePermissions ?? [],
+      maxBucketTimeRange: v.maxBucketTimeRange ?? 0,
+      maxDate: v.maxDate,
+      minDate: v.minDate,
+      autoDelData: v.autoDelData ?? new Date(),
+      autoDelBucket: v.autoDelBucket ?? new Date(),
+    }));
+    const timeSeriesValues: TimeSeriesValue[][] = timeSeries.map((v) => v.values);
+    const endpoint1: Endpoint[] = endpoints.map((v) => ({
+      ...v,
+      status: v.status,
+      config: v.config,
+      notificationCheckInterval: v.notificationCheckInterval,
+      notificationPauseInterval: v.notificationPauseInterval,
+      nbOfNotificationsBetweenPauseInterval: v.nbOfNotificationsBetweenPauseInterval,
+      readPermissions: v.readPermissions ?? [],
+      readWritePermissions: v.readWritePermissions ?? [],
     }));
     // TODO: ...
     const tasks1: Task[] = tasks.map((v) => ({
+      ...v,
       id: v.id,
-      name: v.name,
-      readPermissions: [],
-      readWritePermissions: [],
-      assetRef: v.assetRef,
-      subTasks: [],
-      assignedTo: v.assignedTo,
-      status: v.status,
-      acceptedBy: v.acceptedBy,
+      readPermissions: v.readPermissions ?? [],
+      readWritePermissions: v.readWritePermissions ?? [],
+      subTasks: v.subTasks ?? [],
     }));
-
     const events1: Event[] = events.map((v) => ({
-      id: v.id,
-      name: v.name,
-      readPermissions: [],
-      readWritePermissions: [],
-      assetRef: v.assetRef,
-      assetRef$name: v.assetRef$name,
-      alertRef: v.alertRef,
-      tsRef: v.tsRef,
-      tags: v.tags,
+      ...v,
+      readPermissions: v.readPermissions ?? [],
+      readWritePermissions: v.readWritePermissions ?? [],
       cause: v.cause,
       level: v.level,
-      group: v.group,
-      createdAt: v.createdAt,
     }));
-
-    const timeseriesValues: TimeSeriesValue[][] = timeSeries.map((v) => v.values);
-
     const diagrams1: FlowDiagram[] = diagrams.map((v) => ({
       ...v,
-      json: '',
+      json: v.json ?? '',
       author: 'nobody',
     }));
     const flows1: FlowDto[] = flows.map((v) => ({
       ...v,
-      readPermissions: [],
-      readWritePermissions: [],
+      readPermissions: v.readPermissions ?? [],
+      readWritePermissions: v.readWritePermissions ?? [],
       diagram: diagrams.find((v1) => v1.flow === v.id).id,
       name: `flow-${v.id}`,
-      deployments: [],
+      deployments: v.deployments ?? [],
     }));
     const flowRevisions1: FlowRevision[] = flowRevisions.map((v) => ({
       ...v,
-      readPermissions: [],
-      readWritePermissions: [],
+      readPermissions: v.readPermissions ?? [],
+      readWritePermissions: v.readWritePermissions ?? [],
       diagram: diagrams.find((v1) => v1.flow === v.originalId).id,
       name: `flow-${v.id}`,
-      deployments: [],
+      deployments: v.deployments ?? [],
     }));
-
     const deployments1: FlowDeployment[] = deployments.map((v) => ({
       ...v,
-      readPermissions: [],
-      readWritePermissions: [],
+      readPermissions: v.readPermissions ?? [],
+      readWritePermissions: v.readWritePermissions ?? [],
       diagram: v.diagram ?? '',
-      artifact: null,
-      flowModel: { connections: [], elements: [] },
+      artifact: v.artifact ?? null,
+      flowModel: v.flowModel ?? { connections: [], elements: [] },
       desiredStatus: 'running',
       actualStatus: 'generating queued',
       target: 'executor',
       name: `deployment-${v.id}`,
     }));
-
     const functions1: Array<FlowFunctionDto> = functions.map((v) => ({
       ...v,
       category: 'task',
-      readPermissions: [],
-      readWritePermissions: [],
+      readPermissions: v.readPermissions ?? [],
+      readWritePermissions: v.readWritePermissions ?? [],
       author: 'nobody',
     }));
     const functionRevisions1: Array<FlowFunctionRevision> = functionRevisions.map((v) => ({
       ...v,
       category: 'task',
-      readPermissions: [],
-      readWritePermissions: [],
+      readPermissions: v.readPermissions ?? [],
+      readWritePermissions: v.readWritePermissions ?? [],
       author: 'nobody',
     }));
-
-    const modules1: Replace<FlowModule, 'artifacts', Array<Artifact & { path: string }>>[] = modules.map((v, index) => ({
+    const modules1: ModuleInit[] = modules.map((v, index) => ({
       ...v,
       artifacts:
         modules[index].artifacts.map((art) => ({
@@ -261,28 +238,34 @@ export class MockAPI implements API {
           createdAt: '' + Date.now(),
         })) ?? [],
       author: 'nobody',
-      functions: [],
-      readPermissions: [],
-      readWritePermissions: [],
+      functions: v.functions ?? [],
+      readPermissions: v.readPermissions ?? [],
+      readWritePermissions: v.readWritePermissions ?? [],
     }));
-
-    const labels1: Label[] = labels.map((label) => ({
-      ...label,
-      color: '',
-      description: '',
-      readPermissions: [],
-      readWritePermissions: [],
+    const labels1: Label[] = labels.map((v) => ({
+      ...v,
+      color: v.color ?? '',
+      description: v.description ?? '',
+      readPermissions: v.readPermissions ?? [],
+      readWritePermissions: v.readWritePermissions ?? [],
     }));
-
-    const vaultSecrets1: VaultSecret[] = vault.map((v) => ({ ...v, readPermissions: [], readWritePermissions: [] }));
-
-    const notifications1: Notification[] = notifications.map((n) => ({ ...n, link: '', description: '', read: false }));
+    const vaultSecrets1: VaultSecret[] = vault.map((v) => ({
+      ...v,
+      readPermissions: v.readPermissions ?? [],
+      readWritePermissions: v.readWritePermissions ?? [],
+    }));
+    const notifications1: Notification[] = notifications.map((v) => ({
+      ...v,
+      link: v.link ?? '',
+      description: v.description ?? '',
+      read: v.read ?? false,
+    }));
 
     this.assets = new AssetMockService(this, assets1, assetRevisions1);
     this.contents = new ContentMockService(contents1, contentData);
     this.endpoints = new EndpointMockService(endpoint1);
     this.secrets = new SecretMockService(secrets1);
-    this.timeSeries = new TimeseriesMockService(timeSeries1, timeseriesValues);
+    this.timeSeries = new TimeseriesMockService(timeSeries1, timeSeriesValues);
     this.tasks = new TaskMockService(tasks1);
     this.events = new EventsMockService(events1);
     this.users = new UserMockService(users);
@@ -324,6 +307,7 @@ export type FlowDiagramInit = AtLeast<FlowDiagram, 'id' | 'flow'>;
 export type LabelInit = AtLeast<Label, 'id' | 'name'>;
 export type VaultSecretInit = AtLeast<VaultSecret, 'name' | 'secret'>;
 export type NotificationInit = AtLeast<Notification, 'id' | 'name' | 'userId' | 'notificationType'>;
+export type ModuleInit = Replace<FlowModule, 'artifacts', Array<Artifact & { path: string }>>;
 
 export interface UserInit {
   roles: string[];

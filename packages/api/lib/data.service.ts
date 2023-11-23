@@ -1,5 +1,5 @@
 import { APIBase } from './api-base';
-import { DataInterface, Filter, Paginated, RequestParameter } from './data.interface';
+import { DataInterface, Filter, instanceOfTimePeriod, Paginated, RequestParameter } from './data.interface';
 
 export class DataService<T> extends APIBase implements DataInterface<T> {
   public addOne(dto: any): Promise<T> {
@@ -35,17 +35,15 @@ export class DataService<T> extends APIBase implements DataInterface<T> {
   }
 
   private getFilterString(filter: Filter) {
-    // tags%3D%40tag1%20tag2%3Btype%3D%3Dtype%3Bparent%3D%3D5a9d6c5182b56300015371c8
-    const { parent, tags, type } = filter;
     const filters: string[] = [];
-    if (tags) {
-      filters.push('tags=@' + tags.join());
-    }
-    if (type) {
-      filters.push('type==' + type);
-    }
-    if (parent) {
-      filters.push('parent==' + parent);
+    for (const [key, value] of Object.entries(filter)) {
+      if (instanceOfTimePeriod(value)) {
+        filters.push(`${key}>=${value.from.toISOString()};${key}<=${value.to.toISOString()}`);
+      } else if (Array.isArray(value)) {
+        filters.push(`${key}=@${value.join(',')}`);
+      } else {
+        filters.push(`${key}==${value}`);
+      }
     }
     return filters.join(';');
   }

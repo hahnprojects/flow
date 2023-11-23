@@ -7,6 +7,7 @@ export interface TimeSeries {
   assetRef?: string;
   assetRef$name?: string;
   assetTsId?: string;
+  maxDate: Date;
   minDate: Date;
   metrics?: string[];
   maxBucketTimeRange: number;

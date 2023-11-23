@@ -56,6 +56,7 @@ export class TimeseriesMockService extends BaseService implements TimeSeriesServ
         description: '',
         maxBucketTimeRange: 0,
         minDate: undefined,
+        maxDate: undefined,
         name,
         readPermissions,
         readWritePermissions,

@@ -1,4 +1,4 @@
-import { Filter, Paginated, RequestParameter } from '../data.interface';
+import { Filter, instanceOfTimePeriod, Paginated, RequestParameter } from '../data.interface';
 import { DataService } from '../data.service';
 import { APIBaseMock } from './api-base.mock';
 
@@ -38,8 +38,20 @@ export class DataMockService<T> extends DataService<T> implements APIBaseMock<T>
 
   async getManyFiltered(filter: Filter, params: RequestParameter = {}): Promise<Paginated<T[]>> {
     const paginated = await this.getMany(params);
-    const newData = paginated.docs.filter(
-      (v: any) => filter.parent === v.parent || filter.tags?.some((tag) => v.tags?.contains(tag)) || filter.type === v.tag,
+    const newData = paginated.docs.filter((doc: any) =>
+      Object.entries(filter).every(([filterKey, filterValue]): boolean => {
+        const docValue = doc[filterKey];
+        if (!docValue) {
+          return false;
+        } else if (instanceOfTimePeriod(filterValue) && docValue[filterKey]) {
+          const date = new Date(docValue[filterKey]);
+          return date >= filterValue.from && date <= filterValue.to;
+        } else if (Array.isArray(filterValue)) {
+          return filterValue.includes(docValue);
+        } else {
+          return docValue === filterValue;
+        }
+      }),
     );
     const page: Paginated<T[]> = {
       docs: newData,
