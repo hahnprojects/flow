@@ -43,8 +43,8 @@ export class DataMockService<T> extends DataService<T> implements APIBaseMock<T>
         const docValue = doc[filterKey];
         if (!docValue) {
           return false;
-        } else if (instanceOfTimePeriod(filterValue) && docValue[filterKey]) {
-          const date = new Date(docValue[filterKey]);
+        } else if (instanceOfTimePeriod(filterValue) && docValue) {
+          const date = new Date(docValue);
           return date >= filterValue.from && date <= filterValue.to;
         } else if (Array.isArray(filterValue)) {
           return filterValue.includes(docValue);
