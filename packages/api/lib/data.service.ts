@@ -21,6 +21,15 @@ export class DataService<T> extends APIBase implements DataInterface<T> {
     return this.httpClient.get<Paginated<T[]>>(`${this.basePath}`, { params });
   }
 
+  /**
+   * Filters the elements by the passed properties. The object with these properties has to be of the form:
+   * {
+   *   propertyName: string | string[] | { from: Date, to: Date },
+   *   ...
+   * }.
+   * @param filter The Object with the properties to filter by.
+   * @param params Other request parameters.
+   */
   public getManyFiltered(filter: Filter, params: RequestParameter = {}): Promise<Paginated<T[]>> {
     params.filter = this.getFilterString(filter);
     return this.getMany(params);

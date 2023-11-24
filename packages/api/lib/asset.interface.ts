@@ -13,10 +13,10 @@ export interface AssetType {
   typeSchema: any;
   uiSchema: any;
   actions?: string[];
-  createdAt?: string;
-  updatedAt?: string;
   author?: string;
   revision?: number;
+  createdAt?: string;
+  updatedAt?: string;
   deletedAt?: string;
 }
 
@@ -41,6 +41,8 @@ export interface Asset {
   actions?: string[];
   author?: string;
   revision?: number;
+  createdAt?: string;
+  updatedAt?: string;
   deletedAt?: string;
 }
 

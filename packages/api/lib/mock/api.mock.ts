@@ -226,7 +226,7 @@ export class MockAPI implements API {
       readWritePermissions: v.readWritePermissions ?? [],
       author: 'nobody',
     }));
-    const modules1: ModuleInit[] = modules.map((v, index) => ({
+    const modules1: Replace<FlowModule, 'artifacts', Array<Artifact & { path: string }>>[] = modules.map((v, index) => ({
       ...v,
       artifacts:
         modules[index].artifacts.map((art) => ({
@@ -307,7 +307,6 @@ export type FlowDiagramInit = AtLeast<FlowDiagram, 'id' | 'flow'>;
 export type LabelInit = AtLeast<Label, 'id' | 'name'>;
 export type VaultSecretInit = AtLeast<VaultSecret, 'name' | 'secret'>;
 export type NotificationInit = AtLeast<Notification, 'id' | 'name' | 'userId' | 'notificationType'>;
-export type ModuleInit = Replace<FlowModule, 'artifacts', Array<Artifact & { path: string }>>;
 
 export interface UserInit {
   roles: string[];
