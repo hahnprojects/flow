@@ -1,4 +1,6 @@
-export async function testTrash(itemId, service) {
+import { Filter } from '../lib';
+
+export async function testTrash(itemId: string, service) {
   // test trash
   const deleted = await service.deleteOne(itemId);
   expect(deleted.id).toEqual(itemId);
@@ -25,4 +27,22 @@ export async function testTrash(itemId, service) {
   items = await service.getMany();
   expect(trash.docs.includes(deleted)).toBe(false);
   expect(items.docs.includes(deleted)).toBe(false);
+}
+
+/**
+ * Tests the getManyFiltered() function.
+ * @param filter The passed filter object.
+ * @param service The service to test.
+ * @param checkFor The property to check the received item for.
+ * @param expected The expected value of the property declared in checkFor.
+ */
+export async function testFilter(filter: Filter, service, checkFor: string, expected: string) {
+  const items = await service.getManyFiltered(filter);
+  expect(items).toBeDefined();
+  expect(Array.isArray(items.docs)).toBeTruthy();
+  expect(items.docs.length).toBeGreaterThan(0);
+
+  const item = items.docs[0];
+  expect(item).toBeDefined();
+  expect(item[checkFor]).toBe(expected);
 }
