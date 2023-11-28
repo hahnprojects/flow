@@ -15,11 +15,16 @@ export interface RequestParameter {
   sort?: string;
 }
 
-export interface Filter {
-  tags?: string[];
-  type?: string;
-  parent?: string;
+interface TimePeriod {
+  from: Date;
+  to: Date;
 }
+
+export function instanceOfTimePeriod(object: any): object is TimePeriod {
+  return 'from' in object && 'to' in object;
+}
+
+export type Filter = Record<string, string | string[] | TimePeriod>;
 
 export interface DataInterface<T> {
   addOne(dto: any): Promise<T>;
