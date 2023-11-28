@@ -2,8 +2,9 @@ import { Type } from 'class-transformer';
 import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
 import { setTimeout } from 'timers/promises';
 
-import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream, MockAPI } from '../lib';
+import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
 import { loggerMock } from './logger.mock';
+import { MockAPI } from '../../api/lib/mock/api.mock';
 
 describe('Flow Application', () => {
   afterEach(() => {

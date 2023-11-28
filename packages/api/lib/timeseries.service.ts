@@ -20,8 +20,20 @@ export class TimeSeriesService extends BaseService {
     return this.httpClient.post<void>(`${this.basePath}/${id}`, value);
   }
 
-  // Creates or Finds a TimeSeries for an assetId and a name
-  // Then adds the values to the TimeSeries
+  /**
+   * Adds time series values to an asset by the name of the time series.
+   * If the time series does not exist, it is created.
+   * @param assetId - The ID of the asset to which the time series values are added.
+   * @param name - The name of the time series.
+   * @param readPermissions - an array of permissions that allow the user to read the time series.
+   * @param readWritePermissions - an array of permissions that allow the user to read and write the time series.
+   * @param values - The time series values are specified as an object with the following structure:
+   * {
+   *   [timestamp: string]: any, // The timestamp and value pairs
+   *   ...
+   * }
+   * @returns a promise that resolves to the time series that was added.
+   */
   public addAssetTimeSeriesValues(
     assetId: string,
     name: string,
@@ -36,6 +48,46 @@ export class TimeSeriesService extends BaseService {
       values,
     };
     return this.httpClient.post<TimeSeries>(`${this.basePath}/assets/${assetId}`, dto);
+  }
+
+  /**
+   * Adds multiple time series values to an asset by the name of the time series.
+   * If the time series does not exist, it is created.
+   * If the operation is successful, the value property contains the time series that was added.
+   * If the operation fails, the reason property contains the error that caused the operation to fail.
+   * @param assetId - The ID of the asset to which the time series values are added.
+   * @param readPermissions - an array of permissions that allow the user to read the time series.
+   * @param readWritePermissions - an array of permissions that allow the user to read and write the time series.
+   * @param timeSeries - The time series values are specified as an object with the following structure:
+   * {
+   *  [timeSeriesName: string]: { // The name of the time series
+   *    [timestamp: string]: any, // The timestamp and value pairs
+   *    ...
+   *  },
+   *  ...
+   * }
+   * @returns a promise that resolves to an array of objects containing the results of the operation.
+   * Each object has the following structure:
+   * {
+   *  status: "fulfilled" | "rejected",
+   *  value?: TimeSeries,
+   *  reason?: Error,
+   * }
+   */
+  public addManyAssetTimeSeriesValues(
+    assetId: string,
+    readPermissions: string[],
+    readWritePermissions: string[],
+    timeSeries: { [timeSeriesName: string]: { [timestamp: string]: any } },
+  ) {
+    const dtos = Object.entries(timeSeries).map(([name, values]) => ({
+      name,
+      readPermissions,
+      readWritePermissions,
+      values,
+    }));
+
+    return this.httpClient.post<PromiseSettledResult<TimeSeries>[]>(`${this.basePath}/assets/${assetId}/bulk`, dtos);
   }
 
   public getMostRecentValue(id: string, before?: Date): Promise<TimeSeriesValue> {
