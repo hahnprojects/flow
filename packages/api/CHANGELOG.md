@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 5.2.0
+
+### Minor Changes
+
+- e4a9f4d: Added addManyAssetTimeSeriesValues method to TimeSeries API service
+
 ## 5.1.0
 
 ### Minor Changes
