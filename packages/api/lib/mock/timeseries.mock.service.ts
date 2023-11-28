@@ -77,34 +77,32 @@ export class TimeseriesMockService extends BaseService implements TimeSeriesServ
   ): Promise<PromiseSettledResult<TimeSeries>[]> {
     const ts = this.data.find((v) => v.assetRef === assetId);
     const psr: PromiseSettledResult<TimeSeries>[] = [];
-    for (const tsName in timeSeries) {
-      if (Object.prototype.hasOwnProperty.call(timeSeries, tsName)) {
-        const values = timeSeries[tsName];
-        const data: TimeSeriesValue[] = Object.entries(values).map(([timestamp, value]) => {
-          if (value !== null && typeof value === 'object') {
-            return { timestamp, ...value };
-          } else {
-            return { timestamp, value };
-          }
-        });
-        if (!ts) {
-          const dto: TimeSeries & { data: TimeSeriesValue[] } = {
-            autoDelBucket: undefined,
-            autoDelData: undefined,
-            description: '',
-            maxBucketTimeRange: 0,
-            minDate: undefined,
-            name: tsName,
-            readPermissions,
-            readWritePermissions,
-            assetRef: assetId,
-            data,
-          };
-          this.addOne(dto).then((v) => psr.push({ status: 'fulfilled', value: v }));
+    for (const [tsName, values] of Object.entries(timeSeries)) {
+      const data: TimeSeriesValue[] = Object.entries(values).map(([timestamp, value]) => {
+        if (value !== null && typeof value === 'object') {
+          return { timestamp, ...value };
         } else {
-          ts.data = ts.data ? [...ts.data, ...data] : data;
-          psr.push({ status: 'fulfilled', value: ts });
+          return { timestamp, value };
         }
+      });
+      if (!ts) {
+        const dto: TimeSeries & { data: TimeSeriesValue[] } = {
+          autoDelBucket: undefined,
+          autoDelData: undefined,
+          description: '',
+          maxBucketTimeRange: 0,
+          minDate: undefined,
+          maxDate: undefined,
+          name: tsName,
+          readPermissions,
+          readWritePermissions,
+          assetRef: assetId,
+          data,
+        };
+        this.addOne(dto).then((v) => psr.push({ status: 'fulfilled', value: v }));
+      } else {
+        ts.data = ts.data ? [...ts.data, ...data] : data;
+        psr.push({ status: 'fulfilled', value: ts });
       }
     }
     return Promise.resolve(psr);

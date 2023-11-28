@@ -73,8 +73,6 @@ export class TimeSeriesService extends BaseService {
    *  value?: TimeSeries,
    *  reason?: Error,
    * }
-   *
-   *
    */
   public addManyAssetTimeSeriesValues(
     assetId: string,
@@ -82,20 +80,14 @@ export class TimeSeriesService extends BaseService {
     readWritePermissions: string[],
     timeSeries: { [timeSeriesName: string]: { [timestamp: string]: any } },
   ) {
-    const dtos = [];
-    for (const name in timeSeries) {
-      if (Object.prototype.hasOwnProperty.call(timeSeries, name)) {
-        const values = timeSeries[name];
-        dtos.push({
-          name,
-          readPermissions,
-          readWritePermissions,
-          values,
-        });
-      }
-    }
+    const dtos = Object.entries(timeSeries).map(([name, values]) => ({
+      name,
+      readPermissions,
+      readWritePermissions,
+      values,
+    }));
 
-    return this.httpClient.post<PromiseSettledResult<TimeSeries>[]>(`${this.basePath}/assets/${assetId}`, dtos);
+    return this.httpClient.post<PromiseSettledResult<TimeSeries>[]>(`${this.basePath}/assets/${assetId}/bulk`, dtos);
   }
 
   public getMostRecentValue(id: string, before?: Date): Promise<TimeSeriesValue> {
