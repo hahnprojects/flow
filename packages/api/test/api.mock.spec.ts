@@ -3,15 +3,22 @@ import * as dotenv from 'dotenv';
 import { MockAPI, ReturnType } from '../lib';
 import { Readable } from 'stream';
 import { join } from 'path';
-import { testTrash } from './helper';
+import { testFilter, testTrash } from './helper';
 
 dotenv.config();
 
 /* eslint-disable no-console */
 describe('Mock-API test', () => {
+  const timestamp = Date.now();
   const api = new MockAPI({
     assets: [
-      { id: 'asset1', name: 'testAsset', type: { id: 'testId', name: 'testType' } },
+      {
+        id: 'asset1',
+        name: 'testAsset',
+        type: { id: 'testId', name: 'testType' },
+        readWritePermissions: ['testRole'],
+        updatedAt: new Date(timestamp).toISOString(),
+      },
       { id: 'asset2', name: 'deleteAsset', type: { id: 'testId', name: 'testType' } },
     ],
     assetRevisions: [{ id: 'assetRevision1', originalId: 'asset1', name: 'testAssetRevision', type: { id: 'testId', name: 'testType' } }],
@@ -21,9 +28,31 @@ describe('Mock-API test', () => {
     ],
     endpoints: [{ id: 'endpoint1', name: 'test' }],
     secrets: [{ id: 'secret1', key: 'test', name: 'testSecret' }],
-    timeSeries: [{ id: 'timeseries1', name: 'testTimeseries', values: [{ timestamp: Date.now(), value: 'test' }] }],
-    tasks: [{ id: 'tasks1', name: 'testTasks', assignedTo: ['alice'] }], // TODO: TEST Tasks API
-    events: [{ id: 'events1', name: 'testEvents', level: 'OK', cause: 'test' }],
+    timeSeries: [{ id: 'timeseries1', name: 'testTimeseries', values: [{ timestamp, value: 'test' }] }],
+    tasks: [
+      {
+        id: 'tasks1',
+        name: 'testTasks',
+        assignedTo: ['alice'],
+        readWritePermissions: ['testRole'],
+        updatedAt: new Date(timestamp).toISOString(),
+      },
+    ], // TODO: TEST Tasks API
+    events: [
+      {
+        id: 'events1',
+        name: 'testEvents',
+        level: 'OK',
+        cause: 'test',
+        readWritePermissions: ['testRole'],
+        updatedAt: new Date(timestamp).toISOString(),
+      },
+      {
+        id: 'events2',
+        name: 'testEvents2',
+        updatedAt: new Date(timestamp - 2000).toISOString(),
+      },
+    ],
     users: { roles: ['test1', 'test2'] },
     flows: [{ id: 'flow1' }],
     flowRevisions: [{ id: 'flowRevision1', originalId: 'flow1' }],
@@ -51,8 +80,12 @@ describe('Mock-API test', () => {
       expect(asset).toBeDefined();
     }
 
-    assets = await api.assets.getManyFiltered({ tags: ['test'] }).catch((err) => logError(err));
-    expect(assets).toBeDefined();
+    await testFilter({ name: 'testAsset' }, api.assets, 'name', 'testAsset');
+    await testFilter({ type: 'testType' }, api.assets, 'name', 'testAsset');
+    await testFilter({ readWritePermissions: ['testRole'] }, api.assets, 'name', 'testAsset');
+    await testFilter({ readWritePermissions: 'testRole' }, api.assets, 'name', 'testAsset');
+    await testFilter({ name: ['testAsset'] }, api.assets, 'name', 'testAsset');
+    await testFilter({ updatedAt: { from: new Date(timestamp - 1000), to: new Date(timestamp + 1000) } }, api.assets, 'name', 'testAsset');
 
     assets = await api.assets.getMany({ populate: 'type' }).catch((err) => logError(err));
     expect(assets).toBeDefined();
@@ -122,7 +155,16 @@ describe('Mock-API test', () => {
   }, 60000);
 
   test('FLOW.API.MOCK.2 content', async () => {
-    const contents = await api.contents.getMany().catch((err) => logError(err));
+    let contents = await api.contents.getMany({ sort: '-id' }).catch((err) => logError(err));
+    expect(contents).toBeDefined();
+
+    if (contents) {
+      expect(Array.isArray(contents.docs)).toBe(true);
+      expect(contents.docs.length).toBeGreaterThan(0);
+      expect(contents.docs.map((c) => c.id)).toEqual(['content1', 'content2']);
+    }
+
+    contents = await api.contents.getMany().catch((err) => logError(err));
     expect(contents).toBeDefined();
 
     if (contents) {
@@ -207,7 +249,16 @@ describe('Mock-API test', () => {
   }, 60000);
 
   test('FLOW.API.MOCK.5 events', async () => {
-    const events = await api.events.getMany().catch((err) => logError(err));
+    let events = await api.events.getMany({ sort: 'updatedAt' }).catch((err) => logError(err));
+    expect(events).toBeDefined();
+
+    if (events) {
+      expect(Array.isArray(events.docs)).toBe(true);
+      expect(events.docs.length).toBeGreaterThan(0);
+      expect(events.docs.map((e) => e.id)).toEqual(['events2', 'events1']);
+    }
+
+    events = await api.events.getMany().catch((err) => logError(err));
     expect(events).toBeDefined();
 
     if (events) {
@@ -219,6 +270,17 @@ describe('Mock-API test', () => {
 
       const lastEvent = await api.events.getLastEventByAssetAndGroup('asset1', 'test').catch((err) => logError(err));
       expect(lastEvent).toBeDefined();
+
+      await testFilter({ name: 'testEvents' }, api.events, 'name', 'testEvents');
+      await testFilter({ readWritePermissions: ['testRole'] }, api.events, 'name', 'testEvents');
+      await testFilter({ readWritePermissions: 'testRole' }, api.events, 'name', 'testEvents');
+      await testFilter({ name: ['testEvents'] }, api.events, 'name', 'testEvents');
+      await testFilter(
+        { updatedAt: { from: new Date(timestamp - 1000), to: new Date(timestamp + 1000) } },
+        api.events,
+        'name',
+        'testEvents',
+      );
     }
   }, 60000);
 
@@ -251,6 +313,12 @@ describe('Mock-API test', () => {
       const tsk = await api.tasks.getOne(tskId).catch((err) => logError(err));
       expect(tsk).toBeDefined();
 
+      await testFilter({ name: 'testTasks' }, api.tasks, 'name', 'testTasks');
+      await testFilter({ readWritePermissions: ['testRole'] }, api.tasks, 'name', 'testTasks');
+      await testFilter({ readWritePermissions: 'testRole' }, api.tasks, 'name', 'testTasks');
+      await testFilter({ name: ['testTasks'] }, api.tasks, 'name', 'testTasks');
+      await testFilter({ updatedAt: { from: new Date(timestamp - 1000), to: new Date(timestamp + 1000) } }, api.tasks, 'name', 'testTasks');
+
       await testTrash(tskId, api.tasks);
     }
   }, 60000);
@@ -279,9 +347,6 @@ describe('Mock-API test', () => {
       const flowWithDiagram = await api.flows.getFlowWithDiagram(flow.diagram as string);
       expect(flow.id).toEqual(flowWithDiagram.id);
     }
-
-    flows = await api.flows.getManyFiltered({ tags: ['test'] }).catch((err) => logError(err));
-    expect(flows).toBeDefined();
 
     flows = await api.flows.getMany({ populate: 'diagram' }).catch((err) => logError(err));
     expect(flows).toBeDefined();
@@ -359,9 +424,6 @@ describe('Mock-API test', () => {
       expect(function1).toBeDefined();
     }
 
-    functions = await api.flowFunctions.getManyFiltered({ tags: ['test'] }).catch((err) => logError(err));
-    expect(functions).toBeDefined();
-
     functions = await api.flowFunctions.getMany().catch((err) => logError(err));
     expect(functions).toBeDefined();
 
@@ -380,7 +442,7 @@ describe('Mock-API test', () => {
   }, 60000);
 
   test('FLOW-API.MOCK.11 flow-deployments', async () => {
-    let deployments = await api.flowDeployments.getMany().catch((err) => logError(err));
+    const deployments = await api.flowDeployments.getMany().catch((err) => logError(err));
     expect(deployments).toBeDefined();
 
     if (deployments) {
@@ -390,9 +452,6 @@ describe('Mock-API test', () => {
       const deployment = await api.flowDeployments.getOne(deplId1).catch((err) => logError(err));
       expect(deployment).toBeDefined();
     }
-
-    deployments = await api.flowDeployments.getManyFiltered({ tags: ['test'] }).catch((err) => logError(err));
-    expect(deployments).toBeDefined();
 
     const deplId = '623ae4cedeaf1681711ff3b0';
     const depl = await api.flowDeployments.getOne(deplId);

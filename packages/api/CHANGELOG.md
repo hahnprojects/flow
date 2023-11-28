@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 5.1.0
+
+### Minor Changes
+
+- f0c4d8d: extend filters of getManyFiltered() + improve mock api
+
 ## 5.0.0
 
 ### Major Changes
