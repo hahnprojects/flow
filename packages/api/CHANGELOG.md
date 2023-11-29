@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 5.2.1
+
+### Patch Changes
+
+- a431b4f: add type check to getFilterString function
+
 ## 5.2.0
 
 ### Minor Changes
