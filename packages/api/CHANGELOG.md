@@ -1,4 +1,7 @@
 # @hahnpro/hpc-api
+## 5.2.2
+
+- Hotfix for getFilterString function, filter out null and undefined values
 
 ## 5.2.1
 
