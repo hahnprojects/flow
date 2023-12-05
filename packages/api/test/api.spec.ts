@@ -23,11 +23,11 @@ describe('API test', () => {
 
     assets = await api.assets.getManyFiltered({ tags: ['test'] }).catch((err) => logError(err));
     expect(assets).toBeDefined();
-    assets = await api.assets.getManyFiltered({ tags: ['test','test2'] }).catch((err) => logError(err));
+    assets = await api.assets.getManyFiltered({ tags: ['test', 'test2'] }).catch((err) => logError(err));
     expect(assets).toBeDefined();
     assets = await api.assets.getManyFiltered({ parent: '6357b634018cd1ce104e110f' }).catch((err) => logError(err));
     expect(assets).toBeDefined();
-    assets = await api.assets.getManyFiltered({ parent: '6357b634018cd1ce104e110f' },{populate:''}).catch((err) => logError(err));
+    assets = await api.assets.getManyFiltered({ parent: '6357b634018cd1ce104e110f' },{ populate: '' }).catch((err) => logError(err));
     expect(assets).toBeDefined();
 
     assets = await api.assets.getMany({ populate: 'type' }).catch((err) => logError(err));
