@@ -46,13 +46,15 @@ export class DataService<T> extends APIBase implements DataInterface<T> {
   private getFilterString(filter: Filter) {
     const filters: string[] = [];
     for (const [key, value] of Object.entries(filter)) {
-      if (typeof value === 'object' && instanceOfTimePeriod(value)) {
-        filters.push(`${key}>=${value.from.toISOString()};${key}<=${value.to.toISOString()}`);
-      } else if (Array.isArray(value)) {
-        filters.push(`${key}=@${value.join(',')}`);
-      } else if (value) {
-        // should filter out null and undefined values
-        filters.push(`${key}==${value}`);
+      if (value != null && value !== '') {
+        // filter out null and undefined values and empty strings
+        if (typeof value === 'object' && instanceOfTimePeriod(value)) {
+          filters.push(`${key}>=${value.from.toISOString()};${key}<=${value.to.toISOString()}`);
+        } else if (Array.isArray(value)) {
+          filters.push(`${key}=@${value.join(',')}`);
+        } else {
+          filters.push(`${key}==${value}`);
+        }
       }
     }
     return filters.join(';');

@@ -2,13 +2,13 @@
 
 ## 5.2.2
 
-- Hotfix for getFilterString function, filter out null and undefined values
+- Fixed getFilterString method for api services to filter out null and undefined values
 
 ## 5.2.1
 
 ### Patch Changes
 
-- a431b4f: add type check to getFilterString function
+- a431b4f: Added type check to getFilterString function
 
 ## 5.2.0
 
