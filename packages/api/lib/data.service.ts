@@ -50,7 +50,8 @@ export class DataService<T> extends APIBase implements DataInterface<T> {
         filters.push(`${key}>=${value.from.toISOString()};${key}<=${value.to.toISOString()}`);
       } else if (Array.isArray(value)) {
         filters.push(`${key}=@${value.join(',')}`);
-      } else {
+      } else if (value) {
+        // should filter out null and undefined values
         filters.push(`${key}==${value}`);
       }
     }
