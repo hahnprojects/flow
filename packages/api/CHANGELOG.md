@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 5.2.3
+
+### Patch Changes
+
+- 39b5f50: Updated dependencies to reduce vulnerabilities
+
 ## 5.2.2
 
 - Fixed getFilterString method for api services to filter out null and undefined values
