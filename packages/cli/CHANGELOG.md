@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.17.1
+
+### Patch Changes
+
+- f93e4f9: Updated dependencies to reduce vulnerabilities
+
 ## 2.17.0
 
 ### Minor Changes
