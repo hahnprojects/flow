@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { PythonShell } from 'python-shell';
+import type { PythonShell } from 'python-shell';
 import { setTimeout } from 'timers/promises';
 
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';

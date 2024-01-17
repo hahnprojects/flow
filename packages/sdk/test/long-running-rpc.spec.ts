@@ -1,6 +1,6 @@
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 import { join } from 'path';
-import { PythonShell } from 'python-shell';
+import type { PythonShell } from 'python-shell';
 import { setTimeout } from 'timers/promises';
 
 describe('Flow RPC long running task', () => {
