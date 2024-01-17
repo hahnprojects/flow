@@ -128,12 +128,17 @@ export abstract class FlowElement<T = any> {
       pythonOptions: ['-u'],
       args: [__dirname, this.rpcRoutingKey, ...args.map((v) => v.toString())],
     };
-    return PythonShell.run(scriptPath, options, (err, outputs) => {
+
+    const pyshell = new PythonShell(scriptPath, options);
+    pyshell.on('message', (message) => {
+      this.logger.debug(message);
+    });
+    pyshell.end((err) => {
       if (err) {
         this.logger.error(err);
       }
-      this.logger.debug(outputs);
     });
+    return pyshell;
   }
 }
 

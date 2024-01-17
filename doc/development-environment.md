@@ -23,7 +23,7 @@ to be same as the version in the execution environment.
 This part can be skipped if you do not intend to use Python scripts in your Flow-Function.
 
 The Python code has to be run in a Python-interpreter. Available [here](https://www.python.org/downloads/)
-The Flow-Executor runs version 3.8, therefore we recommend running this version in the development environment
+The Flow-Executor runs version 3.12, therefore we recommend running this version in the development environment
 as well.
 
 ## RabbitMQ
