@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 6.0.0
+
+### Major Changes
+
+- 4dedfae: Updated python-shell to v5; Added support for Python v3.12
+
 ## 5.0.6
 
 ### Patch Changes

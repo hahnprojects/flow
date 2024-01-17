@@ -1,5 +1,16 @@
 # flow-module-examples
 
+## 1.5.0
+
+### Minor Changes
+
+- 4dedfae: Updated python-shell to v5; Added support for Python v3.12
+
+### Patch Changes
+
+- Updated dependencies [4dedfae]
+  - @hahnpro/flow-sdk@6.0.0
+
 ## 1.4.5
 
 ### Patch Changes
