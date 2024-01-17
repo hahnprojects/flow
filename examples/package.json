@@ -17,7 +17,7 @@
   "dependencies": {
     "@hahnpro/flow-sdk": "workspace:*",
     "class-validator": "0.14.1",
-    "python-shell": "3.0.1"
+    "python-shell": "5.0.0"
   },
   "devDependencies": {
     "@hahnpro/flow-cli": "workspace:*",

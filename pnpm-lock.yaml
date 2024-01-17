@@ -69,8 +69,8 @@ importers:
         specifier: 0.14.1
         version: 0.14.1
       python-shell:
-        specifier: 3.0.1
-        version: 3.0.1
+        specifier: 5.0.0
+        version: 5.0.0
     devDependencies:
       '@hahnpro/flow-cli':
         specifier: workspace:*
@@ -279,8 +279,8 @@ importers:
         specifier: ~2.6.3
         version: 2.6.3
       python-shell:
-        specifier: 3.0.1
-        version: 3.0.1
+        specifier: 5.0.0
+        version: 5.0.0
       reflect-metadata:
         specifier: 0.2.1
         version: 0.2.1
@@ -4993,8 +4993,8 @@ packages:
     resolution: {integrity: sha512-LA0Y9kxMYv47GIPJy6MI84fqTd2HmYZI83W/kM/SkKfDlajnZYfmXFTxkbY+xSBPkLJxltMa9hIkmdc29eguMA==}
     dev: true
 
-  /python-shell@3.0.1:
-    resolution: {integrity: sha512-TWeotuxe1auhXa5bGRScxnc2J+0r41NBntSa6RYZtMBLtAEsvCboKrEbW6DvASosWQepVkhZZlT3B5Ei766G+Q==}
+  /python-shell@5.0.0:
+    resolution: {integrity: sha512-RUOOOjHLhgR1MIQrCtnEqz/HJ1RMZBIN+REnpSUrfft2bXqXy69fwJASVziWExfFXsR1bCY0TznnHooNsCo0/w==}
     engines: {node: '>=0.10'}
     dev: false
 

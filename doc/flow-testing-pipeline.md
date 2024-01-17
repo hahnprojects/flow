@@ -53,7 +53,7 @@ stages:
 
 flow-modules:
   stage: test
-  image: nikolaik/python-nodejs:python3.8-nodejs14
+  image: nikolaik/python-nodejs:python3.12-nodejs20
   services:
     - rabbitmq:3
   before_script:
