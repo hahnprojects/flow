@@ -15,16 +15,16 @@
     "types": ["jest", "node"],
     "typeRoots": ["node_modules/@types"],
     "paths": {
-      "@hahnpro/hpc-api": ["packages/api/lib/index.ts"],
-    },
+      "@hahnpro/hpc-api": ["packages/api/lib/index.ts"]
+    }
   },
   "exclude": ["**/dist", "**/node_modules"],
   "references": [
     {
-      "path": "./packages/api/tsconfig.json",
+      "path": "./packages/api/tsconfig.json"
     },
     {
-      "path": "./packages/sdk/tsconfig.json",
-    },
-  ],
+      "path": "./packages/sdk/tsconfig.json"
+    }
+  ]
 }
