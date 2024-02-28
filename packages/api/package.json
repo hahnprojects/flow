@@ -35,7 +35,7 @@
     "jose": "5.2.2",
     "jwt-decode": "4.0.0",
     "p-queue": "6.6.2",
-    "ts-mixer": "6.0.3",
+    "ts-mixer": "6.0.4",
     "uuid": "9.0.1"
   },
   "devDependencies": {

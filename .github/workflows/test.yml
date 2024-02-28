@@ -34,7 +34,7 @@ jobs:
         node-version: [18.x, 20.x, 21.x]
     services:
       rabbitmq:
-        image: rabbitmq:3.12
+        image: rabbitmq:3.13
         ports:
           - 5672:5672
     steps:
@@ -75,7 +75,7 @@ jobs:
         python-version: [3.8.x, 3.9.x, 3.10.x, 3.11.x, 3.12.x]
     services:
       rabbitmq:
-        image: rabbitmq:3.12
+        image: rabbitmq:3.13
         ports:
           - 5672:5672
     steps:
