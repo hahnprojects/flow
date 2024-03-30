@@ -1,5 +1,13 @@
 # @hahnpro/flow-sdk
 
+## 6.0.1
+
+### Patch Changes
+
+- a6eebf2: Updated dependencies to reduce vulnerabilities
+- Updated dependencies [a6eebf2]
+  - @hahnpro/hpc-api@5.2.5
+
 ## 6.0.0
 
 ### Major Changes
