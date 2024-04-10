@@ -5,8 +5,8 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 import nconf from 'nconf';
 import open from 'open';
 import openidClient, { custom } from 'openid-client';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+import url from 'node:url';
 
 import { logger } from './utils.mjs';
 
@@ -16,11 +16,11 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET || process.env.API_KEY;
 const REALM = process.env.REALM;
 const BUFFER = 120;
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const viewsPath = join(__dirname, 'views');
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const viewsPath = path.join(__dirname, 'views');
 
 let server = null;
-nconf.file({ file: join(__dirname, 'config') });
+nconf.file({ file: path.join(__dirname, 'config') });
 
 if (process.env.https_proxy || process.env.http_proxy) {
   custom.setHttpOptionsDefaults({
