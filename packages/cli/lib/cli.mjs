@@ -15,7 +15,7 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import ora from 'ora';
-import { fileURLToPath } from 'node:url';
+import url from 'node:url';
 
 import { getAccessToken, login, logout } from './auth.mjs';
 import { handleApiError, handleConvertedOutput, logger, prepareTsFile } from './utils.mjs';
@@ -26,7 +26,7 @@ const require = createRequire(import.meta.url);
 const BASE_URL = process.env.BASE_URL || process.env.PLATFORM_URL;
 const BUILD_DIR = process.env.BUILD_DIR || 'dist';
 
-const __filename = fileURLToPath(import.meta.url);
+const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 let axios = Axios.create();
