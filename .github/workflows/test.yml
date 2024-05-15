@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 21.x]
+        node-version: [18.x, 20.x, 22.x]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 21.x]
+        node-version: [18.x, 20.x, 22.x]
     services:
       rabbitmq:
         image: rabbitmq:3.13
@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 21.x]
+        node-version: [18.x, 20.x, 22.x]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
