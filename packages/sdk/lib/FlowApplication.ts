@@ -181,7 +181,7 @@ export class FlowApplication {
     });
     this.amqpChannel && (await this.amqpChannel.waitForConnect());
 
-    if (!this._natsConnection) {
+    if (!this._natsConnection && this.natsConnectionConfig) {
       try {
         this._natsConnection = await createNatsConnection(this.natsConnectionConfig);
       } catch (err) {
