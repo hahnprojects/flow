@@ -17,6 +17,8 @@ import { FlowEvent } from './FlowEvent';
 import { FlowLogger, Logger } from './FlowLogger';
 import { RpcClient } from './RpcClient';
 import { delay, truncate } from './utils';
+import { NatsConnection } from 'nats';
+import { createNatsConnection, NatsConnectionConfig } from './nats';
 
 const MAX_EVENT_SIZE_BYTES = +process.env.MAX_EVENT_SIZE_BYTES || 512 * 1024; // 512kb
 const WARN_EVENT_PROCESSING_SEC = +process.env.WARN_EVENT_PROCESSING_SEC || 60;
@@ -33,6 +35,8 @@ interface FlowAppConfig {
   logger?: Logger;
   amqpConfig?: AmqpConnectionConfig;
   amqpConnection?: AmqpConnectionManager;
+  natsConfig?: NatsConnectionConfig;
+  natsConnection?: NatsConnection;
   apiClient?: HttpClient;
   skipApi?: boolean;
   explicitInit?: boolean;
@@ -44,6 +48,8 @@ export class FlowApplication {
   private _rpcClient: RpcClient;
   private amqpChannel: ChannelWrapper;
   private readonly amqpConnection: AmqpConnectionManager;
+  private readonly natsConnectionConfig?: NatsConnectionConfig;
+  private natsConnection?: NatsConnection;
   private readonly baseLogger: Logger;
   private context: FlowContext;
   private declarations: Record<string, ClassType<FlowElement>> = {};
@@ -79,6 +85,8 @@ export class FlowApplication {
       const config = baseLoggerOrConfig as FlowAppConfig;
       this.baseLogger = config.logger;
       this.amqpConnection = config.amqpConnection || createAmqpConnection(config.amqpConfig);
+      this.natsConnectionConfig = config.natsConfig;
+      this.natsConnection = config.natsConnection;
       this.skipApi = config.skipApi || false;
       explicitInit = config.explicitInit || false;
       this._api = config.mockApi || null;
@@ -127,6 +135,10 @@ export class FlowApplication {
     return this._api;
   }
 
+  get nats(): NatsConnection {
+    return this.natsConnection;
+  }
+
   public async init() {
     if (this.initialized) return;
 
@@ -168,6 +180,14 @@ export class FlowApplication {
       },
     });
     this.amqpChannel && (await this.amqpChannel.waitForConnect());
+
+    if (!this.natsConnection) {
+      try {
+        this.natsConnection = await createNatsConnection(this.natsConnectionConfig);
+      } catch (err) {
+        await logErrorAndExit(`Could not connect to the NATS-Servers: ${err}`);
+      }
+    }
 
     for (const module of this.modules) {
       const moduleName = Reflect.getMetadata('module:name', module);
