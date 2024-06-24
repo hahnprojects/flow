@@ -49,7 +49,7 @@ export class FlowApplication {
   private amqpChannel: ChannelWrapper;
   private readonly amqpConnection: AmqpConnectionManager;
   private readonly natsConnectionConfig?: NatsConnectionConfig;
-  private natsConnection?: NatsConnection;
+  private _natsConnection?: NatsConnection;
   private readonly baseLogger: Logger;
   private context: FlowContext;
   private declarations: Record<string, ClassType<FlowElement>> = {};
@@ -86,7 +86,7 @@ export class FlowApplication {
       this.baseLogger = config.logger;
       this.amqpConnection = config.amqpConnection || createAmqpConnection(config.amqpConfig);
       this.natsConnectionConfig = config.natsConfig;
-      this.natsConnection = config.natsConnection;
+      this._natsConnection = config.natsConnection;
       this.skipApi = config.skipApi || false;
       explicitInit = config.explicitInit || false;
       this._api = config.mockApi || null;
@@ -135,8 +135,8 @@ export class FlowApplication {
     return this._api;
   }
 
-  get nats(): NatsConnection {
-    return this.natsConnection;
+  get natsConnection(): NatsConnection {
+    return this._natsConnection;
   }
 
   public async init() {
@@ -181,9 +181,9 @@ export class FlowApplication {
     });
     this.amqpChannel && (await this.amqpChannel.waitForConnect());
 
-    if (!this.natsConnection) {
+    if (!this._natsConnection) {
       try {
-        this.natsConnection = await createNatsConnection(this.natsConnectionConfig);
+        this._natsConnection = await createNatsConnection(this.natsConnectionConfig);
       } catch (err) {
         await logErrorAndExit(`Could not connect to the NATS-Servers: ${err}`);
       }
