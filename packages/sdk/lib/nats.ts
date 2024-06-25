@@ -1,16 +1,6 @@
 import { connect, ConnectionOptions, NatsConnection } from 'nats';
 
-export interface NatsConnectionConfig {
-  readonly servers: string[];
-  readonly reconnect?: boolean;
-  readonly maxReconnectAttempts?: number;
-  readonly reconnectTimeWait?: number;
-  readonly timeout?: number;
-  readonly user?: string;
-  readonly pass?: string;
-}
-
-export async function createNatsConnection(config: NatsConnectionConfig): Promise<NatsConnection> {
+export async function createNatsConnection(config: ConnectionOptions): Promise<NatsConnection> {
   if (!config) {
     return;
   }

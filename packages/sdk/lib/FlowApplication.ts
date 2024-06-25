@@ -17,8 +17,8 @@ import { FlowEvent } from './FlowEvent';
 import { FlowLogger, Logger } from './FlowLogger';
 import { RpcClient } from './RpcClient';
 import { delay, truncate } from './utils';
-import { NatsConnection } from 'nats';
-import { createNatsConnection, NatsConnectionConfig } from './nats';
+import { NatsConnection, ConnectionOptions as NatsConnectionOptions } from 'nats';
+import { createNatsConnection } from './nats';
 
 const MAX_EVENT_SIZE_BYTES = +process.env.MAX_EVENT_SIZE_BYTES || 512 * 1024; // 512kb
 const WARN_EVENT_PROCESSING_SEC = +process.env.WARN_EVENT_PROCESSING_SEC || 60;
@@ -35,7 +35,7 @@ interface FlowAppConfig {
   logger?: Logger;
   amqpConfig?: AmqpConnectionConfig;
   amqpConnection?: AmqpConnectionManager;
-  natsConfig?: NatsConnectionConfig;
+  natsConfig?: NatsConnectionOptions;
   natsConnection?: NatsConnection;
   apiClient?: HttpClient;
   skipApi?: boolean;
@@ -48,7 +48,7 @@ export class FlowApplication {
   private _rpcClient: RpcClient;
   private amqpChannel: ChannelWrapper;
   private readonly amqpConnection: AmqpConnectionManager;
-  private readonly natsConnectionConfig?: NatsConnectionConfig;
+  private readonly natsConnectionConfig?: NatsConnectionOptions;
   private _natsConnection?: NatsConnection;
   private readonly baseLogger: Logger;
   private context: FlowContext;
@@ -69,6 +69,7 @@ export class FlowApplication {
     flow: Flow,
     baseLogger?: Logger,
     amqpConnection?: AmqpConnection,
+    natsConnection?: NatsConnection,
     skipApi?: boolean,
     explicitInit?: boolean,
   );
@@ -77,6 +78,7 @@ export class FlowApplication {
     private flow: Flow,
     baseLoggerOrConfig?: Logger | FlowAppConfig,
     amqpConnection?: AmqpConnection,
+    natsConnection?: NatsConnection,
     skipApi?: boolean,
     explicitInit?: boolean,
     mockApi?: MockAPI,
@@ -94,6 +96,7 @@ export class FlowApplication {
     } else {
       this.baseLogger = baseLoggerOrConfig as Logger;
       this.amqpConnection = amqpConnection?.managedConnection;
+      this._natsConnection = natsConnection;
       this.skipApi = skipApi || false;
       explicitInit = explicitInit || false;
       this._api = mockApi || null;
@@ -159,6 +162,15 @@ export class FlowApplication {
       await this.destroy(1);
     };
 
+    if (!this._natsConnection && this.natsConnectionConfig) {
+      try {
+        await this._natsConnection?.close();
+        this._natsConnection = await createNatsConnection(this.natsConnectionConfig);
+      } catch (err) {
+        await logErrorAndExit(`Could not connect to the NATS-Servers: ${err}`);
+      }
+    }
+
     this.amqpChannel = this.amqpConnection?.createChannel({
       json: true,
       setup: async (channel: Channel) => {
@@ -180,14 +192,6 @@ export class FlowApplication {
       },
     });
     this.amqpChannel && (await this.amqpChannel.waitForConnect());
-
-    if (!this._natsConnection && this.natsConnectionConfig) {
-      try {
-        this._natsConnection = await createNatsConnection(this.natsConnectionConfig);
-      } catch (err) {
-        await logErrorAndExit(`Could not connect to the NATS-Servers: ${err}`);
-      }
-    }
 
     for (const module of this.modules) {
       const moduleName = Reflect.getMetadata('module:name', module);
