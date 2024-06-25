@@ -37,6 +37,10 @@ jobs:
         image: rabbitmq:3.13
         ports:
           - 5672:5672
+      nats:
+        image: docker.io/nats:2.9.20
+        ports:
+          - 4222:4222
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -78,6 +82,10 @@ jobs:
         image: rabbitmq:3.13
         ports:
           - 5672:5672
+      nats:
+        image: docker.io/nats:2.9.20
+        ports:
+          - 4222:4222
     steps:
       - name: Checkout
         uses: actions/checkout@v4
