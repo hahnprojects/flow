@@ -5,6 +5,7 @@ import { setTimeout } from 'timers/promises';
 import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
 import { loggerMock } from './logger.mock';
 import { MockAPI } from '../../api/lib/mock/api.mock';
+import { connect } from 'nats';
 
 describe('Flow Application', () => {
   afterEach(() => {
@@ -318,6 +319,40 @@ describe('Flow Application', () => {
     const flowApp = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, mockApi: new MockAPI({}) });
 
     expect(flowApp.api).toBeInstanceOf(MockAPI);
+  });
+
+  it('FLOW.FA.11 should take the standard order of parameters', async () => {
+    const flow = {
+      elements: [{ id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' }],
+      connections: [],
+      context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
+    };
+
+    const flowApp1 = new FlowApplication([TestModule], flow, { skipApi: true });
+    expect(flowApp1.api).toBeNull();
+    expect(flowApp1.natsConnection).toBeUndefined();
+
+    const flowApp2 = new FlowApplication([TestModule], flow, { skipApi: true, amqpConfig: {}, natsConfig: {}, explicitInit: true });
+    await flowApp2.init();
+    expect(flowApp2.natsConnection).toBeDefined();
+  }, 60000);
+
+  it('FLOW.FA.12 should take positional parameters', async () => {
+    const flow = {
+      elements: [{ id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' }],
+      connections: [],
+      context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
+    };
+
+    const flowApp1 = new FlowApplication([TestModule], flow, null, null, null, true, false);
+    expect(flowApp1.api).toBeNull();
+    expect(flowApp1.natsConnection).toBeNull();
+
+    const natsConnection = await connect();
+    const flowApp2 = new FlowApplication([TestModule], flow, null, null, natsConnection, true, true);
+    await flowApp2.init();
+
+    expect(flowApp2.natsConnection).toBeDefined();
   });
 });
 
