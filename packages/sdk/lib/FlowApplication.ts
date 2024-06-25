@@ -69,19 +69,19 @@ export class FlowApplication {
     flow: Flow,
     baseLogger?: Logger,
     amqpConnection?: AmqpConnection,
+    natsConnection?: NatsConnection,
     skipApi?: boolean,
     explicitInit?: boolean,
-    natsConnection?: NatsConnection,
   );
   constructor(
     private modules: ClassType<any>[],
     private flow: Flow,
     baseLoggerOrConfig?: Logger | FlowAppConfig,
     amqpConnection?: AmqpConnection,
+    natsConnection?: NatsConnection,
     skipApi?: boolean,
     explicitInit?: boolean,
     mockApi?: MockAPI,
-    natsConnection?: NatsConnection,
   ) {
     if (baseLoggerOrConfig && !(baseLoggerOrConfig as Logger).log) {
       const config = baseLoggerOrConfig as FlowAppConfig;

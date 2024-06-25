@@ -190,7 +190,7 @@ describe('Flow Application', () => {
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'highEluTask' }],
       context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
     };
-    const flowApp = new FlowApplication([TestModule], flow, loggerMock, null, true);
+    const flowApp = new FlowApplication([TestModule], flow, loggerMock, null, null, true);
 
     flowApp.subscribe('highEluTask.default', {
       next: async (event: FlowEvent) => {
