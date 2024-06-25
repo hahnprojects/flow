@@ -164,7 +164,6 @@ export class FlowApplication {
 
     if (!this._natsConnection && this.natsConnectionConfig) {
       try {
-        await this._natsConnection?.close();
         this._natsConnection = await createNatsConnection(this.natsConnectionConfig);
       } catch (err) {
         await logErrorAndExit(`Could not connect to the NATS-Servers: ${err}`);
