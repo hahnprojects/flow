@@ -40,6 +40,10 @@ export abstract class FlowElement<T = any> {
     return this.app?.getProperties?.() || {};
   }
 
+  get natsConnection() {
+    return this.app?.natsConnection;
+  }
+
   public onDestroy?: () => void;
 
   public onMessage?: (message: DeploymentMessage) => void;
