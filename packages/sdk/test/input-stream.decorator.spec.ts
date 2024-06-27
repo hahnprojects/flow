@@ -75,7 +75,7 @@ describe('InputStreamDecorator', () => {
         }),
       },
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, true, true);
+    const flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, null, true, true);
     await flowApp.init();
 
     const done = new Promise<void>((resolve, reject) => {
