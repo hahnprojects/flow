@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 7.0.0
+
+### Major Changes
+
+- 2661950: Added a nats connections with config
+
 ## 6.0.2
 
 ### Patch Changes
