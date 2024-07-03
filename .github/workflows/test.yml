@@ -38,7 +38,7 @@ jobs:
         ports:
           - 5672:5672
       nats:
-        image: docker.io/nats:2.10.17
+        image: docker.io/nats:2.10
         ports:
           - 4222:4222
     steps:
@@ -83,7 +83,7 @@ jobs:
         ports:
           - 5672:5672
       nats:
-        image: docker.io/nats:2.10.17
+        image: docker.io/nats:2.10
         ports:
           - 4222:4222
     steps:
