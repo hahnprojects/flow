@@ -17,8 +17,7 @@ import { FlowEvent } from './FlowEvent';
 import { FlowLogger, Logger } from './FlowLogger';
 import { RpcClient } from './RpcClient';
 import { delay, truncate } from './utils';
-import { NatsConnection, ConnectionOptions as NatsConnectionOptions } from 'nats';
-import { createNatsConnection } from './nats';
+import { connect, NatsConnection, ConnectionOptions as NatsConnectionOptions } from 'nats';
 
 const MAX_EVENT_SIZE_BYTES = +process.env.MAX_EVENT_SIZE_BYTES || 512 * 1024; // 512kb
 const WARN_EVENT_PROCESSING_SEC = +process.env.WARN_EVENT_PROCESSING_SEC || 60;
@@ -164,7 +163,7 @@ export class FlowApplication {
 
     if (!this._natsConnection && this.natsConnectionConfig) {
       try {
-        this._natsConnection = await createNatsConnection(this.natsConnectionConfig);
+        this._natsConnection = await connect(this.natsConnectionConfig);
       } catch (err) {
         await logErrorAndExit(`Could not connect to the NATS-Servers: ${err}`);
       }
@@ -502,6 +501,7 @@ export class FlowApplication {
       // allow time for logs to be processed
       await delay(250);
       this.amqpConnection && (await this.amqpConnection.close());
+      this.natsConnection && (await this.natsConnection.close());
     } catch (err) {
       /* eslint-disable-next-line no-console */
       console.error(err);

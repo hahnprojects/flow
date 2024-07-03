@@ -14,19 +14,8 @@ export interface AmqpConnectionConfig {
   port?: number;
 }
 
-export function createAmqpConnection(config: AmqpConnectionConfig): AmqpConnectionManager {
-  if (!config) {
-    return;
-  }
-
-  const {
-    protocol = process.env.RABBIT_PROTOCOL || 'amqp',
-    hostname = process.env.RABBIT_HOST || 'localhost',
-    port = +process.env.RABBIT_PORT || 5672,
-    user = process.env.RABBIT_USER || 'guest',
-    password = process.env.RABBIT_PASSWORD || 'guest',
-    vhost = process.env.RABBIT_VHOST || '',
-  } = config;
+export function createAmqpConnection(config: AmqpConnectionConfig = {}): AmqpConnectionManager {
+  const { protocol = 'amqp', hostname = 'localhost', port = 5672, user = 'guest', password = 'guest', vhost } = config;
   const uri = `${protocol}://${user}:${password}@${hostname}:${port}${vhost ? '/' + vhost : ''}`;
   return connect(uri);
 }
