@@ -1,5 +1,13 @@
 # flow-module-examples
 
+## 1.5.4
+
+### Patch Changes
+
+- 713ccbd: Updated dependencies to reduce vulnerabilities
+- Updated dependencies [713ccbd]
+  - @hahnpro/flow-sdk@7.0.1
+
 ## 1.5.3
 
 ### Patch Changes
