@@ -180,7 +180,7 @@ export function FlowFunction(fqn: string): ClassDecorator {
     throw new Error(`Flow Function FQN (${fqn}) is not valid`);
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   return <TFunction extends Function>(target: TFunction): TFunction | void => {
     Reflect.defineMetadata('element:functionFqn', fqn, target);
     target.prototype.functionFqn = fqn;

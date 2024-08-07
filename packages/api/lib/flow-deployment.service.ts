@@ -60,7 +60,11 @@ export class FlowDeploymentService extends BaseService {
           ['running', 'deployment failed', 'deleted', 'generating failed', 'updating failed', 'upgrading failed'].includes(event.data)
         ) {
           this.httpClient.destroyEventSource(esId);
-          event.data === 'running' ? resolve() : reject(`Deployment in failed status: ${event.data}`);
+          if (event.data === 'running') {
+            resolve();
+          } else {
+            reject(`Deployment in failed status: ${event.data}`);
+          }
         }
       });
     });

@@ -190,7 +190,10 @@ export class FlowApplication {
         }
       },
     });
-    this.amqpChannel && (await this.amqpChannel.waitForConnect());
+
+    if (this.amqpChannel) {
+      await this.amqpChannel.waitForConnect();
+    }
 
     for (const module of this.modules) {
       const moduleName = Reflect.getMetadata('module:name', module);
@@ -495,13 +498,17 @@ export class FlowApplication {
         for (const element of Object.values(this.elements)) {
           element?.onDestroy?.();
         }
-        this._rpcClient && (await this._rpcClient.close());
+        if (this._rpcClient) {
+          await this._rpcClient.close();
+        }
       } catch (err) {
         this.logger.error(err);
       }
       // allow time for logs to be processed
       await delay(250);
-      this.amqpConnection && (await this.amqpConnection.close());
+      if (this.amqpConnection) {
+        await this.amqpConnection.close();
+      }
     } catch (err) {
       /* eslint-disable-next-line no-console */
       console.error(err);
