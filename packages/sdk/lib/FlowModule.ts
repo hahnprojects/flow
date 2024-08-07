@@ -8,7 +8,7 @@ export function FlowModule(metadata: { name: string; declarations: Array<ClassTy
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   return <TFunction extends Function>(target: TFunction): TFunction | void => {
     Reflect.defineMetadata('module:name', metadata.name, target);
     Reflect.defineMetadata('module:declarations', metadata.declarations, target);
