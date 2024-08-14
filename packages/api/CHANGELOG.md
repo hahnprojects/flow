@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 5.2.8
+
+### Patch Changes
+
+- 4a1d52d: updated axios for vulnerability
+
 ## 5.2.7
 
 ### Patch Changes

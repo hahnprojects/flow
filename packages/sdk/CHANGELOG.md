@@ -1,5 +1,13 @@
 # @hahnpro/flow-sdk
 
+## 7.0.2
+
+### Patch Changes
+
+- 4a1d52d: updated axios for vulnerability
+- Updated dependencies [4a1d52d]
+  - @hahnpro/hpc-api@5.2.8
+
 ## 7.0.1
 
 ### Patch Changes

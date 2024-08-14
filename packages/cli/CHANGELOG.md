@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.17.5
+
+### Patch Changes
+
+- 4a1d52d: updated axios for vulnerability
+
 ## 2.17.4
 
 ### Patch Changes
