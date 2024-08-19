@@ -130,4 +130,23 @@ describe('HTTP Service', () => {
     await client.get<any>('/assets');
     expect(axiosMock.history.post.length).toBe(3);
   });
+
+  it('FLOW.HS.10 should exchange token', async () => {
+    axiosMock
+      .onPost('/realms/test/protocol/openid-connect/token')
+      .replyOnce(200, {
+        access_token: 'TOKEN',
+        expires_in: '123456',
+      })
+      .onPost('/realms/test/protocol/openid-connect/token')
+      .replyOnce(200, {
+        access_token: 'EXCHANGED_TOKEN',
+        expires_in: '123456',
+      });
+
+    axiosMock.onGet('/api/assets').abortRequest();
+    const client = new HttpClient('/api', 'https://test.com', 'test', 'test-client', 'test-secret', 'test-user');
+    const token = await client.getAccessToken();
+    expect(token).toBe('EXCHANGED_TOKEN');
+  });
 });

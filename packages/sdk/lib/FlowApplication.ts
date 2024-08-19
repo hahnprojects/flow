@@ -151,7 +151,12 @@ export class FlowApplication {
     try {
       if (!this.skipApi && !(this._api instanceof MockAPI)) {
         // only create real API if it should not be skipped and is not already a mock
-        this._api = new API(this.apiClient);
+        let tokenSubject: string;
+        const { owner, runAsOwner } = this.context;
+        if (runAsOwner && owner) {
+          tokenSubject = owner.type === 'org' ? 'org-admin-' + owner.id : owner.id;
+        }
+        this._api = new API(this.apiClient, { tokenSubject });
       }
     } catch (err) {
       this.logger.error(err?.message || err);

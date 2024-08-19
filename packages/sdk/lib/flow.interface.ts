@@ -1,7 +1,11 @@
+import { Owner } from '@hahnpro/hpc-api';
+
 export interface FlowContext {
   deploymentId?: string;
   diagramId?: string;
   flowId?: string;
+  owner?: Owner;
+  runAsOwner?: boolean;
 }
 
 export interface FlowElementContext extends FlowContext {

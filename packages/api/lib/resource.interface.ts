@@ -6,6 +6,7 @@ export interface ResourceReference {
 
 export interface Resource {
   id: string;
+  owner?: Owner;
   name: string;
   readPermissions: string[];
   readWritePermissions: string[];
@@ -17,4 +18,18 @@ export interface Resource {
   updatedAt?: string | Date;
   deletedAt?: string | Date;
   revision?: string;
+  createdBy?: Author;
+  updatedBy?: Author;
+}
+
+export interface Author {
+  id: string;
+  username: string;
+  impersonatorId?: string;
+  impersonatorUsername?: string;
+}
+
+export interface Owner {
+  id: string;
+  type: 'org' | 'user';
 }

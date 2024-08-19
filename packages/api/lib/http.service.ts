@@ -12,6 +12,7 @@ export class HttpClient {
   protected readonly authAxiosInstance: AxiosInstance;
   protected readonly requestQueue: Queue;
   private tokenSet: TokenSet;
+  private exchangedTokenSet: TokenSet;
 
   public eventSourcesMap: Map<
     string,
@@ -24,6 +25,7 @@ export class HttpClient {
     protected readonly realm: string,
     protected readonly clientId: string,
     protected readonly clientSecret: string,
+    protected readonly tokenSubject?: string,
   ) {
     this.axiosInstance = axios.create({ baseURL, timeout: 60000 });
     this.authAxiosInstance = axios.create({ baseURL: authBaseURL || baseURL, timeout: 10000 });
@@ -88,10 +90,22 @@ export class HttpClient {
   }
 
   public getAccessToken = async (forceRefresh = false): Promise<string> => {
+    let accessToken: string;
     if (forceRefresh || !this.tokenSet || this.tokenSet.isExpired()) {
-      return this.requestAccessToken();
+      this.tokenSet = await this.requestAccessToken();
+      accessToken = this.tokenSet.accessToken;
+    } else {
+      accessToken = this.tokenSet.accessToken;
     }
-    return this.tokenSet.accessToken;
+
+    if (this.tokenSubject) {
+      if (forceRefresh || !this.exchangedTokenSet || this.exchangedTokenSet.isExpired()) {
+        this.exchangedTokenSet = await this.exchangeAccessToken(accessToken);
+      }
+      return this.exchangedTokenSet.accessToken;
+    } else {
+      return accessToken;
+    }
   };
 
   protected validateIssuer(issuer: Issuer): Issuer {
@@ -115,7 +129,7 @@ export class HttpClient {
     return this.validateIssuer(issuerResponse.data);
   }
 
-  protected async requestAccessToken(): Promise<string> {
+  protected async requestAccessToken(additionalOpts = {}): Promise<TokenSet> {
     const issuer = await this.discoverIssuer(`${this.authBaseURL}/realms/${this.realm}`);
 
     const timestamp = Date.now() / 1000;
@@ -148,17 +162,32 @@ export class HttpClient {
       client_assertion: assertion,
       client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
       grant_type: 'client_credentials',
+      ...additionalOpts,
     };
     const authResponse = await this.authAxiosInstance.post(issuer.token_endpoint, stringify(opts), {
       headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
     });
 
     if (authResponse?.data?.access_token && authResponse.data.expires_in) {
-      this.tokenSet = new TokenSet(authResponse.data.access_token, authResponse.data.expires_in);
-      return authResponse.data.access_token;
+      return new TokenSet(authResponse.data.access_token, authResponse.data.expires_in);
     } else {
       throw new Error('Invalid access token received');
     }
+  }
+
+  protected async exchangeAccessToken(accessToken: string): Promise<TokenSet> {
+    if (!accessToken || !this.tokenSubject) {
+      throw new Error('Could not exchange access token');
+    }
+
+    const opts = {
+      grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+      subject_token: accessToken,
+      audience: this.clientId,
+      requested_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+      requested_subject: this.tokenSubject,
+    };
+    return this.requestAccessToken(opts);
   }
 }
 
