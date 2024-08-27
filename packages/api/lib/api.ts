@@ -36,7 +36,10 @@ export class API {
   public vault: VaultService;
   public notifications: NotificationService;
 
-  constructor(public readonly httpClient?: HttpClient) {
+  constructor(
+    public readonly httpClient?: HttpClient,
+    context?: { tokenSubject?: string },
+  ) {
     if (!httpClient) {
       // remove leading and trailing slashes
       const normalizePath = (value = '', defaultValue = '') => value.replace(/(?:^\/+)|(?:\/+$)/g, '') || defaultValue;
@@ -56,8 +59,7 @@ export class API {
       if (!secret) {
         throw new Error('"API_BASE_URL", "API_USER", "AUTH_REALM" and "AUTH_SECRET" environment variables must be set');
       }
-
-      this.httpClient = new HttpClient(apiUrl, authUrl, realm, client, secret);
+      this.httpClient = new HttpClient(apiUrl, authUrl, realm, client, secret, context?.tokenSubject);
     }
 
     this.assets = new AssetService(this.httpClient);
