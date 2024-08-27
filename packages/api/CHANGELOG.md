@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 5.3.0
+
+### Minor Changes
+
+- 0ce38af: Allow Flow-Deployments to be run with owners permissions
+
 ## 5.2.8
 
 ### Patch Changes

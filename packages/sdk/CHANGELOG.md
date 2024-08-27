@@ -1,5 +1,16 @@
 # @hahnpro/flow-sdk
 
+## 7.1.0
+
+### Minor Changes
+
+- 0ce38af: Allow Flow-Deployments to be run with owners permissions
+
+### Patch Changes
+
+- Updated dependencies [0ce38af]
+  - @hahnpro/hpc-api@5.3.0
+
 ## 7.0.2
 
 ### Patch Changes
