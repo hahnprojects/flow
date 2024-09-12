@@ -10,4 +10,6 @@ export * from './FlowModule';
 export * from './TestModule';
 export * from './unit-decorators';
 
+export * from './ContextManager';
+
 export { IncompatableWith } from './extra-validators';
