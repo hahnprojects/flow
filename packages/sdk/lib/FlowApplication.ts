@@ -443,7 +443,6 @@ export class FlowApplication {
         }
         for (const element of flow.elements || []) {
           this.elements?.[element.id]?.onPropertiesChanged(
-            // run recursively through all properties and interpolate them / replace them with their explicit value
             this.contextManager.replaceAllFlowProperties(element.properties),
           );
         }

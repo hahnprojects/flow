@@ -121,7 +121,7 @@ export abstract class FlowElement<T = any> {
   }
 
   protected interpolate = (value: any, ...templateVariables: any) =>
-    fillTemplate(value, { ...templateVariables, flow: this.app?.getContextManager().getProperties().flow });
+    fillTemplate(value, ...templateVariables, this.app?.getContextManager().getProperties().flow ?? {});
 
   protected async callRpcFunction(functionName: string, ...args: any[]) {
     return this.app?.rpcClient.callFunction(this.rpcRoutingKey, functionName, ...args);
