@@ -1,6 +1,7 @@
 import isPlainObject from 'lodash/isPlainObject';
 import { Logger } from './FlowLogger';
 import interp from 'string-interp';
+import { get, set } from 'lodash';
 
 /**
  * Class representing a context manager for handling properties.
@@ -39,29 +40,29 @@ export class ContextManager {
   /**
    * Set a property.
    * A property key starting with "flow." is reserved for the properties set by in UI and so it is not allowed to be set.
-   * @param {string} key - The key of the property.
+   * @param {string} keyOrPath - The key or the path of the property.
    * @param {any} value - The value of the property.
    */
-  public set(key: string, value: any): void {
-    if (key.startsWith('flow.')) {
+  public set(keyOrPath: string, value: any): void {
+    if (keyOrPath.startsWith('flow.')) {
       this.logger.error(
-        `Set property of "${key}" is not allowed, because it starts with "flow.", so it is reserved for the properties set by in UI.`,
+        `Set property of "${keyOrPath}" is not allowed, because it starts with "flow.", so it is reserved for the properties set by in UI.`,
       );
     } else {
-      if (this.properties[key] !== undefined) {
-        this.logger.warn(`Property with key "${key}" is already set, it will be overwritten.`);
+      if (get(this.properties, keyOrPath) !== undefined) {
+        this.logger.warn(`Property with key "${keyOrPath}" is already set, it will be overwritten.`);
       }
-      this.properties[key] = value;
+      set(this.properties, keyOrPath, value);
     }
   }
 
   /**
    * Get a property value by key.
-   * @param {string} key - The key of the property.
+   * @param {string} keyOrPath - The key or the path of the property.
    * @returns {any} The value of the property.
    */
-  public get(key: string): any {
-    return this.properties[key];
+  public get(keyOrPath: string): any {
+    return get(this.properties, keyOrPath, undefined);
   }
 
   public replaceAllFlowProperties(properties: any) {
