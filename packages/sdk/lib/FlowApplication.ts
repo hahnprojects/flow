@@ -442,9 +442,7 @@ export class FlowApplication {
           }
         }
         for (const element of flow.elements || []) {
-          this.elements?.[element.id]?.onPropertiesChanged(
-            this.contextManager.replaceAllFlowProperties(element.properties),
-          );
+          this.elements?.[element.id]?.onPropertiesChanged(this.contextManager.replaceAllFlowProperties(element.properties));
         }
 
         const statusEvent = {
