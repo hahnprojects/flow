@@ -49,9 +49,6 @@ export class ContextManager {
         `Set property of "${keyOrPath}" is not allowed, because it starts with "flow.", so it is reserved for the properties set by in UI.`,
       );
     } else {
-      if (get(this.properties, keyOrPath) !== undefined) {
-        this.logger.warn(`Property with key "${keyOrPath}" is already set, it will be overwritten.`);
-      }
       set(this.properties, keyOrPath, value);
     }
   }
