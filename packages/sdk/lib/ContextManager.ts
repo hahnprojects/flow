@@ -69,21 +69,21 @@ export class ContextManager {
   }
 }
 
-export function flowInterpolate(value, flowProperties) {
-  if (!flowProperties) {
+export function flowInterpolate(value: any, properties: Record<string, any>): any {
+  if (!properties) {
     return value;
   }
   if (isPlainObject(value)) {
     for (const key of Object.keys(value)) {
-      value[key] = flowInterpolate(value[key], flowProperties);
+      value[key] = flowInterpolate(value[key], properties);
     }
     return value;
   } else if (Array.isArray(value) && value.length > 0) {
     value.forEach(function (v, index) {
-      this[index] = flowInterpolate(v, flowProperties);
+      this[index] = flowInterpolate(v, properties);
     }, value);
     return value;
-  } else if (value != null && typeof value === 'string') {
+  } else if (value != null && typeof value === 'string' && value.startsWith('${')) {
     // get ${...} blocks and replace the ones that start with flow. in a new string
     const blockRegEx = /\$\{\s*(\S+)\s*}/g;
     let newValue = value;
@@ -91,7 +91,7 @@ export function flowInterpolate(value, flowProperties) {
     do {
       m = blockRegEx.exec(value);
       if (m?.[1].startsWith('flow.')) {
-        newValue = newValue.replace(m[0], interpolate(m[0], { flow: flowProperties }));
+        newValue = newValue.replace(m[0], interpolate(m[0], { flow: properties.flow }));
       }
     } while (m);
     return newValue;
