@@ -15,6 +15,7 @@ export abstract class FlowElement<T = any> {
   protected readonly logger: FlowLogger;
   protected metadata: FlowElementContext;
   protected properties: T;
+  private propertiesWithPlaceholders: T;
   private readonly app?: FlowApplication;
   private readonly rpcRoutingKey: string;
 
@@ -36,6 +37,21 @@ export abstract class FlowElement<T = any> {
     }
   }
 
+  /**
+   * Sets the placeholder properties for this flow element
+   * @param propertiesWithPlaceholders
+   */
+  public setPropertiesWithPlaceholders(propertiesWithPlaceholders: T) {
+    this.propertiesWithPlaceholders = propertiesWithPlaceholders;
+  }
+
+  /**
+   * Returns the placeholder properties for this flow element
+   */
+  public getPropertiesWithPlaceholders() {
+    return this.propertiesWithPlaceholders;
+  }
+
   get flowProperties() {
     return this.app?.getProperties?.() || {};
   }
@@ -47,6 +63,16 @@ export abstract class FlowElement<T = any> {
   public onDestroy?: () => void;
 
   public onMessage?: (message: DeploymentMessage) => void;
+
+  /**
+   * Replace all placeholder properties with their explicit updated value and set them as the properties of the element
+   */
+  public replacePlaceholderAndSetProperties() {
+    const placeholderProperties = this.propertiesWithPlaceholders;
+    if (this.propertiesWithPlaceholders) {
+      this.setProperties(this.app.getContextManager()?.replaceAllPlaceholderProperties(placeholderProperties));
+    }
+  }
 
   public onFlowPropertiesChanged?: (properties: Record<string, any>) => void;
 

@@ -1,7 +1,6 @@
-import isPlainObject from 'lodash/isPlainObject';
 import { Logger } from './FlowLogger';
-import interp from 'string-interp';
-import { get, set } from 'lodash';
+import { cloneDeep, get, set } from 'lodash';
+import { fillTemplate } from './utils';
 
 /**
  * Class representing a context manager for handling properties.
@@ -62,46 +61,7 @@ export class ContextManager {
     return get(this.properties, keyOrPath, undefined);
   }
 
-  public replaceAllFlowProperties(properties: any) {
-    return flowInterpolate(properties, this.properties);
-  }
-}
-
-export function flowInterpolate(value: any, properties: Record<string, any>): any {
-  if (!properties) {
-    return value;
-  }
-  if (isPlainObject(value)) {
-    for (const key of Object.keys(value)) {
-      value[key] = flowInterpolate(value[key], properties);
-    }
-    return value;
-  } else if (Array.isArray(value) && value.length > 0) {
-    value.forEach(function (v, index) {
-      this[index] = flowInterpolate(v, properties);
-    }, value);
-    return value;
-  } else if (value != null && typeof value === 'string' && value.startsWith('${')) {
-    // get ${...} blocks and replace the ones that start with flow. in a new string
-    const blockRegEx = /\$\{\s*(\S+)\s*}/g;
-    let newValue = value;
-    let m: RegExpExecArray;
-    do {
-      m = blockRegEx.exec(value);
-      if (m?.[1].startsWith('flow.')) {
-        newValue = newValue.replace(m[0], interpolate(m[0], { flow: properties.flow }));
-      }
-    } while (m);
-    return newValue;
-  } else {
-    return value;
-  }
-}
-
-function interpolate(text: string, templateVariables: Record<string, any>): string {
-  try {
-    return interp(text, templateVariables) ?? text;
-  } catch (err) {
-    return text;
+  public replaceAllPlaceholderProperties(properties: any) {
+    return fillTemplate(cloneDeep(properties), this.properties);
   }
 }

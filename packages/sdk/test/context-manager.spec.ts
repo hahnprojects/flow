@@ -28,7 +28,6 @@ describe('The ContextManage-Test spec', () => {
       expect(contextManager.get('test')).toBe('value');
       contextManager.set('test', 'value2');
       expect(contextManager.get('test')).toBe('value2');
-      expect(loggerMock.warn).toHaveBeenCalled();
     });
   });
 

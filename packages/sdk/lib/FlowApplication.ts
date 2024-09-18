@@ -9,6 +9,7 @@ import sizeof from 'object-sizeof';
 import { EventLoopUtilization, performance } from 'perf_hooks';
 import { PartialObserver, Subject } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
+import { cloneDeep } from 'lodash';
 
 import { AmqpConnection, AmqpConnectionConfig, createAmqpConnection } from './amqp';
 import { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, LifecycleEvent, StreamOptions } from './flow.interface';
@@ -236,8 +237,9 @@ export class FlowApplication {
         this.elements[id] = new this.declarations[`${module}.${functionFqn}`](
           context,
           // run recursively through all properties and interpolate them / replace them with their explicit value
-          this.contextManager.replaceAllFlowProperties(properties),
+          this.contextManager.replaceAllPlaceholderProperties(properties),
         );
+        this.elements[id].setPropertiesWithPlaceholders(cloneDeep(properties));
       } catch (err) {
         await logErrorAndExit(`Could not create FlowElement for ${module}.${functionFqn}`);
         return;
@@ -424,25 +426,25 @@ export class FlowApplication {
           context = this.context;
         }
         if (flow.properties) {
-          this.contextManager.overwriteAllProperties(flow.properties);
-
-          for (const element of Object.values(flow.elements)) {
-            element.properties = this.contextManager.replaceAllFlowProperties(element.properties);
-          }
+          this.contextManager.overwriteAllProperties({ ...this.contextManager.getProperties(), ...flow.properties });
 
           for (const element of Object.values(this.elements)) {
+            element.replacePlaceholderAndSetProperties();
             element.onFlowPropertiesChanged?.(flow.properties);
           }
         }
-
         if (Object.keys(context).length > 0) {
           for (const element of flow.elements || []) {
             context = { ...context, name: element.name };
             this.elements?.[element.id]?.onContextChanged(context);
           }
         }
+
         for (const element of flow.elements || []) {
-          this.elements?.[element.id]?.onPropertiesChanged(this.contextManager.replaceAllFlowProperties(element.properties));
+          this.elements?.[element.id]?.setPropertiesWithPlaceholders(cloneDeep(element.properties));
+          this.elements?.[element.id]?.onPropertiesChanged(
+            this.contextManager.replaceAllPlaceholderProperties(this.elements[element.id].getPropertiesWithPlaceholders()),
+          );
         }
 
         const statusEvent = {
