@@ -145,16 +145,16 @@ describe('CMTP.1: ContextManager purpose test', () => {
     await flowApp.destroy();
   });
 
-  test('CMTP.1.1: Should overwrite all placeholder properties at init', async () => {
+  test('CMTP.1.1: Should overwrite all placeholder properties starting with flow. at init', async () => {
     await flowApp.init();
     expect(Array.isArray(((flowApp as any).elements['testInject'] as any).properties.injections)).toBe(true);
-    expect(((flowApp as any).elements['testInject'] as any).properties.injections[0].value).toBe('123');
-    expect(((flowApp as any).elements['testInject'] as any).properties.injections[1].value).toBe('rolf');
     expect(((flowApp as any).elements['testInject'] as any).getPropertiesWithPlaceholders().injections[0].value).toBe('${flow.value}');
+    expect(((flowApp as any).elements['testInject'] as any).properties.injections[0].value).toBe('123');
     expect(((flowApp as any).elements['testInject'] as any).getPropertiesWithPlaceholders().injections[1].value).toBe('${test}');
+    expect(((flowApp as any).elements['testInject'] as any).properties.injections[1].value).toBe('${test}');
   });
 
-  test('CMTP.1.2: Should overwrite all placeholder properties also at update', (done) => {
+  test('CMTP.1.2: Should overwrite all placeholder properties starting with flow. also at update', (done) => {
     let iteration = 0;
     flowApp.subscribe('testNoop.default', {
       next: (flowEvent: FlowEvent) => {
@@ -162,19 +162,17 @@ describe('CMTP.1: ContextManager purpose test', () => {
         expect(((flowApp as any).elements['testInject'] as any).getPropertiesWithPlaceholders().injections[1].value).toBe('${test}');
 
         const data = flowEvent.getData();
+        expect(data.test).toEqual('${test}');
+
         iteration++;
         if (iteration === 1) {
           expect(data.value).toEqual(123);
-          expect(data.test).toEqual('rolf');
         } else if (iteration === 2) {
           expect(data.value).toEqual(456);
-          expect(data.test).toEqual('rolf');
         } else if (iteration === 3) {
           expect(data.value).toEqual(456);
-          expect(data.test).toEqual('tom');
         } else if (iteration === 4) {
           expect(data.value).toEqual(1);
-          expect(data.test).toEqual('anna');
           done();
         }
       },
@@ -212,7 +210,7 @@ describe('CMTP.1: ContextManager purpose test', () => {
       });
   }, 60000);
 
-  test('CMTP.1.3: Should overwrite all placeholder properties also at update even when the element properties update', (done) => {
+  test('CMTP.1.3: Should overwrite all placeholder properties starting with flow. also at update even when the element properties update', (done) => {
     let iteration = 0;
     flowApp.subscribe('testNoop.default', {
       next: (flowEvent: FlowEvent) => {
@@ -221,9 +219,7 @@ describe('CMTP.1: ContextManager purpose test', () => {
         if (iteration === 1) {
           expect((flowApp as any).elements['testInject'].getPropertiesWithPlaceholders().injections.length).toBe(2);
           expect((flowApp as any).elements['testInject'].getPropertiesWithPlaceholders().injections[0].value).toBe('${flow.value}');
-          expect((flowApp as any).elements['testInject'].getPropertiesWithPlaceholders().injections[1].value).toBe('${test}');
           expect(data.value).toEqual(123);
-          expect(data.test).toEqual('rolf');
         } else if (iteration === 2) {
           expect((flowApp as any).elements['testInject'].getPropertiesWithPlaceholders().injections.length).toBe(1);
           expect((flowApp as any).elements['testInject'].getPropertiesWithPlaceholders().injections[0].value).toBe('987');
