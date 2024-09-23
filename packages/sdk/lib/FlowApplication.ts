@@ -9,6 +9,7 @@ import sizeof from 'object-sizeof';
 import { EventLoopUtilization, performance } from 'perf_hooks';
 import { PartialObserver, Subject } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
+import { cloneDeep } from 'lodash';
 
 import { AmqpConnection, AmqpConnectionConfig, createAmqpConnection } from './amqp';
 import { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, LifecycleEvent, StreamOptions } from './flow.interface';
@@ -19,6 +20,7 @@ import { RpcClient } from './RpcClient';
 import { delay, truncate } from './utils';
 import { NatsConnection, ConnectionOptions as NatsConnectionOptions } from 'nats';
 import { createNatsConnection } from './nats';
+import { ContextManager } from './ContextManager';
 
 const MAX_EVENT_SIZE_BYTES = +process.env.MAX_EVENT_SIZE_BYTES || 512 * 1024; // 512kb
 const WARN_EVENT_PROCESSING_SEC = +process.env.WARN_EVENT_PROCESSING_SEC || 60;
@@ -59,9 +61,10 @@ export class FlowApplication {
   private outputStreamMap = new Map<string, Subject<FlowEvent>>();
   private outputQueueMetrics = new Map<string, QueueMetrics>();
   private performanceMap = new Map<string, EventLoopUtilization>();
-  private properties: Record<string, any>;
   private readonly skipApi: boolean;
   private readonly apiClient?: HttpClient;
+
+  private readonly contextManager: ContextManager;
 
   constructor(modules: ClassType<any>[], flow: Flow, config?: FlowAppConfig);
   constructor(
@@ -108,6 +111,8 @@ export class FlowApplication {
       this.publishEvent,
     );
 
+    this.contextManager = new ContextManager(this.logger, this.flow?.properties);
+
     process.once('uncaughtException', (err) => {
       this.logger.error('Uncaught exception!');
       this.logger.error(err);
@@ -142,11 +147,19 @@ export class FlowApplication {
     return this._natsConnection;
   }
 
+  public getContextManager(): ContextManager {
+    return this.contextManager;
+  }
+
+  public getProperties() {
+    return this.contextManager.getProperties();
+  }
+
   public async init() {
     if (this.initialized) return;
 
     this.context = { ...this.flow.context };
-    this.properties = this.flow.properties || {};
+    this.contextManager.overwriteAllProperties(this.flow.properties ?? {});
 
     try {
       if (!this.skipApi && !(this._api instanceof MockAPI)) {
@@ -221,7 +234,12 @@ export class FlowApplication {
       const { id, name, properties, module, functionFqn } = element;
       try {
         const context: Context = { ...this.context, id, name, logger: this.baseLogger, app: this };
-        this.elements[id] = new this.declarations[`${module}.${functionFqn}`](context, properties);
+        this.elements[id] = new this.declarations[`${module}.${functionFqn}`](
+          context,
+          // run recursively through all properties and interpolate them / replace them with their explicit value
+          this.contextManager.replaceAllPlaceholderProperties(properties),
+        );
+        this.elements[id].setPropertiesWithPlaceholders(cloneDeep(properties));
       } catch (err) {
         await logErrorAndExit(`Could not create FlowElement for ${module}.${functionFqn}`);
         return;
@@ -386,10 +404,6 @@ export class FlowApplication {
     }
   };
 
-  public getProperties() {
-    return this.properties;
-  }
-
   public onMessage = async (msg: ConsumeMessage) => {
     let event: CloudEvent<any>;
     try {
@@ -412,20 +426,25 @@ export class FlowApplication {
           context = this.context;
         }
         if (flow.properties) {
-          this.properties = flow.properties;
+          this.contextManager.overwriteAllProperties({ ...this.contextManager.getProperties(), ...flow.properties });
+
           for (const element of Object.values(this.elements)) {
+            element.replacePlaceholderAndSetProperties();
             element.onFlowPropertiesChanged?.(flow.properties);
           }
         }
-
         if (Object.keys(context).length > 0) {
           for (const element of flow.elements || []) {
             context = { ...context, name: element.name };
             this.elements?.[element.id]?.onContextChanged(context);
           }
         }
+
         for (const element of flow.elements || []) {
-          this.elements?.[element.id]?.onPropertiesChanged(element.properties);
+          this.elements?.[element.id]?.setPropertiesWithPlaceholders(cloneDeep(element.properties));
+          this.elements?.[element.id]?.onPropertiesChanged(
+            this.contextManager.replaceAllPlaceholderProperties(this.elements[element.id].getPropertiesWithPlaceholders()),
+          );
         }
 
         const statusEvent = {
