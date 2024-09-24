@@ -1,5 +1,12 @@
 # @hahnpro/flow-sdk
 
+## 8.0.0
+
+### Major Changes
+
+- fc756c6: Added a "global context" instead of interpolation before creation a flow application.
+  All properties of all elements of the flow model are always updated when an update event occurs.
+
 ## 7.1.0
 
 ### Minor Changes
