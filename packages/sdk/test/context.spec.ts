@@ -127,6 +127,23 @@ describe('Flow Application', () => {
     expect(loggerMock.verbose).toHaveBeenCalledTimes(1);
     expect(loggerMock.verbose).toHaveBeenCalledWith('test', expect.objectContaining({ truncate: false }));
   });
+
+  test('Flow.CON.5 creation of element without app', () => {
+    const elem = new TestResource(
+      {
+        id: 'testResource',
+        logger: loggerMock,
+        app: {
+          emit: jest.fn(),
+          emitPartial: jest.fn(),
+        },
+      },
+      { assetId: '1234' },
+    );
+
+    elem.onDefault(new FlowEvent({ id: 'tr' }, { test: 'tyz' }));
+    expect(loggerMock.verbose).toHaveBeenCalledTimes(1);
+  });
 });
 
 @FlowFunction('test.resource.TestResource')
