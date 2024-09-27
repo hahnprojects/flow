@@ -142,7 +142,7 @@ describe('Flow Application', () => {
     );
 
     elem.onDefault(new FlowEvent({ id: 'tr' }, { test: 'tyz' }));
-    expect(loggerMock.verbose).toHaveBeenCalledTimes(1);
+    expect(loggerMock.verbose).toHaveBeenCalledTimes(2);
   });
 });
 
