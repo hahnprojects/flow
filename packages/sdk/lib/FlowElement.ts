@@ -70,7 +70,7 @@ export abstract class FlowElement<T = any> {
   public replacePlaceholderAndSetProperties() {
     const placeholderProperties = this.propertiesWithPlaceholders;
     if (this.propertiesWithPlaceholders) {
-      this.setProperties(this.app.getContextManager()?.replaceAllPlaceholderProperties(placeholderProperties));
+      this.setProperties(this.app.getContextManager?.()?.replaceAllPlaceholderProperties(placeholderProperties));
     }
   }
 
@@ -147,7 +147,7 @@ export abstract class FlowElement<T = any> {
   }
 
   protected interpolate = (value: any, ...templateVariables: any) =>
-    fillTemplate(value, ...templateVariables, { flow: this.app?.getContextManager().getProperties().flow ?? {} });
+    fillTemplate(value, ...templateVariables, { flow: this.app?.getContextManager?.().getProperties?.().flow ?? {} });
 
   protected async callRpcFunction(functionName: string, ...args: any[]) {
     return this.app?.rpcClient.callFunction(this.rpcRoutingKey, functionName, ...args);
