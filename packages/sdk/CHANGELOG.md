@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 8.0.1
+
+### Patch Changes
+
+- 82ab993: Fixed test failures when testing an element outside of a flowapplication
+
 ## 8.0.0
 
 ### Major Changes
