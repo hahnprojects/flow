@@ -1,23 +1,5 @@
-import {
-  defaultLogger,
-  FlowApplication,
-  FlowEvent,
-  FlowFunction,
-  FlowModule,
-  FlowResource,
-  FlowTask,
-  InputStream
-} from '../lib';
-import {
-  IsArray,
-  IsBoolean,
-  IsDefined,
-  IsMongoId,
-  IsNumber,
-  IsOptional,
-  IsString,
-  ValidateNested
-} from 'class-validator';
+import { defaultLogger, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
+import { IsArray, IsBoolean, IsDefined, IsMongoId, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CloudEvent } from 'cloudevents';
 
