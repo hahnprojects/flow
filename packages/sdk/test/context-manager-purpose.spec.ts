@@ -1,10 +1,39 @@
-import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, FlowTrigger, InputStream } from '../lib';
-import { IsArray, IsBoolean, IsIn, IsString, ValidateNested, IsOptional, IsNotEmpty } from 'class-validator';
-import { loggerMock } from './logger.mock';
+import {
+  defaultLogger,
+  FlowApplication,
+  FlowEvent,
+  FlowFunction,
+  FlowModule,
+  FlowResource,
+  FlowTask,
+  InputStream
+} from '../lib';
+import {
+  IsArray,
+  IsBoolean,
+  IsDefined,
+  IsMongoId,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { CloudEvent } from 'cloudevents';
 
-class Properties {}
+class Properties {
+  @IsMongoId()
+  assetId: string;
+
+  @IsNumber()
+  num: number;
+
+  @IsBoolean()
+  bool: boolean;
+
+  @IsString()
+  str: string;
+}
 
 @FlowFunction('test.default.trigger')
 class TestTrigger extends FlowResource {
@@ -18,8 +47,6 @@ class TestTrigger extends FlowResource {
   }
 }
 
-type ValueDataType = 'string' | 'number' | 'boolean';
-
 @FlowFunction('test.default.Inject')
 export class TestInject extends FlowTask<InjectionProperties> {
   constructor(context, properties: unknown) {
@@ -30,25 +57,9 @@ export class TestInject extends FlowTask<InjectionProperties> {
   public async inject(event: FlowEvent) {
     const injectedData = event.getData();
     for (const injection of this.properties.injections || []) {
-      injectedData[injection.key] = this.resolveValue(injection.value, injection.valueDatatype);
+      injectedData[injection.key] = injection.value;
     }
     return this.emitEvent(injectedData, event);
-  }
-
-  private resolveValue(value: string, valueDatatype: ValueDataType) {
-    let resultValue;
-    switch (valueDatatype) {
-      case 'boolean':
-        resultValue = value === 'true';
-        break;
-      case 'number':
-        resultValue = parseFloat(value);
-        break;
-      default:
-        resultValue = value;
-        break;
-    }
-    return resultValue;
   }
 }
 
@@ -56,13 +67,8 @@ class Injection {
   @IsString()
   key: string;
 
-  @IsString()
-  value: string;
-
-  @IsIn(['string', 'number', 'boolean'])
-  @IsNotEmpty()
-  @IsString()
-  valueDatatype?: 'string' | 'number' | 'boolean';
+  @IsDefined()
+  value: string | number | boolean;
 }
 
 class InjectionProperties {
@@ -100,10 +106,22 @@ class TestProperties {
 })
 class TestModule {}
 
+const extraProps = { assetId: '6710bd72faed82719294743f', otherString: 'foo', num: -42.5, bool: false };
+
 describe('CMTP.1: ContextManager purpose test', () => {
   const flow = {
     elements: [
-      { id: 'testTrigger', module: 'test-module', functionFqn: 'test.default.trigger', properties: {} },
+      {
+        id: 'testTrigger',
+        module: 'test-module',
+        functionFqn: 'test.default.trigger',
+        properties: {
+          assetId: '${flow.assetId}',
+          num: '${flow.num}',
+          bool: '${flow.bool}',
+          str: '${flow.assetId}, ${flow.otherString}, ${flow.doesNotExist}',
+        },
+      },
       {
         id: 'testInject',
         module: 'test-module',
@@ -113,12 +131,10 @@ describe('CMTP.1: ContextManager purpose test', () => {
             {
               key: 'value',
               value: '${flow.value}',
-              valueDatatype: 'number',
             },
             {
               key: 'test',
               value: '${test}',
-              valueDatatype: 'string',
             },
           ],
         },
@@ -133,12 +149,12 @@ describe('CMTP.1: ContextManager purpose test', () => {
       flowId: 'testFlow',
       deploymentId: 'testDeployment',
     },
-    properties: { flow: { value: '123' }, test: 'rolf' },
+    properties: { flow: { value: '123', ...extraProps }, test: 'rolf' },
   };
 
   let flowApp: FlowApplication;
   beforeEach(() => {
-    flowApp = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true });
+    flowApp = new FlowApplication([TestModule], flow, { logger: defaultLogger, skipApi: true });
   });
 
   afterEach(async () => {
@@ -146,10 +162,9 @@ describe('CMTP.1: ContextManager purpose test', () => {
   });
 
   test('CMTP.1.1: Should overwrite all placeholder properties starting with flow. at init', async () => {
-    await flowApp.init();
     expect(Array.isArray(((flowApp as any).elements['testInject'] as any).properties.injections)).toBe(true);
     expect(((flowApp as any).elements['testInject'] as any).getPropertiesWithPlaceholders().injections[0].value).toBe('${flow.value}');
-    expect(((flowApp as any).elements['testInject'] as any).properties.injections[0].value).toBe('123');
+    expect(((flowApp as any).elements['testInject'] as any).properties.injections[0].value).toBe(123);
     expect(((flowApp as any).elements['testInject'] as any).getPropertiesWithPlaceholders().injections[1].value).toBe('${test}');
     expect(((flowApp as any).elements['testInject'] as any).properties.injections[1].value).toBe('${test}');
   });
@@ -187,7 +202,7 @@ describe('CMTP.1: ContextManager purpose test', () => {
     });
 
     flowApp
-      .onMessage({ content: JSON.stringify({ ...cloudEvent, data: { properties: { flow: { value: 456 } } } }) } as any)
+      .onMessage({ content: JSON.stringify({ ...cloudEvent, data: { properties: { flow: { value: 456, ...extraProps } } } }) } as any)
       .then(() => {
         // Check the updated values in second iteration
         return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
@@ -201,7 +216,7 @@ describe('CMTP.1: ContextManager purpose test', () => {
       })
       .then(() => {
         return flowApp.onMessage({
-          content: JSON.stringify({ ...cloudEvent, data: { properties: { flow: { value: 1 }, test: 'anna' } } }),
+          content: JSON.stringify({ ...cloudEvent, data: { properties: { flow: { value: 1, ...extraProps }, test: 'anna' } } }),
         } as any);
       })
       .then(() => {
@@ -222,7 +237,7 @@ describe('CMTP.1: ContextManager purpose test', () => {
           expect(data.value).toEqual(123);
         } else if (iteration === 2) {
           expect((flowApp as any).elements['testInject'].getPropertiesWithPlaceholders().injections.length).toBe(1);
-          expect((flowApp as any).elements['testInject'].getPropertiesWithPlaceholders().injections[0].value).toBe('987');
+          expect((flowApp as any).elements['testInject'].getPropertiesWithPlaceholders().injections[0].value).toBe(987);
           expect(data.value).toEqual(987);
           done();
         }
@@ -242,12 +257,12 @@ describe('CMTP.1: ContextManager purpose test', () => {
         content: JSON.stringify({
           ...cloudEvent,
           data: {
-            properties: { flow: { value: 456 } },
+            properties: { flow: { value: 456, ...extraProps } },
             elements: [
               {
                 id: 'testInject',
                 properties: {
-                  injections: [{ key: 'value', value: '987', valueDatatype: 'number' }],
+                  injections: [{ key: 'value', value: 987, valueDatatype: 'number' }],
                 },
               },
             ],
@@ -258,5 +273,5 @@ describe('CMTP.1: ContextManager purpose test', () => {
         // Check the updated values in second iteration
         return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
       });
-  }, 60000);
+  }, 10000);
 });

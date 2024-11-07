@@ -92,7 +92,14 @@ export function flowInterpolate(value: any, properties: Record<string, any>): an
         newValue = newValue.replace(m[0], interpolate(m[0], { flow: properties.flow }));
       }
     } while (m);
-    return newValue;
+
+    // try to parse value
+    let parsedValue: string | number | boolean = newValue;
+
+    parsedValue = Number.isNaN(+parsedValue) ? parsedValue : +parsedValue;
+    parsedValue = parsedValue === 'true' ? true : parsedValue;
+    parsedValue = parsedValue === 'false' ? false : parsedValue;
+    return parsedValue;
   } else {
     return value;
   }
