@@ -29,6 +29,10 @@ export class ContextManager {
     this.properties = { flow: properties };
   }
 
+  public updateFlowProperties(properties: Record<string, any> = {}): void {
+    this.properties.flow = properties;
+  }
+
   /**
    * Get a copy of the current properties.
    * @returns {Record<string, any>} A copy of the properties.

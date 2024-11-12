@@ -41,4 +41,15 @@ describe('The ContextManage-Test spec', () => {
       expect(contextManager.get('test')).toBeUndefined();
     });
   });
+
+  describe('CMT.4: The ContextManager update method', () => {
+    test('CMT.4.1: Should set the property to the value property', () => {
+      contextManager.overwriteAllProperties({ test: 'bar' });
+      contextManager.set('not-flow', 'foo');
+      contextManager.updateFlowProperties({ test: 'baz' });
+
+      expect(contextManager.get('not-flow')).toBe('foo');
+      expect(contextManager.get('flow.test')).toBe('baz');
+    });
+  });
 });
