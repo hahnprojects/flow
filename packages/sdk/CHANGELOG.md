@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 8.0.3
+
+### Patch Changes
+
+- 357e350: Fixed wrong initialisation of given context
+
 ## 8.0.2
 
 ### Patch Changes
