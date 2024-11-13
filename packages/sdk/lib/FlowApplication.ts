@@ -426,7 +426,7 @@ export class FlowApplication {
           context = this.context;
         }
         if (flow.properties) {
-          this.contextManager.overwriteAllProperties({ ...this.contextManager.getProperties(), ...flow.properties });
+          this.contextManager.updateFlowProperties(flow.properties);
 
           for (const element of Object.values(this.elements)) {
             element.replacePlaceholderAndSetProperties();

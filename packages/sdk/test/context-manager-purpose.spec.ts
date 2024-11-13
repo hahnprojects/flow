@@ -133,7 +133,7 @@ describe('CMTP.1: ContextManager purpose test', () => {
       flowId: 'testFlow',
       deploymentId: 'testDeployment',
     },
-    properties: { flow: { value: '123' }, test: 'rolf' },
+    properties: { value: '123' },
   };
 
   let flowApp: FlowApplication;
@@ -170,8 +170,6 @@ describe('CMTP.1: ContextManager purpose test', () => {
         } else if (iteration === 2) {
           expect(data.value).toEqual(456);
         } else if (iteration === 3) {
-          expect(data.value).toEqual(456);
-        } else if (iteration === 4) {
           expect(data.value).toEqual(1);
           done();
         }
@@ -187,21 +185,14 @@ describe('CMTP.1: ContextManager purpose test', () => {
     });
 
     flowApp
-      .onMessage({ content: JSON.stringify({ ...cloudEvent, data: { properties: { flow: { value: 456 } } } }) } as any)
+      .onMessage({ content: JSON.stringify({ ...cloudEvent, data: { properties: { value: 456 } } }) } as any)
       .then(() => {
         // Check the updated values in second iteration
         return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
       })
       .then(() => {
-        return flowApp.onMessage({ content: JSON.stringify({ ...cloudEvent, data: { properties: { test: 'tom' } } }) } as any);
-      })
-      .then(() => {
-        // Check the updated values in third iteration
-        return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
-      })
-      .then(() => {
         return flowApp.onMessage({
-          content: JSON.stringify({ ...cloudEvent, data: { properties: { flow: { value: 1 }, test: 'anna' } } }),
+          content: JSON.stringify({ ...cloudEvent, data: { properties: { value: 1 } } }),
         } as any);
       })
       .then(() => {

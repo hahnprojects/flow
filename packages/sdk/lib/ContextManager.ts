@@ -12,13 +12,13 @@ export class ContextManager {
   /**
    * Constructor of the ContextManager.
    * @param {Logger} logger - The logger instance for logging messages.
-   * @param {Record<string, any>} [properties={}] - Initial properties to set.
+   * @param {Record<string, any>} [flowProperties={}] - Initial properties to set.
    */
   constructor(
     protected logger: Logger,
-    properties: Record<string, any> = {},
+    flowProperties: Record<string, any> = {},
   ) {
-    this.properties = properties;
+    this.properties = { flow: flowProperties };
   }
 
   /**
@@ -26,7 +26,11 @@ export class ContextManager {
    * @param properties
    */
   public overwriteAllProperties(properties: Record<string, any> = {}): void {
-    this.properties = properties;
+    this.properties = { flow: properties };
+  }
+
+  public updateFlowProperties(properties: Record<string, any> = {}): void {
+    this.properties.flow = properties;
   }
 
   /**

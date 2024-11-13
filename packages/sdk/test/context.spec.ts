@@ -31,17 +31,17 @@ describe('Flow Application', () => {
           expect(data.assetId).toEqual('abc');
           expect(data.event).toEqual({});
           expect(data.elementProps).toEqual({ assetId: 'abc' });
-          expect(data.flowProps).toEqual({ test: '123abcd' });
+          expect(data.flowProps).toEqual({ flow: { test: '123abcd' } });
         } else if (iteration === 2) {
           expect(data.assetId).toEqual('xyz');
           expect(data.event).toEqual({});
           expect(data.elementProps).toEqual({ assetId: 'xyz' });
-          expect(data.flowProps).toEqual({ test: '123abcd' });
+          expect(data.flowProps).toEqual({ flow: { test: '123abcd' } });
         } else if (iteration === 3) {
           expect(data.assetId).toEqual('123');
           expect(data.event).toEqual({});
           expect(data.elementProps).toEqual({ assetId: '123' });
-          expect(data.flowProps).toEqual({ test: 42 });
+          expect(data.flowProps).toEqual({ flow: { test: 42 } });
           done();
         }
       },
@@ -74,7 +74,7 @@ describe('Flow Application', () => {
       .then(() => {
         return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
       });
-  }, 60000);
+  }, 10000);
 
   test('FLOW.CON.2 string interpolation with event data', async () => {
     let tr = new TestResource({ id: 'testResource', logger: loggerMock }, { assetId: '${test}' });
@@ -111,7 +111,7 @@ describe('Flow Application', () => {
           expect(data.assetId).toBe('987zyx');
           done();
         } else {
-          expect(data.assetId).toBe('123abcd');
+          expect(data.assetId).toBe(undefined);
           count++;
         }
       },
