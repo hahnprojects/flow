@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 5.3.2
+
+### Patch Changes
+
+- b783a01: Updated dependencies to reduce vulnerabilities
+
 ## 5.3.1
 
 ### Patch Changes
