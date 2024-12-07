@@ -3,11 +3,11 @@ description: 'Set up Node.js & PNPM and install dependencies'
 inputs:
   node-version:
     description: 'Node.js version'
-    default: '20.x'
+    default: '22.x'
     required: false
   pnpm-version:
     description: 'PNPM version'
-    default: 9
+    default: '9'
     required: false
 runs:
   using: 'composite'

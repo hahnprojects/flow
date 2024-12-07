@@ -1,6 +1,5 @@
 import { Logger } from './FlowLogger';
 import { cloneDeep, get, isPlainObject, set } from 'lodash';
-import { fillTemplate } from './utils';
 import interp from 'string-interp';
 
 /**
