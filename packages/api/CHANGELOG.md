@@ -1,5 +1,11 @@
 # @hahnpro/hpc-api
 
+## 5.3.3
+
+### Patch Changes
+
+- ef6ee56: added missing asset-type-service init to Mock-API
+
 ## 5.3.2
 
 ### Patch Changes
