@@ -262,6 +262,7 @@ export class MockAPI implements API {
     }));
 
     this.assets = new AssetMockService(this, assets1, assetRevisions1);
+    this.assetTypes = new AssetTypesMockService(assetTypes, []);
     this.contents = new ContentMockService(contents1, contentData);
     this.endpoints = new EndpointMockService(endpoint1);
     this.secrets = new SecretMockService(secrets1);
