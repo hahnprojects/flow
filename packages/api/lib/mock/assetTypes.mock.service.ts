@@ -14,10 +14,18 @@ class BaseService extends APIBaseMock<AssetType> {}
 
 export class AssetTypesMockService extends BaseService implements AssetTypesService {
   constructor(
-    assetTypes: AssetType[],
+    assetTypes: Array<AssetType | string>,
     private revisions: AssetTypeRevision[],
   ) {
-    super(assetTypes);
+    const defaultTyp: AssetType = {
+      name: 'defaultType',
+      readPermissions: [],
+      readWritePermissions: [],
+      typeSchema: { type: 'object' },
+      uiSchema: {},
+    };
+    const types = assetTypes.map((type) => (typeof type === 'string' ? { id: type, ...defaultTyp } : type));
+    super(types);
   }
 
   getMany(params?: RequestParameter): Promise<Paginated<AssetType[]>> {

@@ -20,6 +20,7 @@ describe('Mock-API test', () => {
         updatedAt: new Date(timestamp).toISOString(),
       },
       { id: 'asset2', name: 'deleteAsset', type: { id: 'testId', name: 'testType' } },
+      { id: 'assetNoType', name: 'deleteAsset', type: '12345678' },
     ],
     assetRevisions: [{ id: 'assetRevision1', originalId: 'asset1', name: 'testAssetRevision', type: { id: 'testId', name: 'testType' } }],
     contents: [
@@ -538,6 +539,7 @@ describe('Mock-API test', () => {
     const count = await api.labels.count();
     expect(count).toBeGreaterThan(0);
   });
+
   test('FLOW.API.MOCK.14 vault', async () => {
     const vaultSecrets = await api.vault.getMany().catch((err) => logError(err));
     expect(vaultSecrets).toBeDefined();
@@ -567,6 +569,13 @@ describe('Mock-API test', () => {
       expect((notification as any).read).toBe(false);
     }
   }, 60000);
+
+  test('FLOW.API.MOCK.16 assettypes', async () => {
+    const types = await api.assetTypes.getMany();
+
+    expect(types.docs.length).toBe(3);
+    expect(types.docs[2].name).toBe('defaultType');
+  });
 });
 
 function logError(err: any) {
