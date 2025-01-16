@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 8.0.7
+
+### Patch Changes
+
+- c30bc45: Updated nats to new packages
+
 ## 8.0.6
 
 ### Patch Changes
