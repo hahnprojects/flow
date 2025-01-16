@@ -1,3 +1,4 @@
+import { connect } from '@nats-io/transport-node';
 import { Type } from 'class-transformer';
 import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
 import { setTimeout } from 'timers/promises';
@@ -5,7 +6,6 @@ import { setTimeout } from 'timers/promises';
 import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
 import { loggerMock } from './logger.mock';
 import { MockAPI } from '../../api/lib/mock/api.mock';
-import { connect } from '@nats-io/transport-node';
 
 describe('Flow Application', () => {
   afterEach(() => {

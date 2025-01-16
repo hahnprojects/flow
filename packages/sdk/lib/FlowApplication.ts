@@ -1,15 +1,16 @@
 import 'reflect-metadata';
 
 import { API, HttpClient, MockAPI } from '@hahnpro/hpc-api';
+import { NatsConnection, ConnectionOptions as NatsConnectionOptions } from '@nats-io/nats-core';
 import { ConsumeMessage } from 'amqplib';
 import { AmqpConnectionManager, Channel, ChannelWrapper } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
 import { randomUUID as uuid } from 'crypto';
+import { cloneDeep } from 'lodash';
 import sizeof from 'object-sizeof';
 import { EventLoopUtilization, performance } from 'perf_hooks';
 import { PartialObserver, Subject } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
-import { cloneDeep } from 'lodash';
 
 import { AmqpConnection, AmqpConnectionConfig, createAmqpConnection } from './amqp';
 import { ClassType, DeploymentMessage, Flow, FlowContext, FlowElementContext, LifecycleEvent, StreamOptions } from './flow.interface';
@@ -18,7 +19,6 @@ import { FlowEvent } from './FlowEvent';
 import { FlowLogger, Logger } from './FlowLogger';
 import { RpcClient } from './RpcClient';
 import { delay, truncate } from './utils';
-import { NatsConnection, ConnectionOptions as NatsConnectionOptions } from '@nats-io/nats-core';
 import { createNatsConnection } from './nats';
 import { ContextManager } from './ContextManager';
 
