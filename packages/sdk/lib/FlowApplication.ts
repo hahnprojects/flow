@@ -18,7 +18,7 @@ import { FlowEvent } from './FlowEvent';
 import { FlowLogger, Logger } from './FlowLogger';
 import { RpcClient } from './RpcClient';
 import { delay, truncate } from './utils';
-import { NatsConnection, ConnectionOptions as NatsConnectionOptions } from 'nats';
+import { NatsConnection, ConnectionOptions as NatsConnectionOptions } from '@nats-io/nats-core';
 import { createNatsConnection } from './nats';
 import { ContextManager } from './ContextManager';
 

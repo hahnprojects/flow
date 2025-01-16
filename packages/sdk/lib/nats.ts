@@ -1,4 +1,5 @@
-import { connect, ConnectionOptions, NatsConnection } from 'nats';
+import { connect } from '@nats-io/transport-node';
+import { ConnectionOptions, NatsConnection } from '@nats-io/nats-core';
 
 export async function createNatsConnection(config: ConnectionOptions): Promise<NatsConnection> {
   const servers: string | string[] = config?.servers ?? process.env.NATS_SERVERS?.split(',') ?? [];
