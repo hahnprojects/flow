@@ -1,7 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "rootDir": "lib"
+    "rootDir": "lib",
+    "moduleResolution": "Node16",
+    "module": "Node16"
   },
   "exclude": ["dist", "node_modules", "test", "**/*.spec.ts", "jest.config.js"]
 }
