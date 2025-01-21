@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, Method, RawAxiosRequestHeaders } from 'axios';
 import EventSource from 'eventsource';
-import { CompactSign } from 'jose';
+import { CompactSign, decodeJwt } from 'jose';
 import { stringify } from 'querystring';
 import { v4 } from 'uuid';
 
@@ -92,6 +92,9 @@ export class HttpClient {
   public getAccessToken = async (forceRefresh = false): Promise<string> => {
     let accessToken: string;
     if (forceRefresh || !this.tokenSet || this.tokenSet.isExpired()) {
+      if (this.tokenSet?.provided) {
+        throw new Error('provided token is expired and cannot be refreshed, provide a new token.');
+      }
       this.tokenSet = await this.requestAccessToken();
       accessToken = this.tokenSet.accessToken;
     } else {
@@ -188,6 +191,20 @@ export class HttpClient {
       requested_subject: this.tokenSubject,
     };
     return this.requestAccessToken(opts);
+  }
+
+  async provideExternalToken(token: string) {
+    const issuer = await this.discoverIssuer(`${this.authBaseURL}/realms/${this.realm}`);
+
+    const { iss: providedIssuer, exp } = decodeJwt(token);
+
+    if (issuer.issuer !== providedIssuer) {
+      throw new Error(
+        `Provided token is not issued by currently configured issuer. Provided token issued by ${providedIssuer}, but ${issuer.issuer} is configured.`,
+      );
+    }
+
+    this.tokenSet = new TokenSet(token, exp - Date.now() / 1000, true);
   }
 }
 
