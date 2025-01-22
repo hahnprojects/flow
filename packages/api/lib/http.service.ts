@@ -7,7 +7,8 @@ import { v4 } from 'uuid';
 import { Queue } from './Queue';
 import { TokenSet } from './token-set';
 
-export type Config = { token?: string } & AxiosRequestConfig;
+export type TokenOption = { token?: string };
+export type Config = TokenOption & AxiosRequestConfig;
 
 export class HttpClient {
   protected readonly axiosInstance: AxiosInstance;
@@ -58,7 +59,12 @@ export class HttpClient {
     );
   };
 
-  public async addEventSource(url: string, listener: (event: MessageEvent) => void, errorListener?: (event: MessageEvent) => void) {
+  public async addEventSource(
+    url: string,
+    listener: (event: MessageEvent) => void,
+    errorListener?: (event: MessageEvent) => void,
+    options: TokenOption = {},
+  ) {
     const id = v4();
     const errListener = errorListener
       ? errorListener
@@ -66,7 +72,7 @@ export class HttpClient {
           throw new Error(JSON.stringify(event, null, 2));
         };
     const es = new EventSource(`${this.baseURL}${url}`, {
-      headers: { authorization: 'Bearer ' + (await this.getAccessToken()) },
+      headers: { authorization: 'Bearer ' + options.token ? options.token : await this.getAccessToken() },
     });
     es.addEventListener('message', listener);
     es.addEventListener('error', errListener);

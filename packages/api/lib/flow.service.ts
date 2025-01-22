@@ -5,7 +5,7 @@ import { Paginated, RequestParameter } from './data.interface';
 import { DataService } from './data.service';
 import { FlowDiagram, FlowDto } from './flow.interface';
 import { FlowDeployment } from './flow-deployment.interface';
-import { HttpClient } from './http.service';
+import { HttpClient, TokenOption } from './http.service';
 import { TrashService } from './trash.service';
 
 interface BaseService extends DataService<FlowDto>, TrashService<FlowDto> {}
@@ -18,45 +18,45 @@ export class FlowService extends BaseService {
   }
 
   // workaround as flow-service does not have a POST /many endpoint
-  public addMany(dto: any[]): Promise<FlowDto[]> {
-    const reqs = dto.map((v) => this.addOne(v));
+  public addMany(dto: any[], options: TokenOption = {}): Promise<FlowDto[]> {
+    const reqs = dto.map((v) => this.addOne(v, options));
     return Promise.all(reqs);
   }
 
-  public getMany(params: RequestParameter = {}): Promise<Paginated<FlowDto[]>> {
+  public getMany(params: RequestParameter = {}, options: TokenOption = {}): Promise<Paginated<FlowDto[]>> {
     params.populate = params.populate ? params.populate : 'none';
-    return super.getMany(params);
+    return super.getMany(params, options);
   }
 
-  public getOne(id: string, options: any = {}): Promise<FlowDto> {
+  public getOne(id: string, options: TokenOption & { [key: string]: any } = {}): Promise<FlowDto> {
     options.populate = options.populate ? options.populate : 'none';
     return super.getOne(id, options);
   }
 
-  public getFlowWithDiagram(diagramId: string): Promise<FlowDto> {
-    return this.httpClient.get<FlowDto>(`${this.basePath}/diagram/${diagramId}`);
+  public getFlowWithDiagram(diagramId: string, options: TokenOption = {}): Promise<FlowDto> {
+    return this.httpClient.get<FlowDto>(`${this.basePath}/diagram/${diagramId}`, options);
   }
 
-  public getDiagramRevisions(id: string): Promise<FlowDiagram[]> {
-    return this.httpClient.get<FlowDiagram[]>(`${this.basePath}/${id}/diagram/revisions`);
+  public getDiagramRevisions(id: string, options: TokenOption = {}): Promise<FlowDiagram[]> {
+    return this.httpClient.get<FlowDiagram[]>(`${this.basePath}/${id}/diagram/revisions`, options);
   }
 
-  public async isDeploymentOnLatestDiagramVersion(depl: FlowDeployment): Promise<boolean> {
+  public async isDeploymentOnLatestDiagramVersion(depl: FlowDeployment, options: TokenOption = {}): Promise<boolean> {
     const flowId = typeof depl.flow === 'string' ? depl.flow : depl.flow.id;
     const diagramId = typeof depl.diagram === 'string' ? depl.diagram : depl.diagram.id;
-    const revisions = await this.getDiagramRevisions(flowId);
+    const revisions = await this.getDiagramRevisions(flowId, options);
     return revisions[revisions.length - 1].id === diagramId;
   }
 
-  public getRevisions(id: string): Promise<Paginated<FlowDto[]>> {
-    return this.httpClient.get<Paginated<FlowDto[]>>(`${this.basePath}/${id}/revisions`);
+  public getRevisions(id: string, options: TokenOption = {}): Promise<Paginated<FlowDto[]>> {
+    return this.httpClient.get<Paginated<FlowDto[]>>(`${this.basePath}/${id}/revisions`, options);
   }
 
-  public rollback(id: string, revisionId: string): Promise<FlowDto> {
-    return this.httpClient.put<FlowDto>(`${this.basePath}/${id}/rollback`, { revisionId });
+  public rollback(id: string, revisionId: string, options: TokenOption = {}): Promise<FlowDto> {
+    return this.httpClient.put<FlowDto>(`${this.basePath}/${id}/rollback`, { revisionId }, options);
   }
 
-  public deleteRevision(id: string, revisionId: string): Promise<any> {
-    return this.httpClient.delete(`${this.basePath}/${id}/revisions/${revisionId}`);
+  public deleteRevision(id: string, revisionId: string, options: TokenOption = {}): Promise<any> {
+    return this.httpClient.delete(`${this.basePath}/${id}/revisions/${revisionId}`, options);
   }
 }

@@ -5,7 +5,7 @@ import { APIBase } from './api-base';
 import { Asset, AssetRevision, Attachment, EventCause, EventLevelOverride } from './asset.interface';
 import { Paginated, RequestParameter } from './data.interface';
 import { DataService } from './data.service';
-import { HttpClient } from './http.service';
+import { HttpClient, TokenOption } from './http.service';
 import { TrashService } from './trash.service';
 
 interface BaseService extends DataService<Asset>, TrashService<Asset> {}
@@ -17,21 +17,22 @@ export class AssetService extends BaseService {
     super(httpClient, '/assets');
   }
 
-  public deleteOne(id: string, force = false): Promise<any> {
-    return this.httpClient.delete(`${this.basePath}/${id}`, { params: { force } });
+  public deleteOne(id: string, force = false, options: TokenOption = {}): Promise<any> {
+    return this.httpClient.delete(`${this.basePath}/${id}`, { params: { force }, ...options });
   }
 
-  public addAttachment = (id: string, form: FormData): Promise<Asset> => {
+  public addAttachment = (id: string, form: FormData, options: TokenOption = {}): Promise<Asset> => {
     const headers = { ...form.getHeaders() };
     return this.httpClient.post<Asset>(`${this.basePath}/${id}/attachment`, form, {
       headers,
       maxBodyLength: Infinity,
       maxContentLength: Infinity,
+      ...options,
     });
   };
 
-  public getChildren(assetId: string, params: RequestParameter = {}): Promise<Paginated<Asset[]>> {
-    return this.getManyFiltered({ parent: assetId }, params);
+  public getChildren(assetId: string, params: RequestParameter = {}, options: TokenOption = {}): Promise<Paginated<Asset[]>> {
+    return this.getManyFiltered({ parent: assetId }, params, options);
   }
 
   public getAttachments(assetId: string): Promise<Paginated<Attachment[]>> {
