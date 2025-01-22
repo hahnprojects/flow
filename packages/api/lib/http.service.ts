@@ -7,6 +7,8 @@ import { v4 } from 'uuid';
 import { Queue } from './Queue';
 import { TokenSet } from './token-set';
 
+export type Config = { token?: string } & AxiosRequestConfig;
+
 export class HttpClient {
   protected readonly axiosInstance: AxiosInstance;
   protected readonly authAxiosInstance: AxiosInstance;
@@ -34,16 +36,17 @@ export class HttpClient {
 
   public getQueueStats = () => this.requestQueue?.getStats();
 
-  public delete = <T>(url: string, config?: AxiosRequestConfig) => this.request<T>('DELETE', url, config);
-  public get = <T>(url: string, config?: AxiosRequestConfig) => this.request<T>('GET', url, config);
-  public post = <T>(url: string, data: any, config?: AxiosRequestConfig) => this.request<T>('POST', url, config, data);
-  public put = <T>(url: string, data: any, config?: AxiosRequestConfig) => this.request<T>('PUT', url, config, data);
+  public delete = <T>(url: string, config?: Config) => this.request<T>('DELETE', url, config);
+  public get = <T>(url: string, config?: Config) => this.request<T>('GET', url, config);
+  public post = <T>(url: string, data: any, config?: Config) => this.request<T>('POST', url, config, data);
+  public put = <T>(url: string, data: any, config?: Config) => this.request<T>('PUT', url, config, data);
 
-  protected request = <T>(method: Method, url: string, config: AxiosRequestConfig = {}, data?): Promise<T> => {
+  protected request = <T>(method: Method, url: string, config: Config = {}, data?): Promise<T> => {
     return this.requestQueue.add(
       () =>
         new Promise((resolve, reject) => {
-          this.getAccessToken()
+          const tokenP = config.token ? Promise.resolve(config.token) : this.getAccessToken();
+          tokenP
             .then((token) => {
               const headers = { Authorization: `Bearer ${token}`, ...config.headers } as RawAxiosRequestHeaders;
               return this.axiosInstance.request<T>({ ...config, headers, method, url, data });

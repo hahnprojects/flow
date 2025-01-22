@@ -3,6 +3,13 @@ import MockAdapter from 'axios-mock-adapter';
 
 import { HttpClient } from '../lib';
 
+jest.mock('jose', () => ({
+  decodeJwt: jest.fn((token: string) => ({ iss: '', exp: 0 })),
+  __esModule: true,
+}));
+
+import { decodeJwt } from 'jose';
+
 describe('HTTP Service', () => {
   let axiosMock: MockAdapter;
   const assets = Array.from({ length: 5 }, (v, i) => ({ id: i, name: 'Asset' + i }));
@@ -170,7 +177,9 @@ describe('HTTP Service', () => {
         .useFakeTimers({
           doNotFake: ['nextTick', 'setImmediate', 'clearImmediate', 'setInterval', 'clearInterval', 'setTimeout', 'clearTimeout'],
         })
-        .setSystemTime(1737451350000); // A Few seconds before token expiry
+        .setSystemTime(0); // A Few seconds before token expiry
+
+      (decodeJwt as any).mockImplementation((token: string) => ({ iss: 'https://testing.hahnpro.com/auth/realms/testing', exp: 10000 }));
 
       const httpClient = new HttpClient('/api', 'https://testing.hahnpro.com/auth', 'testing', '', '');
 
@@ -182,6 +191,8 @@ describe('HTTP Service', () => {
     });
 
     it('FLOW.HS.TOK.2 should reject tokens from different issuer', async () => {
+      (decodeJwt as any).mockImplementation((token: string) => ({ iss: 'https://adam.hahnpro.com/auth/realms/adam', exp: 10000 }));
+
       const httpClient = new HttpClient('/api', 'https://testing.hahnpro.com/auth', 'testing', '', '');
 
       await expect(httpClient.provideExternalToken(otherToken)).rejects.toThrow(
@@ -196,11 +207,57 @@ describe('HTTP Service', () => {
         })
         .setSystemTime(1737451990000); // A Few seconds after token expiry
 
+      (decodeJwt as any).mockImplementation((token: string) => ({ iss: 'https://testing.hahnpro.com/auth/realms/testing', exp: 10000 }));
+
       const httpClient = new HttpClient('/api', 'https://testing.hahnpro.com/auth', 'testing', '', '');
 
       await httpClient.provideExternalToken(token);
 
       await expect(httpClient.getAccessToken()).rejects.toThrow('provided token is expired and cannot be refreshed, provide a new token.');
+    });
+
+    it('FLOW.HS.TOK.4 should use token from config rather than getAccessToken(...)', async () => {
+      const httpClient = new HttpClient('/api', 'https://testing.hahnpro.com/auth', 'testing', '', '');
+
+      const spyOn = jest.spyOn((httpClient as any).axiosInstance, 'request').mockImplementation(() => ({ data: {} }));
+      const spyGAT = jest.spyOn(httpClient, 'getAccessToken');
+
+      await httpClient.get('somewhere', { token: 'TOKEN' });
+
+      expect(spyOn).toHaveBeenCalledTimes(1);
+      expect(spyGAT).toHaveBeenCalledTimes(0);
+      expect(spyOn).toHaveBeenCalledWith(expect.objectContaining({ headers: { Authorization: 'Bearer TOKEN' } }));
+    });
+
+    it('FLOW.HS.TOK.5 should use overwritten getAccessToken(...)', async () => {
+      const httpClient = new HttpClient('/api', 'https://testing.hahnpro.com/auth', 'testing', '', '');
+
+      httpClient.getAccessToken = () => Promise.resolve('OVERWRITTEN');
+
+      const spyOn = jest.spyOn((httpClient as any).axiosInstance, 'request').mockImplementation(() => ({ data: {} }));
+
+      await httpClient.get('somewhere');
+
+      expect(spyOn).toHaveBeenCalledTimes(1);
+      expect(spyOn).toHaveBeenCalledWith(expect.objectContaining({ headers: { Authorization: 'Bearer OVERWRITTEN' } }));
+    });
+
+    it('FLOW.HS.TOK.6 should use token sources in the correct hierarchy', async () => {
+      const httpClient = new HttpClient('/api', 'https://testing.hahnpro.com/auth', 'testing', '', '');
+
+      const spyOn = jest.spyOn((httpClient as any).axiosInstance, 'request').mockImplementation(() => ({ data: {} }));
+
+      httpClient.getAccessToken = () => Promise.resolve('GETACCESSTOKEN');
+
+      await httpClient.get('somewhere', { token: 'APICALL' });
+
+      expect(spyOn).toHaveBeenCalledTimes(1);
+      expect(spyOn).toHaveBeenCalledWith(expect.objectContaining({ headers: { Authorization: 'Bearer APICALL' } }));
+
+      await httpClient.get('somewhere');
+
+      expect(spyOn).toHaveBeenCalledTimes(2);
+      expect(spyOn).toHaveBeenLastCalledWith(expect.objectContaining({ headers: { Authorization: 'Bearer GETACCESSTOKEN' } }));
     });
   });
 });
