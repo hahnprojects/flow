@@ -5,6 +5,7 @@ import { HttpClient } from '../lib';
 
 jest.mock('jose', () => ({
   decodeJwt: jest.fn((token: string) => ({ iss: '', exp: 0 })),
+  CompactSign: jest.requireActual('jose').CompactSign,
   __esModule: true,
 }));
 
