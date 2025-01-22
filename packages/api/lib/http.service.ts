@@ -15,6 +15,7 @@ export class HttpClient {
   protected readonly requestQueue: Queue;
   private tokenSet: TokenSet;
   private exchangedTokenSet: TokenSet;
+  private discoveredIssuers = new Map<string, Issuer>();
 
   public eventSourcesMap: Map<
     string,
@@ -127,12 +128,17 @@ export class HttpClient {
   }
 
   protected async discoverIssuer(uri: string): Promise<Issuer> {
+    if (this.discoveredIssuers.has(uri)) {
+      return this.discoveredIssuers.get(uri);
+    }
     const wellKnownUri = `${uri}/.well-known/openid-configuration`;
     const issuerResponse = await this.authAxiosInstance.get(wellKnownUri, {
       responseType: 'json',
       headers: { Accept: 'application/json' },
     });
-    return this.validateIssuer(issuerResponse.data);
+    const validIssuer = this.validateIssuer(issuerResponse.data);
+    this.discoveredIssuers.set(uri, validIssuer);
+    return validIssuer;
   }
 
   protected async requestAccessToken(additionalOpts = {}): Promise<TokenSet> {
