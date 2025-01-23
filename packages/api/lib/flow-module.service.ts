@@ -17,7 +17,7 @@ export class FlowModuleService extends DataService<FlowModule> {
       headers: { ...form.getHeaders() },
       maxBodyLength: Infinity,
       maxContentLength: Infinity,
-      ...options
+      ...options,
     };
 
     return this.httpClient.post(`${this.basePath}`, form, config);

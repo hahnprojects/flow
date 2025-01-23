@@ -42,7 +42,7 @@ export class AssetService extends BaseService {
   public getEventLevelOverride(ids: string[], causes: string[], options: TokenOption = {}): Promise<EventLevelOverride> {
     return this.httpClient.get<EventLevelOverride>(`${this.basePath}/eventcauses`, {
       params: { ids: ids.join(','), causes: causes.join(',') },
-      ...options
+      ...options,
     });
   }
 
