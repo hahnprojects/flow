@@ -30,7 +30,7 @@ export class DataService<T> extends APIBase implements DataInterface<T> {
    * }.
    * @param filter The Object with the properties to filter by.
    * @param params Other request parameters.
-   * @param options
+   * @param options Parameters for authentication
    */
   public getManyFiltered(filter: Filter, params: RequestParameter = {}, options: TokenOption = {}): Promise<Paginated<T[]>> {
     params.filter = this.getFilterString(filter);

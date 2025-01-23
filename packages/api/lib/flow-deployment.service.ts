@@ -23,7 +23,7 @@ export class FlowDeploymentService extends BaseService {
   }
 
   public updateOne(id: string, dto: any, options: TokenOption & { force: boolean } = { force: false }): Promise<FlowDeployment> {
-    return super.updateOne(id, dto, options); // TODO breaking change
+    return super.updateOne(id, dto, options);
   }
 
   public getDeploymentStatistics(id: string, options: TokenOption = {}): Promise<FlowDeploymentStatistic> {
