@@ -1,6 +1,6 @@
 import { jwtDecode } from 'jwt-decode';
 
-import { HttpClient } from './http.service';
+import { HttpClient, TokenOption } from './http.service';
 import { UserSettings } from './user-settings.interface';
 
 export class UserService {
@@ -19,15 +19,15 @@ export class UserService {
     }
   }
 
-  public getUserSettings(): Promise<UserSettings> {
-    return this.httpClient.get(this.basePath);
+  public getUserSettings(options: TokenOption = {}): Promise<UserSettings> {
+    return this.httpClient.get(this.basePath, options);
   }
 
-  public updateUserSettings(settings: UserSettings): Promise<UserSettings> {
-    return this.httpClient.put(this.basePath, settings);
+  public updateUserSettings(settings: UserSettings, options: TokenOption = {}): Promise<UserSettings> {
+    return this.httpClient.put(this.basePath, settings, options);
   }
 
-  public deleteUserSettings(): Promise<UserSettings> {
-    return this.httpClient.delete(this.basePath);
+  public deleteUserSettings(options: TokenOption = {}): Promise<UserSettings> {
+    return this.httpClient.delete(this.basePath, options);
   }
 }

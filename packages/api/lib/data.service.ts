@@ -1,24 +1,25 @@
 import { APIBase } from './api-base';
 import { DataInterface, Filter, instanceOfTimePeriod, Paginated, RequestParameter } from './data.interface';
+import { TokenOption } from './http.service';
 
 export class DataService<T> extends APIBase implements DataInterface<T> {
-  public addOne(dto: any): Promise<T> {
-    return this.httpClient.post<T>(this.basePath, dto);
+  public addOne(dto: any, options: TokenOption = {}): Promise<T> {
+    return this.httpClient.post<T>(this.basePath, dto, options);
   }
 
-  public addMany(dto: any[]): Promise<T[]> {
-    return this.httpClient.post<T[]>(`${this.basePath}/many`, dto);
+  public addMany(dto: any[], options: TokenOption = {}): Promise<T[]> {
+    return this.httpClient.post<T[]>(`${this.basePath}/many`, dto, options);
   }
 
-  public getOne(id: string, options: any = {}): Promise<T> {
+  public getOne(id: string, options: TokenOption & { [key: string]: any } = {}): Promise<T> {
     const params = options.populate ? { populate: options.populate } : {};
     return this.httpClient.get<T>(`${this.basePath}/${id}`, { params });
   }
 
-  public getMany(params: RequestParameter = {}): Promise<Paginated<T[]>> {
+  public getMany(params: RequestParameter = {}, options: TokenOption = {}): Promise<Paginated<T[]>> {
     params.limit = params.limit || 0;
     params.page = params.page || 1;
-    return this.httpClient.get<Paginated<T[]>>(`${this.basePath}`, { params });
+    return this.httpClient.get<Paginated<T[]>>(`${this.basePath}`, { params, ...options });
   }
 
   /**
@@ -29,18 +30,19 @@ export class DataService<T> extends APIBase implements DataInterface<T> {
    * }.
    * @param filter The Object with the properties to filter by.
    * @param params Other request parameters.
+   * @param options Parameters for authentication
    */
-  public getManyFiltered(filter: Filter, params: RequestParameter = {}): Promise<Paginated<T[]>> {
+  public getManyFiltered(filter: Filter, params: RequestParameter = {}, options: TokenOption = {}): Promise<Paginated<T[]>> {
     params.filter = this.getFilterString(filter);
-    return this.getMany(params);
+    return this.getMany(params, options);
   }
 
-  public updateOne(id: string, dto: any): Promise<T> {
-    return this.httpClient.put<T>(`${this.basePath}/${id}`, dto);
+  public updateOne(id: string, dto: any, options: TokenOption & { [key: string]: any } = {}): Promise<T> {
+    return this.httpClient.put<T>(`${this.basePath}/${id}`, dto, options);
   }
 
-  public deleteOne(id: string, force = false): Promise<any> {
-    return this.httpClient.delete(`${this.basePath}/${id}`, { params: { force } });
+  public deleteOne(id: string, force = false, options: TokenOption = {}): Promise<any> {
+    return this.httpClient.delete(`${this.basePath}/${id}`, { params: { force }, ...options });
   }
 
   private getFilterString(filter: Filter) {

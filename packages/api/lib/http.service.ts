@@ -1,11 +1,14 @@
 import axios, { AxiosInstance, AxiosRequestConfig, Method, RawAxiosRequestHeaders } from 'axios';
 import EventSource from 'eventsource';
-import { CompactSign } from 'jose';
+import { CompactSign, decodeJwt } from 'jose';
 import { stringify } from 'querystring';
 import { v4 } from 'uuid';
 
 import { Queue } from './Queue';
 import { TokenSet } from './token-set';
+
+export type TokenOption = { token?: string };
+export type Config = TokenOption & AxiosRequestConfig;
 
 export class HttpClient {
   protected readonly axiosInstance: AxiosInstance;
@@ -13,6 +16,7 @@ export class HttpClient {
   protected readonly requestQueue: Queue;
   private tokenSet: TokenSet;
   private exchangedTokenSet: TokenSet;
+  private discoveredIssuers = new Map<string, Issuer>();
 
   public eventSourcesMap: Map<
     string,
@@ -34,16 +38,17 @@ export class HttpClient {
 
   public getQueueStats = () => this.requestQueue?.getStats();
 
-  public delete = <T>(url: string, config?: AxiosRequestConfig) => this.request<T>('DELETE', url, config);
-  public get = <T>(url: string, config?: AxiosRequestConfig) => this.request<T>('GET', url, config);
-  public post = <T>(url: string, data: any, config?: AxiosRequestConfig) => this.request<T>('POST', url, config, data);
-  public put = <T>(url: string, data: any, config?: AxiosRequestConfig) => this.request<T>('PUT', url, config, data);
+  public delete = <T>(url: string, config?: Config) => this.request<T>('DELETE', url, config);
+  public get = <T>(url: string, config?: Config) => this.request<T>('GET', url, config);
+  public post = <T>(url: string, data: any, config?: Config) => this.request<T>('POST', url, config, data);
+  public put = <T>(url: string, data: any, config?: Config) => this.request<T>('PUT', url, config, data);
 
-  protected request = <T>(method: Method, url: string, config: AxiosRequestConfig = {}, data?): Promise<T> => {
+  protected request = <T>(method: Method, url: string, config: Config = {}, data?): Promise<T> => {
     return this.requestQueue.add(
       () =>
         new Promise((resolve, reject) => {
-          this.getAccessToken()
+          const tokenP = config.token ? Promise.resolve(config.token) : this.getAccessToken();
+          tokenP
             .then((token) => {
               const headers = { Authorization: `Bearer ${token}`, ...config.headers } as RawAxiosRequestHeaders;
               return this.axiosInstance.request<T>({ ...config, headers, method, url, data });
@@ -54,7 +59,12 @@ export class HttpClient {
     );
   };
 
-  public async addEventSource(url: string, listener: (event: MessageEvent) => void, errorListener?: (event: MessageEvent) => void) {
+  public async addEventSource(
+    url: string,
+    listener: (event: MessageEvent) => void,
+    errorListener?: (event: MessageEvent) => void,
+    options: TokenOption = {},
+  ) {
     const id = v4();
     const errListener = errorListener
       ? errorListener
@@ -62,7 +72,7 @@ export class HttpClient {
           throw new Error(JSON.stringify(event, null, 2));
         };
     const es = new EventSource(`${this.baseURL}${url}`, {
-      headers: { authorization: 'Bearer ' + (await this.getAccessToken()) },
+      headers: { authorization: 'Bearer ' + options.token ? options.token : await this.getAccessToken() },
     });
     es.addEventListener('message', listener);
     es.addEventListener('error', errListener);
@@ -92,6 +102,9 @@ export class HttpClient {
   public getAccessToken = async (forceRefresh = false): Promise<string> => {
     let accessToken: string;
     if (forceRefresh || !this.tokenSet || this.tokenSet.isExpired()) {
+      if (this.tokenSet?.provided) {
+        throw new Error('provided token is expired and cannot be refreshed, provide a new token.');
+      }
       this.tokenSet = await this.requestAccessToken();
       accessToken = this.tokenSet.accessToken;
     } else {
@@ -121,12 +134,17 @@ export class HttpClient {
   }
 
   protected async discoverIssuer(uri: string): Promise<Issuer> {
+    if (this.discoveredIssuers.has(uri)) {
+      return this.discoveredIssuers.get(uri);
+    }
     const wellKnownUri = `${uri}/.well-known/openid-configuration`;
     const issuerResponse = await this.authAxiosInstance.get(wellKnownUri, {
       responseType: 'json',
       headers: { Accept: 'application/json' },
     });
-    return this.validateIssuer(issuerResponse.data);
+    const validIssuer = this.validateIssuer(issuerResponse.data);
+    this.discoveredIssuers.set(uri, validIssuer);
+    return validIssuer;
   }
 
   protected async requestAccessToken(additionalOpts = {}): Promise<TokenSet> {
@@ -188,6 +206,20 @@ export class HttpClient {
       requested_subject: this.tokenSubject,
     };
     return this.requestAccessToken(opts);
+  }
+
+  async provideExternalToken(token: string) {
+    const issuer = await this.discoverIssuer(`${this.authBaseURL}/realms/${this.realm}`);
+
+    const { iss: providedIssuer, exp } = decodeJwt(token);
+
+    if (issuer.issuer !== providedIssuer) {
+      throw new Error(
+        `Provided token is not issued by currently configured issuer. Provided token issued by ${providedIssuer}, but ${issuer.issuer} is configured.`,
+      );
+    }
+
+    this.tokenSet = new TokenSet(token, exp - Date.now() / 1000, true);
   }
 }
 
