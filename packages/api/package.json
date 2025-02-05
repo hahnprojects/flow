@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "axios": "1.7.9",
-    "eventsource": "2.0.2",
+    "eventsource": "3.0.5",
     "form-data": "4.0.1",
     "jose": "5.9.6",
     "jwt-decode": "4.0.0",
