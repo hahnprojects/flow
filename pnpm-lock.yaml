@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  debug@<3.1.0: '>=3.1.0'
+  debug@<3.1.0: '>=4.4.0'
 
 importers:
 
