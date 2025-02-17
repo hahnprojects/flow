@@ -31,8 +31,8 @@
   "dependencies": {
     "axios": "1.7.9",
     "eventsource": "2.0.2",
-    "form-data": "4.0.1",
-    "jose": "5.9.6",
+    "form-data": "4.0.2",
+    "jose": "5.10.0",
     "jwt-decode": "4.0.0",
     "p-queue": "6.6.2",
     "ts-mixer": "6.0.4",
