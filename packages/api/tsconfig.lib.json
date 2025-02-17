@@ -1,7 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "rootDir": "lib"
-  },
-  "exclude": ["dist", "node_modules", "test", "**/*.spec.ts", "jest.config.js"]
-}
