@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.17.9
+
+### Patch Changes
+
+- 1ac60b1: Updated dependencies to reduce vulnerabilities
+
 ## 2.17.8
 
 ### Patch Changes
