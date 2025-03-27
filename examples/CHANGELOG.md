@@ -1,5 +1,13 @@
 # flow-module-examples
 
+## 1.5.18
+
+### Patch Changes
+
+- c00b494: Updated dependencies to reduce vulnerabilities
+- Updated dependencies [c00b494]
+  - @hahnpro/flow-sdk@8.0.11
+
 ## 1.5.17
 
 ### Patch Changes
