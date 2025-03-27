@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 8.0.11
+
+### Patch Changes
+
+- c00b494: Updated dependencies to reduce vulnerabilities
+
 ## 8.0.10
 
 ### Patch Changes
