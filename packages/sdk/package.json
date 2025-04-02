@@ -35,7 +35,7 @@
     "@nats-io/nats-core": "3.0.0",
     "@nats-io/transport-node": "3.0.0",
     "amqp-connection-manager": "4.1.14",
-    "amqplib": "0.10.5",
+    "amqplib": "0.10.7",
     "class-transformer": "0.5.1",
     "class-validator": "~0.14.1",
     "cloudevents": "8.0.2",
@@ -50,7 +50,7 @@
     "@types/amqplib": "0.10.7",
     "@types/jest": "29.5.14",
     "@types/lodash": "4.17.16",
-    "@types/node": "22.13.14",
+    "@types/node": "22.13.17",
     "class-validator-jsonschema": "5.0.2",
     "jest": "29.7.0",
     "typescript": "5.8.2"
