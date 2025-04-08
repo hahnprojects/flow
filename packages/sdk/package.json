@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "@hahnpro/hpc-api": "2025.2.11",
+    "@nats-io/jetstream": "3.0.0",
     "@nats-io/nats-core": "3.0.0",
     "@nats-io/transport-node": "3.0.0",
     "amqp-connection-manager": "4.1.14",

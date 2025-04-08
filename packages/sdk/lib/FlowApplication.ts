@@ -5,7 +5,6 @@ import { NatsConnection, ConnectionOptions as NatsConnectionOptions } from '@nat
 import { ConsumeMessage } from 'amqplib';
 import { AmqpConnectionManager, Channel, ChannelWrapper } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
-import { randomUUID as uuid } from 'crypto';
 import { cloneDeep } from 'lodash';
 import sizeof from 'object-sizeof';
 import { EventLoopUtilization, performance } from 'perf_hooks';
@@ -18,8 +17,8 @@ import type { FlowElement } from './FlowElement';
 import { FlowEvent } from './FlowEvent';
 import { FlowLogger, Logger } from './FlowLogger';
 import { RpcClient } from './RpcClient';
-import { delay, truncate } from './utils';
-import { createNatsConnection } from './nats';
+import { truncate } from './utils';
+import { createNatsConnection, publishNatsEvent } from './nats';
 import { ContextManager } from './ContextManager';
 
 const MAX_EVENT_SIZE_BYTES = +process.env.MAX_EVENT_SIZE_BYTES || 512 * 1024; // 512kb
@@ -188,31 +187,6 @@ export class FlowApplication {
       }
     }
 
-    this.amqpChannel = this.amqpConnection?.createChannel({
-      json: true,
-      setup: async (channel: Channel) => {
-        try {
-          await channel.assertExchange('deployment', 'direct', { durable: true });
-          await channel.assertExchange('flowlogs', 'fanout', { durable: true });
-          await channel.assertExchange('flow', 'direct', { durable: true });
-        } catch (e) {
-          await logErrorAndExit(`Could not assert exchanges: ${e}`);
-        }
-
-        try {
-          const queue = await channel.assertQueue(null, { durable: false, exclusive: true });
-          await channel.bindQueue(queue.queue, 'deployment', this.context.deploymentId);
-          await channel.consume(queue.queue, (msg) => this.onMessage(msg));
-        } catch (err) {
-          await logErrorAndExit(`Could not subscribe to deployment exchange: ${err}`);
-        }
-      },
-    });
-
-    if (this.amqpChannel) {
-      await this.amqpChannel.waitForConnect();
-    }
-
     for (const module of this.modules) {
       const moduleName = Reflect.getMetadata('module:name', module);
       const moduleDeclarations = Reflect.getMetadata('module:declarations', module);
@@ -318,31 +292,31 @@ export class FlowApplication {
     this.logger.log('Flow Deployment is running');
   }
 
-  private publishLifecycleEvent = (
+  private publishLifecycleEvent = async (
     element: FlowElement,
     flowEventId: string,
     eventType: LifecycleEvent,
     data: Record<string, any> = {},
   ) => {
-    if (!this.amqpChannel) {
+    if (!this.natsConnection) {
+      this.logger.error('No nats connection to publish the flow lifecycle on');
       return;
     }
     try {
       const { flowId, deploymentId, id: elementId, functionFqn, inputStreamId } = element.getMetadata();
-      const event = new CloudEvent({
+      const natsEvent = {
         source: `flows/${flowId}/deployments/${deploymentId}/elements/${elementId}`,
-        type: eventType,
+        type: `com.hahnpro.flowdeployment.lifecycle`,
+        subject: `${this.context.deploymentId}`,
         data: {
           flowEventId,
           functionFqn,
           inputStreamId,
+          eventType,
           ...data,
         },
-        time: new Date().toISOString(),
-      });
-      const message = event.toJSON();
-
-      return this.amqpChannel.publish('flow', 'lifecycle', message);
+      };
+      await publishNatsEvent(this.natsConnection, natsEvent).catch((err) => this.logger.error(err));
     } catch (err) {
       this.logger.error(err);
     }
@@ -417,7 +391,6 @@ export class FlowApplication {
       try {
         const flow = event.data as Flow;
         if (!flow) {
-          this.amqpChannel.nack(msg, false, false);
           return;
         }
         let context: Partial<FlowElementContext> = {};
@@ -447,30 +420,34 @@ export class FlowApplication {
           );
         }
 
-        const statusEvent = {
-          eventId: uuid(),
-          eventTime: new Date().toISOString(),
-          eventType: 'com.hahnpro.event.health',
-          contentType: 'application/json',
-          data: { deploymentId: this.context.deploymentId, status: 'updated' },
-        };
         try {
-          this.amqpChannel?.publish('deployment', 'health', statusEvent);
+          const natsEvent = {
+            source: `hpc/executor-service`,
+            type: `com.hahnpro.flowdeployment.health`,
+            subject: `${this.context.deploymentId}`,
+            data: {
+              deploymentId: this.context.deploymentId,
+              status: 'updated',
+            },
+          };
+          await publishNatsEvent(this.natsConnection, natsEvent).catch((err) => this.logger.error(err));
         } catch (err) {
           this.logger.error(err);
         }
       } catch (err) {
         this.logger.error(err);
 
-        const statusEvent = {
-          eventId: uuid(),
-          eventTime: new Date().toISOString(),
-          eventType: 'com.hahnpro.event.health',
-          contentType: 'application/json',
-          data: { deploymentId: this.context.deploymentId, status: 'updating failed' },
+        const natsEvent = {
+          source: `hpc/executor-service`,
+          type: `com.hahnpro.flowdeployment.health`,
+          subject: `${this.context.deploymentId}`,
+          data: {
+            deploymentId: this.context.deploymentId,
+            status: 'updating failed',
+          },
         };
         try {
-          this.amqpChannel?.publish('deployment', 'health', statusEvent);
+          await publishNatsEvent(this.natsConnection, natsEvent).catch((err) => this.logger.error(err));
         } catch (e) {
           this.logger.error(e);
         }
@@ -487,8 +464,6 @@ export class FlowApplication {
       }
     } else if (event.type === 'com.flowstudio.deployment.destroy') {
       this.destroy();
-    } else {
-      this.amqpChannel.nack(msg, false, false);
     }
   };
 
@@ -496,8 +471,9 @@ export class FlowApplication {
    * Publish a flow event to the amqp flowlogs exchange.
    * If the event size exceeds the limit it will be truncated
    */
-  public publishEvent = (event: FlowEvent): Promise<boolean> => {
-    if (!this.amqpChannel) {
+  public publishEvent = async (event: FlowEvent): Promise<boolean> => {
+    if (!this.natsConnection) {
+      this.logger.error('No nats connection to publish the flow event on');
       return;
     }
     try {
@@ -505,7 +481,18 @@ export class FlowApplication {
       if (sizeof(message) > MAX_EVENT_SIZE_BYTES) {
         message.data = truncate(message.data);
       }
-      return this.amqpChannel.publish('flowlogs', '', message);
+
+      const natsEvent = {
+        source: `hpc/deployment-service`,
+        type: `com.hahnpro.flowdeployment.flowlogs`,
+        subject: `${this.context.deploymentId}`,
+        data: message,
+      };
+      try {
+        await publishNatsEvent(this.natsConnection, natsEvent).catch((err) => this.logger.error(err));
+      } catch (e) {
+        this.logger.error(e);
+      }
     } catch (err) {
       this.logger.error(err);
     }
@@ -529,10 +516,7 @@ export class FlowApplication {
         this.logger.error(err);
       }
       // allow time for logs to be processed
-      await delay(250);
-      if (this.amqpConnection) {
-        await this.amqpConnection.close();
-      }
+      await this.natsConnection.drain();
     } catch (err) {
       /* eslint-disable-next-line no-console */
       console.error(err);
