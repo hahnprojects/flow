@@ -31,14 +31,14 @@
     "lint": "eslint '*/**/*.{js,ts}'"
   },
   "dependencies": {
-    "@hahnpro/hpc-api": "2025.2.11",
-    "@nats-io/nats-core": "3.0.0",
-    "@nats-io/transport-node": "3.0.0",
+    "@hahnpro/hpc-api": "2025.2.12",
+    "@nats-io/nats-core": "3.0.2",
+    "@nats-io/transport-node": "3.0.2",
     "amqp-connection-manager": "4.1.14",
     "amqplib": "0.10.7",
     "class-transformer": "0.5.1",
     "class-validator": "~0.14.1",
-    "cloudevents": "8.0.2",
+    "cloudevents": "8.0.3",
     "lodash": "4.17.21",
     "object-sizeof": "~2.6.5",
     "python-shell": "5.0.0",
@@ -50,10 +50,10 @@
     "@types/amqplib": "0.10.7",
     "@types/jest": "29.5.14",
     "@types/lodash": "4.17.16",
-    "@types/node": "22.13.17",
+    "@types/node": "22.14.0",
     "class-validator-jsonschema": "5.0.2",
     "jest": "29.7.0",
-    "typescript": "5.8.2"
+    "typescript": "5.8.3"
   },
   "peerDependencies": {
     "axios": "1.8.4",
