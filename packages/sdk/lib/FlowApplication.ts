@@ -316,7 +316,7 @@ export class FlowApplication {
           ...data,
         },
       };
-      await publishNatsEvent(this.natsConnection, natsEvent).catch((err) => this.logger.error(err));
+      await publishNatsEvent(this.natsConnection, natsEvent);
     } catch (err) {
       this.logger.error(err);
     }
