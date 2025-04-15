@@ -1,5 +1,18 @@
 import { ConnectionOptions, NatsConnection } from '@nats-io/nats-core';
 import { connect } from '@nats-io/transport-node';
+import { CloudEvent } from 'cloudevents';
+import { jetstream, PubAck } from '@nats-io/jetstream';
+export type NatsEvent<T> = Pick<CloudEvent<T>, 'type' | 'source' | 'subject' | 'data' | 'datacontenttype' | 'time'>;
+
+export const natsFlowsPrefixFlowDeployment = `com.hahnpro.flows.flowdeployment`;
+
+export async function publishNatsEvent<T>(nc: NatsConnection, event: NatsEvent<T>, subject?: string): Promise<PubAck> {
+  const cloudEvent = new CloudEvent<T>({ datacontenttype: 'application/json', ...event });
+  cloudEvent.validate();
+  return jetstream(nc).publish(subject || `${cloudEvent.type}.${cloudEvent.subject}`, JSON.stringify(cloudEvent.toJSON()), {
+    msgID: cloudEvent.id,
+  });
+}
 
 export async function createNatsConnection(config: ConnectionOptions): Promise<NatsConnection> {
   const servers: string | string[] = config?.servers ?? process.env.NATS_SERVERS?.split(',') ?? [];
