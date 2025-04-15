@@ -489,7 +489,8 @@ export class FlowApplication {
    */
   public publishEvent = async (event: FlowEvent): Promise<boolean> => {
     if (!this.amqpChannel) {
-      return;
+      this.logger.error('AMQP channel is not available.');
+      return false;
     }
     try {
       const message = event.format();
