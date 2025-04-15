@@ -63,12 +63,17 @@ export async function getOrCreateConsumer(
   return await jetstream(natsConnection).consumers.get(streamName, consumerName);
 }
 
-export async function publishNatsEvent<T>(nc: NatsConnection, event: NatsEvent<T>, subject?: string): Promise<PubAck> {
+export async function publishNatsEvent<T>(logger: Logger, nc: NatsConnection, event: NatsEvent<T>, subject?: string): Promise<PubAck> {
   const cloudEvent = new CloudEvent<T>({ datacontenttype: 'application/json', ...event });
   cloudEvent.validate();
-  return jetstream(nc).publish(subject || `${cloudEvent.type}.${cloudEvent.subject}`, JSON.stringify(cloudEvent.toJSON()), {
-    msgID: cloudEvent.id,
-  });
+  const js = jetstream(nc);
+  if (js) {
+    return js.publish(subject || `${cloudEvent.type}.${cloudEvent.subject}`, JSON.stringify(cloudEvent.toJSON()), {
+      msgID: cloudEvent.id,
+    });
+  } else {
+    logger.error(`Could not publish nats event, because jetstream could not be getted`);
+  }
 }
 
 export async function createNatsConnection(config: ConnectionOptions): Promise<NatsConnection> {

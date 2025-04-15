@@ -373,7 +373,7 @@ export class FlowApplication {
           ...data,
         },
       };
-      await publishNatsEvent(this.natsConnection, natsEvent, `${natsFlowsPrefixFlowDeployment}.flowlifecycle.${deploymentId}`);
+      await publishNatsEvent(this.logger, this.natsConnection, natsEvent, `${natsFlowsPrefixFlowDeployment}.flowlifecycle.${deploymentId}`);
     } catch (err) {
       this.logger.error(err);
     }
@@ -478,7 +478,7 @@ export class FlowApplication {
             status: 'updated',
           },
         };
-        await publishNatsEvent(this.natsConnection, natsEvent);
+        await publishNatsEvent(this.logger, this.natsConnection, natsEvent);
       } catch (err) {
         this.logger.error(err);
 
@@ -491,7 +491,7 @@ export class FlowApplication {
             status: 'updating failed',
           },
         };
-        await publishNatsEvent(this.natsConnection, natsEvent);
+        await publishNatsEvent(this.logger, this.natsConnection, natsEvent);
       }
     } else if (event.type.endsWith('.message')) {
       const data = event.data as DeploymentMessage;
@@ -526,7 +526,7 @@ export class FlowApplication {
         subject: `${this.context.deploymentId}`,
         data: message,
       };
-      await publishNatsEvent(this.natsConnection, natsEvent);
+      await publishNatsEvent(this.logger, this.natsConnection, natsEvent);
       return true;
     } catch (err) {
       this.logger.error(err);
