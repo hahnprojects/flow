@@ -488,9 +488,6 @@ export class FlowApplication {
    * If the event size exceeds the limit it will be truncated
    */
   public publishEvent = async (event: FlowEvent): Promise<boolean> => {
-    if (!this.amqpChannel) {
-      return;
-    }
     try {
       const message = event.format();
       if (sizeof(message) > MAX_EVENT_SIZE_BYTES) {
@@ -504,8 +501,10 @@ export class FlowApplication {
         data: message,
       };
       await publishNatsEvent(this.natsConnection, natsEvent);
+      return true;
     } catch (err) {
       this.logger.error(err);
+      return false;
     }
   };
 
