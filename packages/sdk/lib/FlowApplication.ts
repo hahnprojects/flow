@@ -488,10 +488,6 @@ export class FlowApplication {
    * If the event size exceeds the limit it will be truncated
    */
   public publishEvent = async (event: FlowEvent): Promise<boolean> => {
-    if (!this.amqpChannel) {
-      this.logger.error('AMQP channel is not available.');
-      return false;
-    }
     try {
       const message = event.format();
       if (sizeof(message) > MAX_EVENT_SIZE_BYTES) {
