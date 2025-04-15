@@ -220,6 +220,9 @@ importers:
       '@hahnpro/hpc-api':
         specifier: 2025.2.12
         version: 2025.2.12
+      '@nats-io/jetstream':
+        specifier: 3.0.2
+        version: 3.0.2
       '@nats-io/nats-core':
         specifier: 3.0.2
         version: 3.0.2
@@ -660,6 +663,9 @@ packages:
 
   '@manypkg/get-packages@1.1.3':
     resolution: {integrity: sha512-fo+QhuU3qE/2TQMQmbVMqaQ6EWbMhi4ABWP+O4AM1NqPBuy0OrApV5LO6BrrgnhtAHS2NH6RrVk9OL181tTi8A==}
+
+  '@nats-io/jetstream@3.0.2':
+    resolution: {integrity: sha512-dR789x1xhMyEukXILPWDo6ODW53nHpBD9LnsnnywA+pTkwYFydEkYdyhv9HzFc6s6Nfrb2TpibrT4znijlg2dg==}
 
   '@nats-io/nats-core@3.0.2':
     resolution: {integrity: sha512-gACbRIhY3yQTO+5C4E1LY/qO2e5EhGUBeDsnPDT8Hd3qY9mfhNtluY6R7d7WX7/JMGsXRPbYdSLSADr/ECSy3w==}
@@ -3812,6 +3818,10 @@ snapshots:
       fs-extra: 8.1.0
       globby: 11.1.0
       read-yaml-file: 1.1.0
+
+  '@nats-io/jetstream@3.0.2':
+    dependencies:
+      '@nats-io/nats-core': 3.0.2
 
   '@nats-io/nats-core@3.0.2':
     dependencies:
