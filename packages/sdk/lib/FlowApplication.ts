@@ -2,7 +2,6 @@ import 'reflect-metadata';
 
 import { API, HttpClient, MockAPI } from '@hahnpro/hpc-api';
 import { NatsConnection, ConnectionOptions as NatsConnectionOptions } from '@nats-io/nats-core';
-import { ConsumeMessage } from 'amqplib';
 import { AmqpConnectionManager, Channel, ChannelWrapper } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
 import { cloneDeep } from 'lodash';
@@ -18,7 +17,15 @@ import { FlowEvent } from './FlowEvent';
 import { FlowLogger, Logger } from './FlowLogger';
 import { RpcClient } from './RpcClient';
 import { delay, truncate } from './utils';
-import { createNatsConnection, NatsEvent, natsFlowsPrefixFlowDeployment, publishNatsEvent } from './nats';
+import {
+  createNatsConnection,
+  defaultConsumerConfig,
+  FLOWS_STREAM_NAME,
+  getOrCreateConsumer,
+  NatsEvent,
+  natsFlowsPrefixFlowDeployment,
+  publishNatsEvent,
+} from './nats';
 import { ContextManager } from './ContextManager';
 
 const MAX_EVENT_SIZE_BYTES = +process.env.MAX_EVENT_SIZE_BYTES || 512 * 1024; // 512kb
@@ -187,22 +194,51 @@ export class FlowApplication {
       }
     }
 
+    try {
+      const consumerOptions = {
+        ...defaultConsumerConfig,
+        name: `flow-deployment-${this.context.deploymentId}`,
+        filter_subject: `${natsFlowsPrefixFlowDeployment}.${this.context.deploymentId}.*`,
+      };
+      const consumer = await getOrCreateConsumer(
+        this.logger,
+        this._natsConnection,
+        FLOWS_STREAM_NAME,
+        consumerOptions.name,
+        consumerOptions,
+      );
+
+      const messageIterator = await consumer.consume(consumerOptions);
+      for await (const msg of messageIterator) {
+        try {
+          let event: CloudEvent;
+          try {
+            event = new CloudEvent(msg.json());
+            event.validate();
+          } catch (error) {
+            this.logger.error('Message is not a valid CloudEvent and will be discarded');
+            msg.ack(); // Acknowledge the message to remove it from the queue
+            continue;
+          }
+          await this.onMessage(event);
+          msg.ack();
+        } catch (error) {
+          this.logger.error('Error processing message');
+          this.logger.error(error);
+          msg.nak(1000);
+        }
+      }
+    } catch (e) {
+      await logErrorAndExit(`Could not set up consumer for deployment messages exchanges: ${e}`);
+    }
+
     this.amqpChannel = this.amqpConnection?.createChannel({
       json: true,
       setup: async (channel: Channel) => {
         try {
-          await channel.assertExchange('deployment', 'direct', { durable: true });
-          await channel.assertExchange('flow', 'direct', { durable: true });
+          await channel.assertExchange('flow', 'direct', { durable: true }); // TODO wieso weshalb warum: wo wird das gebraucht?
         } catch (e) {
           await logErrorAndExit(`Could not assert exchanges: ${e}`);
-        }
-
-        try {
-          const queue = await channel.assertQueue(null, { durable: false, exclusive: true });
-          await channel.bindQueue(queue.queue, 'deployment', this.context.deploymentId);
-          await channel.consume(queue.queue, (msg) => this.onMessage(msg));
-        } catch (err) {
-          await logErrorAndExit(`Could not subscribe to deployment exchange: ${err}`);
         }
       },
     });
@@ -399,20 +435,11 @@ export class FlowApplication {
     }
   };
 
-  public onMessage = async (msg: ConsumeMessage) => {
-    let event: CloudEvent<any>;
-    try {
-      event = JSON.parse(msg.content.toString());
-    } catch (err) {
-      this.logger.error(err);
-      return;
-    }
-
-    if (event.type === 'com.flowstudio.deployment.update') {
+  public onMessage = async (event: CloudEvent) => {
+    if (event.subject.endsWith('.update')) {
       try {
         const flow = event.data as Flow;
         if (!flow) {
-          this.amqpChannel.nack(msg, false, false);
           return;
         }
         let context: Partial<FlowElementContext> = {};
@@ -466,7 +493,7 @@ export class FlowApplication {
         };
         await publishNatsEvent(this.natsConnection, natsEvent);
       }
-    } else if (event.type === 'com.flowstudio.deployment.message') {
+    } else if (event.type.endsWith('.message')) {
       const data = event.data as DeploymentMessage;
       const elementId = data?.elementId;
       if (elementId) {
@@ -476,10 +503,9 @@ export class FlowApplication {
           element?.onMessage?.(data);
         }
       }
-    } else if (event.type === 'com.flowstudio.deployment.destroy') {
+    } else if (event.type.endsWith('.destroy')) {
+      // TODO war com.flowstudio.deployment.destroy in RabbitMq: wo wird das jetzt wieder gesendet?
       this.destroy();
-    } else {
-      this.amqpChannel.nack(msg, false, false);
     }
   };
 

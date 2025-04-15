@@ -1,11 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    ":prHourlyLimitNone",
-    "helpers:disableTypesNodeMajor",
-    "group:allNonMajor"
-  ],
+  "extends": ["config:recommended", ":prHourlyLimitNone", "helpers:disableTypesNodeMajor", "group:allNonMajor"],
   "ignoreDeps": ["node", "p-queue"],
   "ignorePaths": ["**/node_modules/**", "**/test/**"],
   "rangeStrategy": "bump",
