@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.17.13
+
+### Patch Changes
+
+- 000e141: Removed configurability of the client used with flow login, as it can cause errors when .env files have an API_USER configured
+
 ## 2.17.12
 
 ### Patch Changes
