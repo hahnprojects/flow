@@ -11,7 +11,7 @@ import url from 'node:url';
 import { logger } from './utils.mjs';
 
 const BASE_URL = process.env.BASE_URL || process.env.PLATFORM_URL;
-const CLIENT_ID = process.env.CLIENT_ID || process.env.API_USER || 'flow-cli';
+const CLIENT_ID = 'flow-cli';
 const CLIENT_SECRET = process.env.CLIENT_SECRET || process.env.API_KEY;
 const REALM = process.env.REALM;
 const BUFFER = 120;
