@@ -11,9 +11,9 @@
   "devDependencies": {
     "@changesets/cli": "2.29.2",
     "@types/jest": "29.5.14",
-    "@types/node": "22.14.1",
-    "@typescript-eslint/eslint-plugin": "8.31.0",
-    "@typescript-eslint/parser": "8.31.0",
+    "@types/node": "22.15.3",
+    "@typescript-eslint/eslint-plugin": "8.31.1",
+    "@typescript-eslint/parser": "8.31.1",
     "copyfiles": "2.4.1",
     "dotenv": "16.5.0",
     "eslint": "8.57.1",
