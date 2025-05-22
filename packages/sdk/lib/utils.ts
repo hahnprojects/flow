@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import { promises as fs } from 'fs';
 import isPlainObject from 'lodash/isPlainObject';
 import { join } from 'path';
@@ -64,15 +65,24 @@ export async function deleteFiles(dir: string, ...filenames: string[]) {
 }
 
 export function handleApiError(error: any, logger: FlowLogger) {
-  if (error.isAxiosError) {
-    if (error.response && error.response.data) {
-      logger.error(error.response.data);
-    } else {
-      logger.error(`Error ${error.code}`);
-      logger.error(error.config);
-      if (error.stack) {
-        logger.error(error.stack);
+  if (isAxiosError(error)) {
+    const status = error.response?.status ?? error.code ?? '';
+    const statusText = error.response?.statusText ?? '';
+    const url = error.config?.url ?? '[Unknown URL]';
+    const method = error.config?.method?.toUpperCase() ?? '';
+    let errorText = error.response?.data ?? '';
+
+    if (typeof errorText !== 'string') {
+      try {
+        errorText = JSON.stringify(errorText, null, 2);
+      } catch (_) {
+        errorText = '[Unserializable error body]';
       }
+    }
+    logger.error(`${status} ${statusText}: ${method} request to ${url} failed\n${errorText}`);
+
+    if (error.stack) {
+      logger.error(error.stack);
     }
   } else {
     logger.error(error);

@@ -78,7 +78,7 @@ export function login(baseUrl = BASE_URL, realm = REALM) {
 
     const kcIssuer = await openidClient.Issuer.discover(`${baseUrl}/auth/realms/${realm}/`);
     const client = new kcIssuer.Client({
-      client_id: CLIENT_ID,
+      client_id: 'flow-cli',
       redirect_uris: [redirectUri],
       response_types: ['code'],
       token_endpoint_auth_method: 'none',

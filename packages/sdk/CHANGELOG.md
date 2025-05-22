@@ -1,5 +1,17 @@
 # @hahnpro/flow-sdk
 
+## 8.0.13
+
+### Patch Changes
+
+- a0be6e8: Improved logging of Axios errors
+
+## 8.0.12
+
+### Patch Changes
+
+- b7fee35: Updated dependencies to reduce vulnerabilities
+
 ## 8.0.11
 
 ### Patch Changes
