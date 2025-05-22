@@ -220,6 +220,9 @@ importers:
       '@hahnpro/hpc-api':
         specifier: 2025.2.13
         version: 2025.2.13
+      '@nats-io/jetstream':
+        specifier: 3.0.2
+        version: 3.0.2
       '@nats-io/nats-core':
         specifier: 3.0.2
         version: 3.0.2
