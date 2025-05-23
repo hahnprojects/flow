@@ -1,6 +1,9 @@
 import { setTimeout } from 'timers/promises';
 
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
+import { connect } from '@nats-io/transport-node';
+import { NatsConnection } from '@nats-io/nats-core';
+import { CloudEvent } from 'cloudevents';
 
 describe('InputStreamDecorator', () => {
   test('FLOW.ISD.1 should return input event data', async () => {
@@ -57,6 +60,9 @@ describe('InputStreamDecorator', () => {
 
   test('FLOW.ISD.5 should only log partial events', async () => {
     const flow = {
+      context: {
+        deploymentId: 'test',
+      },
       elements: [
         { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
         { id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource' },
@@ -75,17 +81,19 @@ describe('InputStreamDecorator', () => {
         }),
       },
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, null, true, true);
+    const natsConnection: NatsConnection = await connect();
+    const flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, natsConnection, true, true);
+    const spy = jest.spyOn(flowApp, 'publishNatsEventFlowlogs');
     await flowApp.init();
+    expect(flowApp.natsConnection).toBeDefined();
 
     const done = new Promise<void>((resolve, reject) => {
       flowApp.subscribe('testResource.default', {
         next: async (event: FlowEvent) => {
           try {
             await setTimeout(1000);
-            expect(publish).toHaveBeenNthCalledWith(1, 'flowlogs', '', expect.objectContaining({ data: 'Flow Deployment is running' }));
-            expect(publish).toHaveBeenNthCalledWith(2, 'flowlogs', '', expect.objectContaining({ data: { test1: 'data' } }));
-            expect(publish).toHaveBeenNthCalledWith(4, 'flowlogs', '', expect.objectContaining({ data: { hello: 'world' } }));
+            expect(spy.mock.calls[0][0].getData()).toEqual({ test1: "data" });
+            expect(spy.mock.calls[1][0].getData()).toEqual({ hello: "world" });
             resolve();
           } catch (error) {
             reject(error);

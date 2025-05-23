@@ -2,10 +2,9 @@ import 'reflect-metadata';
 
 import { API, HttpClient, MockAPI } from '@hahnpro/hpc-api';
 import { NatsConnection, ConnectionOptions as NatsConnectionOptions } from '@nats-io/nats-core';
-import { ConsumeMessage } from 'amqplib';
+import { Consumer, ConsumerConfig, ConsumerMessages } from '@nats-io/jetstream';
 import { AmqpConnectionManager, Channel, ChannelWrapper } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
-import { randomUUID as uuid } from 'crypto';
 import { cloneDeep } from 'lodash';
 import sizeof from 'object-sizeof';
 import { EventLoopUtilization, performance } from 'perf_hooks';
@@ -19,7 +18,15 @@ import { FlowEvent } from './FlowEvent';
 import { FlowLogger, Logger } from './FlowLogger';
 import { RpcClient } from './RpcClient';
 import { delay, truncate } from './utils';
-import { createNatsConnection } from './nats';
+import {
+  createNatsConnection,
+  defaultConsumerConfig,
+  FLOWS_STREAM_NAME,
+  getOrCreateConsumer,
+  NatsEvent,
+  natsFlowsPrefixFlowDeployment,
+  publishNatsEvent,
+} from './nats';
 import { ContextManager } from './ContextManager';
 
 const MAX_EVENT_SIZE_BYTES = +process.env.MAX_EVENT_SIZE_BYTES || 512 * 1024; // 512kb
@@ -65,6 +72,7 @@ export class FlowApplication {
   private readonly apiClient?: HttpClient;
 
   private readonly contextManager: ContextManager;
+  private natsMessageIterator: ConsumerMessages;
 
   constructor(modules: ClassType<any>[], flow: Flow, config?: FlowAppConfig);
   constructor(
@@ -108,7 +116,7 @@ export class FlowApplication {
     this.logger = new FlowLogger(
       { id: 'none', functionFqn: 'FlowApplication', ...flow?.context },
       this.baseLogger || undefined,
-      this.publishEvent,
+      this.publishNatsEventFlowlogs,
     );
 
     this.contextManager = new ContextManager(this.logger, this.flow?.properties);
@@ -155,6 +163,32 @@ export class FlowApplication {
     return this.contextManager.getProperties();
   }
 
+  private async consumeNatsMessagesOfConsumer(consumer: Consumer, consumerOptions: Partial<ConsumerConfig>) {
+    if (this.natsMessageIterator) {
+      await this.natsMessageIterator.close();
+    }
+    this.natsMessageIterator = await consumer.consume(consumerOptions);
+    for await (const msg of this.natsMessageIterator) {
+      try {
+        let event: CloudEvent;
+        try {
+          event = new CloudEvent(msg.json());
+          event.validate();
+        } catch (error) {
+          this.logger.error('Message is not a valid CloudEvent and will be discarded');
+          msg.ack(); // Acknowledge the message to remove it from the queue
+          continue;
+        }
+        await this.onMessage(event);
+        msg.ack();
+      } catch (error) {
+        this.logger.error('Error processing message');
+        this.logger.error(error);
+        msg.nak(1000);
+      }
+    }
+  }
+
   public async init() {
     if (this.initialized) return;
 
@@ -188,23 +222,35 @@ export class FlowApplication {
       }
     }
 
+    if (this._natsConnection && !this._natsConnection.isClosed() && this.context?.deploymentId !== undefined) {
+      try {
+        const consumerOptions = {
+          ...defaultConsumerConfig,
+          name: `flow-deployment-${this.context.deploymentId}`,
+          filter_subject: `${natsFlowsPrefixFlowDeployment}.${this.context.deploymentId}.*`,
+        };
+        const consumer = await getOrCreateConsumer(
+          this.logger,
+          this._natsConnection,
+          FLOWS_STREAM_NAME,
+          consumerOptions.name,
+          consumerOptions,
+        );
+
+        // NO AWAIT: else it will block the init process
+        this.consumeNatsMessagesOfConsumer(consumer, consumerOptions);
+      } catch (e) {
+        await logErrorAndExit(`Could not set up consumer for deployment messages exchanges: ${e}`);
+      }
+    }
+
     this.amqpChannel = this.amqpConnection?.createChannel({
       json: true,
       setup: async (channel: Channel) => {
         try {
-          await channel.assertExchange('deployment', 'direct', { durable: true });
-          await channel.assertExchange('flowlogs', 'fanout', { durable: true });
-          await channel.assertExchange('flow', 'direct', { durable: true });
+          await channel.assertExchange('flow', 'direct', { durable: true }); // TODO wieso weshalb warum: wo wird das gebraucht?
         } catch (e) {
           await logErrorAndExit(`Could not assert exchanges: ${e}`);
-        }
-
-        try {
-          const queue = await channel.assertQueue(null, { durable: false, exclusive: true });
-          await channel.bindQueue(queue.queue, 'deployment', this.context.deploymentId);
-          await channel.consume(queue.queue, (msg) => this.onMessage(msg));
-        } catch (err) {
-          await logErrorAndExit(`Could not subscribe to deployment exchange: ${err}`);
         }
       },
     });
@@ -318,7 +364,7 @@ export class FlowApplication {
     this.logger.log('Flow Deployment is running');
   }
 
-  private publishLifecycleEvent = (
+  private publishLifecycleEvent = async (
     element: FlowElement,
     flowEventId: string,
     eventType: LifecycleEvent,
@@ -329,7 +375,7 @@ export class FlowApplication {
     }
     try {
       const { flowId, deploymentId, id: elementId, functionFqn, inputStreamId } = element.getMetadata();
-      const event = new CloudEvent({
+      const natsEvent: NatsEvent<any> = {
         source: `flows/${flowId}/deployments/${deploymentId}/elements/${elementId}`,
         type: eventType,
         data: {
@@ -338,11 +384,8 @@ export class FlowApplication {
           inputStreamId,
           ...data,
         },
-        time: new Date().toISOString(),
-      });
-      const message = event.toJSON();
-
-      return this.amqpChannel.publish('flow', 'lifecycle', message);
+      };
+      await publishNatsEvent(this.logger, this.natsConnection, natsEvent, `${natsFlowsPrefixFlowDeployment}.flowlifecycle.${deploymentId}`);
     } catch (err) {
       this.logger.error(err);
     }
@@ -380,7 +423,7 @@ export class FlowApplication {
   public emit = (event: FlowEvent) => {
     if (event) {
       try {
-        this.publishEvent(event);
+        this.publishNatsEventFlowlogs(event);
         if (this.outputStreamMap.has(event.getStreamId())) {
           this.getOutputStream(event.getStreamId()).next(event);
         }
@@ -397,27 +440,18 @@ export class FlowApplication {
         this.getOutputStream(completeEvent.getStreamId()).next(completeEvent);
       }
       if (partialEvent) {
-        this.publishEvent(partialEvent);
+        this.publishNatsEventFlowlogs(partialEvent);
       }
     } catch (err) {
       this.logger.error(err);
     }
   };
 
-  public onMessage = async (msg: ConsumeMessage) => {
-    let event: CloudEvent<any>;
-    try {
-      event = JSON.parse(msg.content.toString());
-    } catch (err) {
-      this.logger.error(err);
-      return;
-    }
-
-    if (event.type === 'com.flowstudio.deployment.update') {
+  public onMessage = async (event: CloudEvent) => {
+    if (event.subject.endsWith('.update')) {
       try {
         const flow = event.data as Flow;
         if (!flow) {
-          this.amqpChannel.nack(msg, false, false);
           return;
         }
         let context: Partial<FlowElementContext> = {};
@@ -447,35 +481,31 @@ export class FlowApplication {
           );
         }
 
-        const statusEvent = {
-          eventId: uuid(),
-          eventTime: new Date().toISOString(),
-          eventType: 'com.hahnpro.event.health',
-          contentType: 'application/json',
-          data: { deploymentId: this.context.deploymentId, status: 'updated' },
+        const natsEvent = {
+          source: `hpc/flow-application`,
+          type: `${natsFlowsPrefixFlowDeployment}.health`,
+          subject: `${this.context.deploymentId}`,
+          data: {
+            deploymentId: this.context.deploymentId,
+            status: 'updated',
+          },
         };
-        try {
-          this.amqpChannel?.publish('deployment', 'health', statusEvent);
-        } catch (err) {
-          this.logger.error(err);
-        }
+        await publishNatsEvent(this.logger, this.natsConnection, natsEvent);
       } catch (err) {
         this.logger.error(err);
 
-        const statusEvent = {
-          eventId: uuid(),
-          eventTime: new Date().toISOString(),
-          eventType: 'com.hahnpro.event.health',
-          contentType: 'application/json',
-          data: { deploymentId: this.context.deploymentId, status: 'updating failed' },
+        const natsEvent = {
+          source: `hpc/flow-application`,
+          type: `${natsFlowsPrefixFlowDeployment}.health`,
+          subject: `${this.context.deploymentId}`,
+          data: {
+            deploymentId: this.context.deploymentId,
+            status: 'updating failed',
+          },
         };
-        try {
-          this.amqpChannel?.publish('deployment', 'health', statusEvent);
-        } catch (e) {
-          this.logger.error(e);
-        }
+        await publishNatsEvent(this.logger, this.natsConnection, natsEvent);
       }
-    } else if (event.type === 'com.flowstudio.deployment.message') {
+    } else if (event.type.endsWith('.message')) {
       const data = event.data as DeploymentMessage;
       const elementId = data?.elementId;
       if (elementId) {
@@ -485,27 +515,38 @@ export class FlowApplication {
           element?.onMessage?.(data);
         }
       }
-    } else if (event.type === 'com.flowstudio.deployment.destroy') {
+    } else if (event.type.endsWith('.destroy')) {
+      // TODO war com.flowstudio.deployment.destroy in RabbitMq: wo wird das jetzt wieder gesendet?
       this.destroy();
-    } else {
-      this.amqpChannel.nack(msg, false, false);
     }
   };
 
   /**
    * Publish a flow event to the amqp flowlogs exchange.
    * If the event size exceeds the limit it will be truncated
+   *
+   * TODO warum darf hier nicht false zurückgegeben werden? -> erzeugt loop
    */
-  public publishEvent = (event: FlowEvent): Promise<boolean> => {
-    if (!this.amqpChannel) {
+  public publishNatsEventFlowlogs = async (event: FlowEvent): Promise<boolean> => {
+    if (!this.natsConnection || this.natsConnection.isClosed()) {
       return;
     }
+
     try {
       const message = event.format();
       if (sizeof(message) > MAX_EVENT_SIZE_BYTES) {
         message.data = truncate(message.data);
       }
-      return this.amqpChannel.publish('flowlogs', '', message);
+
+      const natsEvent = {
+        source: `hpc/flow-application`,
+        type: `${natsFlowsPrefixFlowDeployment}.flowlogs`,
+        subject: `${this.context.deploymentId}`,
+        data: message,
+      };
+
+      await publishNatsEvent(this.logger, this.natsConnection, natsEvent);
+      return true;
     } catch (err) {
       this.logger.error(err);
     }
@@ -533,6 +574,10 @@ export class FlowApplication {
       if (this.amqpConnection) {
         await this.amqpConnection.close();
       }
+
+      await this._natsConnection?.drain();
+      await this.natsMessageIterator?.close();
+      await this._natsConnection?.close();
     } catch (err) {
       /* eslint-disable-next-line no-console */
       console.error(err);
