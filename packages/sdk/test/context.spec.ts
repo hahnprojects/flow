@@ -56,7 +56,7 @@ describe('Flow Application', () => {
     });
 
     flowApp
-      .onMessage({ content: JSON.stringify(event) } as any)
+      .onMessage({ subject: 'deploymentId.update', content: JSON.stringify(event) } as any)
       .then(() => {
         return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
       })
@@ -69,7 +69,7 @@ describe('Flow Application', () => {
             properties: { test: 42 },
           },
         });
-        return flowApp.onMessage({ content: JSON.stringify(event) } as any);
+        return flowApp.onMessage({ subject: 'deploymentId.update', content: JSON.stringify(event) } as any);
       })
       .then(() => {
         return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));

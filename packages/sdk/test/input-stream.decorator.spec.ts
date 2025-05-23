@@ -92,8 +92,8 @@ describe('InputStreamDecorator', () => {
         next: async (event: FlowEvent) => {
           try {
             await setTimeout(1000);
-            expect(spy.mock.calls[0][0].getData()).toEqual({ test1: "data" });
-            expect(spy.mock.calls[1][0].getData()).toEqual({ hello: "world" });
+            expect(spy.mock.calls[0][0].getData()).toEqual({ test1: 'data' });
+            expect(spy.mock.calls[1][0].getData()).toEqual({ hello: 'world' });
             resolve();
           } catch (error) {
             reject(error);
