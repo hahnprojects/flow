@@ -447,26 +447,39 @@ export class FlowApplication {
     }
   };
 
-  public onMessage = async (event: CloudEvent) => {
-    if (event.subject.endsWith('.update')) {
+  public onMessage = async (cloudEvent: CloudEvent) => {
+    let event: any;
+    try {
+      event = JSON.parse(cloudEvent.content.toString());
+    } catch (err) {
+      this.logger.error(err);
+      return;
+    }
+
+    if (cloudEvent.subject.endsWith('.update')) {
       try {
-        const flow = event.data as Flow;
+        if (!event.data) {
+          return;
+        }
+        const flow: Flow = event.data;
         if (!flow) {
           return;
         }
+
         let context: Partial<FlowElementContext> = {};
         if (flow.context) {
           this.context = { ...this.context, ...flow.context };
           context = this.context;
         }
+
         if (flow.properties) {
           this.contextManager.updateFlowProperties(flow.properties);
-
           for (const element of Object.values(this.elements)) {
             element.replacePlaceholderAndSetProperties();
             element.onFlowPropertiesChanged?.(flow.properties);
           }
         }
+
         if (Object.keys(context).length > 0) {
           for (const element of flow.elements || []) {
             context = { ...context, name: element.name };
@@ -505,7 +518,7 @@ export class FlowApplication {
         };
         await publishNatsEvent(this.logger, this.natsConnection, natsEvent);
       }
-    } else if (event.type.endsWith('.message')) {
+    } else if (cloudEvent.subject.endsWith('.message')) {
       const data = event.data as DeploymentMessage;
       const elementId = data?.elementId;
       if (elementId) {
@@ -515,7 +528,7 @@ export class FlowApplication {
           element?.onMessage?.(data);
         }
       }
-    } else if (event.type.endsWith('.destroy')) {
+    } else if (cloudEvent.subject.endsWith('.destroy')) {
       // TODO war com.flowstudio.deployment.destroy in RabbitMq: wo wird das jetzt wieder gesendet?
       this.destroy();
     }

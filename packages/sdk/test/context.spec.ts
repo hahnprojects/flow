@@ -19,13 +19,13 @@ describe('Flow Application', () => {
       },
       properties: { test: '123abcd' },
     };
+
     const flowApp = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true });
 
     let iteration = 0;
     flowApp.subscribe('testResource.default', {
       next: (event1: FlowEvent) => {
         const data = event1.getData();
-
         iteration++;
         if (iteration === 1) {
           expect(data.assetId).toEqual('abc');
