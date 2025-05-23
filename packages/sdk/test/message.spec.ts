@@ -1,29 +1,14 @@
 import { AmqpConnectionManager, Channel, ChannelWrapper, connect } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
+import { NatsConnection } from '@nats-io/nats-core';
+import { connect as natsConnect } from '@nats-io/transport-node';
 
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
+import { natsFlowsPrefixFlowDeployment, publishNatsEvent } from '../lib/nats';
+import { loggerMock } from './logger.mock';
 
 /* eslint-disable no-console */
 describe('Flow SDK', () => {
-  let amqpChannel: ChannelWrapper;
-  let amqpConnection: AmqpConnectionManager;
-
-  beforeAll(async () => {
-    amqpConnection = connect('amqp://localhost:5672');
-    amqpChannel = amqpConnection.createChannel({
-      json: true,
-      setup: async (channel: Channel) => {
-        await channel.assertExchange('deployment', 'direct', { durable: true });
-      },
-    });
-    await amqpChannel.waitForConnect();
-  });
-
-  afterAll(async () => {
-    await amqpChannel?.close();
-    await amqpConnection?.close();
-  });
-
   test('FLOW.SDK.1 publish message', async () => {
     const flow = {
       elements: [
@@ -36,7 +21,8 @@ describe('Flow SDK', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApp = new FlowApplication([TestModule], flow, { amqpConnection, skipApi: true, explicitInit: true });
+    const nc = await natsConnect();
+    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true, explicitInit: true, natsConnection: nc });
     await flowApp.init();
 
     const done = new Promise<void>((resolve, reject) => {
@@ -44,6 +30,7 @@ describe('Flow SDK', () => {
         next: (event1: FlowEvent) => {
           try {
             expect(event1.getData()).toEqual({ elementId: 'testResource', test: 123 });
+            flowApp.destroy(0);
             resolve();
           } catch (e) {
             reject(e);
@@ -54,10 +41,11 @@ describe('Flow SDK', () => {
 
     const event = new CloudEvent({
       source: 'flowstudio/deployments',
-      type: 'com.flowstudio.deployment.message',
+      type: natsFlowsPrefixFlowDeployment,
+      subject: 'testDeployment.message',
       data: { elementId: 'testResource', test: 123 },
     });
-    amqpChannel.publish('deployment', 'testDeployment', event.toJSON());
+    await publishNatsEvent(loggerMock, nc, event);
     return done;
   }, 10000);
 });

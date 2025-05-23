@@ -185,13 +185,17 @@ describe('CMTP.1: ContextManager purpose test', () => {
     });
 
     flowApp
-      .onMessage({ content: JSON.stringify({ ...cloudEvent, data: { properties: { value: 456 } } }) } as any)
+      .onMessage({
+        subject: 'deploymentId.update',
+        content: JSON.stringify({ ...cloudEvent, data: { properties: { value: 456 } } }),
+      } as any)
       .then(() => {
         // Check the updated values in second iteration
         return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
       })
       .then(() => {
         return flowApp.onMessage({
+          subject: 'deploymentId.update',
           content: JSON.stringify({ ...cloudEvent, data: { properties: { value: 1 } } }),
         } as any);
       })
@@ -230,6 +234,7 @@ describe('CMTP.1: ContextManager purpose test', () => {
 
     flowApp
       .onMessage({
+        subject: 'deploymentId.update',
         content: JSON.stringify({
           ...cloudEvent,
           data: {

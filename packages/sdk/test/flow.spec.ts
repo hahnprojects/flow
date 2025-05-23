@@ -6,9 +6,23 @@ import { setTimeout } from 'timers/promises';
 
 import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
 import { loggerMock } from './logger.mock';
+import { NatsConnection } from '@nats-io/nats-core';
+import { isHigherPrecedenceThanAwait } from '@typescript-eslint/eslint-plugin/dist/util';
 
 describe('Flow Application', () => {
-  afterEach(() => {
+  let nc: NatsConnection;
+  let flowApplication: FlowApplication;
+
+  beforeEach(async () => {
+    nc = await connect();
+  });
+
+  afterEach(async () => {
+    if (flowApplication) {
+      await flowApplication.destroy();
+      await nc.close();
+    }
+
     loggerMock.log.mockReset();
     loggerMock.warn.mockReset();
     loggerMock.error.mockReset();
@@ -37,10 +51,10 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApp = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
-    await flowApp.init();
+    flowApplication = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
+    await flowApplication.init();
 
-    flowApp.subscribe('testResource.default', {
+    flowApplication.subscribe('testResource.default', {
       next: (event: FlowEvent) => {
         expect(event.getData()).toEqual({ hello: 'world' });
       },
@@ -48,7 +62,7 @@ describe('Flow Application', () => {
 
     const done = new Promise<void>((resolve, reject) => {
       let count = 0;
-      flowApp.subscribe('longRunningTask.default', {
+      flowApplication.subscribe('longRunningTask.default', {
         next: (event: FlowEvent) => {
           try {
             expect(event.getData()).toEqual({ foo: 'bar' });
@@ -69,7 +83,7 @@ describe('Flow Application', () => {
     });
 
     for (let i = 0; i < size; i++) {
-      flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+      flowApplication.emit(new FlowEvent({ id: 'testTrigger' }, {}));
     }
 
     expect(loggerMock.log).toHaveBeenCalledWith('Flow Deployment is running', expect.objectContaining(flow.context));
@@ -88,7 +102,7 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApplication = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
+    flowApplication = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
     await flowApplication.init();
 
     expect(loggerMock.error).toHaveBeenCalledTimes(1);
@@ -108,7 +122,7 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApplication = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
+    flowApplication = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
     await flowApplication.init();
 
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
@@ -128,8 +142,8 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApplication1 = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
-    await flowApplication1.init();
+    flowApplication = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
+    await flowApplication.init();
 
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
     expect(loggerMock.error).toHaveBeenCalledTimes(1);
@@ -149,8 +163,8 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApplication2 = new FlowApplication([FakeModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
-    await flowApplication2.init();
+    flowApplication = new FlowApplication([FakeModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
+    await flowApplication.init();
 
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
     expect(loggerMock.error).toHaveBeenCalledTimes(1);
@@ -170,8 +184,8 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const flowApplication3 = new FlowApplication([TestModule2], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
-    await flowApplication3.init();
+    flowApplication = new FlowApplication([TestModule2], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
+    await flowApplication.init();
 
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
     expect(loggerMock.error).toHaveBeenCalledTimes(1);
@@ -191,9 +205,9 @@ describe('Flow Application', () => {
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'highEluTask' }],
       context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
     };
-    const flowApp = new FlowApplication([TestModule], flow, loggerMock, null, null, true);
+    flowApplication = new FlowApplication([TestModule], flow, loggerMock, null, null, true);
 
-    flowApp.subscribe('highEluTask.default', {
+    flowApplication.subscribe('highEluTask.default', {
       next: async (event: FlowEvent) => {
         expect(event.getData()).toEqual({ foo: 'bar' });
         await setTimeout(200);
@@ -210,7 +224,7 @@ describe('Flow Application', () => {
       },
     });
 
-    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+    flowApplication.emit(new FlowEvent({ id: 'testTrigger' }, {}));
     expect(loggerMock.log).toHaveBeenCalledWith('Flow Deployment is running', expect.objectContaining(flow.context));
   }, 20000);
 
@@ -223,10 +237,10 @@ describe('Flow Application', () => {
       connections: [{ id: 'testConnection', source: 'testTrigger', target: 'longRunningTask' }],
       context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
     };
-    const flowApp = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true });
+    flowApplication = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true });
 
     let count = 0;
-    flowApp.subscribe('longRunningTask.default', {
+    flowApplication.subscribe('longRunningTask.default', {
       next: (event: FlowEvent) => {
         try {
           expect(event.getData()).toEqual({ foo: 'bar' });
@@ -243,18 +257,18 @@ describe('Flow Application', () => {
               expect.anything(),
             );
 
-            flowApp.destroy();
+            flowApplication.destroy();
             done();
           }
         } catch (err) {
-          flowApp.destroy();
+          flowApplication.destroy();
           done(err);
         }
       },
     });
 
     for (let i = 0; i < 210; i++) {
-      flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+      flowApplication.emit(new FlowEvent({ id: 'testTrigger' }, {}));
     }
 
     expect(loggerMock.log).toHaveBeenCalledWith('Flow Deployment is running', expect.objectContaining(flow.context));
@@ -295,16 +309,16 @@ describe('Flow Application', () => {
       connections: [{ id: 'testConnection', source: 'testTrigger', target: 'complex' }],
       context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
     };
-    const flowApp = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true });
+    flowApplication = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true });
 
-    flowApp.subscribe('complex.default', {
+    flowApplication.subscribe('complex.default', {
       next: (event: FlowEvent) => {
         const data = event.getData();
         expect(data.variables.every((v) => v instanceof Options)).toBe(true);
         done();
       },
     });
-    flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
+    flowApplication.emit(new FlowEvent({ id: 'testTrigger' }, {}));
   });
 
   it('FLOW.FA.10 should take a Mock-API as a parameter', () => {
@@ -316,9 +330,9 @@ describe('Flow Application', () => {
       connections: [{ id: 'testConnection', source: 'testTrigger', target: 'testTask' }],
       context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
     };
-    const flowApp = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, mockApi: new MockAPI({}) });
+    flowApplication = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, mockApi: new MockAPI({}) });
 
-    expect(flowApp.api).toBeInstanceOf(MockAPI);
+    expect(flowApplication.api).toBeInstanceOf(MockAPI);
   });
 
   it('FLOW.FA.11 should take the standard order of parameters', async () => {
@@ -331,10 +345,16 @@ describe('Flow Application', () => {
     const flowApp1 = new FlowApplication([TestModule], flow, { skipApi: true });
     expect(flowApp1.api).toBeNull();
     expect(flowApp1.natsConnection).toBeUndefined();
+    await flowApp1.destroy(0);
 
-    const flowApp2 = new FlowApplication([TestModule], flow, { skipApi: true, amqpConfig: {}, natsConfig: {}, explicitInit: true });
-    await flowApp2.init();
+    const flowApp2 = new FlowApplication([TestModule], flow, {
+      skipApi: true,
+      amqpConfig: {},
+      natsConnection: nc,
+      explicitInit: true,
+    });
     expect(flowApp2.natsConnection).toBeDefined();
+    await flowApp2.destroy(0);
   }, 60000);
 
   it('FLOW.FA.12 should take positional parameters', async () => {
@@ -344,16 +364,15 @@ describe('Flow Application', () => {
       context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
     };
 
-    const flowApp1 = new FlowApplication([TestModule], flow, null, null, null, true, false);
+    const flowApp1 = new FlowApplication([TestModule], flow, null, null, null, true, true);
     expect(flowApp1.api).toBeNull();
     expect(flowApp1.natsConnection).toBeNull();
+    await flowApp1.destroy(0);
 
-    const natsConnection = await connect();
-    const flowApp2 = new FlowApplication([TestModule], flow, null, null, natsConnection, true, true);
-    await flowApp2.init();
-
+    const flowApp2 = new FlowApplication([TestModule], flow, null, null, nc, true, true);
     expect(flowApp2.natsConnection).toBeDefined();
-  });
+    await flowApp2.destroy(0);
+  }, 60000);
 });
 
 @FlowFunction('test.resource.TestResource')
