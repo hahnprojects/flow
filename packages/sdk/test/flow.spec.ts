@@ -6,13 +6,21 @@ import { setTimeout } from 'timers/promises';
 
 import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
 import { loggerMock } from './logger.mock';
+import { NatsConnection } from '@nats-io/nats-core';
+import { isHigherPrecedenceThanAwait } from '@typescript-eslint/eslint-plugin/dist/util';
 
 describe('Flow Application', () => {
+  let nc: NatsConnection;
   let flowApplication: FlowApplication;
 
-  afterEach(() => {
+  beforeEach(async () => {
+    nc = await connect();
+  });
+
+  afterEach(async () => {
     if (flowApplication) {
-      flowApplication.destroy();
+      await flowApplication.destroy();
+      await nc.close();
     }
 
     loggerMock.log.mockReset();
@@ -339,11 +347,10 @@ describe('Flow Application', () => {
     expect(flowApp1.natsConnection).toBeUndefined();
     await flowApp1.destroy(0);
 
-    const natsConnection = await connect();
     const flowApp2 = new FlowApplication([TestModule], flow, {
       skipApi: true,
       amqpConfig: {},
-      natsConnection: natsConnection,
+      natsConnection: nc,
       explicitInit: true,
     });
     expect(flowApp2.natsConnection).toBeDefined();
@@ -362,8 +369,7 @@ describe('Flow Application', () => {
     expect(flowApp1.natsConnection).toBeNull();
     await flowApp1.destroy(0);
 
-    const natsConnection = await connect();
-    const flowApp2 = new FlowApplication([TestModule], flow, null, null, natsConnection, true, true);
+    const flowApp2 = new FlowApplication([TestModule], flow, null, null, nc, true, true);
     expect(flowApp2.natsConnection).toBeDefined();
     await flowApp2.destroy(0);
   }, 60000);

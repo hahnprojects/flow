@@ -448,19 +448,16 @@ export class FlowApplication {
   };
 
   public onMessage = async (cloudEvent: CloudEvent) => {
-    let event: any;
-    try {
-      event = JSON.parse(cloudEvent.content.toString());
-    } catch (err) {
-      this.logger.error(err);
-      return;
-    }
-
     if (cloudEvent.subject.endsWith('.update')) {
+      let event: any;
       try {
-        if (!event.data) {
-          return;
-        }
+        event = JSON.parse(cloudEvent.content.toString());
+      } catch (err) {
+        this.logger.error(err);
+        return;
+      }
+
+      try {
         const flow: Flow = event.data;
         if (!flow) {
           return;
@@ -519,7 +516,7 @@ export class FlowApplication {
         await publishNatsEvent(this.logger, this.natsConnection, natsEvent);
       }
     } else if (cloudEvent.subject.endsWith('.message')) {
-      const data = event.data as DeploymentMessage;
+      const data = cloudEvent.data as DeploymentMessage;
       const elementId = data?.elementId;
       if (elementId) {
         this.elements?.[elementId]?.onMessage?.(data);
