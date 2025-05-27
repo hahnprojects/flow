@@ -70,12 +70,8 @@ jobs:
         ports:
           - 5672:5672
     steps:
-      - name: Start NATS mit JetStream
-        run: |
-          docker run -d --name nats -p 4222:4222 nats:2.11 -js
-      - name: Wait for NATS
-        run: |
-          until nc -z localhost 4222; do echo "Waiting for NATS..."; sleep 1; done
+      - name: Start NATS with JetStream
+        run: docker run -d --name nats -p 4222:4222 docker.io/nats:2.11 -js
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up Python
