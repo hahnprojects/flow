@@ -41,6 +41,8 @@ jobs:
         image: docker.io/nats:2.11
         ports:
           - 4222:4222
+        env:
+          NATS_SERVER_OPTS: "-js"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -71,6 +73,8 @@ jobs:
         image: docker.io/nats:2.11
         ports:
           - 4222:4222
+        env:
+          NATS_SERVER_OPTS: "-js"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
