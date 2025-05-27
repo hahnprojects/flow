@@ -1,5 +1,17 @@
 # flow-module-examples
 
+## 2.0.0
+
+### Major Changes
+
+- daebcab: Messages are no longer sent via rabbitmq but via nats using jetstreams.
+  The Python modules have not yet been converted to nats.
+
+### Patch Changes
+
+- Updated dependencies [daebcab]
+  - @hahnpro/flow-sdk@9.0.0
+
 ## 1.5.20
 
 ### Patch Changes

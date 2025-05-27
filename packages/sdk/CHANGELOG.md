@@ -1,5 +1,12 @@
 # @hahnpro/flow-sdk
 
+## 9.0.0
+
+### Major Changes
+
+- daebcab: Messages are no longer sent via rabbitmq but via nats using jetstreams.
+  The Python modules have not yet been converted to nats.
+
 ## 8.0.13
 
 ### Patch Changes
