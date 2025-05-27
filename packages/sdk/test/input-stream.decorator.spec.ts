@@ -4,8 +4,17 @@ import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, Flo
 import { connect } from '@nats-io/transport-node';
 import { NatsConnection } from '@nats-io/nats-core';
 import { CloudEvent } from 'cloudevents';
+import { jetstream, jetstreamManager } from '@nats-io/jetstream';
 
 describe('InputStreamDecorator', () => {
+  let flowApp: FlowApplication;
+
+  afterEach(async () => {
+    if (flowApp) {
+      await flowApp.destroy(0);
+    }
+  });
+
   test('FLOW.ISD.1 should return input event data', async () => {
     const testRes = new TestResource({ id: 'test' });
     const result = await testRes.onDefaultRessource(new FlowEvent({ id: '1' }, { test1: 'data', test2: 'otherData' }));
@@ -44,7 +53,7 @@ describe('InputStreamDecorator', () => {
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
     };
-    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
+    flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
     flowApp.subscribe('testResource.default', {
       next: (event: FlowEvent) => {
         const data = event.getData();
@@ -79,10 +88,18 @@ describe('InputStreamDecorator', () => {
           consume: jest.fn(),
           publish,
         }),
+        close: async () => {},
       },
     };
-    const natsConnection: NatsConnection = await connect();
-    const flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, natsConnection, true, true);
+
+    const natsConnection = await connect();
+    const jsm = await jetstreamManager(natsConnection);
+    const flowStream = await jsm.streams.find('flows').catch(() => null);
+    if (!flowStream) {
+      await jsm.streams.add({ name: 'flows', subjects: ['com.hahnpro.flows.>'] });
+    }
+
+    flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, natsConnection, true, true);
     const spy = jest.spyOn(flowApp, 'publishNatsEventFlowlogs');
     await flowApp.init();
     expect(flowApp.natsConnection).toBeDefined();
@@ -119,7 +136,7 @@ describe('InputStreamDecorator', () => {
         { id: 'c3', source: 'testTask2', target: 'testRessource' },
       ],
     };
-    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
+    flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
     flowApp.subscribe('testTask1.default', {
       next: (event: FlowEvent) => {
         expect(event.getData()).toEqual({ input: 'data', task1: 'test' });
@@ -179,7 +196,7 @@ describe('InputStreamDecorator', () => {
         { id: 'c2', source: 'testTrigger', target: 'testTask1', targetStream: 'other' },
       ],
     };
-    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
+    flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
 
     let bothDone = false;
     flowApp.subscribe('testTask1.default', {
@@ -228,7 +245,7 @@ describe('InputStreamDecorator', () => {
       ],
       connections: [{ id: 'c1', source: 'testTrigger', target: 'stateful' }],
     };
-    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
+    flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
 
     let count = 0;
     flowApp.subscribe('stateful.default', {

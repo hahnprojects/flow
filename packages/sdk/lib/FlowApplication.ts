@@ -585,7 +585,10 @@ export class FlowApplication {
         await this.amqpConnection.close();
       }
 
-      await this._natsConnection?.drain();
+      if (this.natsConnection && !this._natsConnection.isClosed()) {
+        await this._natsConnection?.drain();
+      }
+
       await this.natsMessageIterator?.close();
       await this._natsConnection?.close();
     } catch (err) {
