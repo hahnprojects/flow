@@ -1,11 +1,13 @@
 import { Flow, FlowApplication, FlowEvent, TestModule } from '@hahnpro/flow-sdk';
-
 import ExampleModule from '../';
 
 /* eslint-disable no-console */
 describe('Example Test', () => {
   test('flow', (done) => {
     const flow: Flow = {
+      context: {
+        deploymentId: 'example-test-flow',
+      },
       elements: [
         { id: 'trigger', module: 'test', functionFqn: 'test.task.Trigger' },
         {
@@ -38,8 +40,8 @@ describe('Example Test', () => {
         { id: 'c2', source: 'something1', target: 'modify' },
       ],
     };
-    const flowApp = new FlowApplication([ExampleModule, TestModule], flow, null, null, null, true);
 
+    const flowApp = new FlowApplication([ExampleModule, TestModule], flow, null, null, null, true);
     flowApp.subscribe('something1.default', {
       next: (event: FlowEvent) => {
         const data = event.getData();

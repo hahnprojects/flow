@@ -1,8 +1,20 @@
 import { setTimeout } from 'timers/promises';
 
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
+import { connect } from '@nats-io/transport-node';
+import { NatsConnection } from '@nats-io/nats-core';
+import { CloudEvent } from 'cloudevents';
+import { jetstream, jetstreamManager } from '@nats-io/jetstream';
 
 describe('InputStreamDecorator', () => {
+  let flowApp: FlowApplication;
+
+  afterEach(async () => {
+    if (flowApp) {
+      await flowApp.destroy(0);
+    }
+  });
+
   test('FLOW.ISD.1 should return input event data', async () => {
     const testRes = new TestResource({ id: 'test' });
     const result = await testRes.onDefaultRessource(new FlowEvent({ id: '1' }, { test1: 'data', test2: 'otherData' }));
@@ -41,7 +53,7 @@ describe('InputStreamDecorator', () => {
       ],
       connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
     };
-    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
+    flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
     flowApp.subscribe('testResource.default', {
       next: (event: FlowEvent) => {
         const data = event.getData();
@@ -57,6 +69,9 @@ describe('InputStreamDecorator', () => {
 
   test('FLOW.ISD.5 should only log partial events', async () => {
     const flow = {
+      context: {
+        deploymentId: 'test',
+      },
       elements: [
         { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
         { id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource' },
@@ -73,19 +88,29 @@ describe('InputStreamDecorator', () => {
           consume: jest.fn(),
           publish,
         }),
+        close: async () => {},
       },
     };
-    const flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, null, true, true);
+
+    const natsConnection = await connect();
+    const jsm = await jetstreamManager(natsConnection);
+    const flowStream = await jsm.streams.find('flows').catch(() => null);
+    if (!flowStream) {
+      await jsm.streams.add({ name: 'flows', subjects: ['com.hahnpro.flows.>'] });
+    }
+
+    flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, natsConnection, true, true);
+    const spy = jest.spyOn(flowApp, 'publishNatsEventFlowlogs');
     await flowApp.init();
+    expect(flowApp.natsConnection).toBeDefined();
 
     const done = new Promise<void>((resolve, reject) => {
       flowApp.subscribe('testResource.default', {
         next: async (event: FlowEvent) => {
           try {
             await setTimeout(1000);
-            expect(publish).toHaveBeenNthCalledWith(1, 'flowlogs', '', expect.objectContaining({ data: 'Flow Deployment is running' }));
-            expect(publish).toHaveBeenNthCalledWith(2, 'flowlogs', '', expect.objectContaining({ data: { test1: 'data' } }));
-            expect(publish).toHaveBeenNthCalledWith(4, 'flowlogs', '', expect.objectContaining({ data: { hello: 'world' } }));
+            expect(spy.mock.calls[0][0].getData()).toEqual({ test1: 'data' });
+            expect(spy.mock.calls[1][0].getData()).toEqual({ hello: 'world' });
             resolve();
           } catch (error) {
             reject(error);
@@ -111,7 +136,7 @@ describe('InputStreamDecorator', () => {
         { id: 'c3', source: 'testTask2', target: 'testRessource' },
       ],
     };
-    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
+    flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
     flowApp.subscribe('testTask1.default', {
       next: (event: FlowEvent) => {
         expect(event.getData()).toEqual({ input: 'data', task1: 'test' });
@@ -171,7 +196,7 @@ describe('InputStreamDecorator', () => {
         { id: 'c2', source: 'testTrigger', target: 'testTask1', targetStream: 'other' },
       ],
     };
-    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
+    flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
 
     let bothDone = false;
     flowApp.subscribe('testTask1.default', {
@@ -220,7 +245,7 @@ describe('InputStreamDecorator', () => {
       ],
       connections: [{ id: 'c1', source: 'testTrigger', target: 'stateful' }],
     };
-    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
+    flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
 
     let count = 0;
     flowApp.subscribe('stateful.default', {

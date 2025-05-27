@@ -30,7 +30,7 @@ export abstract class FlowElement<T = any> {
     this.app = app;
     this.api = this.app?.api;
     this.metadata = { ...metadata, functionFqn: this.functionFqn };
-    this.logger = new FlowLogger(this.metadata, logger || undefined, this.app?.publishEvent);
+    this.logger = new FlowLogger(this.metadata, logger || undefined, this.app?.publishNatsEventFlowlogs);
     this.rpcRoutingKey = (this.metadata.flowId || '') + (this.metadata.deploymentId || '') + this.metadata.id;
     if (properties) {
       this.setProperties(properties as T);
