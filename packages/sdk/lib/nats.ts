@@ -17,7 +17,7 @@ import { isEqual, omitBy } from 'lodash';
 
 export type NatsEvent<T> = Pick<CloudEvent<T>, 'type' | 'source' | 'subject' | 'data' | 'datacontenttype' | 'time'>;
 
-export const natsFlowsPrefixFlowDeployment = `com.hahnpro.flows.flowdeployment`;
+export const natsFlowsPrefixFlowDeployment = `fs.flowdeployment`;
 
 // https://docs.nats.io/nats-concepts/jetstream/consumers#configuration
 export const defaultConsumerConfig: ConsumerConfig = {
