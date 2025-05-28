@@ -96,7 +96,7 @@ describe('InputStreamDecorator', () => {
     const jsm = await jetstreamManager(natsConnection);
     const flowStream = await jsm.streams.find('flows').catch(() => null);
     if (!flowStream) {
-      await jsm.streams.add({ name: 'flows', subjects: ['com.hahnpro.flows.>'] });
+      await jsm.streams.add({ name: 'flows', subjects: ['fs.>'] });
     }
 
     flowApp = new FlowApplication([TestModule], flow, null, amqpConnection, natsConnection, true, true);
