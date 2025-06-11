@@ -39,7 +39,7 @@
     "amqplib": "0.10.8",
     "class-transformer": "0.5.1",
     "class-validator": "~0.14.2",
-    "cloudevents": "9.0.0",
+    "cloudevents": "10.0.0",
     "lodash": "4.17.21",
     "object-sizeof": "~2.6.5",
     "python-shell": "5.0.0",
@@ -51,9 +51,9 @@
     "@types/amqplib": "0.10.7",
     "@types/jest": "29.5.14",
     "@types/lodash": "4.17.17",
-    "@types/node": "22.15.21",
+    "@types/node": "22.15.31",
     "class-validator-jsonschema": "5.0.2",
-    "jest": "29.7.0",
+    "jest": "30.0.0",
     "typescript": "5.8.3"
   },
   "peerDependencies": {
@@ -64,6 +64,6 @@
     "python-shell": "5.x"
   },
   "engines": {
-    "node": ">=v18"
+    "node": ">=v22"
   }
 }
