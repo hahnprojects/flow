@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 9.1.0
+
+### Minor Changes
+
+- d48c11d: Fixed overlapping nats stream subjects
+
 ## 9.0.1
 
 ### Patch Changes
