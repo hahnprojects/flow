@@ -64,6 +64,6 @@
     "python-shell": "5.x"
   },
   "engines": {
-    "node": ">=v18"
+    "node": ">=v22"
   }
 }
