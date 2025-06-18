@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@types/amqplib": "0.10.7",
-    "@types/jest": "29.5.14",
+    "@types/jest": "30.0.0",
     "@types/lodash": "4.17.18",
     "@types/node": "22.15.32",
     "class-validator-jsonschema": "5.0.2",
