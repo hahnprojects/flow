@@ -218,8 +218,8 @@ importers:
   packages/sdk:
     dependencies:
       '@hahnpro/hpc-api':
-        specifier: 2025.2.13
-        version: 2025.2.13
+        specifier: 2025.2.15
+        version: 2025.2.15
       '@nats-io/jetstream':
         specifier: 3.0.2
         version: 3.0.2
@@ -545,8 +545,8 @@ packages:
     resolution: {integrity: sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
-  '@hahnpro/hpc-api@2025.2.13':
-    resolution: {integrity: sha512-IXui/FIXFJi04x8sr6P9/SHambKnaA8VJ11G7H6RjfPidjNGcE3yJzEe2ZxNhVlBt1o9QEhiBr8F9Klv6DgoAA==}
+  '@hahnpro/hpc-api@2025.2.15':
+    resolution: {integrity: sha512-kNrB/sP50e9GXTIh0TR4fYSQMe0vXuMbHSEF0pZAl2aGRGWj0ZNVCbnd01Y7s/xNPTyWDtR6axcSx1a//AU/dg==}
     engines: {node: '>=v20'}
 
   '@humanwhocodes/config-array@0.13.0':
@@ -1133,9 +1133,6 @@ packages:
 
   axios@1.10.0:
     resolution: {integrity: sha512-/1xYAC4MP/HEG+3duIhFr4ZQXR4sQXOIe+o6sdqzeykGLx6Upp/1p8MHqhINOvGeP7xyNHe7tsiJByc4SSVUxw==}
-
-  axios@1.9.0:
-    resolution: {integrity: sha512-re4CqKTJaURpzbLHtIi6XpDv20/CnpXOtjRY5/CU32L8gU8ek9UIivcfvSWvmKEngmVbrUtPpdDwWDWL7DNHvg==}
 
   b4a@1.6.7:
     resolution: {integrity: sha512-OnAYlL5b7LEkALw87fUVafQw5rVR9RjwGd4KUwNQ6DrrNmaVaUCgLipfVlzrPQ4tWOR9P0IXGNOx50jYCCdSJg==}
@@ -1752,10 +1749,6 @@ packages:
   foreground-child@3.3.1:
     resolution: {integrity: sha512-gIXjKqtFuWEgzFRJA9WCQeSJLZDjgJUOMCMzxtvFq/37KojM1BFGufqsCy0r4qSQmYLsZYMeyRqzIWOMup03sw==}
     engines: {node: '>=14'}
-
-  form-data@4.0.2:
-    resolution: {integrity: sha512-hGfm/slu0ZabnNt4oaRZ6uREyfCj6P4fT/n6A1rGV+Z0VdGXjfOhVUpkn6qVQONHGIFwmveGXyDs75+nr6FM8w==}
-    engines: {node: '>= 6'}
 
   form-data@4.0.3:
     resolution: {integrity: sha512-qsITQPfmvMOSAdeyZ+12I1c+CKSstAFAwu+97zrnWAbIr5u8wfsExUzCesVLC8NgHuRUqNN4Zy6UPWUTRGslcA==}
@@ -3763,11 +3756,11 @@ snapshots:
 
   '@eslint/js@8.57.1': {}
 
-  '@hahnpro/hpc-api@2025.2.13':
+  '@hahnpro/hpc-api@2025.2.15':
     dependencies:
-      axios: 1.9.0
+      axios: 1.10.0
       eventsource: 4.0.0
-      form-data: 4.0.2
+      form-data: 4.0.3
       jose: 5.10.0
       jwt-decode: 4.0.0
       p-queue: 6.6.2
@@ -4497,14 +4490,6 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  axios@1.9.0:
-    dependencies:
-      follow-redirects: 1.15.9
-      form-data: 4.0.3
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
-
   b4a@1.6.7: {}
 
   babel-jest@30.0.2(@babel/core@7.27.4):
@@ -5205,13 +5190,6 @@ snapshots:
     dependencies:
       cross-spawn: 7.0.6
       signal-exit: 4.1.0
-
-  form-data@4.0.2:
-    dependencies:
-      asynckit: 0.4.0
-      combined-stream: 1.0.8
-      es-set-tostringtag: 2.1.0
-      mime-types: 2.1.35
 
   form-data@4.0.3:
     dependencies:
