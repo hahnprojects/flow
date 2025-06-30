@@ -53,7 +53,7 @@ describe('Flow Application', () => {
       .onMessage(
         new CloudEvent<any>({
           source: 'flowstudio/deployments',
-          type: 'com.flowstudio.deployment.update',
+          type: 'com.flowstudio.deployment',
           data: { elements: [{ id: 'testResource', properties: { assetId: 'xyz' } }] },
           subject: 'deploymentId.update',
         }),
@@ -66,7 +66,7 @@ describe('Flow Application', () => {
           new CloudEvent<any>({
             subject: 'deploymentId.update',
             source: 'flowstudio/deployments',
-            type: 'com.flowstudio.deployment.update',
+            type: 'com.flowstudio.deployment',
             data: {
               elements: [{ id: 'testResource', properties: { assetId: '123' } }],
               properties: { test: 42 },
