@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 9.2.0
+
+### Minor Changes
+
+- 35fa635: Fixed wrong object parsing for update events and the corresponding tests
+
 ## 9.1.1
 
 ### Patch Changes
