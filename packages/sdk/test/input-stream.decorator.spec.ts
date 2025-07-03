@@ -94,7 +94,7 @@ describe('InputStreamDecorator', () => {
 
     const natsConnection = await connect();
     const jsm = await jetstreamManager(natsConnection);
-    const flowStream = await jsm.streams.find('flows').catch(() => null);
+    const flowStream = await jsm.streams.info('flows').catch((err: any) => null);
     if (!flowStream) {
       await jsm.streams.add({ name: 'flows', subjects: ['fs.>'] });
     }

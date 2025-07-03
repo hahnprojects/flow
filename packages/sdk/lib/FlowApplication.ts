@@ -449,16 +449,8 @@ export class FlowApplication {
 
   public onMessage = async (cloudEvent: CloudEvent) => {
     if (cloudEvent.subject.endsWith('.update')) {
-      let event: any;
       try {
-        event = JSON.parse(cloudEvent.content.toString());
-      } catch (err) {
-        this.logger.error(err);
-        return;
-      }
-
-      try {
-        const flow: Flow = event.data;
+        const flow: Flow = cloudEvent.data;
         if (!flow) {
           return;
         }

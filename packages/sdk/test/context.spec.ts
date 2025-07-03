@@ -49,27 +49,30 @@ describe('Flow Application', () => {
 
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
 
-    let event = new CloudEvent({
-      source: 'flowstudio/deployments',
-      type: 'com.flowstudio.deployment.update',
-      data: { elements: [{ id: 'testResource', properties: { assetId: 'xyz' } }] },
-    });
-
     flowApp
-      .onMessage({ subject: 'deploymentId.update', content: JSON.stringify(event) } as any)
+      .onMessage(
+        new CloudEvent<any>({
+          source: 'flowstudio/deployments',
+          type: 'com.flowstudio.deployment',
+          data: { elements: [{ id: 'testResource', properties: { assetId: 'xyz' } }] },
+          subject: 'deploymentId.update',
+        }),
+      )
       .then(() => {
         return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
       })
       .then(() => {
-        event = new CloudEvent({
-          source: 'flowstudio/deployments',
-          type: 'com.flowstudio.deployment.update',
-          data: {
-            elements: [{ id: 'testResource', properties: { assetId: '123' } }],
-            properties: { test: 42 },
-          },
-        });
-        return flowApp.onMessage({ subject: 'deploymentId.update', content: JSON.stringify(event) } as any);
+        return flowApp.onMessage(
+          new CloudEvent<any>({
+            subject: 'deploymentId.update',
+            source: 'flowstudio/deployments',
+            type: 'com.flowstudio.deployment',
+            data: {
+              elements: [{ id: 'testResource', properties: { assetId: '123' } }],
+              properties: { test: 42 },
+            },
+          }),
+        );
       })
       .then(() => {
         return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));

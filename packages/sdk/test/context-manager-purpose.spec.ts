@@ -181,23 +181,18 @@ describe('CMTP.1: ContextManager purpose test', () => {
 
     const cloudEvent = new CloudEvent({
       source: 'flowstudio/deployments',
-      type: 'com.flowstudio.deployment.update',
+      type: 'com.flowstudio.deployment',
+      subject: 'deploymentId.update',
     });
 
     flowApp
-      .onMessage({
-        subject: 'deploymentId.update',
-        content: JSON.stringify({ ...cloudEvent, data: { properties: { value: 456 } } }),
-      } as any)
+      .onMessage({ ...cloudEvent, data: { properties: { value: 456 } } } as any)
       .then(() => {
         // Check the updated values in second iteration
         return flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
       })
       .then(() => {
-        return flowApp.onMessage({
-          subject: 'deploymentId.update',
-          content: JSON.stringify({ ...cloudEvent, data: { properties: { value: 1 } } }),
-        } as any);
+        return flowApp.onMessage({ ...cloudEvent, data: { properties: { value: 1 } } } as any);
       })
       .then(() => {
         // Check the updated values in fourth iteration
@@ -227,28 +222,22 @@ describe('CMTP.1: ContextManager purpose test', () => {
     // Check the initial values in first iteration
     flowApp.emit(new FlowEvent({ id: 'testTrigger' }, {}));
 
-    const cloudEvent = new CloudEvent({
-      source: 'flowstudio/deployments',
-      type: 'com.flowstudio.deployment.update',
-    });
-
     flowApp
       .onMessage({
+        source: 'flowstudio/deployments',
+        type: 'com.flowstudio.deployment',
         subject: 'deploymentId.update',
-        content: JSON.stringify({
-          ...cloudEvent,
-          data: {
-            properties: { flow: { value: 456 } },
-            elements: [
-              {
-                id: 'testInject',
-                properties: {
-                  injections: [{ key: 'value', value: '987', valueDatatype: 'number' }],
-                },
+        data: {
+          properties: { flow: { value: 456 } },
+          elements: [
+            {
+              id: 'testInject',
+              properties: {
+                injections: [{ key: 'value', value: '987', valueDatatype: 'number' }],
               },
-            ],
-          },
-        }),
+            },
+          ],
+        } as any,
       } as any)
       .then(() => {
         // Check the updated values in second iteration
