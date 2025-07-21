@@ -2,7 +2,7 @@ import 'reflect-metadata';
 
 import { API, HttpClient, MockAPI } from '@hahnpro/hpc-api';
 import { NatsConnection, ConnectionOptions as NatsConnectionOptions } from '@nats-io/nats-core';
-import { Consumer, ConsumerConfig, ConsumerMessages, jetstreamManager } from '@nats-io/jetstream';
+import { ConsumeOptions, Consumer, ConsumerConfig, ConsumerMessages, jetstreamManager } from '@nats-io/jetstream';
 import { AmqpConnectionManager, Channel, ChannelWrapper } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
 import { cloneDeep } from 'lodash';
@@ -164,11 +164,11 @@ export class FlowApplication {
     return this.contextManager.getProperties();
   }
 
-  private async consumeNatsMessagesOfConsumer(consumer: Consumer, consumerOptions: Partial<ConsumerConfig>) {
+  private async consumeNatsMessagesOfConsumer(consumer: Consumer, consumeOptions: ConsumeOptions) {
     if (this.natsMessageIterator) {
       await this.natsMessageIterator.close();
     }
-    this.natsMessageIterator = await consumer.consume(consumerOptions);
+    this.natsMessageIterator = await consumer.consume(consumeOptions);
     for await (const msg of this.natsMessageIterator) {
       try {
         let event: CloudEvent;
@@ -229,6 +229,7 @@ export class FlowApplication {
           ...defaultConsumerConfig,
           name: `flow-deployment-${this.context.deploymentId}`,
           filter_subject: `${natsFlowsPrefixFlowDeployment}.${this.context.deploymentId}.*`,
+          inactive_threshold: 10 * 60 * 1_000_000_000, //  10 Minuten
         };
         const consumer = await getOrCreateConsumer(
           this.logger,
@@ -239,13 +240,21 @@ export class FlowApplication {
         );
 
         // Recreate consumers on reconnects: NO AWAIT, listen asynchronously
-        natsEventListener(this._natsConnection, this.logger, async () => {
-          this.logger.debug('ConsumerService: Reconnected to Nats and re-creating non-durable consumers');
-          await getOrCreateConsumer(this.logger, this._natsConnection, FLOWS_STREAM_NAME, consumerOptions.name, consumerOptions);
-        });
+        const handleNatsStatus = async () => {
+          try {
+            this.logger.debug('ConsumerService: Reconnected to Nats and re-creating non-durable consumers');
+            await getOrCreateConsumer(this.logger, this._natsConnection, FLOWS_STREAM_NAME, consumerOptions.name, consumerOptions);
+            this.consumeNatsMessagesOfConsumer(consumer, { expires: 10 * 1_000_000_000 /* 10 seconds */ });
+          } catch (e) {
+            this.logger.error('NATS Status-AsyncIterator is not available, cannot listen. Due to error:');
+            this.logger.error(e);
+            natsEventListener(this._natsConnection, this.logger, handleNatsStatus);
+          }
+        };
+        natsEventListener(this._natsConnection, this.logger, handleNatsStatus);
 
         // NO AWAIT, listen for messages of the consumer asynchronously
-        this.consumeNatsMessagesOfConsumer(consumer, consumerOptions);
+        this.consumeNatsMessagesOfConsumer(consumer, { expires: 10 * 1_000_000_000 /* 10 seconds */ });
       } catch (e) {
         await logErrorAndExit(`Could not set up consumer for deployment messages exchanges: ${e}`);
       }
