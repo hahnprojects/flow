@@ -1,6 +1,6 @@
 {
   "name": "flow-module-examples",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Flow Module Examples",
   "license": "UNLICENSED",
   "private": true,
@@ -22,9 +22,9 @@
   "devDependencies": {
     "@hahnpro/flow-cli": "workspace:*",
     "@types/jest": "30.0.0",
-    "@types/node": "22.16.2",
-    "@typescript-eslint/eslint-plugin": "8.36.0",
-    "@typescript-eslint/parser": "8.36.0",
+    "@types/node": "22.16.4",
+    "@typescript-eslint/eslint-plugin": "8.37.0",
+    "@typescript-eslint/parser": "8.37.0",
     "eslint": "8.57.1",
     "eslint-config-prettier": "10.1.5",
     "eslint-plugin-prettier": "5.5.1",

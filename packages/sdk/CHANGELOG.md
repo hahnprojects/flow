@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 9.3.0
+
+### Minor Changes
+
+- 4d67ad1: Change flow log event data structure to match the opensearch mapping index
+
 ## 9.2.0
 
 ### Minor Changes
