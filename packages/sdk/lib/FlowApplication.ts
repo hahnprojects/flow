@@ -2,7 +2,7 @@ import 'reflect-metadata';
 
 import { API, HttpClient, MockAPI } from '@hahnpro/hpc-api';
 import { NatsConnection, ConnectionOptions as NatsConnectionOptions } from '@nats-io/nats-core';
-import { Consumer, ConsumerConfig, ConsumerMessages } from '@nats-io/jetstream';
+import { Consumer, ConsumerConfig, ConsumerMessages, jetstreamManager } from '@nats-io/jetstream';
 import { AmqpConnectionManager, Channel, ChannelWrapper } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
 import { cloneDeep } from 'lodash';
@@ -24,6 +24,7 @@ import {
   FLOWS_STREAM_NAME,
   getOrCreateConsumer,
   NatsEvent,
+  natsEventListener,
   natsFlowsPrefixFlowDeployment,
   publishNatsEvent,
 } from './nats';
@@ -237,7 +238,13 @@ export class FlowApplication {
           consumerOptions,
         );
 
-        // NO AWAIT: else it will block the init process
+        // Recreate consumers on reconnects: NO AWAIT, listen asynchronously
+        natsEventListener(this._natsConnection, this.logger, async () => {
+          this.logger.debug('ConsumerService: Reconnected to Nats and re-creating non-durable consumers');
+          await getOrCreateConsumer(this.logger, this._natsConnection, FLOWS_STREAM_NAME, consumerOptions.name, consumerOptions);
+        });
+
+        // NO AWAIT, listen for messages of the consumer asynchronously
         this.consumeNatsMessagesOfConsumer(consumer, consumerOptions);
       } catch (e) {
         await logErrorAndExit(`Could not set up consumer for deployment messages exchanges: ${e}`);
@@ -577,8 +584,18 @@ export class FlowApplication {
         await this.amqpConnection.close();
       }
 
-      if (this.natsConnection && !this._natsConnection.isClosed()) {
-        await this._natsConnection?.drain();
+      if (this._natsConnection && !this._natsConnection.isClosed()) {
+        await jetstreamManager(this._natsConnection).then((jsm) => {
+          jsm.consumers
+            .delete(FLOWS_STREAM_NAME, `flow-deployment-${this.context.deploymentId}`)
+            .then(() => {
+              this.logger.error(`Deleted consumer for flow deployment ${this.context.deploymentId}`);
+            })
+            .catch((err) => {
+              this.logger.error(`Could not delete consumer for flow deployment ${this.context.deploymentId}: ${err.message}`);
+            });
+        });
+        await this._natsConnection.drain();
       }
 
       await this.natsMessageIterator?.close();

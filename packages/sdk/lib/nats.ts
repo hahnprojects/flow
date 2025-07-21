@@ -70,6 +70,23 @@ export async function getOrCreateConsumer(
   return await jetstream(natsConnection).consumers.get(streamName, consumerName);
 }
 
+export async function natsEventListener(nc: NatsConnection, logger: Logger, reconnectHandler: () => void): Promise<void> {
+  const statusAsyncIterator = nc?.status();
+  if (!statusAsyncIterator) {
+    logger.error('NATS Status-AsyncIterator is not available, cannot listen for events to re-create consumers at reconnects');
+    return;
+  }
+
+  for await (const status of statusAsyncIterator) {
+    logger.debug(`[NatsConsumerService] ${status.type}`);
+
+    // Handle reconnect: event is triggered when the NATS client reconnected to the server
+    if (status.type === 'reconnect') {
+      reconnectHandler();
+    }
+  }
+}
+
 export async function publishNatsEvent<T>(logger: Logger, nc: NatsConnection, event: NatsEvent<T>, subject?: string): Promise<PubAck> {
   if (!nc || nc.isClosed()) {
     return;

@@ -56,7 +56,7 @@ export class FlowLogger implements Logger {
 
   private publish(message, level: string, options: LoggerOptions) {
     if (this.publishEvent) {
-      const event = new FlowEvent(this.metadata, message, `flow.log.${level}`);
+      const event = new FlowEvent(this.metadata, { ...message, message: message.message ?? message.toString() }, `flow.log.${level}`);
       this.publishEvent(event);
     }
     // ensure correct message if message is an object
