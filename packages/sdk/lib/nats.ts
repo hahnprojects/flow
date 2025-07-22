@@ -78,8 +78,6 @@ export async function natsEventListener(nc: NatsConnection, logger: Logger, reco
   }
 
   for await (const status of statusAsyncIterator) {
-    logger.debug(`[NatsConsumerService] ${status.type}`);
-
     // Handle reconnect: event is triggered when the NATS client reconnected to the server
     if (status.type === 'reconnect') {
       reconnectHandler();
@@ -108,7 +106,7 @@ export async function createNatsConnection(config: ConnectionOptions): Promise<N
   const reconnect: boolean = config?.reconnect ?? (process.env.NATS_RECONNECT ?? 'true') === 'true';
 
   // Default maxReconnectAttempts is 10
-  let maxReconnectAttempts: number = config?.maxReconnectAttempts ?? parseInt(process.env.NATS_MAX_RECONNECT_ATTEMPTS ?? '10', 10);
+  let maxReconnectAttempts: number = config?.maxReconnectAttempts ?? parseInt(process.env.NATS_MAX_RECONNECT_ATTEMPTS ?? '-1', 10);
   if (isNaN(maxReconnectAttempts)) {
     maxReconnectAttempts = 10;
   }
