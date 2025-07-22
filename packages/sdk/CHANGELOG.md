@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 9.4.0
+
+### Minor Changes
+
+- 0a71960: Added inactive threshold and pull timings and stopping and recreation of consumers at reconnects
+
 ## 9.3.0
 
 ### Minor Changes
