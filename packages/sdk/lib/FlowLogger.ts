@@ -23,6 +23,11 @@ export interface LoggerOptions {
   truncate: boolean;
 }
 
+interface FlowLogData {
+  message: string;
+  [key: string]: any;
+}
+
 export class FlowLogger implements Logger {
   private static getStackTrace() {
     // get stacktrace without extra dependencies
@@ -56,7 +61,13 @@ export class FlowLogger implements Logger {
 
   private publish(message, level: string, options: LoggerOptions) {
     if (this.publishEvent) {
-      const event = new FlowEvent(this.metadata, { ...message, message: message.message ?? message.toString() }, `flow.log.${level}`);
+      const data: FlowLogData = message?.message
+        ? message
+        : {
+            ...message,
+            message: typeof message === 'string' ? message : JSON.stringify(message),
+          };
+      const event = new FlowEvent(this.metadata, data, `flow.log.${level}`);
       this.publishEvent(event);
     }
     // ensure correct message if message is an object

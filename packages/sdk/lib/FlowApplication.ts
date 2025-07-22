@@ -551,16 +551,16 @@ export class FlowApplication {
     }
 
     try {
-      const message = event.format();
-      if (sizeof(message) > MAX_EVENT_SIZE_BYTES) {
-        message.data = truncate(message.data);
+      const formatedEvent = event.format();
+      if (sizeof(formatedEvent) > MAX_EVENT_SIZE_BYTES) {
+        formatedEvent.data = truncate(formatedEvent.data);
       }
 
       const natsEvent = {
         source: `hpc/flow-application`,
         type: `${natsFlowsPrefixFlowDeployment}.flowlogs`,
         subject: `${this.context.deploymentId}`,
-        data: message,
+        data: formatedEvent,
       };
 
       await publishNatsEvent(this.logger, this.natsConnection, natsEvent);
