@@ -23,9 +23,8 @@ export interface LoggerOptions {
   truncate: boolean;
 }
 
-interface FlowLogData {
+interface FlowLog {
   message: string;
-  [key: string]: any;
 }
 
 export class FlowLogger implements Logger {
@@ -59,32 +58,56 @@ export class FlowLogger implements Logger {
   public warn = (message, options?: LoggerOptions) => this.publish(message, 'warn', options);
   public verbose = (message, options?: LoggerOptions) => this.publish(message, 'verbose', options);
 
+  /**
+   * Parses a given message into a standardized FlowLogData object.
+   * Ensures that the returned object always contains a `message` property of type string.
+   *
+   * @details Requirements for the output format of messages:
+   * - Necessary for consistent logging and event publishing, because the OpenSearch index expects a specific structure: flat_object.
+   * - The current UI expects a `message` property to be present, so we ensure it is always set.
+   *
+   * @param {any} message - The input message to be parsed. Can be of any type.
+   * @returns {FlowLog} - A standardized object with a `message` property.
+   */
+  private parseMessageToFlowLog(message: any): FlowLog {
+    const flowLog: FlowLog = { message: 'Unknown!' };
+
+    if (typeof message.message === 'string') {
+      flowLog.message = message.message;
+    } else {
+      try {
+        flowLog.message = typeof message === 'string' ? message : JSON.stringify(message.message ?? message);
+      } catch (e) {
+        flowLog.message = 'Error: Could not stringify the message.';
+      }
+    }
+
+    return flowLog;
+  }
+
   private publish(message, level: string, options: LoggerOptions) {
+    const flowLogData: FlowLog = this.parseMessageToFlowLog(message);
+
     if (this.publishEvent) {
-      const data: FlowLogData = message?.message
-        ? message
-        : {
-            ...message,
-            message: typeof message === 'string' ? message : JSON.stringify(message),
-          };
-      const event = new FlowEvent(this.metadata, data, `flow.log.${level}`);
+      const event = new FlowEvent(this.metadata, flowLogData, `flow.log.${level}`);
       this.publishEvent(event);
     }
+
     // ensure correct message if message is an object
     // has no real effect if message is already a string
     // FIXME: not working as expected
     // const stackTrace = JSON.stringify(message) + '\n' + FlowLogger.getStackTrace();
     switch (level) {
       case 'debug':
-        return this.logger.debug(message, { ...this.metadata, ...options });
+        return this.logger.debug(flowLogData.message, { ...this.metadata, ...options });
       case 'error':
-        return this.logger.error(message, { ...this.metadata, ...options });
+        return this.logger.error(flowLogData.message, { ...this.metadata, ...options });
       case 'warn':
-        return this.logger.warn(message, { ...this.metadata, ...options });
+        return this.logger.warn(flowLogData.message, { ...this.metadata, ...options });
       case 'verbose':
-        return this.logger.verbose(message, { ...this.metadata, ...options });
+        return this.logger.verbose(flowLogData.message, { ...this.metadata, ...options });
       default:
-        this.logger.log(message, { ...this.metadata, ...options });
+        this.logger.log(flowLogData.message, { ...this.metadata, ...options });
     }
   }
 }
