@@ -1,12 +1,12 @@
-import { FlowLogger } from '../lib';
-import { loggerMock } from './logger.mock';
+import { FlowLogger, STACK_TRACE } from '../lib';
+import { loggerMock } from './mocks/logger.mock';
 
 describe('Flow Logger', () => {
   let flowLogger: FlowLogger;
   let parseLogMessageSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    flowLogger = new FlowLogger({ id: 'testLogger' }, loggerMock);
+    flowLogger = new FlowLogger({ id: 'testLogger' });
     parseLogMessageSpy = jest.spyOn(flowLogger as any, 'parseMessageToFlowLog');
   });
 

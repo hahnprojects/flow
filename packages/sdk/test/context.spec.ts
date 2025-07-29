@@ -1,7 +1,7 @@
 import { IsString } from 'class-validator';
 import { CloudEvent } from 'cloudevents';
 
-import { loggerMock } from './logger.mock';
+import { loggerMock } from './mocks/logger.mock';
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 
 /* eslint-disable no-console */

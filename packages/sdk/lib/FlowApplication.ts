@@ -593,22 +593,31 @@ export class FlowApplication {
         await this.amqpConnection.close();
       }
 
-      if (this._natsConnection && !this._natsConnection.isClosed()) {
-        await jetstreamManager(this._natsConnection).then((jsm) => {
-          jsm.consumers
-            .delete(FLOWS_STREAM_NAME, `flow-deployment-${this.context.deploymentId}`)
-            .then(() => {
-              this.logger.error(`Deleted consumer for flow deployment ${this.context.deploymentId}`);
-            })
-            .catch((err) => {
-              this.logger.error(`Could not delete consumer for flow deployment ${this.context.deploymentId}: ${err.message}`);
-            });
-        });
-        await this._natsConnection.drain();
+      // Nats
+      try {
+        if (this._natsConnection && !this._natsConnection.isClosed()) {
+          await jetstreamManager(this._natsConnection).then((jsm) => {
+            jsm.consumers
+              .delete(FLOWS_STREAM_NAME, `flow-deployment-${this.context?.deploymentId}`)
+              .then(() => {
+                this.logger.debug(`Deleted consumer for flow deployment ${this.context?.deploymentId}`);
+              })
+              .catch((err) => {
+                this.logger.error(`Could not delete consumer for flow deployment ${this.context?.deploymentId}: ${err.message}`);
+              });
+          });
+          await this.natsMessageIterator?.close();
+          await this._natsConnection?.drain();
+          await this._natsConnection?.close();
+        }
+      } catch (err) {
+        this.logger.error(err);
       }
 
-      await this.natsMessageIterator?.close();
-      await this._natsConnection?.close();
+      // remove process listeners
+      process.removeAllListeners('SIGTERM');
+      process.removeAllListeners('uncaughtException');
+      process.removeAllListeners('unhandledRejection');
     } catch (err) {
       /* eslint-disable-next-line no-console */
       console.error(err);

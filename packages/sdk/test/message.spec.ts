@@ -5,7 +5,7 @@ import { connect as natsConnect } from '@nats-io/transport-node';
 
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 import { natsFlowsPrefixFlowDeployment, publishNatsEvent } from '../lib/nats';
-import { loggerMock } from './logger.mock';
+import { loggerMock } from './mocks/logger.mock';
 
 /* eslint-disable no-console */
 describe('Flow SDK', () => {

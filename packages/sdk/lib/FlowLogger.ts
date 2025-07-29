@@ -19,16 +19,23 @@ export const defaultLogger: Logger = {
 };
 /* eslint-enable no-console */
 
+export enum STACK_TRACE {
+  FULL = 'full',
+  ONLY_LOG_CALL = 'only-log-call',
+}
+
 export interface LoggerOptions {
   truncate: boolean;
+  stackTrace?: STACK_TRACE;
 }
 
 interface FlowLog {
   message: string;
+  stackTrace?: string;
 }
 
 export class FlowLogger implements Logger {
-  private static getStackTrace() {
+  private static getStackTrace(stacktrace: STACK_TRACE = STACK_TRACE.FULL) {
     // get stacktrace without extra dependencies
     let stack;
 
@@ -42,8 +49,14 @@ export class FlowLogger implements Logger {
     stack = stack
       .split('\n')
       .map((line) => line.trim())
-      .filter((value) => !value.includes('Logger'));
-    return stack.splice(1).join('\n');
+      .filter((value) => value.includes('at ') && !value.includes('Logger'));
+
+    if (stacktrace === STACK_TRACE.ONLY_LOG_CALL && stack.length > 0) {
+      stack = stack[0];
+    } else {
+      stack = stack.splice(1).join('\n');
+    }
+    return stack;
   }
 
   constructor(
@@ -59,55 +72,58 @@ export class FlowLogger implements Logger {
   public verbose = (message, options?: LoggerOptions) => this.publish(message, 'verbose', options);
 
   /**
-   * Parses a given message into a standardized FlowLogData object.
-   * Ensures that the returned object always contains a `message` property of type string.
+   * Parses a message into a FlowLog object, including optional stack trace information.
    *
    * @details Requirements for the output format of messages:
    * - Necessary for consistent logging and event publishing, because the OpenSearch index expects a specific structure: flat_object.
    * - The current UI expects a `message` property to be present, so we ensure it is always set.
    *
-   * @param {any} message - The input message to be parsed. Can be of any type.
-   * @returns {FlowLog} - A standardized object with a `message` property.
+   * @param {any} message - The message to be logged. Can be a string, an object with a `message` property, or any other type.
+   * @param {string} level - The log level (e.g., 'error', 'debug', 'warn', 'verbose').
+   * @param {LoggerOptions} options - Additional options for logging, such as whether to include a stack trace.
+   * @returns {FlowLog} - An object containing the parsed log message and optional stack trace.
    */
-  private parseMessageToFlowLog(message: any): FlowLog {
-    const flowLog: FlowLog = { message: 'Unknown!' };
-
-    if (typeof message.message === 'string') {
-      flowLog.message = message.message;
+  private parseMessageToFlowLog(message: any, level: string, options: LoggerOptions): FlowLog {
+    let flowLogMessage: string;
+    if (!message) {
+      flowLogMessage = 'No message provided!';
+    } else if (typeof message.message === 'string') {
+      flowLogMessage = message.message;
     } else {
       try {
-        flowLog.message = typeof message === 'string' ? message : JSON.stringify(message.message ?? message);
+        flowLogMessage = typeof message === 'string' ? message : JSON.stringify(message.message ?? message);
       } catch (e) {
-        flowLog.message = 'Error: Could not stringify the message.';
+        flowLogMessage = 'Error: Could not stringify the message.';
       }
     }
 
+    const flowLog: FlowLog = { message: flowLogMessage };
+    if (['error', 'debug', 'warn', 'verbose'].includes(level) || options?.stackTrace) {
+      flowLog.stackTrace = FlowLogger.getStackTrace(options?.stackTrace ?? STACK_TRACE.ONLY_LOG_CALL);
+    }
     return flowLog;
   }
 
   private publish(message, level: string, options: LoggerOptions) {
-    const flowLogData: FlowLog = this.parseMessageToFlowLog(message);
+    const flowLogData: FlowLog = this.parseMessageToFlowLog(message, level, options);
 
     if (this.publishEvent) {
       const event = new FlowEvent(this.metadata, flowLogData, `flow.log.${level}`);
       this.publishEvent(event);
     }
 
-    // ensure correct message if message is an object
-    // has no real effect if message is already a string
-    // FIXME: not working as expected
-    // const stackTrace = JSON.stringify(message) + '\n' + FlowLogger.getStackTrace();
+    const messageWithStackTrace = flowLogData.stackTrace ? `${flowLogData.message}\n${flowLogData.stackTrace}` : flowLogData.message;
     switch (level) {
       case 'debug':
-        return this.logger.debug(flowLogData.message, { ...this.metadata, ...options });
+        return this.logger.debug(messageWithStackTrace, { ...this.metadata, ...options });
       case 'error':
-        return this.logger.error(flowLogData.message, { ...this.metadata, ...options });
+        return this.logger.error(messageWithStackTrace, { ...this.metadata, ...options });
       case 'warn':
-        return this.logger.warn(flowLogData.message, { ...this.metadata, ...options });
+        return this.logger.warn(messageWithStackTrace, { ...this.metadata, ...options });
       case 'verbose':
-        return this.logger.verbose(flowLogData.message, { ...this.metadata, ...options });
+        return this.logger.verbose(messageWithStackTrace, { ...this.metadata, ...options });
       default:
-        this.logger.log(flowLogData.message, { ...this.metadata, ...options });
+        this.logger.log(messageWithStackTrace, { ...this.metadata, ...options });
     }
   }
 }

@@ -1,20 +1,18 @@
 import { MockAPI } from '@hahnpro/hpc-api';
-import { connect } from '@nats-io/transport-node';
 import { Type } from 'class-transformer';
 import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
 import { setTimeout } from 'timers/promises';
 
 import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
-import { loggerMock } from './logger.mock';
-import { NatsConnection } from '@nats-io/nats-core';
-import { isHigherPrecedenceThanAwait } from '@typescript-eslint/eslint-plugin/dist/util';
+import { loggerMock } from './mocks/logger.mock';
+import { NatsConnectionMock } from './mocks/nats-connection.mock';
 
 describe('Flow Application', () => {
-  let nc: NatsConnection;
+  let nc: NatsConnectionMock;
   let flowApplication: FlowApplication;
 
   beforeEach(async () => {
-    nc = await connect();
+    nc = new NatsConnectionMock();
   });
 
   afterEach(async () => {
@@ -51,7 +49,12 @@ describe('Flow Application', () => {
         deploymentId: 'testDeployment',
       },
     };
-    flowApplication = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
+    flowApplication = new FlowApplication([TestModule], flow, {
+      natsConnection: nc as any,
+      logger: loggerMock,
+      skipApi: true,
+      explicitInit: true,
+    });
     await flowApplication.init();
 
     flowApplication.subscribe('testResource.default', {
@@ -105,12 +108,15 @@ describe('Flow Application', () => {
     flowApplication = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true });
     await flowApplication.init();
 
-    expect(loggerMock.error).toHaveBeenCalledTimes(1);
-    expect(loggerMock.error).toHaveBeenLastCalledWith(new Error('testResource does not implement a handler for does-not-exist'), {
-      ...flow.context,
-      functionFqn: 'FlowApplication',
-      id: 'none',
-    });
+    expect(loggerMock.error).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining('testResource does not implement a handler for does-not-exist\nat logErrorAndExit'),
+      {
+        ...flow.context,
+        functionFqn: 'FlowApplication',
+        id: 'none',
+      },
+    );
   });
 
   it('FLOW.FA.3 should handle invalid function FQNs', async () => {
@@ -128,7 +134,7 @@ describe('Flow Application', () => {
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
     expect(loggerMock.error).toHaveBeenCalledTimes(1);
     expect(loggerMock.error).toHaveBeenLastCalledWith(
-      new Error('Could not create FlowElement for test-module.test.resource.Test123'),
+      expect.stringContaining('Could not create FlowElement for test-module.test.resource.Test123\nat logErrorAndExit'),
       expect.objectContaining(flow.context),
     );
   });
@@ -147,11 +153,14 @@ describe('Flow Application', () => {
 
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
     expect(loggerMock.error).toHaveBeenCalledTimes(1);
-    expect(loggerMock.error).toHaveBeenLastCalledWith(new Error('testResource has not been initialized'), {
-      ...flow.context,
-      functionFqn: 'FlowApplication',
-      id: 'none',
-    });
+    expect(loggerMock.error).toHaveBeenLastCalledWith(
+      expect.stringContaining('testResource has not been initialized\nat logErrorAndExit'),
+      {
+        ...flow.context,
+        functionFqn: 'FlowApplication',
+        id: 'none',
+      },
+    );
   });
 
   it('FLOW.FA.5 should handle invalid flow modules', async () => {
@@ -168,11 +177,14 @@ describe('Flow Application', () => {
 
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
     expect(loggerMock.error).toHaveBeenCalledTimes(1);
-    expect(loggerMock.error).toHaveBeenLastCalledWith(new Error('FlowModule (FakeModule) metadata is missing or invalid'), {
-      ...flow.context,
-      functionFqn: 'FlowApplication',
-      id: 'none',
-    });
+    expect(loggerMock.error).toHaveBeenLastCalledWith(
+      expect.stringContaining('FlowModule (FakeModule) metadata is missing or invalid\nat logErrorAndExit'),
+      {
+        ...flow.context,
+        functionFqn: 'FlowApplication',
+        id: 'none',
+      },
+    );
   });
 
   it('FLOW.FA.6 should handle invalid flow functions', async () => {
@@ -189,11 +201,14 @@ describe('Flow Application', () => {
 
     expect(loggerMock.warn).toHaveBeenCalledTimes(0);
     expect(loggerMock.error).toHaveBeenCalledTimes(1);
-    expect(loggerMock.error).toHaveBeenLastCalledWith(new Error('FlowFunction (FakeTask) metadata is missing or invalid'), {
-      ...flow.context,
-      functionFqn: 'FlowApplication',
-      id: 'none',
-    });
+    expect(loggerMock.error).toHaveBeenLastCalledWith(
+      expect.stringContaining('FlowFunction (FakeTask) metadata is missing or invalid\nat logErrorAndExit'),
+      {
+        ...flow.context,
+        functionFqn: 'FlowApplication',
+        id: 'none',
+      },
+    );
   });
 
   it('FLOW.FA.7 should warn if high event loop utilization is detected', (done) => {
@@ -246,17 +261,19 @@ describe('Flow Application', () => {
           expect(event.getData()).toEqual({ foo: 'bar' });
           if (++count === 10) {
             expect(loggerMock.warn).toHaveBeenCalledTimes(2);
-            expect(loggerMock.warn).toHaveBeenCalledWith('Input stream "longRunningTask.default" has 100 queued events', {
-              deploymentId: 'testDeployment',
-              flowId: 'testFlow',
-              functionFqn: 'FlowApplication',
-              id: 'none',
-            });
+            expect(loggerMock.warn).toHaveBeenCalledWith(
+              expect.stringContaining('Input stream "longRunningTask.default" has 100 queued events\nat FlowApplication.setQueueMetrics'),
+              {
+                deploymentId: 'testDeployment',
+                flowId: 'testFlow',
+                functionFqn: 'FlowApplication',
+                id: 'none',
+              },
+            );
             expect(loggerMock.warn).toHaveBeenLastCalledWith(
-              'Input stream "longRunningTask.default" has 200 queued events',
+              expect.stringContaining('Input stream "longRunningTask.default" has 200 queued events\nat FlowApplication.setQueueMetrics'),
               expect.anything(),
             );
-
             flowApplication.destroy();
             done();
           }
@@ -342,7 +359,7 @@ describe('Flow Application', () => {
       context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
     };
 
-    const flowApp1 = new FlowApplication([TestModule], flow, { skipApi: true });
+    const flowApp1 = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true });
     expect(flowApp1.api).toBeNull();
     expect(flowApp1.natsConnection).toBeUndefined();
     await flowApp1.destroy(0);
@@ -350,8 +367,9 @@ describe('Flow Application', () => {
     const flowApp2 = new FlowApplication([TestModule], flow, {
       skipApi: true,
       amqpConfig: {},
-      natsConnection: nc,
+      natsConnection: nc as any,
       explicitInit: true,
+      logger: loggerMock,
     });
     expect(flowApp2.natsConnection).toBeDefined();
     await flowApp2.destroy(0);
@@ -364,12 +382,12 @@ describe('Flow Application', () => {
       context: { flowId: 'testFlow', deploymentId: 'testDeployment' },
     };
 
-    const flowApp1 = new FlowApplication([TestModule], flow, null, null, null, true, true);
+    const flowApp1 = new FlowApplication([TestModule], flow, loggerMock, null, null, true, true);
     expect(flowApp1.api).toBeNull();
     expect(flowApp1.natsConnection).toBeNull();
     await flowApp1.destroy(0);
 
-    const flowApp2 = new FlowApplication([TestModule], flow, null, null, nc, true, true);
+    const flowApp2 = new FlowApplication([TestModule], flow, loggerMock, null, nc as any, true, true);
     expect(flowApp2.natsConnection).toBeDefined();
     await flowApp2.destroy(0);
   }, 60000);
