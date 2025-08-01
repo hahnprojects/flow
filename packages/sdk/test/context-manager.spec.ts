@@ -1,4 +1,4 @@
-import { loggerMock } from './logger.mock';
+import { loggerMock } from './mocks/logger.mock';
 import { ContextManager } from '../lib';
 
 describe('The ContextManage-Test spec', () => {

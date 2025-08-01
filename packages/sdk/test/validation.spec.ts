@@ -2,7 +2,7 @@ import { Type } from 'class-transformer';
 import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
 
 import { FlowFunction, FlowTask } from '../lib';
-import { loggerMock } from './logger.mock';
+import { loggerMock } from './mocks/logger.mock';
 
 describe('Property Validation', () => {
   afterEach(() => {
