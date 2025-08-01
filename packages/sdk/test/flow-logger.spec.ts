@@ -1,4 +1,4 @@
-import { FlowLogger, STACK_TRACE } from '../lib';
+import { FlowLogger } from '../lib';
 import { loggerMock } from './mocks/logger.mock';
 
 describe('Flow Logger', () => {
@@ -6,7 +6,7 @@ describe('Flow Logger', () => {
   let parseLogMessageSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    flowLogger = new FlowLogger({ id: 'testLogger' });
+    flowLogger = new FlowLogger({ id: 'testLogger' }, loggerMock);
     parseLogMessageSpy = jest.spyOn(flowLogger as any, 'parseMessageToFlowLog');
   });
 
@@ -54,7 +54,7 @@ describe('Flow Logger', () => {
       const message = 'test debug message';
       flowLogger.debug(message);
       expect(logSpy).toHaveBeenCalledWith(message);
-      expect(parseLogMessageSpy).toHaveBeenCalledWith(message);
+      expect(parseLogMessageSpy).toHaveBeenCalledWith(message, 'debug', undefined);
       expect(parseLogMessageSpy).toHaveReturnedWith(
         expect.objectContaining({
           message: 'test debug message',
@@ -67,7 +67,7 @@ describe('Flow Logger', () => {
       const message = 1;
       flowLogger.debug(message);
       expect(logSpy).toHaveBeenCalledWith(message);
-      expect(parseLogMessageSpy).toHaveBeenCalledWith(message);
+      expect(parseLogMessageSpy).toHaveBeenCalledWith(message, 'debug', undefined);
       expect(parseLogMessageSpy).toHaveReturnedWith(
         expect.objectContaining({
           message: '1',
@@ -80,7 +80,7 @@ describe('Flow Logger', () => {
       const message = { rolf: 1 };
       flowLogger.debug(message);
       expect(logSpy).toHaveBeenCalledWith(message);
-      expect(parseLogMessageSpy).toHaveBeenCalledWith(message);
+      expect(parseLogMessageSpy).toHaveBeenCalledWith(message, 'debug', undefined);
       expect(parseLogMessageSpy).toHaveReturnedWith(
         expect.objectContaining({
           message: JSON.stringify({ rolf: 1 }),
@@ -93,7 +93,7 @@ describe('Flow Logger', () => {
       const message = { message: '1' };
       flowLogger.debug(message);
       expect(logSpy).toHaveBeenCalledWith(message);
-      expect(parseLogMessageSpy).toHaveBeenCalledWith(message);
+      expect(parseLogMessageSpy).toHaveBeenCalledWith(message, 'debug', undefined);
       expect(parseLogMessageSpy).toHaveReturnedWith(
         expect.objectContaining({
           message: message.message,

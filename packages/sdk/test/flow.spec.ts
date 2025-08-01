@@ -16,10 +16,8 @@ describe('Flow Application', () => {
   });
 
   afterEach(async () => {
-    if (flowApplication) {
-      await flowApplication.destroy();
-      await nc.close();
-    }
+    await flowApplication?.destroy();
+    await nc?.close();
 
     loggerMock.log.mockReset();
     loggerMock.warn.mockReset();
