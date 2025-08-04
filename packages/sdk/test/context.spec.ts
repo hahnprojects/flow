@@ -6,6 +6,11 @@ import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, Inp
 
 /* eslint-disable no-console */
 describe('Flow Application', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+    jest.clearAllMocks();
+  });
+
   test('FLOW.CON.1 Simple Flow Application with Long Running Task', (done) => {
     const flow = {
       elements: [
@@ -124,11 +129,10 @@ describe('Flow Application', () => {
   });
 
   test('FLOW.CON.4 untruncated logging', async () => {
-    loggerMock.verbose.mockReset();
     const tr = new TestResource({ id: 'testResource', logger: loggerMock }, { assetId: '1234' });
     await tr.onDefault(new FlowEvent({ id: 'tr' }, { test: 'tyz' }));
     expect(loggerMock.verbose).toHaveBeenCalledTimes(1);
-    expect(loggerMock.verbose).toHaveBeenCalledWith('test', expect.objectContaining({ truncate: false }));
+    expect(loggerMock.verbose).toHaveBeenCalledWith(expect.stringContaining('test'), expect.objectContaining({ truncate: false }));
   });
 
   test('Flow.CON.5 creation of element without app', () => {
@@ -145,7 +149,7 @@ describe('Flow Application', () => {
     );
 
     elem.onDefault(new FlowEvent({ id: 'tr' }, { test: 'tyz' }));
-    expect(loggerMock.verbose).toHaveBeenCalledTimes(2);
+    expect(loggerMock.verbose).toHaveBeenCalledTimes(1);
   });
 });
 

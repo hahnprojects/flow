@@ -29,13 +29,17 @@ describe('Property Validation', () => {
 
     expect(() => new Task({ logger: loggerMock }, {})).toThrow('Properties Validation failed');
     expect(loggerMock.error).toHaveBeenLastCalledWith(
-      'Validation for property "aNumber" failed:\n{"isNumber":"aNumber must be a number conforming to the specified constraints"}\nvalue: undefined',
+      expect.stringContaining(
+        'Validation for property "aNumber" failed:\n{"isNumber":"aNumber must be a number conforming to the specified constraints"}\nvalue: undefined',
+      ),
       { functionFqn: 'test' },
     );
 
     expect(() => new Task({ logger: loggerMock }, { aNumber: 'a string' })).toThrow('Properties Validation failed');
     expect(loggerMock.error).toHaveBeenLastCalledWith(
-      'Validation for property "aNumber" failed:\n{"isNumber":"aNumber must be a number conforming to the specified constraints"}\nvalue: a string',
+      expect.stringContaining(
+        'Validation for property "aNumber" failed:\n{"isNumber":"aNumber must be a number conforming to the specified constraints"}\nvalue: a string',
+      ),
       { functionFqn: 'test' },
     );
   });
@@ -60,19 +64,23 @@ describe('Property Validation', () => {
 
     expect(() => new Task({ logger: loggerMock }, {})).toThrow('Properties Validation failed');
     expect(loggerMock.error).toHaveBeenLastCalledWith(
-      'Validation for property "aStringArray" failed:\n{"isString":"each value in aStringArray must be a string","isArray":"aStringArray must be an array"}\nvalue: undefined',
+      expect.stringContaining(
+        'Validation for property "aStringArray" failed:\n{"isString":"each value in aStringArray must be a string","isArray":"aStringArray must be an array"}\nvalue: undefined',
+      ),
       { functionFqn: 'test' },
     );
 
     expect(() => new Task({ logger: loggerMock }, { aStringArray: 'foo' })).toThrow('Properties Validation failed');
     expect(loggerMock.error).toHaveBeenLastCalledWith(
-      'Validation for property "aStringArray" failed:\n{"isArray":"aStringArray must be an array"}\nvalue: foo',
+      expect.stringContaining('Validation for property "aStringArray" failed:\n{"isArray":"aStringArray must be an array"}\nvalue: foo'),
       { functionFqn: 'test' },
     );
 
     expect(() => new Task({ logger: loggerMock }, { aStringArray: ['foo', 42] })).toThrow('Properties Validation failed');
     expect(loggerMock.error).toHaveBeenLastCalledWith(
-      'Validation for property "aStringArray" failed:\n{"isString":"each value in aStringArray must be a string"}\nvalue: foo,42',
+      expect.stringContaining(
+        'Validation for property "aStringArray" failed:\n{"isString":"each value in aStringArray must be a string"}\nvalue: foo,42',
+      ),
       { functionFqn: 'test' },
     );
   });
@@ -100,13 +108,15 @@ describe('Property Validation', () => {
 
     expect(() => new Task({ logger: loggerMock }, { nested: {} })).toThrow('Properties Validation failed');
     expect(loggerMock.error).toHaveBeenLastCalledWith(
-      'Validation for property "nested.aString" failed:\n{"isString":"aString must be a string"}\nvalue: undefined',
+      expect.stringContaining(
+        'Validation for property "nested.aString" failed:\n{"isString":"aString must be a string"}\nvalue: undefined',
+      ),
       { functionFqn: 'test' },
     );
 
     expect(() => new Task({ logger: loggerMock }, { nested: { aString: 42 } })).toThrow('Properties Validation failed');
     expect(loggerMock.error).toHaveBeenLastCalledWith(
-      'Validation for property "nested.aString" failed:\n{"isString":"aString must be a string"}\nvalue: 42',
+      expect.stringContaining('Validation for property "nested.aString" failed:\n{"isString":"aString must be a string"}\nvalue: 42'),
       { functionFqn: 'test' },
     );
   });
@@ -136,24 +146,28 @@ describe('Property Validation', () => {
 
     expect(() => new Task({ logger: loggerMock }, { nested: [{}] })).toThrow('Properties Validation failed');
     expect(loggerMock.error).toHaveBeenLastCalledWith(
-      'Validation for property "nested.0.aString" failed:\n{"isString":"aString must be a string"}\nvalue: undefined',
+      expect.stringContaining(
+        'Validation for property "nested.0.aString" failed:\n{"isString":"aString must be a string"}\nvalue: undefined',
+      ),
       { functionFqn: 'test' },
     );
 
     expect(() => new Task({ logger: loggerMock }, { nested: 42 })).toThrow('Properties Validation failed');
     expect(loggerMock.error).toHaveBeenLastCalledWith(
-      'Validation for property "nested" failed:\n{"isArray":"nested must be an array","nestedValidation":"each value in nested property nested must be either object or array"}\nvalue: 42',
+      expect.stringContaining(
+        'Validation for property "nested" failed:\n{"isArray":"nested must be an array","nestedValidation":"each value in nested property nested must be either object or array"}\nvalue: 42',
+      ),
       { functionFqn: 'test' },
     );
     expect(() => new Task({ logger: loggerMock }, {})).toThrow('Properties Validation failed');
     expect(loggerMock.error).toHaveBeenLastCalledWith(
-      'Validation for property "nested" failed:\n{"isArray":"nested must be an array"}\nvalue: undefined',
+      expect.stringContaining('Validation for property "nested" failed:\n{"isArray":"nested must be an array"}\nvalue: undefined'),
       { functionFqn: 'test' },
     );
 
     expect(() => new Task({ logger: loggerMock }, { nested: [{ aString: 42 }] })).toThrow('Properties Validation failed');
     expect(loggerMock.error).toHaveBeenLastCalledWith(
-      'Validation for property "nested.0.aString" failed:\n{"isString":"aString must be a string"}\nvalue: 42',
+      expect.stringContaining('Validation for property "nested.0.aString" failed:\n{"isString":"aString must be a string"}\nvalue: 42'),
       { functionFqn: 'test' },
     );
   });

@@ -1,6 +1,4 @@
-import { AmqpConnectionManager, Channel, ChannelWrapper, connect } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
-import { NatsConnection } from '@nats-io/nats-core';
 import { connect as natsConnect } from '@nats-io/transport-node';
 
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
