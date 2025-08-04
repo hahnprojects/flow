@@ -587,12 +587,6 @@ export class FlowApplication {
       } catch (err) {
         this.logger.error(err);
       }
-      // allow time for logs to be processed
-      await delay(250);
-      if (this.amqpConnection) {
-        await this.amqpConnection.close();
-      }
-
       // Nats
       try {
         if (this._natsConnection && !this._natsConnection.isClosed()) {
@@ -612,6 +606,12 @@ export class FlowApplication {
         }
       } catch (err) {
         this.logger.error(err);
+      }
+
+      // allow time for logs to be processed
+      await delay(250);
+      if (this.amqpConnection) {
+        await this.amqpConnection.close();
       }
 
       // remove process listeners

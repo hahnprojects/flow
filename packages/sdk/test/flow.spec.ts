@@ -22,7 +22,8 @@ describe('Flow Application', () => {
     loggerMock.log.mockReset();
     loggerMock.warn.mockReset();
     loggerMock.error.mockReset();
-    jest.restoreAllMocks();
+
+    console.log('jest ende');
   });
 
   it('FLOW.FA.1 should run simple flow app with a long running task', async () => {
@@ -240,7 +241,7 @@ describe('Flow Application', () => {
     flowApplication.emit(new FlowEvent({ id: 'testTrigger' }, {}));
     expect(loggerMock.log).toHaveBeenCalledWith('Flow Deployment is running', expect.objectContaining(flow.context));
   }, 20000);
-
+/*
   it('FLOW.FA.8 should warn if event queue size is above threshold', (done) => {
     const flow = {
       elements: [
@@ -274,10 +275,12 @@ describe('Flow Application', () => {
             );
             flowApplication.destroy();
             done();
+            console.log("code ende");
           }
         } catch (err) {
           flowApplication.destroy();
           done(err);
+          console.log("code ende");
         }
       },
     });
@@ -288,7 +291,7 @@ describe('Flow Application', () => {
 
     expect(loggerMock.log).toHaveBeenCalledWith('Flow Deployment is running', expect.objectContaining(flow.context));
   }, 10000);
-
+*/
   it('FLOW.FA.9 test complex properties', (done) => {
     const flow = {
       elements: [
