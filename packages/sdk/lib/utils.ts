@@ -83,7 +83,7 @@ export function delay(ms: number): Promise<void> {
  *       return this.emitEvent({ foo: 'bar' }, null);
  *     } catch (err) {
  *       if (err.message === 'AbortError') {
- *         return; // Task wurde abgebrochen
+ *         return; // Task was aborted
  *       }
  *       throw err;
  *     }

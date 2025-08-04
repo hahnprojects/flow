@@ -89,9 +89,11 @@ export class FlowLogger implements Logger {
       flowLogMessage = 'No message provided!';
     } else if (typeof message.message === 'string') {
       flowLogMessage = message.message;
+    } else if (typeof message === 'string') {
+      flowLogMessage = message;
     } else {
       try {
-        flowLogMessage = typeof message === 'string' ? message : JSON.stringify(message.message ?? message);
+        flowLogMessage = JSON.stringify(message.message ?? message);
       } catch (e) {
         flowLogMessage = 'Error: Could not stringify the message.';
       }

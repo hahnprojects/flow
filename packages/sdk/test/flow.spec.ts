@@ -447,7 +447,7 @@ class LongRunningTask extends FlowTask<Properties> {
       return this.emitEvent({ foo: 'bar' }, null);
     } catch (err) {
       if (err.message === 'AbortError') {
-        return; // Task wurde abgebrochen
+        return; // Task was aborted
       }
       throw err;
     }
