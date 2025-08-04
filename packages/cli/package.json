@@ -1,6 +1,6 @@
 {
   "name": "@hahnpro/flow-cli",
-  "version": "2.17.15",
+  "version": "2.17.16",
   "description": "CLI for managing Flow Modules",
   "license": "MIT",
   "type": "module",
@@ -32,14 +32,14 @@
   },
   "dependencies": {
     "archiver": "7.0.1",
-    "axios": "1.10.0",
+    "axios": "1.11.0",
     "chalk": "5.4.1",
     "class-transformer": "0.5.1",
     "class-validator": "0.14.2",
     "class-validator-jsonschema": "5.0.2",
     "commander": "14.0.0",
     "copyfiles": "2.4.1",
-    "dotenv": "17.2.0",
+    "dotenv": "17.2.1",
     "ejs": "3.1.10",
     "execa": "9.6.0",
     "express": "5.1.0",
@@ -58,12 +58,12 @@
     "@types/express": "5.0.3",
     "@types/jest": "30.0.0",
     "@types/nconf": "0.10.7",
-    "@types/node": "22.16.5",
+    "@types/node": "22.17.0",
     "eslint": "8.57.1",
     "eslint-plugin-unicorn": "56.0.1",
     "jest": "30.0.5",
     "prettier": "3.6.2",
-    "typescript": "5.8.3"
+    "typescript": "5.9.2"
   },
   "engines": {
     "node": ">=v22"
