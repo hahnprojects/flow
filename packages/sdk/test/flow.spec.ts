@@ -3,7 +3,7 @@ import { Type } from 'class-transformer';
 import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
 import { setTimeout } from 'timers/promises';
 
-import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
+import { delayWithAbort, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
 import { loggerMock } from './mocks/logger.mock';
 import { NatsConnectionMock } from './mocks/nats-connection.mock';
 
@@ -434,15 +434,28 @@ class TestComplexProperties extends FlowResource {
 
 @FlowFunction('test.task.LongRunningTask')
 class LongRunningTask extends FlowTask<Properties> {
+  private readonly abortController = new AbortController();
+
   constructor(context, properties) {
     super(context, properties, Properties);
   }
 
   @InputStream()
   public async loveMeLongTime(event) {
-    await delay(this.properties.delay);
-    return this.emitEvent({ foo: 'bar' }, null);
+    try {
+      await delayWithAbort(this.properties.delay, { signal: this.abortController.signal });
+      return this.emitEvent({ foo: 'bar' }, null);
+    } catch (err) {
+      if (err.message === 'AbortError') {
+        return; // Task wurde abgebrochen
+      }
+      throw err;
+    }
   }
+
+  public onDestroy = () => {
+    this.abortController.abort();
+  };
 }
 
 class Properties {
