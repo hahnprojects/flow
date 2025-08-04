@@ -45,7 +45,7 @@ describe('Flow SDK', () => {
 
 @FlowFunction('test.resource.TestResource')
 class TestResource extends FlowResource {
-  public onMessage = (msg) => {}
+  public onMessage = (msg) => {};
 }
 
 @FlowModule({
