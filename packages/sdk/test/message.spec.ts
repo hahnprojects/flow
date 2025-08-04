@@ -1,14 +1,10 @@
 import { CloudEvent } from 'cloudevents';
-import { FlowApplication, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
+import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 import { natsFlowsPrefixFlowDeployment, publishNatsEvent } from '../lib/nats';
 import { loggerMock } from './mocks/logger.mock';
 import { natsPrepareForRealNats } from './mocks/nats-prepare.reals-nats';
 
 describe('Flow SDK', () => {
-  beforeAll(async () => {
-    // await natsPrepareForRealNats(loggerMock);
-  });
-
   afterEach(() => {
     jest.resetAllMocks();
   });
@@ -19,7 +15,7 @@ describe('Flow SDK', () => {
         { id: 'testTrigger', module: 'test-module', functionFqn: 'test.resource.TestResource' },
         { id: 'testResource', module: 'test-module', functionFqn: 'test.resource.TestResource' },
       ],
-      connections: [], //{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
+      connections: [{ id: 'testConnection1', source: 'testTrigger', target: 'testResource' }],
       context: {
         flowId: 'testFlow',
         deploymentId: 'testDeployment',
@@ -27,9 +23,10 @@ describe('Flow SDK', () => {
     };
 
     const nc = await natsPrepareForRealNats(loggerMock);
-    const flowApp = new FlowApplication([TestModule], flow, { logger: loggerMock, skipApi: true, explicitInit: true, natsConnection: nc });
+    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true, logger: loggerMock, explicitInit: true, natsConnection: nc });
     await flowApp.init();
-    const spy = jest.spyOn((flowApp as any).elements['testResource'], 'onMessage');
+
+    const spy = jest.spyOn((flowApp as any)?.elements['testResource'], 'onMessage');
     const event = new CloudEvent({
       source: 'flowstudio/deployments',
       type: natsFlowsPrefixFlowDeployment,
@@ -45,6 +42,9 @@ describe('Flow SDK', () => {
 
 @FlowFunction('test.resource.TestResource')
 class TestResource extends FlowResource {
+  @InputStream()
+  public default(event: FlowEvent) {}
+
   public onMessage = (msg) => {};
 }
 

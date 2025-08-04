@@ -2,7 +2,7 @@ import 'reflect-metadata';
 
 import { API, HttpClient, MockAPI } from '@hahnpro/hpc-api';
 import { NatsConnection, ConnectionOptions as NatsConnectionOptions } from '@nats-io/nats-core';
-import { ConsumeOptions, Consumer, ConsumerConfig, ConsumerMessages, DeliverPolicy, jetstreamManager } from '@nats-io/jetstream';
+import { ConsumeOptions, Consumer, ConsumerMessages, DeliverPolicy, jetstreamManager } from '@nats-io/jetstream';
 import { AmqpConnectionManager, Channel, ChannelWrapper } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
 import { cloneDeep } from 'lodash';
@@ -387,9 +387,6 @@ export class FlowApplication {
     eventType: LifecycleEvent,
     data: Record<string, any> = {},
   ) => {
-    if (!this.amqpChannel) {
-      return;
-    }
     try {
       const { flowId, deploymentId, id: elementId, functionFqn, inputStreamId } = element.getMetadata();
       const natsEvent: NatsEvent<any> = {
@@ -402,7 +399,12 @@ export class FlowApplication {
           ...data,
         },
       };
-      await publishNatsEvent(this.logger, this.natsConnection, natsEvent, `${natsFlowsPrefixFlowDeployment}.flowlifecycle.${deploymentId}`);
+      await publishNatsEvent(
+        this.logger,
+        this._natsConnection,
+        natsEvent,
+        `${natsFlowsPrefixFlowDeployment}.flowlifecycle.${deploymentId}`,
+      );
     } catch (err) {
       this.logger.error(err);
     }
@@ -509,7 +511,7 @@ export class FlowApplication {
             status: 'updated',
           },
         };
-        await publishNatsEvent(this.logger, this.natsConnection, natsEvent);
+        await publishNatsEvent(this.logger, this._natsConnection, natsEvent);
       } catch (err) {
         this.logger.error(err);
 
@@ -522,7 +524,7 @@ export class FlowApplication {
             status: 'updating failed',
           },
         };
-        await publishNatsEvent(this.logger, this.natsConnection, natsEvent);
+        await publishNatsEvent(this.logger, this._natsConnection, natsEvent);
       }
     } else if (cloudEvent.subject.endsWith('.message')) {
       const data = cloudEvent.data as DeploymentMessage;
@@ -547,8 +549,8 @@ export class FlowApplication {
    * TODO warum darf hier nicht false zurückgegeben werden? -> erzeugt loop
    */
   public publishNatsEventFlowlogs = async (event: FlowEvent): Promise<boolean> => {
-    if (!this.natsConnection || this.natsConnection.isClosed()) {
-      return;
+    if (!this._natsConnection || this._natsConnection.isClosed()) {
+      return true;
     }
 
     try {
@@ -564,7 +566,7 @@ export class FlowApplication {
         data: formatedEvent,
       };
 
-      await publishNatsEvent(this.logger, this.natsConnection, natsEvent);
+      await publishNatsEvent(this.logger, this._natsConnection, natsEvent);
       return true;
     } catch (err) {
       this.logger.error(err);
@@ -605,6 +607,10 @@ export class FlowApplication {
 
       // Nats: Delete consumer for flow deployment, stop message listening and close connection
       try {
+        await this.natsMessageIterator?.close();
+        await this._natsConnection?.drain();
+        await this._natsConnection?.close();
+
         if (this._natsConnection && !this._natsConnection.isClosed()) {
           await jetstreamManager(this._natsConnection).then((jsm) => {
             jsm.consumers
@@ -617,10 +623,6 @@ export class FlowApplication {
               });
           });
         }
-
-        await this.natsMessageIterator?.close();
-        await this._natsConnection?.drain();
-        await this._natsConnection?.close();
       } catch (err) {
         this.logger.error(err);
       }
