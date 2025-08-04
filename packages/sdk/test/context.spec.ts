@@ -4,7 +4,6 @@ import { CloudEvent } from 'cloudevents';
 import { loggerMock } from './mocks/logger.mock';
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 
-/* eslint-disable no-console */
 describe('Flow Application', () => {
   beforeEach(() => {
     jest.resetAllMocks();

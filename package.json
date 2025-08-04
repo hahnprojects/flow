@@ -6,7 +6,7 @@
     "changeset": "changeset",
     "format": "prettier --write . '!**/dist'",
     "lint": "eslint '*/**/*.{js,ts}'",
-    "test": "jest"
+    "test": "jest --detectOpenHandles --detectLeaks --logHeapUsage"
   },
   "devDependencies": {
     "@changesets/cli": "2.29.5",

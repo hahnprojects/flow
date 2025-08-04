@@ -2,7 +2,7 @@ import 'reflect-metadata';
 
 import { API, HttpClient, MockAPI } from '@hahnpro/hpc-api';
 import { NatsConnection, ConnectionOptions as NatsConnectionOptions } from '@nats-io/nats-core';
-import { ConsumeOptions, Consumer, ConsumerConfig, ConsumerMessages, jetstreamManager } from '@nats-io/jetstream';
+import { ConsumeOptions, Consumer, ConsumerConfig, ConsumerMessages, DeliverPolicy, jetstreamManager } from '@nats-io/jetstream';
 import { AmqpConnectionManager, Channel, ChannelWrapper } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
 import { cloneDeep } from 'lodash';
@@ -229,7 +229,8 @@ export class FlowApplication {
           ...defaultConsumerConfig,
           name: `flow-deployment-${this.context.deploymentId}`,
           filter_subject: `${natsFlowsPrefixFlowDeployment}.${this.context.deploymentId}.*`,
-          inactive_threshold: 10 * 60 * 1_000_000_000, //  10 Minuten
+          inactive_threshold: 10 * 60 * 1_000_000_000, //  10 mins
+          deliver_policy: DeliverPolicy.New,
         };
         const consumer = await getOrCreateConsumer(
           this.logger,
@@ -593,7 +594,16 @@ export class FlowApplication {
         await this.amqpConnection.close();
       }
 
-      // Nats
+      // Close all output streams
+      for (const [id, stream] of this.outputStreamMap.entries()) {
+        try {
+          stream?.complete();
+        } catch (err) {
+          this.logger.error(`Error completing output stream ${id}: ${err.message}`);
+        }
+      }
+
+      // Nats: Delete consumer for flow deployment, stop message listening and close connection
       try {
         if (this._natsConnection && !this._natsConnection.isClosed()) {
           await jetstreamManager(this._natsConnection).then((jsm) => {
@@ -606,10 +616,11 @@ export class FlowApplication {
                 this.logger.error(`Could not delete consumer for flow deployment ${this.context?.deploymentId}: ${err.message}`);
               });
           });
-          await this.natsMessageIterator?.close();
-          await this._natsConnection?.drain();
-          await this._natsConnection?.close();
         }
+
+        await this.natsMessageIterator?.close();
+        await this._natsConnection?.drain();
+        await this._natsConnection?.close();
       } catch (err) {
         this.logger.error(err);
       }

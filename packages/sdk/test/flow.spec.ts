@@ -465,6 +465,7 @@ class Properties {
 
 @FlowFunction('test.task.HighEluTask')
 class HighEluTask extends FlowTask<HighEluProperties> {
+  private readonly abortController = new AbortController();
   constructor(context, properties) {
     super(context, properties, HighEluProperties);
   }
@@ -473,11 +474,15 @@ class HighEluTask extends FlowTask<HighEluProperties> {
   public async onDefault(event) {
     for (let i = 0; i < this.properties.n; i++) {
       if (i % (this.properties.n / 10) === 0) {
-        await setTimeout(10);
+        await delayWithAbort(10, { signal: this.abortController.signal });
       }
     }
     return this.emitEvent({ foo: 'bar' }, null);
   }
+
+  public onDestroy = () => {
+    this.abortController.abort();
+  };
 }
 
 class HighEluProperties {
