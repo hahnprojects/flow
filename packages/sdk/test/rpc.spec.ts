@@ -3,6 +3,7 @@ import type { PythonShell } from 'python-shell';
 import { setTimeout } from 'timers/promises';
 
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
+import { loggerMock } from './mocks/logger.mock';
 
 /* eslint-disable no-console */
 describe('Flow RPC', () => {
@@ -28,7 +29,12 @@ describe('Flow RPC', () => {
         deploymentId: 'testDeployment',
       },
     };
-    flowApp = new FlowApplication([TestModule], flow, { amqpConfig: {}, skipApi: true, explicitInit: true });
+    flowApp = new FlowApplication([TestModule], flow, {
+      amqpConfig: {},
+      skipApi: true,
+      explicitInit: true,
+      logger: loggerMock,
+    });
     await flowApp.init();
     await setTimeout(2000);
   });
