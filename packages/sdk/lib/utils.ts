@@ -7,6 +7,7 @@ import interp from 'string-interp';
 import { inspect } from 'util';
 
 import { FlowLogger } from './FlowLogger';
+import { InputStream } from './FlowElement';
 
 export function fillTemplate(value: any, ...templateVariables: any): any {
   if (isPlainObject(value)) {
@@ -54,6 +55,58 @@ export function toArray(value: string | string[] = []): string[] {
 
 export function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Creates a promise that resolves after a specified delay, with support for cancellation via an AbortSignal.
+ *
+ * @param {number} ms - The delay duration in milliseconds.
+ * @param {Object} [options] - Optional configuration.
+ * @param {AbortSignal} [options.signal] - An AbortSignal to allow cancellation of the delay.
+ *
+ * @returns {Promise<void>} A promise that resolves after the specified delay or rejects if aborted.
+ *
+ * @throws {Error} If the AbortSignal is already aborted or gets aborted during the delay, the promise rejects with an "AbortError".
+ *
+ * @details Usage:
+ * ```typescript
+ * @FlowFunction('test.task.LongRunningTask')
+ * class LongRunningTask extends FlowTask<Properties> {
+ *   private readonly abortController = new AbortController();
+ *
+ *   constructor(...) {...}
+ *
+ *   @InputStream()
+ *   public async loveMeLongTime(event) {
+ *     try {
+ *       await delayWithAbort(this.properties.delay, { signal: this.abortController.signal });
+ *       return this.emitEvent({ foo: 'bar' }, null);
+ *     } catch (err) {
+ *       if (err.message === 'AbortError') {
+ *         return; // Task was aborted
+ *       }
+ *       throw err;
+ *     }
+ *   }
+ *
+ *   public onDestroy = () => { this.abortController.abort(); };
+ * }
+ * ```
+ */
+export function delayWithAbort(ms: number, options?: { signal?: AbortSignal }): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    if (options?.signal?.aborted) {
+      reject(new Error('AbortError'));
+      return;
+    }
+
+    const timeout = setTimeout(() => resolve(), ms);
+
+    options?.signal?.addEventListener('abort', () => {
+      clearTimeout(timeout);
+      reject(new Error('AbortError'));
+    });
+  });
 }
 
 export async function deleteFiles(dir: string, ...filenames: string[]) {

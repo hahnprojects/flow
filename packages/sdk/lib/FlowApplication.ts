@@ -2,7 +2,7 @@ import 'reflect-metadata';
 
 import { API, HttpClient, MockAPI } from '@hahnpro/hpc-api';
 import { NatsConnection, ConnectionOptions as NatsConnectionOptions } from '@nats-io/nats-core';
-import { ConsumeOptions, Consumer, ConsumerConfig, ConsumerMessages, jetstreamManager } from '@nats-io/jetstream';
+import { ConsumeOptions, Consumer, ConsumerMessages, DeliverPolicy, jetstreamManager } from '@nats-io/jetstream';
 import { AmqpConnectionManager, Channel, ChannelWrapper } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
 import { cloneDeep } from 'lodash';
@@ -229,7 +229,8 @@ export class FlowApplication {
           ...defaultConsumerConfig,
           name: `flow-deployment-${this.context.deploymentId}`,
           filter_subject: `${natsFlowsPrefixFlowDeployment}.${this.context.deploymentId}.*`,
-          inactive_threshold: 10 * 60 * 1_000_000_000, //  10 Minuten
+          inactive_threshold: 10 * 60 * 1_000_000_000, //  10 mins
+          deliver_policy: DeliverPolicy.New,
         };
         const consumer = await getOrCreateConsumer(
           this.logger,
@@ -386,9 +387,6 @@ export class FlowApplication {
     eventType: LifecycleEvent,
     data: Record<string, any> = {},
   ) => {
-    if (!this.amqpChannel) {
-      return;
-    }
     try {
       const { flowId, deploymentId, id: elementId, functionFqn, inputStreamId } = element.getMetadata();
       const natsEvent: NatsEvent<any> = {
@@ -401,7 +399,12 @@ export class FlowApplication {
           ...data,
         },
       };
-      await publishNatsEvent(this.logger, this.natsConnection, natsEvent, `${natsFlowsPrefixFlowDeployment}.flowlifecycle.${deploymentId}`);
+      await publishNatsEvent(
+        this.logger,
+        this._natsConnection,
+        natsEvent,
+        `${natsFlowsPrefixFlowDeployment}.flowlifecycle.${deploymentId}`,
+      );
     } catch (err) {
       this.logger.error(err);
     }
@@ -508,7 +511,7 @@ export class FlowApplication {
             status: 'updated',
           },
         };
-        await publishNatsEvent(this.logger, this.natsConnection, natsEvent);
+        await publishNatsEvent(this.logger, this._natsConnection, natsEvent);
       } catch (err) {
         this.logger.error(err);
 
@@ -521,7 +524,7 @@ export class FlowApplication {
             status: 'updating failed',
           },
         };
-        await publishNatsEvent(this.logger, this.natsConnection, natsEvent);
+        await publishNatsEvent(this.logger, this._natsConnection, natsEvent);
       }
     } else if (cloudEvent.subject.endsWith('.message')) {
       const data = cloudEvent.data as DeploymentMessage;
@@ -546,8 +549,8 @@ export class FlowApplication {
    * TODO warum darf hier nicht false zurückgegeben werden? -> erzeugt loop
    */
   public publishNatsEventFlowlogs = async (event: FlowEvent): Promise<boolean> => {
-    if (!this.natsConnection || this.natsConnection.isClosed()) {
-      return;
+    if (!this._natsConnection || this._natsConnection.isClosed()) {
+      return true;
     }
 
     try {
@@ -563,7 +566,7 @@ export class FlowApplication {
         data: formatedEvent,
       };
 
-      await publishNatsEvent(this.logger, this.natsConnection, natsEvent);
+      await publishNatsEvent(this.logger, this._natsConnection, natsEvent);
       return true;
     } catch (err) {
       this.logger.error(err);
@@ -593,22 +596,41 @@ export class FlowApplication {
         await this.amqpConnection.close();
       }
 
-      if (this._natsConnection && !this._natsConnection.isClosed()) {
-        await jetstreamManager(this._natsConnection).then((jsm) => {
-          jsm.consumers
-            .delete(FLOWS_STREAM_NAME, `flow-deployment-${this.context.deploymentId}`)
-            .then(() => {
-              this.logger.error(`Deleted consumer for flow deployment ${this.context.deploymentId}`);
-            })
-            .catch((err) => {
-              this.logger.error(`Could not delete consumer for flow deployment ${this.context.deploymentId}: ${err.message}`);
-            });
-        });
-        await this._natsConnection.drain();
+      // Close all output streams
+      for (const [id, stream] of this.outputStreamMap.entries()) {
+        try {
+          stream?.complete();
+        } catch (err) {
+          this.logger.error(`Error completing output stream ${id}: ${err.message}`);
+        }
       }
 
-      await this.natsMessageIterator?.close();
-      await this._natsConnection?.close();
+      // Nats: Delete consumer for flow deployment, stop message listening and close connection
+      try {
+        await this.natsMessageIterator?.close();
+        await this._natsConnection?.drain();
+        await this._natsConnection?.close();
+
+        if (this._natsConnection && !this._natsConnection.isClosed()) {
+          await jetstreamManager(this._natsConnection).then((jsm) => {
+            jsm.consumers
+              .delete(FLOWS_STREAM_NAME, `flow-deployment-${this.context?.deploymentId}`)
+              .then(() => {
+                this.logger.debug(`Deleted consumer for flow deployment ${this.context?.deploymentId}`);
+              })
+              .catch((err) => {
+                this.logger.error(`Could not delete consumer for flow deployment ${this.context?.deploymentId}: ${err.message}`);
+              });
+          });
+        }
+      } catch (err) {
+        this.logger.error(err);
+      }
+
+      // remove process listeners
+      process.removeAllListeners('SIGTERM');
+      process.removeAllListeners('uncaughtException');
+      process.removeAllListeners('unhandledRejection');
     } catch (err) {
       /* eslint-disable-next-line no-console */
       console.error(err);

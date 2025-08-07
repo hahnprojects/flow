@@ -87,6 +87,7 @@ export async function natsEventListener(nc: NatsConnection, logger: Logger, reco
 
 export async function publishNatsEvent<T>(logger: Logger, nc: NatsConnection, event: NatsEvent<T>, subject?: string): Promise<PubAck> {
   if (!nc || nc.isClosed()) {
+    logger.error('NATS connection is not available, cannot publish event');
     return;
   }
   const cloudEvent = new CloudEvent<T>({ datacontenttype: 'application/json', ...event });

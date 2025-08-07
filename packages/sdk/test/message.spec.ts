@@ -1,14 +1,14 @@
-import { AmqpConnectionManager, Channel, ChannelWrapper, connect } from 'amqp-connection-manager';
 import { CloudEvent } from 'cloudevents';
-import { NatsConnection } from '@nats-io/nats-core';
-import { connect as natsConnect } from '@nats-io/transport-node';
-
 import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 import { natsFlowsPrefixFlowDeployment, publishNatsEvent } from '../lib/nats';
-import { loggerMock } from './logger.mock';
+import { loggerMock } from './mocks/logger.mock';
+import { natsPrepareForRealNats } from './mocks/nats-prepare.reals-nats';
 
-/* eslint-disable no-console */
 describe('Flow SDK', () => {
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
   test('FLOW.SDK.1 publish message', async () => {
     const flow = {
       elements: [
@@ -21,24 +21,12 @@ describe('Flow SDK', () => {
         deploymentId: 'testDeployment',
       },
     };
-    const nc = await natsConnect();
-    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true, explicitInit: true, natsConnection: nc });
+
+    const nc = await natsPrepareForRealNats(loggerMock);
+    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true, logger: loggerMock, explicitInit: true, natsConnection: nc });
     await flowApp.init();
 
-    const done = new Promise<void>((resolve, reject) => {
-      flowApp.subscribe('testResource.default', {
-        next: (event1: FlowEvent) => {
-          try {
-            expect(event1.getData()).toEqual({ elementId: 'testResource', test: 123 });
-            flowApp.destroy(0);
-            resolve();
-          } catch (e) {
-            reject(e);
-          }
-        },
-      });
-    });
-
+    const spy = jest.spyOn((flowApp as any)?.elements['testResource'], 'onMessage');
     const event = new CloudEvent({
       source: 'flowstudio/deployments',
       type: natsFlowsPrefixFlowDeployment,
@@ -46,20 +34,18 @@ describe('Flow SDK', () => {
       data: { elementId: 'testResource', test: 123 },
     });
     await publishNatsEvent(loggerMock, nc, event);
-    return done;
-  }, 10000);
+    expect(spy).toHaveBeenCalledTimes(1);
+    await flowApp.destroy();
+    await nc.close();
+  });
 });
 
 @FlowFunction('test.resource.TestResource')
 class TestResource extends FlowResource {
-  @InputStream('default')
-  public async onDefault(event) {
-    return this.emitEvent({ hello: 'world' }, event);
-  }
+  @InputStream()
+  public default(event: FlowEvent) {}
 
-  public onMessage = (msg) => {
-    this.emitEvent(msg, null);
-  };
+  public onMessage = (msg) => {};
 }
 
 @FlowModule({

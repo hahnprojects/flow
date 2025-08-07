@@ -1,6 +1,6 @@
-import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, FlowTrigger, InputStream } from '../lib';
+import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
 import { IsArray, IsBoolean, IsIn, IsString, ValidateNested, IsOptional, IsNotEmpty } from 'class-validator';
-import { loggerMock } from './logger.mock';
+import { loggerMock } from './mocks/logger.mock';
 import { Type } from 'class-transformer';
 import { CloudEvent } from 'cloudevents';
 
