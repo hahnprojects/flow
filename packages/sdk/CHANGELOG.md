@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 9.5.0
+
+### Minor Changes
+
+- eb220a2: Fixed flow messages parsing if it is a plain string and forced the correct structure required by the corresponding opensearch index
+
 ## 9.4.1
 
 ### Patch Changes
