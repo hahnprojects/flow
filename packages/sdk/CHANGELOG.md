@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 9.6.0
+
+### Minor Changes
+
+- eb10b6b: Fixed timing in sdk tests
+
 ## 9.5.0
 
 ### Minor Changes
