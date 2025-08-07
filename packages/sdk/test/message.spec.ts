@@ -1,5 +1,5 @@
 import { CloudEvent } from 'cloudevents';
-import { FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
+import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, InputStream } from '../lib';
 import { natsFlowsPrefixFlowDeployment, publishNatsEvent } from '../lib/nats';
 import { loggerMock } from './mocks/logger.mock';
 import { natsPrepareForRealNats } from './mocks/nats-prepare.reals-nats';
@@ -34,6 +34,7 @@ describe('Flow SDK', () => {
       data: { elementId: 'testResource', test: 123 },
     });
     await publishNatsEvent(loggerMock, nc, event);
+    await delay(5);
     expect(spy).toHaveBeenCalledTimes(1);
     await flowApp.destroy();
     await nc.close();

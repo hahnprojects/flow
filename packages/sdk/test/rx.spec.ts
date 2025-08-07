@@ -2,6 +2,7 @@ import { interval, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 import { delay, FlowApplication, FlowEvent, FlowFunction, FlowModule, FlowResource, FlowTask, InputStream } from '../lib';
+import { loggerMock } from './mocks/logger.mock';
 
 /* eslint-disable no-console */
 describe('rx', () => {
@@ -20,7 +21,7 @@ describe('rx', () => {
         { id: 'testConnection3', source: 'testResource1', target: 'tap' },
       ],
     };
-    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true });
+    const flowApp = new FlowApplication([TestModule], flow, { skipApi: true, logger: loggerMock });
 
     flowApp.subscribe('tap.default', {
       next: (event: FlowEvent) => {
