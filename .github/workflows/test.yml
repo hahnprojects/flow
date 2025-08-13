@@ -17,7 +17,7 @@ jobs:
         node-version: [20.x, 22.x, 24.x]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Prepare PNPM
         uses: ./.github/actions/prepare-pnpm
         with:
@@ -41,7 +41,7 @@ jobs:
       - name: Start NATS with JetStream
         run: docker run -d --name nats -p 4222:4222 docker.io/nats:2.11 -js
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -69,7 +69,7 @@ jobs:
       - name: Start NATS with JetStream
         run: docker run -d --name nats -p 4222:4222 docker.io/nats:2.11 -js
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
