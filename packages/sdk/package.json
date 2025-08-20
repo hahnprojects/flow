@@ -51,8 +51,8 @@
     "@types/amqplib": "0.10.7",
     "@types/jest": "30.0.0",
     "@types/lodash": "4.17.20",
-    "@types/node": "22.17.1",
-    "class-validator-jsonschema": "5.0.2",
+    "@types/node": "22.17.2",
+    "class-validator-jsonschema": "5.1.0",
     "jest": "30.0.5",
     "typescript": "5.9.2"
   },
