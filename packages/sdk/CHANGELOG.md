@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 9.6.1
+
+### Patch Changes
+
+- c80ef76: Updated dependencies
+
 ## 9.6.0
 
 ### Minor Changes
