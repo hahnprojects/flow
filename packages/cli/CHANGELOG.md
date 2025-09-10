@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.17.17
+
+### Patch Changes
+
+- c80ef76: Updated dependencies
+
 ## 2.17.16
 
 ### Patch Changes
