@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 9.6.2
+
+### Patch Changes
+
+- 563e0db: Updated dependencies to reduce vulnerabilities
+
 ## 9.6.1
 
 ### Patch Changes
