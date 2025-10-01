@@ -35,7 +35,7 @@
     "@nats-io/jetstream": "3.2.0",
     "@nats-io/nats-core": "3.2.0",
     "@nats-io/transport-node": "3.2.0",
-    "amqp-connection-manager": "4.1.14",
+    "amqp-connection-manager": "4.1.15",
     "amqplib": "0.10.9",
     "class-transformer": "0.5.1",
     "class-validator": "~0.14.2",
@@ -51,10 +51,10 @@
     "@types/amqplib": "0.10.7",
     "@types/jest": "30.0.0",
     "@types/lodash": "4.17.20",
-    "@types/node": "22.18.6",
+    "@types/node": "22.18.8",
     "class-validator-jsonschema": "5.1.0",
-    "jest": "30.1.3",
-    "typescript": "5.9.2"
+    "jest": "30.2.0",
+    "typescript": "5.9.3"
   },
   "peerDependencies": {
     "axios": "1.12.2",
