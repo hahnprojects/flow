@@ -230,8 +230,8 @@ importers:
         specifier: 3.2.0
         version: 3.2.0
       amqp-connection-manager:
-        specifier: 4.1.14
-        version: 4.1.14(amqplib@0.10.9)
+        specifier: 5.0.0
+        version: 5.0.0(amqplib@0.10.9)
       amqplib:
         specifier: 0.10.9
         version: 0.10.9
@@ -1051,8 +1051,8 @@ packages:
   ajv@8.17.1:
     resolution: {integrity: sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g==}
 
-  amqp-connection-manager@4.1.14:
-    resolution: {integrity: sha512-1km47dIvEr0HhMUazqovSvNwIlSvDX2APdUpULaINtHpiki1O+cLRaTeXb/jav4OLtH+k6GBXx5gsKOT9kcGKQ==}
+  amqp-connection-manager@5.0.0:
+    resolution: {integrity: sha512-88yQzqa5RSBgnLl504XjvCQJ7d+osskdwvg35Lwm1LRbfLjNU9p7SQUMSP82BB7mseiq9tIUPJ3HE3eXQbpjEw==}
     engines: {node: '>=10.0.0', npm: '>5.0.0'}
     peerDependencies:
       amqplib: '*'
@@ -4383,7 +4383,7 @@ snapshots:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
-  amqp-connection-manager@4.1.14(amqplib@0.10.9):
+  amqp-connection-manager@5.0.0(amqplib@0.10.9):
     dependencies:
       amqplib: 0.10.9
       promise-breaker: 6.0.0
