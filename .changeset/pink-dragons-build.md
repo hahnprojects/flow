@@ -1,5 +1,6 @@
 ---
-'@hahnpro/flow-sdk': minor
+'@hahnpro/flow-cli': patch
+'@hahnpro/flow-sdk': patch
 ---
 
-Added new Version for HPC-API Version update
+Updated dependencies to reduce vulnerabilities
