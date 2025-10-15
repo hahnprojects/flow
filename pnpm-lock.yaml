@@ -218,8 +218,8 @@ importers:
   packages/sdk:
     dependencies:
       '@hahnpro/hpc-api':
-        specifier: 2025.3.7
-        version: 2025.3.7
+        specifier: 2025.3.9
+        version: 2025.3.9
       '@nats-io/jetstream':
         specifier: 3.2.0
         version: 3.2.0
@@ -545,8 +545,8 @@ packages:
     resolution: {integrity: sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
-  '@hahnpro/hpc-api@2025.3.7':
-    resolution: {integrity: sha512-GX6OPrCxUHJfF+W1F+TF6boGKtNCbgpJgA/0BTbRYTehavGefLIT0zg9isX5cnDR8FcdXcsYadx1G6wp2shlAQ==}
+  '@hahnpro/hpc-api@2025.3.9':
+    resolution: {integrity: sha512-40f2wFaNt2EpHdmkWX1Ce28G8KQnBsb0bDzw0KsWlPZlXMlLJdi2EEZMLWMxtgxsM2MrgGLlTEDNMa8WxZbTvA==}
     engines: {node: '>=v20'}
 
   '@humanwhocodes/config-array@0.13.0':
@@ -3780,11 +3780,10 @@ snapshots:
 
   '@eslint/js@8.57.1': {}
 
-  '@hahnpro/hpc-api@2025.3.7':
+  '@hahnpro/hpc-api@2025.3.9':
     dependencies:
       axios: 1.12.2
       eventsource: 4.0.0
-      form-data: 4.0.4
       jose: 5.10.0
       jwt-decode: 4.0.0
       p-queue: 6.6.2
