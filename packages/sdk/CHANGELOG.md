@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 9.6.3
+
+### Patch Changes
+
+- cc30ca0: Updated dependencies to reduce vulnerabilities
+
 ## 9.6.2
 
 ### Patch Changes

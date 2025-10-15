@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.17.19
+
+### Patch Changes
+
+- cc30ca0: Updated dependencies to reduce vulnerabilities
+
 ## 2.17.18
 
 ### Patch Changes
