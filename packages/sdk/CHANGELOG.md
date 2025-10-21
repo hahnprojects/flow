@@ -1,5 +1,11 @@
 # @hahnpro/flow-sdk
 
+## 9.6.4
+
+### Patch Changes
+
+- f652e8e: Updated dependencies
+
 ## 9.6.3
 
 ### Patch Changes
