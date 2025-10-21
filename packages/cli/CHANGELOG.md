@@ -1,5 +1,11 @@
 # @hahnpro/flow-cli
 
+## 2.17.20
+
+### Patch Changes
+
+- f652e8e: Updated dependencies
+
 ## 2.17.19
 
 ### Patch Changes
