@@ -6,14 +6,15 @@
     "changeset": "changeset",
     "format": "prettier --write . '!**/dist'",
     "lint": "eslint '*/**/*.{js,ts}'",
-    "test": "jest --detectOpenHandles --detectLeaks --logHeapUsage"
+    "test": "jest",
+    "test:local": "jest --detectOpenHandles --detectLeaks --logHeapUsage"
   },
   "devDependencies": {
     "@changesets/cli": "2.29.7",
     "@types/jest": "30.0.0",
-    "@types/node": "22.18.10",
-    "@typescript-eslint/eslint-plugin": "8.46.1",
-    "@typescript-eslint/parser": "8.46.1",
+    "@types/node": "22.18.12",
+    "@typescript-eslint/eslint-plugin": "8.46.2",
+    "@typescript-eslint/parser": "8.46.2",
     "copyfiles": "2.4.1",
     "dotenv": "17.2.3",
     "eslint": "8.57.1",

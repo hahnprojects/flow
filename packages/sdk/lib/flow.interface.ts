@@ -5,7 +5,6 @@ export interface FlowContext {
   diagramId?: string;
   flowId?: string;
   owner?: Owner;
-  runAsOwner?: boolean;
 }
 
 export interface FlowElementContext extends FlowContext {
