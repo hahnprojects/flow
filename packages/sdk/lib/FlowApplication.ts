@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { API, HttpClient, MockAPI } from '@hahnpro/hpc-api';
+import { API, HttpClientService, MockAPI } from '@hahnpro/hpc-api';
 import { NatsConnection, ConnectionOptions as NatsConnectionOptions } from '@nats-io/nats-core';
 import { ConsumeOptions, Consumer, ConsumerMessages, DeliverPolicy, jetstreamManager } from '@nats-io/jetstream';
 import { AmqpConnectionManager, Channel, ChannelWrapper } from 'amqp-connection-manager';
@@ -47,7 +47,7 @@ interface FlowAppConfig {
   amqpConnection?: AmqpConnectionManager;
   natsConfig?: NatsConnectionOptions;
   natsConnection?: NatsConnection;
-  apiClient?: HttpClient;
+  apiClient?: HttpClientService;
   skipApi?: boolean;
   explicitInit?: boolean;
   mockApi?: MockAPI;
@@ -70,7 +70,7 @@ export class FlowApplication {
   private outputQueueMetrics = new Map<string, QueueMetrics>();
   private performanceMap = new Map<string, EventLoopUtilization>();
   private readonly skipApi: boolean;
-  private readonly apiClient?: HttpClient;
+  private readonly apiClient?: HttpClientService;
 
   private readonly contextManager: ContextManager;
   private natsMessageIterator: ConsumerMessages;
@@ -198,13 +198,9 @@ export class FlowApplication {
 
     try {
       if (!this.skipApi && !(this._api instanceof MockAPI)) {
+        const { owner } = this.context;
         // only create real API if it should not be skipped and is not already a mock
-        let tokenSubject: string;
-        const { owner, runAsOwner } = this.context;
-        if (runAsOwner && owner) {
-          tokenSubject = owner.type === 'org' ? 'org-admin-' + owner.id : owner.id;
-        }
-        this._api = new API(this.apiClient, { tokenSubject });
+        this._api = new API(this.apiClient, { activeOrg: owner?.id });
       }
     } catch (err) {
       this.logger.error(err?.message || err);

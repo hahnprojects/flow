@@ -6,7 +6,7 @@ export * from './FlowApplication';
 export * from './FlowElement';
 export * from './FlowEvent';
 export * from './FlowLogger';
-export * from './FlowModule';
+export { FlowModule } from './FlowModule';
 export * from './TestModule';
 export * from './unit-decorators';
 
