@@ -218,8 +218,8 @@ importers:
   packages/sdk:
     dependencies:
       '@hahnpro/hpc-api':
-        specifier: 2025.5.0
-        version: 2025.5.0
+        specifier: 2025.5.1
+        version: 2025.5.1
       '@nats-io/jetstream':
         specifier: 3.2.0
         version: 3.2.0
@@ -545,8 +545,8 @@ packages:
     resolution: {integrity: sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
-  '@hahnpro/hpc-api@2025.5.0':
-    resolution: {integrity: sha512-wVccXqRUSi1CMU3wjwFuuXHaZCIMHtznq/lCGO94Z+FAxCMe/GRNUMowMQ5ggn0pS+jn4cPjpSkYuyuuNzBvSQ==}
+  '@hahnpro/hpc-api@2025.5.1':
+    resolution: {integrity: sha512-KgHc75zZCI1CI4dRbYRTWTLgX2UyGGIetbC3fJDQGbrmPdW3xxGboUCqJLVwyiGw3CN0ZTAKFdTqsIbt71cJeg==}
     engines: {node: '>=v20'}
 
   '@humanwhocodes/config-array@0.13.0':
@@ -3742,7 +3742,7 @@ snapshots:
 
   '@eslint/js@8.57.1': {}
 
-  '@hahnpro/hpc-api@2025.5.0':
+  '@hahnpro/hpc-api@2025.5.1':
     dependencies:
       '@microsoft/fetch-event-source': 2.0.1
       axios: 1.12.2
