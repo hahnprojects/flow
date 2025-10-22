@@ -31,7 +31,7 @@
     "lint": "eslint '*/**/*.{js,ts}'"
   },
   "dependencies": {
-    "@hahnpro/hpc-api": "2025.5.0",
+    "@hahnpro/hpc-api": "2025.5.1",
     "@nats-io/jetstream": "3.2.0",
     "@nats-io/nats-core": "3.2.0",
     "@nats-io/transport-node": "3.2.0",
