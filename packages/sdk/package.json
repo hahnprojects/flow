@@ -31,7 +31,7 @@
     "lint": "eslint '*/**/*.{js,ts}'"
   },
   "dependencies": {
-    "@hahnpro/hpc-api": "2025.5.1",
+    "@hahnpro/hpc-api": "2025.10.4",
     "@nats-io/jetstream": "3.2.0",
     "@nats-io/nats-core": "3.2.0",
     "@nats-io/transport-node": "3.2.0",
@@ -48,16 +48,16 @@
     "string-interp": "0.3.6"
   },
   "devDependencies": {
-    "@types/amqplib": "0.10.7",
+    "@types/amqplib": "0.10.8",
     "@types/jest": "30.0.0",
     "@types/lodash": "4.17.20",
-    "@types/node": "22.18.12",
+    "@types/node": "22.18.13",
     "class-validator-jsonschema": "5.1.0",
     "jest": "30.2.0",
     "typescript": "5.9.3"
   },
   "peerDependencies": {
-    "axios": "1.12.2",
+    "axios": "1.13.1",
     "class-transformer": "0.5.1",
     "class-validator": "0.14.2",
     "lodash": "4.17.21",
