@@ -41,7 +41,7 @@ describe('Example Test', () => {
       ],
     };
 
-    const flowApp = new FlowApplication([ExampleModule, TestModule], flow, null, null, null, true);
+    const flowApp = new FlowApplication([ExampleModule, TestModule], flow, { skipApi: true });
     flowApp.subscribe('something1.default', {
       next: (event: FlowEvent) => {
         const data = event.getData();
