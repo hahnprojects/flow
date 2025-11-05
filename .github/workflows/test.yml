@@ -9,80 +9,18 @@ on:
     types: [created]
 
 jobs:
-  test-cli:
-    name: Test CLI
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [22.x, 24.x]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-      - name: Prepare PNPM
-        uses: ./.github/actions/prepare-pnpm
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Test CLI
-        run: pnpm --filter @hahnpro/flow-cli test
-        env:
-          NODE_OPTIONS: '--experimental-vm-modules'
-  test-sdk:
-    name: Test SDK
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [22.x, 24.x]
-    services:
-      rabbitmq:
-        image: rabbitmq:3.13
-        ports:
-          - 5672:5672
-    steps:
-      - name: Start NATS with JetStream
-        run: docker run -d --name nats -p 4222:4222 docker.io/nats:2.12 -js
-      - name: Checkout
-        uses: actions/checkout@v5
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: 3.14.0
-      - name: Install Python dependencies
-        run: pip install "aio-pika==9.4.*" numpy
-      - name: Prepare PNPM
-        uses: ./.github/actions/prepare-pnpm
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Test SDK
-        run: pnpm test packages/sdk -- --forceExit --runInBand
   test-examples:
     name: Test Examples
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.8.x, 3.14.x]
-    services:
-      rabbitmq:
-        image: rabbitmq:3.13
-        ports:
-          - 5672:5672
     steps:
       - name: Start NATS with JetStream
         run: docker run -d --name nats -p 4222:4222 docker.io/nats:2.12 -js
       - name: Checkout
         uses: actions/checkout@v5
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install Python dependencies
-        run: pip install "aio-pika==9.4.*"
       - name: Prepare PNPM
         uses: ./.github/actions/prepare-pnpm
-      - name: Activate Post Build Hooks
-        run: pnpm config set enable-pre-post-scripts true
-      - name: Build SDK
-        run: pnpm --filter @hahnpro/flow-sdk build
-        env:
-          NODE_OPTIONS: '--max-old-space-size=4096'
       - name: Test Examples
         run: pnpm --filter flow-module-examples test all

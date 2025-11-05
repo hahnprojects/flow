@@ -1,9 +1,8 @@
 import { FlowModule } from '@hahnpro/flow-sdk';
 import { Python } from './src/PythonShell';
-import { PythonRPC } from './src/PythonRPC';
 
 @FlowModule({
   name: 'python',
-  declarations: [Python, PythonRPC],
+  declarations: [Python],
 })
 export default class PythonModule {}

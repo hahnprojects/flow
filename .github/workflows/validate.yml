@@ -34,4 +34,4 @@ jobs:
       - name: Prepare PNPM
         uses: ./.github/actions/prepare-pnpm
       - name: Audit
-        run: pnpx audit-ci --high --skip-dev --allowlist GHSA-v6h2-p8h4-qcjw
+        run: pnpx audit-ci --high --skip-dev

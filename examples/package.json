@@ -15,12 +15,12 @@
     "generate-schemas": "flow generate-schemas"
   },
   "dependencies": {
-    "@hahnpro/flow-sdk": "workspace:*",
+    "@hahnpro/flow-sdk": "2025.11.2",
     "class-validator": "0.14.2",
     "python-shell": "5.0.0"
   },
   "devDependencies": {
-    "@hahnpro/flow-cli": "workspace:*",
+    "@hahnpro/flow-cli": "2025.11.2",
     "@types/jest": "30.0.0",
     "@types/node": "22.18.13",
     "@typescript-eslint/eslint-plugin": "8.46.2",

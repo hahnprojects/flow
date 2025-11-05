@@ -1,13 +1,5 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/hahnprojects/flow/badge)](https://www.codefactor.io/repository/github/hahnprojects/flow)
 
-# Flow SDK & CLI
-
-For release notes, see the
-
-- [API CHANGELOG](packages/api/CHANGELOG.md)
-- [CLI CHANGELOG](packages/cli/CHANGELOG.md)
-- [SDK CHANGELOG](packages/sdk/CHANGELOG.md)
-
 ## Installing
 
 The preferred way to install the Flow-SDK is to use the [npm package manager](https://www.npmjs.com/). Simply type the following into a terminal window:
@@ -279,14 +271,6 @@ There are two possibilities to run python scripts in your Flow-Functions.
 - script gets instantiated on receiving of a message and gets destroyed after calculation is finished
 - has to be reinstantiated for every message
 - useful for short simple scripts that don't have to keep data in memory
-
-#### rpc:
-
-- communication over rabbitmq
-- function calls equivalent to normal local function calls
-- script gets instantiated when the Flow-Function gets instantiated and destroyed when the Flow-Function gets destroyed
-- script stays running between messages
-- useful for complex scripts that have to keep running to save data in memory
 
 See the [examples](examples) for how to run python scripts in your Flow-Function implementation.
 

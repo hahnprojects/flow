@@ -15,8 +15,6 @@
     "@types/node": "22.18.13",
     "@typescript-eslint/eslint-plugin": "8.46.2",
     "@typescript-eslint/parser": "8.46.2",
-    "copyfiles": "2.4.1",
-    "dotenv": "17.2.3",
     "eslint": "8.57.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.4",
