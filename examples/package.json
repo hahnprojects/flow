@@ -15,21 +15,21 @@
     "generate-schemas": "flow generate-schemas"
   },
   "dependencies": {
-    "@hahnpro/flow-sdk": "2025.11.2",
+    "@hahnpro/flow-sdk": "2025.11.4",
     "class-validator": "0.14.2",
     "python-shell": "5.0.0"
   },
   "devDependencies": {
-    "@hahnpro/flow-cli": "2025.11.2",
+    "@hahnpro/flow-cli": "2025.11.4",
     "@types/jest": "30.0.0",
-    "@types/node": "22.19.0",
-    "@typescript-eslint/eslint-plugin": "8.46.3",
-    "@typescript-eslint/parser": "8.46.3",
+    "@types/node": "22.19.1",
+    "@typescript-eslint/eslint-plugin": "8.47.0",
+    "@typescript-eslint/parser": "8.47.0",
     "eslint": "8.57.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.4",
     "jest": "30.2.0",
-    "nodemon": "3.1.10",
+    "nodemon": "3.1.11",
     "prettier": "3.6.2",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
