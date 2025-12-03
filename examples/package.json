@@ -15,25 +15,25 @@
     "generate-schemas": "flow generate-schemas"
   },
   "dependencies": {
-    "@hahnpro/flow-sdk": "2025.11.4",
+    "@hahnpro/flow-sdk": "2025.12.1",
     "class-validator": "0.14.3",
     "python-shell": "5.0.0"
   },
   "devDependencies": {
-    "@hahnpro/flow-cli": "2025.11.4",
+    "@hahnpro/flow-cli": "2025.12.1",
     "@types/jest": "30.0.0",
     "@types/node": "22.19.1",
-    "@typescript-eslint/eslint-plugin": "8.48.0",
-    "@typescript-eslint/parser": "8.48.0",
+    "@typescript-eslint/eslint-plugin": "8.48.1",
+    "@typescript-eslint/parser": "8.48.1",
     "eslint": "8.57.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.4",
     "jest": "30.2.0",
     "nodemon": "3.1.11",
-    "prettier": "3.6.2",
+    "prettier": "3.7.4",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2",
-    "ts-jest": "29.4.5",
+    "ts-jest": "29.4.6",
     "typescript": "5.9.3"
   },
   "eslintConfig": {
