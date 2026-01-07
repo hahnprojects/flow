@@ -57,8 +57,8 @@ importers:
   examples:
     dependencies:
       '@hahnpro/flow-sdk':
-        specifier: 2025.12.1
-        version: 2025.12.1(axios@1.13.2)(class-transformer@0.5.1)(class-validator@0.14.3)(lodash@4.17.21)
+        specifier: 2026.1.0
+        version: 2026.1.0(axios@1.13.2)(class-transformer@0.5.1)(class-validator@0.14.3)(lodash@4.17.21)
       class-validator:
         specifier: 0.14.3
         version: 0.14.3
@@ -374,8 +374,8 @@ packages:
     engines: {node: '>=v22'}
     hasBin: true
 
-  '@hahnpro/flow-sdk@2025.12.1':
-    resolution: {integrity: sha512-iej9FmDoHtOO3WUaTpLVjKxa8+WaJRjn7bt/f64ZMSCFHAQAlrRDZzfJkhBxujsjh0qUXdfqkJl+/LO9pWZBgw==}
+  '@hahnpro/flow-sdk@2026.1.0':
+    resolution: {integrity: sha512-ggqv2EXKrcEXr4uJE/vtcWPjv3TzI0pE52geWKGtvLFQurO5Mc3HupO3JemswU7tAND23RgT5nL0IbEfc9PlVg==}
     engines: {node: '>=v24'}
     peerDependencies:
       axios: 1.13.2
@@ -383,8 +383,8 @@ packages:
       class-validator: 0.14.3
       lodash: 4.17.21
 
-  '@hahnpro/hpc-api@2025.12.1':
-    resolution: {integrity: sha512-Pj1E5jUe7lE8VOhGweJX3NzbLW21JiS5d4Xfxt8JCbioQ5YRl4+CC5XexDg+m6VcaSVC0C+EoBdwK5aHhJvggA==}
+  '@hahnpro/hpc-api@2026.1.0':
+    resolution: {integrity: sha512-Ku2UaD5D4l0zzXslKt64clvXKAH4HY5EzwuDtGr6H2gTEA+uwsiItaLpwcsFk80mF8+lvVn0wUptmbibJBmnlA==}
     engines: {node: '>=v24'}
 
   '@humanwhocodes/config-array@0.13.0':
@@ -542,11 +542,11 @@ packages:
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
 
-  '@nats-io/jetstream@3.2.0':
-    resolution: {integrity: sha512-6H/vMjTMPsFEXKGK7dqScwHEtP1ZedZrwbCdRQuYDIVq4WLqZOD6ryeEZ/gMAP7YKLy82G6IixGUm2DVsDPCMw==}
+  '@nats-io/jetstream@3.3.0':
+    resolution: {integrity: sha512-SK6lSr+Wf9nd6mffV4gdd1yDZxlhILEUJg74bAaU9yjQ2kBOPIJDHlYc2yMzcuZnQxIUcTVI3L7ow2d4qEDslQ==}
 
-  '@nats-io/nats-core@3.2.0':
-    resolution: {integrity: sha512-yHMsS0RTkKRh80COCGY/kuhEj0KPU47qkVU6IPEXmqjmskH6mX2roykxY5CXCAQc78FKYrpKQp6EHv02dRAjDw==}
+  '@nats-io/nats-core@3.3.0':
+    resolution: {integrity: sha512-+ImSYab7NvOMvFFBSBbWl03a4s/OUXCpFFauZ4iRx8pp+5ptsaBQNpacyPXeg8jbjAMeEAWn2Zuyl7oJCUffJA==}
 
   '@nats-io/nkeys@2.0.3':
     resolution: {integrity: sha512-JVt56GuE6Z89KUkI4TXUbSI9fmIfAmk6PMPknijmuL72GcD+UgIomTcRWiNvvJKxA01sBbmIPStqJs5cMRBC3A==}
@@ -556,8 +556,8 @@ packages:
     resolution: {integrity: sha512-TpA3HEBna/qMVudy+3HZr5M3mo/L1JPofpVT4t0HkFGkz2Cn9wrlrQC8tvR8Md5Oa9//GtGG26eN0qEWF5Vqew==}
     engines: {node: '>= 18.x'}
 
-  '@nats-io/transport-node@3.2.0':
-    resolution: {integrity: sha512-foSEx0KHRIjuVtb0teEnkax2elrWR4MxijBPuFPtodSAprUh+6wiYk+v5qCqhIdVl6cWGLTXCtlCHs1bkocGTg==}
+  '@nats-io/transport-node@3.3.0':
+    resolution: {integrity: sha512-A59+E0uL2FCzkvEbnhOPA4bKd4p1Ca6o5GwhVwVHzBPILjjGaSpgwgccaxnjwdsP+FBcMRrgXJ1wn6i1pf6nHQ==}
     engines: {node: '>= 18.0.0'}
 
   '@nodelib/fs.scandir@2.1.5':
@@ -3456,12 +3456,12 @@ snapshots:
       - supports-color
       - typescript
 
-  '@hahnpro/flow-sdk@2025.12.1(axios@1.13.2)(class-transformer@0.5.1)(class-validator@0.14.3)(lodash@4.17.21)':
+  '@hahnpro/flow-sdk@2026.1.0(axios@1.13.2)(class-transformer@0.5.1)(class-validator@0.14.3)(lodash@4.17.21)':
     dependencies:
-      '@hahnpro/hpc-api': 2025.12.1
-      '@nats-io/jetstream': 3.2.0
-      '@nats-io/nats-core': 3.2.0
-      '@nats-io/transport-node': 3.2.0
+      '@hahnpro/hpc-api': 2026.1.0
+      '@nats-io/jetstream': 3.3.0
+      '@nats-io/nats-core': 3.3.0
+      '@nats-io/transport-node': 3.3.0
       axios: 1.13.2
       class-transformer: 0.5.1
       class-validator: 0.14.3
@@ -3475,7 +3475,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@hahnpro/hpc-api@2025.12.1':
+  '@hahnpro/hpc-api@2026.1.0':
     dependencies:
       '@microsoft/fetch-event-source': 2.0.1
       axios: 1.13.2
@@ -3761,11 +3761,11 @@ snapshots:
       '@tybys/wasm-util': 0.10.1
     optional: true
 
-  '@nats-io/jetstream@3.2.0':
+  '@nats-io/jetstream@3.3.0':
     dependencies:
-      '@nats-io/nats-core': 3.2.0
+      '@nats-io/nats-core': 3.3.0
 
-  '@nats-io/nats-core@3.2.0':
+  '@nats-io/nats-core@3.3.0':
     dependencies:
       '@nats-io/nkeys': 2.0.3
       '@nats-io/nuid': 2.0.3
@@ -3776,9 +3776,9 @@ snapshots:
 
   '@nats-io/nuid@2.0.3': {}
 
-  '@nats-io/transport-node@3.2.0':
+  '@nats-io/transport-node@3.3.0':
     dependencies:
-      '@nats-io/nats-core': 3.2.0
+      '@nats-io/nats-core': 3.3.0
       '@nats-io/nkeys': 2.0.3
       '@nats-io/nuid': 2.0.3
 
