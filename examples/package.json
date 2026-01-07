@@ -15,7 +15,7 @@
     "generate-schemas": "flow generate-schemas"
   },
   "dependencies": {
-    "@hahnpro/flow-sdk": "2025.12.1",
+    "@hahnpro/flow-sdk": "2026.1.0",
     "class-validator": "0.14.3",
     "python-shell": "5.0.0"
   },
