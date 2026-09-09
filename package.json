@@ -10,7 +10,7 @@
     "test:local": "jest --detectOpenHandles --detectLeaks --logHeapUsage"
   },
   "devDependencies": {
-    "@changesets/cli": "2.29.8",
+    "@changesets/cli": "3.0.2",
     "@types/jest": "30.0.0",
     "@types/node": "22.19.7",
     "@typescript-eslint/eslint-plugin": "8.54.0",
